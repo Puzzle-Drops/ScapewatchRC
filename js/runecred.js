@@ -204,8 +204,12 @@ class RuneCreditManager {
         return true;
     }
     
-    // Get weighted skill for task generation
-    getWeightedSkill(availableSkills) {
+    // In runecred.js, update getWeightedSkill
+getWeightedSkill(availableSkills) {
+    // Only apply weights if we have modified weights
+    const hasModifiedWeights = Object.values(this.skillWeights).some(w => w !== 1.0);
+    
+    if (hasModifiedWeights) {
         const weightedSkills = [];
         let totalWeight = 0;
         
@@ -221,9 +225,11 @@ class RuneCreditManager {
                 return weighted.skill;
             }
         }
-        
-        return availableSkills[0]; // Fallback
     }
+    
+    // Default: equal weights (existing behavior)
+    return availableSkills[Math.floor(Math.random() * availableSkills.length)];
+}
     
     // Get task weight for an item within a skill
     getTaskWeight(skillId, itemId) {
