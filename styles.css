@@ -1152,3 +1152,34 @@ body {
 .spent-amount {
     display: none;
 }
+
+/* Updated highlighting for skill customization */
+.task-row.highlighted {
+    background: #2c3e50 !important;  /* Keep original background */
+    border: 2px solid #27ae60 !important;  /* Green border */
+    box-shadow: 0 0 8px rgba(39, 174, 96, 0.4);  /* Subtle green glow */
+}
+
+.node-row.highlighted {
+    background: #2c3e50 !important;  /* Keep original background */
+    border: 2px solid #27ae60 !important;  /* Green border */
+    box-shadow: 0 0 8px rgba(39, 174, 96, 0.4);  /* Subtle green glow */
+}
+
+/* Node weight display */
+.node-weight-display {
+    margin-left: 10px;
+    color: #f39c12;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.node-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.node-name {
+    flex: 1;
+}
