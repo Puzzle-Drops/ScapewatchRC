@@ -36,21 +36,21 @@ class RunecraftingSkill extends BaseSkill {
     // Note: itemId is virtual (runecraft_trips_X), display name is for the runes
     initializeSkillData() {
         this.SKILL_DATA = [
-            { itemId: 'runecraft_trips_craft_air_runes',    name: 'Air runes trips',    minCount: 5, maxCount: 10, level: 1  },
-            { itemId: 'runecraft_trips_craft_mind_runes',   name: 'Mind runes trips',   minCount: 5, maxCount: 10, level: 2  },
-            { itemId: 'runecraft_trips_craft_water_runes',  name: 'Water runes trips',  minCount: 5, maxCount: 10, level: 5  },
-            { itemId: 'runecraft_trips_craft_earth_runes',  name: 'Earth runes trips',  minCount: 5, maxCount: 10, level: 9  },
-            { itemId: 'runecraft_trips_craft_fire_runes',   name: 'Fire runes trips',   minCount: 5, maxCount: 10, level: 14 },
-            { itemId: 'runecraft_trips_craft_body_runes',   name: 'Body runes trips',   minCount: 5, maxCount: 10, level: 20 },
-            { itemId: 'runecraft_trips_craft_cosmic_runes', name: 'Cosmic runes trips', minCount: 5, maxCount: 10,  level: 27 },
-            { itemId: 'runecraft_trips_craft_chaos_runes',  name: 'Chaos runes trips',  minCount: 5, maxCount: 10,  level: 35 },
-            { itemId: 'runecraft_trips_craft_astral_runes', name: 'Astral runes trips', minCount: 5, maxCount: 10,  level: 40 },
-            { itemId: 'runecraft_trips_craft_nature_runes', name: 'Nature runes trips', minCount: 5, maxCount: 10,  level: 44 },
-            { itemId: 'runecraft_trips_craft_law_runes',    name: 'Law runes trips',    minCount: 5, maxCount: 10,  level: 54 },
-            { itemId: 'runecraft_trips_craft_death_runes',  name: 'Death runes trips',  minCount: 5, maxCount: 10,  level: 65 },
-            { itemId: 'runecraft_trips_craft_blood_runes',  name: 'Blood runes trips',  minCount: 5, maxCount: 10,  level: 77 },
-            { itemId: 'runecraft_trips_craft_soul_runes',   name: 'Soul runes trips',   minCount: 5, maxCount: 10,  level: 90 },
-            { itemId: 'runecraft_trips_craft_wrath_runes',  name: 'Wrath runes trips',  minCount: 5, maxCount: 10,  level: 95 }
+            { itemId: 'runecraft_trips_craft_air_runes',    name: 'Air runes trips',    minCount: 3, maxCount: 6, level: 1  },
+            { itemId: 'runecraft_trips_craft_mind_runes',   name: 'Mind runes trips',   minCount: 3, maxCount: 6, level: 2  },
+            { itemId: 'runecraft_trips_craft_water_runes',  name: 'Water runes trips',  minCount: 3, maxCount: 6, level: 5  },
+            { itemId: 'runecraft_trips_craft_earth_runes',  name: 'Earth runes trips',  minCount: 3, maxCount: 6, level: 9  },
+            { itemId: 'runecraft_trips_craft_fire_runes',   name: 'Fire runes trips',   minCount: 3, maxCount: 6, level: 14 },
+            { itemId: 'runecraft_trips_craft_body_runes',   name: 'Body runes trips',   minCount: 3, maxCount: 6, level: 20 },
+            { itemId: 'runecraft_trips_craft_cosmic_runes', name: 'Cosmic runes trips', minCount: 3, maxCount: 6,  level: 27 },
+            { itemId: 'runecraft_trips_craft_chaos_runes',  name: 'Chaos runes trips',  minCount: 3, maxCount: 6,  level: 35 },
+            { itemId: 'runecraft_trips_craft_astral_runes', name: 'Astral runes trips', minCount: 3, maxCount: 6,  level: 40 },
+            { itemId: 'runecraft_trips_craft_nature_runes', name: 'Nature runes trips', minCount: 3, maxCount: 6,  level: 44 },
+            { itemId: 'runecraft_trips_craft_law_runes',    name: 'Law runes trips',    minCount: 3, maxCount: 6,  level: 54 },
+            { itemId: 'runecraft_trips_craft_death_runes',  name: 'Death runes trips',  minCount: 3, maxCount: 6,  level: 65 },
+            { itemId: 'runecraft_trips_craft_blood_runes',  name: 'Blood runes trips',  minCount: 3, maxCount: 6,  level: 77 },
+            { itemId: 'runecraft_trips_craft_soul_runes',   name: 'Soul runes trips',   minCount: 3, maxCount: 6,  level: 90 },
+            { itemId: 'runecraft_trips_craft_wrath_runes',  name: 'Wrath runes trips',  minCount: 3, maxCount: 6,  level: 95 }
         ];
     }
     
