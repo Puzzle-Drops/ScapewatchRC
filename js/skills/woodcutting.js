@@ -25,7 +25,17 @@ class WoodcuttingSkill extends BaseSkill {
         
         const counts = logCounts[itemId] || { min: 20, max: 50 };
         const baseCount = counts.min + Math.random() * (counts.max - counts.min);
-        return Math.round(baseCount / 5) * 5;
+        let count = Math.round(baseCount / 5) * 5;
+
+    // Apply RuneCred quantity modifier
+    if (window.runeCreditManager) {
+        const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
+        count = Math.round(count * modifier);
+        count = Math.max(5, count); // Minimum of 5
+    }
+    
+    return count;
+        
     }
     
     // ==================== CORE BEHAVIOR ====================
