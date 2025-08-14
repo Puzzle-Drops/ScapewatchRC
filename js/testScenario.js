@@ -24,7 +24,7 @@ class TestScenario {
         //this.populateInventory();
 
         // Set up specific test tasks
-        this.setupTestTasks();
+        //this.setupTestTasks();
 
         // Add bait and feathers for fishing activities that need them
         bank.deposit('fishing_bait', 1000000);
