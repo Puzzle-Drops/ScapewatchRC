@@ -86,34 +86,47 @@ class RuneCreditManager {
     }
     
     // Modify skill weight level
-modifySkillWeight(skillId, increase) {
-    const baseCost = 25;
-    const currentLevel = this.skillModLevels[skillId] || 0;
-    
-    // Check if we can modify further
-    if (increase && currentLevel >= this.maxModificationLevel) return false;
-    if (!increase && currentLevel <= -this.maxModificationLevel) return false;
-    
-    // Calculate new level
-    const newLevel = increase ? currentLevel + 1 : currentLevel - 1;
-    
-    // Calculate cost based on the new level's distance from 0
-    const cost = baseCost * Math.abs(newLevel);
-    
-    // Check if we have enough RC
-    if (this.runecred < cost) return false;
-    
-    // Update level
-    this.skillModLevels[skillId] = newLevel;
-    
-    // Spend RC
-    this.runecred -= cost;
-    this.rcPools.skills[skillId] = (this.rcPools.skills[skillId] || 0) + cost;
-    this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
-    
-    this.saveData();
-    return true;
-}
+    modifySkillWeight(skillId, increase) {
+        const baseCost = 25;
+        const currentLevel = this.skillModLevels[skillId] || 0;
+        
+        // Check if we can modify further
+        if (increase && currentLevel >= this.maxModificationLevel) return false;
+        if (!increase && currentLevel <= -this.maxModificationLevel) return false;
+        
+        // Calculate new level
+        const newLevel = increase ? currentLevel + 1 : currentLevel - 1;
+        
+        if (increase) {
+            // Going up - charge based on new level's distance from 0
+            const cost = baseCost * Math.abs(newLevel);
+            
+            // Check if we have enough RC
+            if (this.runecred < cost) return false;
+            
+            // Update level
+            this.skillModLevels[skillId] = newLevel;
+            
+            // Spend RC
+            this.runecred -= cost;
+            this.rcPools.skills[skillId] = (this.rcPools.skills[skillId] || 0) + cost;
+            this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
+        } else {
+            // Going down - refund based on current level's distance from 0
+            const refund = baseCost * Math.abs(currentLevel);
+            
+            // Update level
+            this.skillModLevels[skillId] = newLevel;
+            
+            // Refund RC
+            this.runecred += refund;
+            this.rcPools.skills[skillId] = Math.max(0, (this.rcPools.skills[skillId] || 0) - refund);
+            this.rcSpentPerSkill[skillId] = Math.max(0, (this.rcSpentPerSkill[skillId] || 0) - refund);
+        }
+        
+        this.saveData();
+        return true;
+    }
     
     // Get the actual weight multiplier for a skill
     getSkillWeight(skillId) {
@@ -123,103 +136,145 @@ modifySkillWeight(skillId, increase) {
     }
     
     // Modify task weight level
-modifyTaskWeight(skillId, itemId, increase) {
-    const baseCost = 5;
-    
-    if (!this.taskModLevels[skillId]) this.taskModLevels[skillId] = {};
-    const currentLevel = this.taskModLevels[skillId][itemId] || 0;
-    
-    // Check if we can modify further
-    if (increase && currentLevel >= this.maxModificationLevel) return false;
-    if (!increase && currentLevel <= -this.maxModificationLevel) return false;
-    
-    // Calculate new level
-    const newLevel = increase ? currentLevel + 1 : currentLevel - 1;
-    
-    // Calculate cost based on the new level's distance from 0
-    const cost = baseCost * Math.abs(newLevel);
-    
-    // Check if we have enough RC
-    if (this.runecred < cost) return false;
-    
-    // Update level
-    this.taskModLevels[skillId][itemId] = newLevel;
-    
-    // Spend RC
-    this.runecred -= cost;
-    if (!this.rcPools.tasks[skillId]) this.rcPools.tasks[skillId] = {};
-    this.rcPools.tasks[skillId][itemId] = (this.rcPools.tasks[skillId][itemId] || 0) + cost;
-    this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
-    
-    this.saveData();
-    return true;
-}
+    modifyTaskWeight(skillId, itemId, increase) {
+        const baseCost = 5;
+        
+        if (!this.taskModLevels[skillId]) this.taskModLevels[skillId] = {};
+        const currentLevel = this.taskModLevels[skillId][itemId] || 0;
+        
+        // Check if we can modify further
+        if (increase && currentLevel >= this.maxModificationLevel) return false;
+        if (!increase && currentLevel <= -this.maxModificationLevel) return false;
+        
+        // Calculate new level
+        const newLevel = increase ? currentLevel + 1 : currentLevel - 1;
+        
+        if (increase) {
+            // Going up - charge based on new level's distance from 0
+            const cost = baseCost * Math.abs(newLevel);
+            
+            // Check if we have enough RC
+            if (this.runecred < cost) return false;
+            
+            // Update level
+            this.taskModLevels[skillId][itemId] = newLevel;
+            
+            // Spend RC
+            this.runecred -= cost;
+            if (!this.rcPools.tasks[skillId]) this.rcPools.tasks[skillId] = {};
+            this.rcPools.tasks[skillId][itemId] = (this.rcPools.tasks[skillId][itemId] || 0) + cost;
+            this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
+        } else {
+            // Going down - refund based on current level's distance from 0
+            const refund = baseCost * Math.abs(currentLevel);
+            
+            // Update level
+            this.taskModLevels[skillId][itemId] = newLevel;
+            
+            // Refund RC
+            this.runecred += refund;
+            if (!this.rcPools.tasks[skillId]) this.rcPools.tasks[skillId] = {};
+            this.rcPools.tasks[skillId][itemId] = Math.max(0, (this.rcPools.tasks[skillId][itemId] || 0) - refund);
+            this.rcSpentPerSkill[skillId] = Math.max(0, (this.rcSpentPerSkill[skillId] || 0) - refund);
+        }
+        
+        this.saveData();
+        return true;
+    }
     
     // Modify node weight level
-modifyNodeWeight(skillId, nodeId, increase) {
-    const baseCost = 5;
-    
-    if (!this.nodeModLevels[skillId]) this.nodeModLevels[skillId] = {};
-    const currentLevel = this.nodeModLevels[skillId][nodeId] || 0;
-    
-    // Check if we can modify further
-    if (increase && currentLevel >= this.maxModificationLevel) return false;
-    if (!increase && currentLevel <= -this.maxModificationLevel) return false;
-    
-    // Calculate new level
-    const newLevel = increase ? currentLevel + 1 : currentLevel - 1;
-    
-    // Calculate cost based on the new level's distance from 0
-    const cost = baseCost * Math.abs(newLevel);
-    
-    // Check if we have enough RC
-    if (this.runecred < cost) return false;
-    
-    // Update level
-    this.nodeModLevels[skillId][nodeId] = newLevel;
-    
-    // Spend RC
-    this.runecred -= cost;
-    if (!this.rcPools.nodes[skillId]) this.rcPools.nodes[skillId] = {};
-    this.rcPools.nodes[skillId][nodeId] = (this.rcPools.nodes[skillId][nodeId] || 0) + cost;
-    this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
-    
-    this.saveData();
-    return true;
-}
+    modifyNodeWeight(skillId, nodeId, increase) {
+        const baseCost = 5;
+        
+        if (!this.nodeModLevels[skillId]) this.nodeModLevels[skillId] = {};
+        const currentLevel = this.nodeModLevels[skillId][nodeId] || 0;
+        
+        // Check if we can modify further
+        if (increase && currentLevel >= this.maxModificationLevel) return false;
+        if (!increase && currentLevel <= -this.maxModificationLevel) return false;
+        
+        // Calculate new level
+        const newLevel = increase ? currentLevel + 1 : currentLevel - 1;
+        
+        if (increase) {
+            // Going up - charge based on new level's distance from 0
+            const cost = baseCost * Math.abs(newLevel);
+            
+            // Check if we have enough RC
+            if (this.runecred < cost) return false;
+            
+            // Update level
+            this.nodeModLevels[skillId][nodeId] = newLevel;
+            
+            // Spend RC
+            this.runecred -= cost;
+            if (!this.rcPools.nodes[skillId]) this.rcPools.nodes[skillId] = {};
+            this.rcPools.nodes[skillId][nodeId] = (this.rcPools.nodes[skillId][nodeId] || 0) + cost;
+            this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
+        } else {
+            // Going down - refund based on current level's distance from 0
+            const refund = baseCost * Math.abs(currentLevel);
+            
+            // Update level
+            this.nodeModLevels[skillId][nodeId] = newLevel;
+            
+            // Refund RC
+            this.runecred += refund;
+            if (!this.rcPools.nodes[skillId]) this.rcPools.nodes[skillId] = {};
+            this.rcPools.nodes[skillId][nodeId] = Math.max(0, (this.rcPools.nodes[skillId][nodeId] || 0) - refund);
+            this.rcSpentPerSkill[skillId] = Math.max(0, (this.rcSpentPerSkill[skillId] || 0) - refund);
+        }
+        
+        this.saveData();
+        return true;
+    }
     
     // Modify task quantity level
-modifyTaskQuantity(skillId, itemId, extend) {
-    const baseCost = 5;
-    
-    if (!this.quantityModLevels[skillId]) this.quantityModLevels[skillId] = {};
-    const currentLevel = this.quantityModLevels[skillId][itemId] || 0;
-    
-    // Check if we can modify further
-    if (extend && currentLevel >= this.maxModificationLevel) return false;
-    if (!extend && currentLevel <= -this.maxModificationLevel) return false;
-    
-    // Calculate new level
-    const newLevel = extend ? currentLevel + 1 : currentLevel - 1;
-    
-    // Calculate cost based on the new level's distance from 0
-    const cost = baseCost * Math.abs(newLevel);
-    
-    // Check if we have enough RC
-    if (this.runecred < cost) return false;
-    
-    // Update level
-    this.quantityModLevels[skillId][itemId] = newLevel;
-    
-    // Spend RC
-    this.runecred -= cost;
-    if (!this.rcPools.quantities[skillId]) this.rcPools.quantities[skillId] = {};
-    this.rcPools.quantities[skillId][itemId] = (this.rcPools.quantities[skillId][itemId] || 0) + cost;
-    this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
-    
-    this.saveData();
-    return true;
-}
+    modifyTaskQuantity(skillId, itemId, extend) {
+        const baseCost = 5;
+        
+        if (!this.quantityModLevels[skillId]) this.quantityModLevels[skillId] = {};
+        const currentLevel = this.quantityModLevels[skillId][itemId] || 0;
+        
+        // Check if we can modify further
+        if (extend && currentLevel >= this.maxModificationLevel) return false;
+        if (!extend && currentLevel <= -this.maxModificationLevel) return false;
+        
+        // Calculate new level
+        const newLevel = extend ? currentLevel + 1 : currentLevel - 1;
+        
+        if (extend) {
+            // Going up - charge based on new level's distance from 0
+            const cost = baseCost * Math.abs(newLevel);
+            
+            // Check if we have enough RC
+            if (this.runecred < cost) return false;
+            
+            // Update level
+            this.quantityModLevels[skillId][itemId] = newLevel;
+            
+            // Spend RC
+            this.runecred -= cost;
+            if (!this.rcPools.quantities[skillId]) this.rcPools.quantities[skillId] = {};
+            this.rcPools.quantities[skillId][itemId] = (this.rcPools.quantities[skillId][itemId] || 0) + cost;
+            this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
+        } else {
+            // Going down - refund based on current level's distance from 0
+            const refund = baseCost * Math.abs(currentLevel);
+            
+            // Update level
+            this.quantityModLevels[skillId][itemId] = newLevel;
+            
+            // Refund RC
+            this.runecred += refund;
+            if (!this.rcPools.quantities[skillId]) this.rcPools.quantities[skillId] = {};
+            this.rcPools.quantities[skillId][itemId] = Math.max(0, (this.rcPools.quantities[skillId][itemId] || 0) - refund);
+            this.rcSpentPerSkill[skillId] = Math.max(0, (this.rcSpentPerSkill[skillId] || 0) - refund);
+        }
+        
+        this.saveData();
+        return true;
+    }
     
     // Get weighted skill for task generation
     getWeightedSkill(availableSkills) {
