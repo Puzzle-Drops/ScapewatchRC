@@ -15,6 +15,20 @@ class FiremakingSkill extends BaseSkill {
         this.burningStartTime = 0;
     }
     
+    // ==================== CENTRALIZED SKILL DATA ====================
+    // Single source of truth for all firemaking data
+    initializeSkillData() {
+        this.SKILL_DATA = [
+            { itemId: 'logs',         name: 'Logs',         minCount: 30, maxCount: 80, level: 1  },
+            { itemId: 'oak_logs',     name: 'Oak logs',     minCount: 25, maxCount: 70, level: 15 },
+            { itemId: 'willow_logs',  name: 'Willow logs',  minCount: 25, maxCount: 60, level: 30 },
+            { itemId: 'maple_logs',   name: 'Maple logs',   minCount: 20, maxCount: 50, level: 45 },
+            { itemId: 'yew_logs',     name: 'Yew logs',     minCount: 15, maxCount: 40, level: 60 },
+            { itemId: 'magic_logs',   name: 'Magic logs',   minCount: 10, maxCount: 30, level: 75 },
+            { itemId: 'redwood_logs', name: 'Redwood logs', minCount: 10, maxCount: 25, level: 90 }
+        ];
+    }
+    
     // ==================== TASK GENERATION OVERRIDES ====================
     
     generateTask() {
@@ -190,46 +204,8 @@ class FiremakingSkill extends BaseSkill {
             return availableLogs[0]; // Fallback
         }
         
-        // DEFAULT: Original weighting system when RuneCred not available
-        // Sort by required level (highest first)
-        availableLogs.sort((a, b) => b.requiredLevel - a.requiredLevel);
-        
-        // Apply weights based on level and availability
-        const weights = [];
-        let totalWeight = 0;
-        
-        for (let i = 0; i < availableLogs.length; i++) {
-            // Base weight: higher level logs get more weight
-            let weight = 0;
-            if (i === 0) weight = 0.4; // Highest level
-            else if (i === 1) weight = 0.3; // Second highest
-            else weight = 0.3 / (availableLogs.length - 2); // Split remaining
-            
-            // Adjust weight based on quantity available (more available = more likely)
-            const quantityMultiplier = Math.min(2.0, 1.0 + (availableLogs[i].available / 100));
-            weight *= quantityMultiplier;
-            
-            weights.push(weight);
-            totalWeight += weight;
-        }
-        
-        // Normalize weights
-        for (let i = 0; i < weights.length; i++) {
-            weights[i] /= totalWeight;
-        }
-        
-        // Random selection based on weights
-        const random = Math.random();
-        let cumulative = 0;
-        
-        for (let i = 0; i < availableLogs.length; i++) {
-            cumulative += weights[i];
-            if (random < cumulative) {
-                return availableLogs[i];
-            }
-        }
-        
-        return availableLogs[availableLogs.length - 1]; // Fallback
+        // DEFAULT: Equal weights when RuneCred not available
+        return availableLogs[Math.floor(Math.random() * availableLogs.length)];
     }
     
     // Find nodes where we can do firemaking
@@ -263,88 +239,9 @@ class FiremakingSkill extends BaseSkill {
         return 'Burn';
     }
     
-    determineTargetCount(logId) {
-        const logCounts = {
-            'logs': { min: 30, max: 80 },
-            'oak_logs': { min: 25, max: 70 },
-            'willow_logs': { min: 25, max: 60 },
-            'maple_logs': { min: 20, max: 50 },
-            'yew_logs': { min: 15, max: 40 },
-            'magic_logs': { min: 10, max: 30 },
-            'redwood_logs': { min: 10, max: 25 }
-        };
-        
-        const counts = logCounts[logId] || { min: 20, max: 50 };
-        const baseCount = counts.min + Math.random() * (counts.max - counts.min);
-        let count = Math.round(baseCount / 5) * 5;
-        
-        // Apply RuneCred quantity modifier
-        if (window.runeCreditManager) {
-            const modifier = runeCreditManager.getQuantityModifier(this.id, logId);
-            count = Math.round(count * modifier);
-            count = Math.max(5, count); // Minimum of 5
-        }
-        
-        return count;
-    }
-    
-    // ==================== UI DISPLAY METHODS ====================
-    
-    // Get all possible tasks for UI display (not for generation)
-    getAllPossibleTasksForUI() {
-        const tasks = [];
-        const items = loadingManager.getData('items');
-        
-        // All possible logs with their base counts
-        const logData = [
-            { id: 'logs', name: 'Logs', min: 30, max: 80, level: 1 },
-            { id: 'oak_logs', name: 'Oak logs', min: 25, max: 70, level: 15 },
-            { id: 'willow_logs', name: 'Willow logs', min: 25, max: 60, level: 30 },
-            { id: 'maple_logs', name: 'Maple logs', min: 20, max: 50, level: 45 },
-            { id: 'yew_logs', name: 'Yew logs', min: 15, max: 40, level: 60 },
-            { id: 'magic_logs', name: 'Magic logs', min: 10, max: 30, level: 75 },
-            { id: 'redwood_logs', name: 'Redwood logs', min: 10, max: 25, level: 90 }
-        ];
-        
-        for (const log of logData) {
-            // Check if item exists in items data
-            if (items[log.id]) {
-                tasks.push({
-                    itemId: log.id,
-                    displayName: items[log.id].name || log.name,
-                    minCount: log.min,
-                    maxCount: log.max,
-                    requiredLevel: log.level
-                });
-            } else {
-                // Use fallback data if item not in items.json
-                tasks.push({
-                    itemId: log.id,
-                    displayName: log.name,
-                    minCount: log.min,
-                    maxCount: log.max,
-                    requiredLevel: log.level
-                });
-            }
-        }
-        
-        return tasks;
-    }
-    
-    // Get base task counts without modifiers (for UI)
-    getBaseTaskCounts(itemId) {
-        const logCounts = {
-            'logs': { min: 30, max: 80 },
-            'oak_logs': { min: 25, max: 70 },
-            'willow_logs': { min: 25, max: 60 },
-            'maple_logs': { min: 20, max: 50 },
-            'yew_logs': { min: 15, max: 40 },
-            'magic_logs': { min: 10, max: 30 },
-            'redwood_logs': { min: 10, max: 25 }
-        };
-        
-        return logCounts[itemId] || { min: 20, max: 50 };
-    }
+    // determineTargetCount now uses base class implementation
+    // getAllPossibleTasksForUI now uses base class implementation  
+    // getBaseTaskCounts now uses base class implementation
     
     // Check if we have logs for the CURRENT TASK specifically
     hasLogsForCurrentTask() {
