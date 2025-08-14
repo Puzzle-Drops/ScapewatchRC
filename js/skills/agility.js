@@ -7,15 +7,15 @@ class AgilitySkill extends BaseSkill {
     // Single source of truth for all agility course data
     initializeSkillData() {
         this.SKILL_DATA = [
-            { itemId: 'agility_laps_draynor_rooftop',     name: 'Draynor Rooftop laps',     minCount: 10, maxCount: 25, level: 1  },
-            { itemId: 'agility_laps_al_kharid_rooftop',   name: 'Al Kharid Rooftop laps',   minCount: 10, maxCount: 20, level: 20 },
-            { itemId: 'agility_laps_varrock_rooftop',     name: 'Varrock Rooftop laps',     minCount: 8,  maxCount: 18, level: 30 },
-            { itemId: 'agility_laps_canifis_rooftop',     name: 'Canifis Rooftop laps',     minCount: 10, maxCount: 20, level: 40 },
-            { itemId: 'agility_laps_falador_rooftop',     name: 'Falador Rooftop laps',     minCount: 8,  maxCount: 15, level: 50 },
-            { itemId: 'agility_laps_seers_rooftop',       name: "Seers' Village Rooftop laps", minCount: 10, maxCount: 20, level: 60 },
-            { itemId: 'agility_laps_pollnivneach_rooftop', name: 'Pollnivneach Rooftop laps', minCount: 8,  maxCount: 15, level: 70 },
-            { itemId: 'agility_laps_rellekka_rooftop',    name: 'Rellekka Rooftop laps',    minCount: 8,  maxCount: 15, level: 80 },
-            { itemId: 'agility_laps_ardougne_rooftop',    name: 'Ardougne Rooftop laps',    minCount: 8,  maxCount: 15, level: 90 }
+            { itemId: 'agility_laps_draynor_rooftop',     name: 'Draynor Rooftop laps',     minCount: 8, maxCount: 12, level: 1  },
+            { itemId: 'agility_laps_al_kharid_rooftop',   name: 'Al Kharid Rooftop laps',   minCount: 8, maxCount: 12, level: 20 },
+            { itemId: 'agility_laps_varrock_rooftop',     name: 'Varrock Rooftop laps',     minCount: 8,  maxCount: 12, level: 30 },
+            { itemId: 'agility_laps_canifis_rooftop',     name: 'Canifis Rooftop laps',     minCount: 8, maxCount: 12, level: 40 },
+            { itemId: 'agility_laps_falador_rooftop',     name: 'Falador Rooftop laps',     minCount: 8,  maxCount: 12, level: 50 e},
+            { itemId: 'agility_laps_seers_rooftop',       name: "Seers' Village Rooftop laps", minCount: 8, maxCount: 12, level: 60 },
+            { itemId: 'agility_laps_pollnivneach_rooftop', name: 'Pollnivneach Rooftop laps', minCount: 8,  maxCount: 12, level: 70 },
+            { itemId: 'agility_laps_rellekka_rooftop',    name: 'Rellekka Rooftop laps',    minCount: 8,  maxCount: 12, level: 80 },
+            { itemId: 'agility_laps_ardougne_rooftop',    name: 'Ardougne Rooftop laps',    minCount: 8,  maxCount: 12, level: 90 }
         ];
     }
     
