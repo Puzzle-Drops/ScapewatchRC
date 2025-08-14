@@ -112,42 +112,6 @@ class BaseSkill {
         
         return items;
     }
-
-    // Add this NEW method after getPossibleItems (around line 95)
-// Get ALL possible tasks for UI display (not filtered by current conditions)
-getAllPossibleTasks() {
-    const tasks = [];
-    const activities = loadingManager.getData('activities');
-    
-    for (const [activityId, activity] of Object.entries(activities)) {
-        if (activity.skill !== this.id) continue;
-        
-        // Get items from this activity
-        const activityItems = this.getItemsFromActivity(activity);
-        for (const item of activityItems) {
-            // Don't filter by level - show ALL possible items
-            // Don't add duplicates
-            if (!tasks.some(t => t.itemId === item.itemId)) {
-                // Get the actual counts for this item
-                const counts = this.getBaseTaskCounts(item.itemId);
-                tasks.push({
-                    itemId: item.itemId,
-                    minCount: counts.min,
-                    maxCount: counts.max,
-                    requiredLevel: item.requiredLevel || activity.requiredLevel || 1
-                });
-            }
-        }
-    }
-    
-    return tasks;
-}
-
-// Add this helper method to get base counts
-getBaseTaskCounts(itemId) {
-    // Override in subclasses for specific counts
-    return { min: 20, max: 50 };
-}
     
     // Extract items from an activity (handles different structures)
     getItemsFromActivity(activity) {
@@ -225,8 +189,42 @@ getBaseTaskCounts(itemId) {
             return items[0]; // Fallback
         }
         
-        // Default equal weights if RuneCred system not available
-        return items[Math.floor(Math.random() * items.length)];
+        // DEFAULT: Keep the original weighting system when RuneCred not available
+        // Sort by required level (highest first)
+        items.sort((a, b) => b.requiredLevel - a.requiredLevel);
+        
+        // Apply weights: 40% highest, 30% second highest, 30% split among rest
+        const weights = [];
+        
+        if (items.length === 1) {
+            weights.push(1.0);
+        } else if (items.length === 2) {
+            weights.push(0.4); // Highest
+            weights.push(0.6); // Rest
+        } else {
+            weights.push(0.4); // Highest
+            weights.push(0.3); // Second highest
+            
+            // Split remaining 30% among the rest
+            const remaining = items.length - 2;
+            const eachWeight = 0.3 / remaining;
+            for (let i = 2; i < items.length; i++) {
+                weights.push(eachWeight);
+            }
+        }
+        
+        // Random selection based on weights
+        const random = Math.random();
+        let cumulative = 0;
+        
+        for (let i = 0; i < items.length; i++) {
+            cumulative += weights[i];
+            if (random < cumulative) {
+                return items[i];
+            }
+        }
+        
+        return items[items.length - 1]; // Fallback
     }
     
     // Find activities that produce a specific item
@@ -331,6 +329,20 @@ getBaseTaskCounts(itemId) {
         }
         
         return count;
+    }
+    
+    // ==================== UI DISPLAY METHODS ====================
+    
+    // Get all possible tasks for UI display (not for generation)
+    getAllPossibleTasksForUI() {
+        // Default implementation - skills should override this
+        return [];
+    }
+    
+    // Get base task counts without modifiers
+    getBaseTaskCounts(itemId) {
+        // Override in subclasses for specific counts
+        return { min: 20, max: 50 };
     }
     
     // ==================== CORE BEHAVIOR ====================
