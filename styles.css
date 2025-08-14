@@ -1003,7 +1003,7 @@ body {
 .speed-bonus-list {
     display: inline-flex;
     gap: 15px;
-    margin-left: 10px;
+    margin-left: 20px;
 }
 
 .speed-bonus-item {
