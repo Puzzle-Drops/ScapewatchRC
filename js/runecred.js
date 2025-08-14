@@ -1,5 +1,8 @@
 class RuneCreditManager {
     constructor() {
+        // TOGGLE THIS FLAG TO ENABLE/DISABLE SAVING AND LOADING
+        this.enablePersistence = false; // Set to true to enable localStorage save/load
+        
         this.runecred = 500; // Starting amount
         this.totalTasksCompleted = 0;
         this.lastMilestone = 0;
@@ -59,8 +62,10 @@ class RuneCreditManager {
             }
         }
         
-        // Load saved data if exists
-        this.loadData();
+        // Load saved data if exists AND persistence is enabled
+        if (this.enablePersistence) {
+            this.loadData();
+        }
     }
     
     // Add RC when task completes
@@ -398,6 +403,12 @@ class RuneCreditManager {
     
     // Save data to localStorage
     saveData() {
+        // ONLY SAVE IF PERSISTENCE IS ENABLED
+        if (!this.enablePersistence) {
+            console.log('RuneCred persistence disabled - not saving');
+            return;
+        }
+        
         const data = {
             runecred: this.runecred,
             totalTasksCompleted: this.totalTasksCompleted,
@@ -414,6 +425,7 @@ class RuneCreditManager {
         
         try {
             localStorage.setItem('runecred_data', JSON.stringify(data));
+            console.log('RuneCred data saved');
         } catch (e) {
             console.error('Failed to save RuneCred data:', e);
         }
@@ -421,14 +433,32 @@ class RuneCreditManager {
     
     // Load data from localStorage
     loadData() {
+        // ONLY LOAD IF PERSISTENCE IS ENABLED
+        if (!this.enablePersistence) {
+            console.log('RuneCred persistence disabled - not loading');
+            return;
+        }
+        
         try {
             const saved = localStorage.getItem('runecred_data');
             if (saved) {
                 const data = JSON.parse(saved);
                 Object.assign(this, data);
+                console.log('RuneCred data loaded');
             }
         } catch (e) {
             console.error('Failed to load RuneCred data:', e);
+        }
+    }
+    
+    // Toggle persistence on/off
+    togglePersistence(enable) {
+        this.enablePersistence = enable;
+        console.log(`RuneCred persistence ${enable ? 'enabled' : 'disabled'}`);
+        
+        if (enable) {
+            // If enabling, save current state
+            this.saveData();
         }
     }
 }
