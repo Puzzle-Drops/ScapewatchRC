@@ -53,8 +53,8 @@ class BaseSkill {
             return null;
         }
         
-        // Randomly select a node and its activity
-        const selected = viableNodes[Math.floor(Math.random() * viableNodes.length)];
+// Select a node using weighted distribution
+const selected = this.selectWeightedNode(viableNodes);];
         
         // Determine target count
         const targetCount = this.determineTargetCount(selectedItem.itemId);
@@ -165,44 +165,33 @@ class BaseSkill {
     
     // Select an item using weighted distribution
     selectWeightedItem(items) {
-        if (items.length === 0) return null;
+    if (items.length === 0) return null;
+    
+    // Use RuneCred weights if available
+    if (window.runeCreditManager) {
+        const weightedItems = [];
+        let totalWeight = 0;
         
-        // Sort by required level (highest first)
-        items.sort((a, b) => b.requiredLevel - a.requiredLevel);
+        for (const item of items) {
+            // Get the weight modifier for this item
+            const weight = runeCreditManager.getTaskWeight(this.id, item.itemId);
+            totalWeight += weight;
+            weightedItems.push({ item, weight: totalWeight });
+        }
         
-        // Apply weights: 40% highest, 30% second highest, 30% split among rest
-        const weights = [];
-        
-        if (items.length === 1) {
-            weights.push(1.0);
-        } else if (items.length === 2) {
-            weights.push(0.4); // Highest
-            weights.push(0.6); // Rest
-        } else {
-            weights.push(0.4); // Highest
-            weights.push(0.3); // Second highest
-            
-            // Split remaining 30% among the rest
-            const remaining = items.length - 2;
-            const eachWeight = 0.3 / remaining;
-            for (let i = 2; i < items.length; i++) {
-                weights.push(eachWeight);
+        const random = Math.random() * totalWeight;
+        for (const weighted of weightedItems) {
+            if (random < weighted.weight) {
+                return weighted.item;
             }
         }
         
-        // Random selection based on weights
-        const random = Math.random();
-        let cumulative = 0;
-        
-        for (let i = 0; i < items.length; i++) {
-            cumulative += weights[i];
-            if (random < cumulative) {
-                return items[i];
-            }
-        }
-        
-        return items[items.length - 1]; // Fallback
+        return items[0]; // Fallback
     }
+    
+    // Default equal weights if RuneCred system not available
+    return items[Math.floor(Math.random() * items.length)];
+}
     
     // Find activities that produce a specific item
     findActivitiesForItem(itemId) {
@@ -261,19 +250,66 @@ class BaseSkill {
         
         return viableNodes;
     }
+
+    // Select a node using weighted distribution
+selectWeightedNode(viableNodes) {
+    if (viableNodes.length === 0) return null;
+    
+    // Use RuneCred weights if available
+    if (window.runeCreditManager) {
+        const weightedNodes = [];
+        let totalWeight = 0;
+        
+        for (const node of viableNodes) {
+            // Get the weight modifier for this node
+            const weight = runeCreditManager.getNodeWeight(this.id, node.nodeId);
+            totalWeight += weight;
+            weightedNodes.push({ node, weight: totalWeight });
+        }
+        
+        const random = Math.random() * totalWeight;
+        for (const weighted of weightedNodes) {
+            if (random < weighted.weight) {
+                return weighted.node;
+            }
+        }
+        
+        return viableNodes[0]; // Fallback
+    }
+    
+    // Default equal weights if RuneCred system not available
+    return viableNodes[Math.floor(Math.random() * viableNodes.length)];
+}
     
     // Determine target count for an item (override in subclasses for custom logic)
     determineTargetCount(itemId) {
-        // Default: 50-150 items
-        const base = 50 + Math.floor(Math.random() * 100);
-        return Math.round(base / 5) * 5; // Round to nearest 5
+    // Default: 50-150 items
+    const base = 50 + Math.floor(Math.random() * 100);
+    let count = Math.round(base / 5) * 5; // Round to nearest 5
+    
+    // Apply RuneCred quantity modifier
+    if (window.runeCreditManager) {
+        const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
+        count = Math.round(count * modifier);
+        count = Math.max(5, count); // Minimum of 5
     }
+    
+    return count;
+}
     
     // ==================== CORE BEHAVIOR ====================
     
-    getDuration(baseDuration, level, activityData) {
-        return baseDuration; // Default: no scaling
+getDuration(baseDuration, level, activityData) {
+    let duration = baseDuration;
+    
+    // Apply speed bonus from RuneCred system
+    if (window.runeCreditManager) {
+        const speedBonus = runeCreditManager.getSkillSpeedBonus(this.id);
+        duration = duration / (1 + speedBonus); // Speed bonus reduces duration
     }
+    
+    return duration;
+}
     
     processRewards(activityData, level) {
         // Default: standard reward processing
