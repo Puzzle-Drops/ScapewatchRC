@@ -150,7 +150,7 @@ class DevConsole {
                 fn: (args) => this.cmdGiveAll(args)
             },
             
-            // Task commands (NEW - replacing goals)
+            // Task commands
             tasks: {
                 description: 'List all current tasks',
                 usage: 'tasks',
@@ -226,6 +226,85 @@ class DevConsole {
                 description: 'Toggle node text',
                 usage: 'nodetext',
                 fn: () => this.cmdNodeText()
+            },
+            
+            // ==================== NEW RUNECRED COMMANDS ====================
+            rc: {
+                description: 'Show or set RuneCred amount',
+                usage: 'rc [amount]',
+                fn: (args) => this.cmdRuneCred(args)
+            },
+            addrc: {
+                description: 'Add RuneCred',
+                usage: 'addrc <amount>',
+                fn: (args) => this.cmdAddRuneCred(args)
+            },
+            rcstatus: {
+                description: 'Show RuneCred status and weights',
+                usage: 'rcstatus [skill]',
+                fn: (args) => this.cmdRuneCreditStatus(args)
+            },
+            rcpersist: {
+                description: 'Toggle RuneCred persistence',
+                usage: 'rcpersist [on/off]',
+                fn: (args) => this.cmdRuneCreditPersistence(args)
+            },
+            rcreset: {
+                description: 'Reset all RuneCred data',
+                usage: 'rcreset',
+                fn: () => this.cmdResetRuneCred()
+            },
+            setweight: {
+                description: 'Set skill weight level',
+                usage: 'setweight <skill> <level> (-10 to 10)',
+                fn: (args) => this.cmdSetWeight(args)
+            },
+            completetasks: {
+                description: 'Complete multiple tasks instantly',
+                usage: 'completetasks <count>',
+                fn: (args) => this.cmdCompleteTasks(args)
+            },
+            
+            // ==================== PET & CAPE COMMANDS ====================
+            pet: {
+                description: 'Grant pet for a skill',
+                usage: 'pet <skill> [shiny]',
+                fn: (args) => this.cmdPet(args)
+            },
+            removepet: {
+                description: 'Remove pet for a skill',
+                usage: 'removepet <skill>',
+                fn: (args) => this.cmdRemovePet(args)
+            },
+            allpets: {
+                description: 'Grant all pets',
+                usage: 'allpets [shiny]',
+                fn: (args) => this.cmdAllPets(args)
+            },
+            cape: {
+                description: 'Grant skill cape',
+                usage: 'cape <skill> [trimmed]',
+                fn: (args) => this.cmdCape(args)
+            },
+            allcapes: {
+                description: 'Grant all skill capes',
+                usage: 'allcapes [trimmed]',
+                fn: (args) => this.cmdAllCapes(args)
+            },
+            maxcape: {
+                description: 'Toggle max cape',
+                usage: 'maxcape [on/off]',
+                fn: (args) => this.cmdMaxCape(args)
+            },
+            speedbonuses: {
+                description: 'Show all speed bonuses',
+                usage: 'speedbonuses',
+                fn: () => this.cmdSpeedBonuses()
+            },
+            resetbonuses: {
+                description: 'Reset all speed bonuses',
+                usage: 'resetbonuses',
+                fn: () => this.cmdResetBonuses()
             }
         };
     }
@@ -486,27 +565,27 @@ class DevConsole {
     }
 
     toggle() {
-    this.visible = !this.visible;
-    this.consoleDiv.style.display = this.visible ? 'block' : 'none';
-    
-    if (this.visible) {
-        this.inputField.focus();
-        if (this.outputDiv.children.length === 0) {
-            this.log('Developer Console - Type "help" for commands', 'info');
-        }
+        this.visible = !this.visible;
+        this.consoleDiv.style.display = this.visible ? 'block' : 'none';
         
-        // Display all captured console output when toggling on
-        if (this.consoleOutputDiv && this.consoleOutput.length > 0) {
-            // Clear existing display
-            this.consoleOutputDiv.innerHTML = '';
+        if (this.visible) {
+            this.inputField.focus();
+            if (this.outputDiv.children.length === 0) {
+                this.log('Developer Console - Type "help" for commands', 'info');
+            }
             
-            // Re-display all captured output
-            this.consoleOutput.forEach(output => {
-                this.appendConsoleOutput(output);
-            });
+            // Display all captured console output when toggling on
+            if (this.consoleOutputDiv && this.consoleOutput.length > 0) {
+                // Clear existing display
+                this.consoleOutputDiv.innerHTML = '';
+                
+                // Re-display all captured output
+                this.consoleOutput.forEach(output => {
+                    this.appendConsoleOutput(output);
+                });
+            }
         }
     }
-}
 
     log(message, type = 'normal') {
         const entry = document.createElement('div');
@@ -753,7 +832,7 @@ class DevConsole {
                 player.movementSpeed = 30;
             }
             
-            // Apply action speed (0.01 = 100x faster)
+            // Apply action speed
             this.cmdActionSpeed(['0.01']);
             
             this.log('Test mode ENABLED', 'success');
@@ -808,7 +887,9 @@ class DevConsole {
                 'Skills': ['setlevel', 'addxp', 'maxskills'],
                 'Inventory': ['give', 'clearinv'],
                 'Bank': ['bank', 'giveall'],
-                'Tasks': ['tasks', 'completetask', 'rerolltask', 'cleartasks', 'generatetasks'],
+                'Tasks': ['tasks', 'completetask', 'rerolltask', 'cleartasks', 'generatetasks', 'completetasks'],
+                'RuneCred': ['rc', 'addrc', 'rcstatus', 'rcpersist', 'rcreset', 'setweight'],
+                'Pets & Capes': ['pet', 'removepet', 'allpets', 'cape', 'allcapes', 'maxcape', 'speedbonuses', 'resetbonuses'],
                 'AI': ['pauseai', 'aistatus'],
                 'Activity': ['startactivity', 'stopactivity'],
                 'Debug': ['nodes', 'items', 'activities', 'collision', 'nodetext']
@@ -929,6 +1010,11 @@ class DevConsole {
             }
         }
         
+        // Update speed bonuses after changing levels
+        if (window.runeCreditManager) {
+            runeCreditManager.updateSpeedBonuses();
+        }
+        
         if (window.ui) ui.updateSkillsList();
         this.log(`Set ${skillId} to level ${level}`, 'success');
     }
@@ -946,6 +1032,12 @@ class DevConsole {
         if (amount === null) return;
         
         skills.addXp(skillId, amount);
+        
+        // Update speed bonuses after adding XP
+        if (window.runeCreditManager) {
+            runeCreditManager.updateSpeedBonuses();
+        }
+        
         if (window.ui) ui.updateSkillsList();
         this.log(`Added ${window.formatNumber(amount)} XP to ${skillId}`, 'success');
     }
@@ -954,6 +1046,12 @@ class DevConsole {
         if (!this.requireSystem('Test scenario', 'testScenario')) return;
         
         testScenario.maxAllSkills();
+        
+        // Update speed bonuses after maxing skills
+        if (window.runeCreditManager) {
+            runeCreditManager.updateSpeedBonuses();
+        }
+        
         if (window.ui) ui.updateSkillsList();
         this.log('All skills set to 99', 'success');
     }
@@ -1013,7 +1111,7 @@ class DevConsole {
         this.log(`Added ${quantity} of each item to bank`, 'success');
     }
 
-    // ==================== TASK COMMANDS (NEW) ====================
+    // ==================== TASK COMMANDS ====================
 
     cmdListTasks() {
         if (!this.requireSystem('Task Manager', 'taskManager')) return;
@@ -1109,6 +1207,41 @@ class DevConsole {
         }
     }
 
+    cmdCompleteTasks(args) {
+        if (!this.requireSystem('Task Manager', 'taskManager')) return;
+        
+        if (args.length !== 1) {
+            this.log('Usage: completetasks <count>', 'error');
+            return;
+        }
+        
+        const count = this.parseIntArg(args[0], 'Count', 1, 10000);
+        if (count === null) return;
+        
+        let completed = 0;
+        
+        for (let i = 0; i < count; i++) {
+            // Complete the current task
+            const currentTask = taskManager.getFirstIncompleteTask();
+            if (!currentTask) {
+                this.log('No more tasks to complete', 'info');
+                break;
+            }
+            
+            // Mark as complete
+            taskManager.setTaskProgress(currentTask, 1);
+            completed++;
+        }
+        
+        this.log(`Completed ${completed} tasks`, 'success');
+        this.log(`Total RuneCred: ${runeCreditManager.runecred}`, 'info');
+        
+        // Update UI
+        if (window.ui) {
+            window.ui.updateTasks();
+        }
+    }
+
     cmdRerollTask(args) {
         if (!this.requireSystem('Task Manager', 'taskManager')) return;
         
@@ -1154,6 +1287,453 @@ class DevConsole {
         
         taskManager.generateNewTasks();
         this.log('Generated new batch of tasks', 'success');
+    }
+
+    // ==================== RUNECRED COMMANDS ====================
+
+    cmdRuneCred(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length === 0) {
+            this.log(`Current RuneCred: ${runeCreditManager.runecred}`, 'info');
+            this.log(`Total tasks completed: ${runeCreditManager.totalTasksCompleted}`, 'info');
+            this.log(`Milestones reached: ${runeCreditManager.lastMilestone}`, 'info');
+            return;
+        }
+        
+        const amount = this.parseIntArg(args[0], 'Amount', 0, 1000000);
+        if (amount === null) return;
+        
+        runeCreditManager.runecred = amount;
+        runeCreditManager.saveData();
+        this.log(`Set RuneCred to ${amount}`, 'success');
+        
+        // Update UI if overlay is open
+        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
+            window.skillCustomizationUI.updateRuneCred();
+        }
+    }
+
+    cmdAddRuneCred(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length !== 1) {
+            this.log('Usage: addrc <amount>', 'error');
+            return;
+        }
+        
+        const amount = this.parseIntArg(args[0], 'Amount', 1, 100000);
+        if (amount === null) return;
+        
+        runeCreditManager.runecred += amount;
+        runeCreditManager.saveData();
+        this.log(`Added ${amount} RuneCred (total: ${runeCreditManager.runecred})`, 'success');
+        
+        // Update UI if overlay is open
+        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
+            window.skillCustomizationUI.updateRuneCred();
+        }
+    }
+
+    cmdRuneCreditStatus(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length === 0) {
+            // Show overall status
+            this.log('=== RUNECRED STATUS ===', 'info');
+            this.log(`RuneCred: ${runeCreditManager.runecred}`, 'info');
+            this.log(`Tasks completed: ${runeCreditManager.totalTasksCompleted}`, 'info');
+            this.log(`Persistence: ${runeCreditManager.enablePersistence ? 'ENABLED' : 'DISABLED'}`, 'info');
+            
+            // Show skills with modified weights
+            const modifiedSkills = Object.entries(runeCreditManager.skillModLevels)
+                .filter(([_, level]) => level !== 0);
+            
+            if (modifiedSkills.length > 0) {
+                this.log('', 'info');
+                this.log('Modified skill weights:', 'info');
+                for (const [skillId, level] of modifiedSkills) {
+                    const weight = runeCreditManager.getSkillWeight(skillId);
+                    this.log(`  ${skillId}: Level ${level} (${weight.toFixed(2)}x weight)`, 'info');
+                }
+            }
+        } else {
+            // Show status for specific skill
+            const skillId = this.validateSkill(args[0]);
+            if (!skillId) return;
+            
+            this.log(`=== ${skillId.toUpperCase()} RUNECRED STATUS ===`, 'info');
+            
+            // Skill weight
+            const skillLevel = runeCreditManager.skillModLevels[skillId] || 0;
+            const skillWeight = runeCreditManager.getSkillWeight(skillId);
+            this.log(`Skill weight: Level ${skillLevel} (${skillWeight.toFixed(2)}x)`, 'info');
+            
+            // RC spent on this skill
+            const rcSpent = runeCreditManager.rcSpentPerSkill[skillId] || 0;
+            this.log(`RC spent: ${rcSpent}`, 'info');
+            
+            // Speed bonus
+            const speedBonus = runeCreditManager.getSkillSpeedBonus(skillId);
+            this.log(`Speed bonus: +${Math.round(speedBonus * 100)}%`, 'info');
+            
+            // Show modified tasks
+            const modifiedTasks = Object.entries(runeCreditManager.taskModLevels[skillId] || {})
+                .filter(([_, level]) => level !== 0);
+            
+            if (modifiedTasks.length > 0) {
+                this.log('', 'info');
+                this.log('Modified task weights:', 'info');
+                for (const [itemId, level] of modifiedTasks) {
+                    const weight = runeCreditManager.getTaskWeight(skillId, itemId);
+                    this.log(`  ${itemId}: Level ${level} (${weight.toFixed(2)}x)`, 'info');
+                }
+            }
+            
+            // Show modified nodes
+            const modifiedNodes = Object.entries(runeCreditManager.nodeModLevels[skillId] || {})
+                .filter(([_, level]) => level !== 0);
+            
+            if (modifiedNodes.length > 0) {
+                this.log('', 'info');
+                this.log('Modified node weights:', 'info');
+                for (const [nodeId, level] of modifiedNodes) {
+                    const weight = runeCreditManager.getNodeWeight(skillId, nodeId);
+                    this.log(`  ${nodeId}: Level ${level} (${weight.toFixed(2)}x)`, 'info');
+                }
+            }
+        }
+    }
+
+    cmdRuneCreditPersistence(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length === 0) {
+            this.log(`RuneCred persistence is ${runeCreditManager.enablePersistence ? 'ENABLED' : 'DISABLED'}`, 'info');
+            return;
+        }
+        
+        const mode = args[0].toLowerCase();
+        const enable = mode === 'on' || mode === 'true' || mode === '1';
+        
+        runeCreditManager.togglePersistence(enable);
+        this.log(`RuneCred persistence ${enable ? 'ENABLED' : 'DISABLED'}`, 'success');
+    }
+
+    cmdResetRuneCred() {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        // Reset all RuneCred data
+        runeCreditManager.runecred = 500;
+        runeCreditManager.totalTasksCompleted = 0;
+        runeCreditManager.lastMilestone = 0;
+        
+        // Reset all modifications
+        for (const skillId of Object.keys(runeCreditManager.skillModLevels)) {
+            runeCreditManager.skillModLevels[skillId] = 0;
+            runeCreditManager.taskModLevels[skillId] = {};
+            runeCreditManager.nodeModLevels[skillId] = {};
+            runeCreditManager.quantityModLevels[skillId] = {};
+            runeCreditManager.rcSpentPerSkill[skillId] = 0;
+            
+            // Reset RC pools
+            runeCreditManager.rcPools.skills[skillId] = 0;
+            runeCreditManager.rcPools.tasks[skillId] = {};
+            runeCreditManager.rcPools.nodes[skillId] = {};
+            runeCreditManager.rcPools.quantities[skillId] = {};
+        }
+        
+        // Reset speed bonuses (but keep actual skill levels)
+        for (const skillId of Object.keys(runeCreditManager.speedBonuses.pets)) {
+            runeCreditManager.speedBonuses.pets[skillId] = false;
+            runeCreditManager.speedBonuses.shinyPets[skillId] = false;
+            runeCreditManager.speedBonuses.skillCapes[skillId] = false;
+            runeCreditManager.speedBonuses.trimmedCapes[skillId] = false;
+        }
+        runeCreditManager.speedBonuses.maxCape = false;
+        
+        // Update based on current levels
+        runeCreditManager.updateSpeedBonuses();
+        
+        // Save if persistence is enabled
+        runeCreditManager.saveData();
+        
+        this.log('All RuneCred data reset', 'success');
+        
+        // Update UI if overlay is open
+        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
+            window.skillCustomizationUI.render();
+        }
+    }
+
+    cmdSetWeight(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length !== 2) {
+            this.log('Usage: setweight <skill> <level> (-10 to 10)', 'error');
+            return;
+        }
+        
+        const skillId = this.validateSkill(args[0]);
+        if (!skillId) return;
+        
+        const level = this.parseIntArg(args[1], 'Level', -10, 10);
+        if (level === null) return;
+        
+        // Calculate cost/refund
+        const currentLevel = runeCreditManager.skillModLevels[skillId] || 0;
+        const baseCost = 25;
+        
+        // Reset to 0 first (refund current)
+        if (currentLevel !== 0) {
+            const refund = baseCost * Math.abs(currentLevel) * (Math.abs(currentLevel) + 1) / 2;
+            runeCreditManager.runecred += refund;
+            runeCreditManager.rcPools.skills[skillId] = 0;
+            runeCreditManager.rcSpentPerSkill[skillId] = 0;
+        }
+        
+        // Set to new level (charge for new)
+        if (level !== 0) {
+            const cost = baseCost * Math.abs(level) * (Math.abs(level) + 1) / 2;
+            if (runeCreditManager.runecred < cost) {
+                this.log(`Not enough RuneCred! Need ${cost}, have ${runeCreditManager.runecred}`, 'error');
+                return;
+            }
+            runeCreditManager.runecred -= cost;
+            runeCreditManager.rcPools.skills[skillId] = cost;
+            runeCreditManager.rcSpentPerSkill[skillId] = cost;
+        }
+        
+        runeCreditManager.skillModLevels[skillId] = level;
+        const weight = runeCreditManager.getSkillWeight(skillId);
+        
+        runeCreditManager.saveData();
+        this.log(`Set ${skillId} weight to level ${level} (${weight.toFixed(2)}x)`, 'success');
+        
+        // Update UI if overlay is open
+        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
+            window.skillCustomizationUI.render();
+        }
+    }
+
+    // ==================== PET & CAPE COMMANDS ====================
+
+    cmdPet(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length < 1) {
+            this.log('Usage: pet <skill> [shiny]', 'error');
+            return;
+        }
+        
+        const skillId = this.validateSkill(args[0]);
+        if (!skillId) return;
+        
+        const isShiny = args[1] && args[1].toLowerCase() === 'shiny';
+        
+        if (isShiny) {
+            runeCreditManager.speedBonuses.shinyPets[skillId] = true;
+            runeCreditManager.speedBonuses.pets[skillId] = false; // Shiny overrides regular
+            this.log(`Granted shiny pet for ${skillId} (+10% speed)`, 'success');
+        } else {
+            runeCreditManager.speedBonuses.pets[skillId] = true;
+            runeCreditManager.speedBonuses.shinyPets[skillId] = false; // Regular overrides shiny
+            this.log(`Granted pet for ${skillId} (+5% speed)`, 'success');
+        }
+        
+        runeCreditManager.saveData();
+    }
+
+    cmdRemovePet(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length !== 1) {
+            this.log('Usage: removepet <skill>', 'error');
+            return;
+        }
+        
+        const skillId = this.validateSkill(args[0]);
+        if (!skillId) return;
+        
+        runeCreditManager.speedBonuses.pets[skillId] = false;
+        runeCreditManager.speedBonuses.shinyPets[skillId] = false;
+        
+        runeCreditManager.saveData();
+        this.log(`Removed pet for ${skillId}`, 'success');
+    }
+
+    cmdAllPets(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        const isShiny = args[0] && args[0].toLowerCase() === 'shiny';
+        
+        for (const skillId of Object.keys(runeCreditManager.speedBonuses.pets)) {
+            if (isShiny) {
+                runeCreditManager.speedBonuses.shinyPets[skillId] = true;
+                runeCreditManager.speedBonuses.pets[skillId] = false;
+            } else {
+                runeCreditManager.speedBonuses.pets[skillId] = true;
+                runeCreditManager.speedBonuses.shinyPets[skillId] = false;
+            }
+        }
+        
+        runeCreditManager.saveData();
+        this.log(`Granted all ${isShiny ? 'shiny ' : ''}pets`, 'success');
+    }
+
+    cmdCape(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length < 1) {
+            this.log('Usage: cape <skill> [trimmed]', 'error');
+            return;
+        }
+        
+        const skillId = this.validateSkill(args[0]);
+        if (!skillId) return;
+        
+        const isTrimmed = args[1] && args[1].toLowerCase() === 'trimmed';
+        
+        if (isTrimmed) {
+            // Set skill to 200M XP for trimmed cape
+            const skill = skills.skills[skillId];
+            if (skill) {
+                skill.xp = 200000000;
+                skill.level = 99;
+            }
+            runeCreditManager.speedBonuses.trimmedCapes[skillId] = true;
+            runeCreditManager.speedBonuses.skillCapes[skillId] = true; // Also have regular
+            this.log(`Granted trimmed cape for ${skillId} (+10% speed)`, 'success');
+        } else {
+            // Set skill to 99 for regular cape
+            if (window.testScenario) {
+                testScenario.setSkillLevel(skillId, 99);
+            }
+            runeCreditManager.speedBonuses.skillCapes[skillId] = true;
+            this.log(`Granted skill cape for ${skillId} (+5% speed)`, 'success');
+        }
+        
+        runeCreditManager.updateSpeedBonuses();
+        runeCreditManager.saveData();
+        
+        if (window.ui) ui.updateSkillsList();
+    }
+
+    cmdAllCapes(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        const isTrimmed = args[0] && args[0].toLowerCase() === 'trimmed';
+        
+        for (const skillId of Object.keys(skills.skills)) {
+            if (isTrimmed) {
+                // Set to 200M XP
+                const skill = skills.skills[skillId];
+                if (skill) {
+                    skill.xp = 200000000;
+                    skill.level = 99;
+                }
+            } else {
+                // Set to level 99
+                if (window.testScenario) {
+                    testScenario.setSkillLevel(skillId, 99);
+                }
+            }
+        }
+        
+        runeCreditManager.updateSpeedBonuses();
+        runeCreditManager.saveData();
+        
+        if (window.ui) ui.updateSkillsList();
+        this.log(`Granted all ${isTrimmed ? 'trimmed ' : ''}skill capes`, 'success');
+    }
+
+    cmdMaxCape(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length === 0) {
+            const hasMaxCape = runeCreditManager.speedBonuses.maxCape;
+            this.log(`Max cape: ${hasMaxCape ? 'OWNED' : 'NOT OWNED'}`, 'info');
+            return;
+        }
+        
+        const mode = args[0].toLowerCase();
+        const enable = mode === 'on' || mode === 'true' || mode === '1';
+        
+        if (enable) {
+            // Set all skills to 99 first
+            this.cmdMaxSkills();
+            runeCreditManager.speedBonuses.maxCape = true;
+            this.log('Granted max cape (+5% global speed)', 'success');
+        } else {
+            runeCreditManager.speedBonuses.maxCape = false;
+            this.log('Removed max cape', 'success');
+        }
+        
+        runeCreditManager.saveData();
+    }
+
+    cmdSpeedBonuses() {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        this.log('=== SPEED BONUSES ===', 'info');
+        
+        // Show skills with bonuses
+        for (const skillId of Object.keys(skills.skills)) {
+            const bonuses = [];
+            
+            if (runeCreditManager.speedBonuses.shinyPets[skillId]) {
+                bonuses.push('Shiny Pet (+10%)');
+            } else if (runeCreditManager.speedBonuses.pets[skillId]) {
+                bonuses.push('Pet (+5%)');
+            }
+            
+            if (runeCreditManager.speedBonuses.trimmedCapes[skillId]) {
+                bonuses.push('Trimmed Cape (+10%)');
+            } else if (runeCreditManager.speedBonuses.skillCapes[skillId]) {
+                bonuses.push('Cape (+5%)');
+            }
+            
+            if (bonuses.length > 0) {
+                const totalBonus = runeCreditManager.getSkillSpeedBonus(skillId);
+                this.log(`${skillId}: ${bonuses.join(', ')} = +${Math.round(totalBonus * 100)}%`, 'info');
+            }
+        }
+        
+        if (runeCreditManager.speedBonuses.maxCape) {
+            this.log('Max Cape: +5% global bonus', 'info');
+        }
+        
+        // Show skills without bonuses
+        const skillsWithoutBonuses = Object.keys(skills.skills).filter(skillId => {
+            return !runeCreditManager.speedBonuses.pets[skillId] &&
+                   !runeCreditManager.speedBonuses.shinyPets[skillId] &&
+                   !runeCreditManager.speedBonuses.skillCapes[skillId] &&
+                   !runeCreditManager.speedBonuses.trimmedCapes[skillId];
+        });
+        
+        if (skillsWithoutBonuses.length > 0) {
+            this.log('', 'info');
+            this.log('Skills without bonuses: ' + skillsWithoutBonuses.join(', '), 'info');
+        }
+    }
+
+    cmdResetBonuses() {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        // Reset all speed bonuses
+        for (const skillId of Object.keys(runeCreditManager.speedBonuses.pets)) {
+            runeCreditManager.speedBonuses.pets[skillId] = false;
+            runeCreditManager.speedBonuses.shinyPets[skillId] = false;
+            runeCreditManager.speedBonuses.skillCapes[skillId] = false;
+            runeCreditManager.speedBonuses.trimmedCapes[skillId] = false;
+        }
+        runeCreditManager.speedBonuses.maxCape = false;
+        
+        // Update based on current skill levels
+        runeCreditManager.updateSpeedBonuses();
+        runeCreditManager.saveData();
+        
+        this.log('All speed bonuses reset (bonuses from actual skill levels restored)', 'success');
     }
 
     // ==================== AI COMMANDS ====================
