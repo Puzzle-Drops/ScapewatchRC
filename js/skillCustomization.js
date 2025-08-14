@@ -302,20 +302,24 @@ class SkillCustomizationUI {
             row.classList.add('unavailable');
         }
         
-        // Add hover events for highlighting nodes (for both available and unavailable)
+        // Add hover events for highlighting nodes
+        // IMPORTANT: These work the same for both available and unavailable tasks
         row.addEventListener('mouseenter', () => {
-            // Use red outline for unavailable tasks, green for available
+            // Add hover outline class based on availability
             if (hasLevel) {
                 row.classList.add('hover-outline-green');
             } else {
                 row.classList.add('hover-outline-red');
             }
+            // Highlight nodes - pass availability status
             this.highlightNodesForTask(task.itemId, hasLevel);
         });
         
         row.addEventListener('mouseleave', () => {
+            // Remove both possible hover outline classes
             row.classList.remove('hover-outline-green');
             row.classList.remove('hover-outline-red');
+            // Clear node highlights
             this.clearNodeHighlights();
         });
         
@@ -446,18 +450,23 @@ class SkillCustomizationUI {
         }
         
         // Add hover events for highlighting
+        // IMPORTANT: These work the same for both available and unavailable nodes
         row.addEventListener('mouseenter', () => {
+            // Add hover outline class based on availability
             if (hasUsableActivities) {
                 row.classList.add('hover-outline-green');
             } else {
                 row.classList.add('hover-outline-red');
             }
+            // Highlight matching tasks
             this.highlightTasksForNode(nodeId, currentLevel);
         });
         
         row.addEventListener('mouseleave', () => {
+            // Remove both possible hover outline classes
             row.classList.remove('hover-outline-green');
             row.classList.remove('hover-outline-red');
+            // Clear task highlights
             this.clearTaskHighlights();
         });
         
@@ -681,7 +690,7 @@ class SkillCustomizationUI {
             const nodeId = row.dataset.nodeId;
             if (nodeWeights.has(nodeId)) {
                 row.style.display = 'flex';
-                // Use red outline if task is unavailable, green if available
+                // Use outline color based on whether the task is available to the player
                 if (isAvailable) {
                     row.classList.add('green-outline');
                 } else {
