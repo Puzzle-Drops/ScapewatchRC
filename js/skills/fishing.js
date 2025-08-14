@@ -9,10 +9,10 @@ class FishingSkill extends BaseSkill {
     // Single source of truth for all fishing data
     initializeSkillData() {
         this.SKILL_DATA = [
-            { itemId: 'raw_shrimps',   name: 'Raw shrimps',   minCount: 50, maxCount: 100, level: 1  },
-            { itemId: 'raw_anchovies', name: 'Raw anchovies', minCount: 50, maxCount: 100, level: 1  },
-            { itemId: 'raw_sardine',   name: 'Raw sardine',   minCount: 50, maxCount: 100, level: 5  },
+            { itemId: 'raw_shrimps',   name: 'Raw shrimps',   minCount: 50, maxCount: 100, level: 1 },
+            { itemId: 'raw_sardine',   name: 'Raw sardine',   minCount: 50, maxCount: 100, level: 5 },
             { itemId: 'raw_herring',   name: 'Raw herring',   minCount: 50, maxCount: 100, level: 10 },
+            { itemId: 'raw_anchovies', name: 'Raw anchovies', minCount: 50, maxCount: 100, level: 15 },
             { itemId: 'raw_mackerel',  name: 'Raw mackerel',  minCount: 50, maxCount: 100,  level: 16 },
             { itemId: 'raw_trout',     name: 'Raw trout',     minCount: 50, maxCount: 100,  level: 20 },
             { itemId: 'raw_cod',       name: 'Raw cod',       minCount: 50, maxCount: 100,  level: 23 },
