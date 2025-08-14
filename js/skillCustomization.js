@@ -163,42 +163,55 @@ class SkillCustomizationUI {
     }
     
     createSpeedBonuses() {
-        const container = document.createElement('div');
-        container.className = 'speed-bonuses';
-        
-        const totalBonus = runeCreditManager.getSkillSpeedBonus(this.currentSkillId);
-        const bonusPercent = Math.round(totalBonus * 100);
-        
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'speed-bonus-title';
-        titleDiv.innerHTML = `<span class="bonus-percent">+${bonusPercent}%</span> increased speed`;
-        
-        const bonusesDiv = document.createElement('div');
-        bonusesDiv.className = 'speed-bonus-list';
-        
-        // Pet bonus
-        const petBonus = this.createBonusItem('pet', 
-            runeCreditManager.speedBonuses.pets[this.currentSkillId],
-            runeCreditManager.speedBonuses.shinyPets[this.currentSkillId]);
-        bonusesDiv.appendChild(petBonus);
-        
-        // Cape bonus
-        const capeBonus = this.createBonusItem('cape',
-            runeCreditManager.speedBonuses.skillCapes[this.currentSkillId],
-            runeCreditManager.speedBonuses.trimmedCapes[this.currentSkillId]);
-        bonusesDiv.appendChild(capeBonus);
-        
-        // Max cape bonus
-        const maxCapeBonus = this.createBonusItem('maxcape',
-            runeCreditManager.speedBonuses.maxCape,
-            false);
-        bonusesDiv.appendChild(maxCapeBonus);
-        
-        container.appendChild(titleDiv);
-        container.appendChild(bonusesDiv);
-        
-        return container;
-    }
+    const container = document.createElement('div');
+    container.className = 'speed-bonuses';
+    
+    const totalBonus = runeCreditManager.getSkillSpeedBonus(this.currentSkillId);
+    const bonusPercent = Math.round(totalBonus * 100);
+    
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'speed-bonus-title';
+    
+    // Create the percentage span
+    const percentSpan = document.createElement('span');
+    percentSpan.className = 'bonus-percent';
+    percentSpan.textContent = `+${bonusPercent}%`;
+    
+    // Create the text
+    const textSpan = document.createElement('span');
+    textSpan.textContent = ' increased speed';
+    
+    // Create bonuses container
+    const bonusesDiv = document.createElement('div');
+    bonusesDiv.className = 'speed-bonus-list';
+    
+    // Pet bonus
+    const petBonus = this.createBonusItem('pet', 
+        runeCreditManager.speedBonuses.pets[this.currentSkillId],
+        runeCreditManager.speedBonuses.shinyPets[this.currentSkillId]);
+    bonusesDiv.appendChild(petBonus);
+    
+    // Cape bonus
+    const capeBonus = this.createBonusItem('cape',
+        runeCreditManager.speedBonuses.skillCapes[this.currentSkillId],
+        runeCreditManager.speedBonuses.trimmedCapes[this.currentSkillId]);
+    bonusesDiv.appendChild(capeBonus);
+    
+    // Max cape bonus
+    const maxCapeBonus = this.createBonusItem('maxcape',
+        runeCreditManager.speedBonuses.maxCape,
+        false);
+    bonusesDiv.appendChild(maxCapeBonus);
+    
+    // Assemble all on one line
+    titleDiv.appendChild(percentSpan);
+    titleDiv.appendChild(textSpan);
+    titleDiv.appendChild(bonusesDiv);
+    
+    container.appendChild(titleDiv);
+    
+    return container;
+}
     
     createBonusItem(type, hasRegular, hasUpgraded) {
         const item = document.createElement('div');
@@ -271,69 +284,74 @@ class SkillCustomizationUI {
     }
     
     createTaskRow(task, totalWeight) {
-        const row = document.createElement('div');
-        row.className = 'task-row';
-        
-        // Task info
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'task-info';
-        
-        const weight = runeCreditManager.getTaskWeight(this.currentSkillId, task.itemId);
-        const percentage = Math.round((weight / totalWeight) * 100);
-        
-        const modifier = runeCreditManager.getQuantityModifier(this.currentSkillId, task.itemId);
-        const minQty = Math.round(task.minCount * modifier);
-        const maxQty = Math.round(task.maxCount * modifier);
-        
-        const itemData = loadingManager.getData('items')[task.itemId];
-        const itemName = task.displayName || (itemData ? itemData.name : task.itemId);
-        
-        infoDiv.innerHTML = `
-            <span class="task-chance">${percentage}%</span>
-            <span class="task-name">${itemName}</span>
-            <span class="task-quantity">(${minQty}-${maxQty})</span>
-        `;
-        
-        // Control buttons
-        const controlsDiv = document.createElement('div');
-        controlsDiv.className = 'task-controls';
-        
-        // Weight controls
-        const weightUp = this.createControlButton('+', () => {
-            if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, true)) {
-                this.render();
-            }
-        }, runeCreditManager.rcPools.tasks[this.currentSkillId]?.[task.itemId] || 0);
-        
-        const weightDown = this.createControlButton('-', () => {
-            if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, false)) {
-                this.render();
-            }
-        }, 0);
-        
-        // Quantity controls
-        const qtyUp = this.createControlButton('+', () => {
-            if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, true)) {
-                this.render();
-            }
-        }, runeCreditManager.rcPools.quantities[this.currentSkillId]?.[task.itemId] || 0);
-        
-        const qtyDown = this.createControlButton('-', () => {
-            if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, false)) {
-                this.render();
-            }
-        }, 0);
-        
-        controlsDiv.appendChild(weightUp);
-        controlsDiv.appendChild(weightDown);
-        controlsDiv.appendChild(qtyUp);
-        controlsDiv.appendChild(qtyDown);
-        
-        row.appendChild(infoDiv);
-        row.appendChild(controlsDiv);
-        
-        return row;
-    }
+    const row = document.createElement('div');
+    row.className = 'task-row';
+    row.dataset.taskId = task.itemId; // Add data attribute for highlighting
+    
+    // Task info
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'task-info';
+    
+    const weight = runeCreditManager.getTaskWeight(this.currentSkillId, task.itemId);
+    const percentage = Math.round((weight / totalWeight) * 100);
+    
+    const modifier = runeCreditManager.getQuantityModifier(this.currentSkillId, task.itemId);
+    const minQty = Math.round(task.minCount * modifier);
+    const maxQty = Math.round(task.maxCount * modifier);
+    
+    const itemData = loadingManager.getData('items')[task.itemId];
+    const itemName = task.displayName || (itemData ? itemData.name : task.itemId);
+    
+    // Get level requirement
+    const levelReq = task.requiredLevel || 1;
+    
+    infoDiv.innerHTML = `
+        <span class="task-level">${levelReq}</span>
+        <span class="task-chance">${percentage}%</span>
+        <span class="task-name">${itemName}</span>
+        <span class="task-quantity">(${minQty}-${maxQty})</span>
+    `;
+    
+    // Control buttons
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'task-controls';
+    
+    // Weight controls
+    const weightUp = this.createControlButton('+', () => {
+        if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, true)) {
+            this.render();
+        }
+    }, runeCreditManager.rcPools.tasks[this.currentSkillId]?.[task.itemId] || 0);
+    
+    const weightDown = this.createControlButton('-', () => {
+        if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, false)) {
+            this.render();
+        }
+    }, 0);
+    
+    // Quantity controls
+    const qtyUp = this.createControlButton('+', () => {
+        if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, true)) {
+            this.render();
+        }
+    }, runeCreditManager.rcPools.quantities[this.currentSkillId]?.[task.itemId] || 0);
+    
+    const qtyDown = this.createControlButton('-', () => {
+        if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, false)) {
+            this.render();
+        }
+    }, 0);
+    
+    controlsDiv.appendChild(weightUp);
+    controlsDiv.appendChild(weightDown);
+    controlsDiv.appendChild(qtyUp);
+    controlsDiv.appendChild(qtyDown);
+    
+    row.appendChild(infoDiv);
+    row.appendChild(controlsDiv);
+    
+    return row;
+}
     
     createNodesColumn() {
         const column = document.createElement('div');
@@ -359,40 +377,49 @@ class SkillCustomizationUI {
     }
     
     createNodeRow(nodeId) {
-        const row = document.createElement('div');
-        row.className = 'node-row';
-        
-        const nodeData = nodes.getNode(nodeId);
-        
-        // Node info
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'node-info';
-        infoDiv.textContent = nodeData ? nodeData.name : nodeId;
-        
-        // Control buttons
-        const controlsDiv = document.createElement('div');
-        controlsDiv.className = 'node-controls';
-        
-        const weightUp = this.createControlButton('+', () => {
-            if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, true)) {
-                this.render();
-            }
-        }, runeCreditManager.rcPools.nodes[this.currentSkillId]?.[nodeId] || 0);
-        
-        const weightDown = this.createControlButton('-', () => {
-            if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, false)) {
-                this.render();
-            }
-        }, 0);
-        
-        controlsDiv.appendChild(weightUp);
-        controlsDiv.appendChild(weightDown);
-        
-        row.appendChild(infoDiv);
-        row.appendChild(controlsDiv);
-        
-        return row;
-    }
+    const row = document.createElement('div');
+    row.className = 'node-row';
+    
+    const nodeData = nodes.getNode(nodeId);
+    
+    // Add hover events for highlighting
+    row.addEventListener('mouseenter', () => {
+        this.highlightTasksForNode(nodeId);
+    });
+    
+    row.addEventListener('mouseleave', () => {
+        this.clearTaskHighlights();
+    });
+    
+    // Node info
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'node-info';
+    infoDiv.textContent = nodeData ? nodeData.name : nodeId;
+    
+    // Control buttons
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'node-controls';
+    
+    const weightUp = this.createControlButton('+', () => {
+        if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, true)) {
+            this.render();
+        }
+    }, runeCreditManager.rcPools.nodes[this.currentSkillId]?.[nodeId] || 0);
+    
+    const weightDown = this.createControlButton('-', () => {
+        if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, false)) {
+            this.render();
+        }
+    }, 0);
+    
+    controlsDiv.appendChild(weightUp);
+    controlsDiv.appendChild(weightDown);
+    
+    row.appendChild(infoDiv);
+    row.appendChild(controlsDiv);
+    
+    return row;
+}
     
     createControlButton(text, onClick, spentAmount) {
         const btn = document.createElement('button');
@@ -406,8 +433,91 @@ class SkillCustomizationUI {
         btn.addEventListener('click', onClick);
         return btn;
     }
+
+    highlightTasksForNode(nodeId) {
+    // Clear existing highlights
+    this.clearTaskHighlights();
     
-// In skillCustomization.js
+    // Get node data
+    const nodeData = nodes.getNode(nodeId);
+    if (!nodeData || !nodeData.activities) return;
+    
+    // Get activities data
+    const activitiesData = loadingManager.getData('activities');
+    
+    // Build list of possible task itemIds from this node's activities
+    const possibleTaskIds = new Set();
+    
+    for (const activityId of nodeData.activities) {
+        const activity = activitiesData[activityId];
+        if (!activity || activity.skill !== this.currentSkillId) continue;
+        
+        // Map activity to task itemIds based on skill type
+        if (this.currentSkillId === 'runecraft') {
+            // Runecraft uses virtual items
+            possibleTaskIds.add(`runecraft_trips_${activityId}`);
+        } else if (this.currentSkillId === 'agility') {
+            // Agility uses virtual items
+            possibleTaskIds.add(`agility_laps_${activityId}`);
+        } else if (this.currentSkillId === 'thieving') {
+            // Thieving uses virtual items
+            possibleTaskIds.add(`thieving_${activityId}`);
+        } else if (this.currentSkillId === 'firemaking') {
+            // Firemaking uses logs from the firemaking table
+            if (activity.firemakingTable) {
+                for (const logData of activity.firemakingTable) {
+                    possibleTaskIds.add(logData.logId);
+                }
+            }
+        } else if (this.currentSkillId === 'cooking') {
+            // Cooking uses raw items
+            if (activity.cookingTable) {
+                for (const recipe of activity.cookingTable) {
+                    possibleTaskIds.add(recipe.rawItemId);
+                }
+            }
+        } else {
+            // Standard gathering skills - get items from rewards
+            if (activity.rewards) {
+                for (const reward of activity.rewards) {
+                    if (reward.itemId && !this.isIgnoredItemForHighlight(reward.itemId)) {
+                        possibleTaskIds.add(reward.itemId);
+                    }
+                }
+            }
+            if (activity.alternatingRewards) {
+                for (const reward of activity.alternatingRewards) {
+                    if (reward.itemId && !this.isIgnoredItemForHighlight(reward.itemId)) {
+                        possibleTaskIds.add(reward.itemId);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Highlight matching task rows
+    const taskRows = document.querySelectorAll('.task-row');
+    taskRows.forEach(row => {
+        const taskId = row.dataset.taskId;
+        if (possibleTaskIds.has(taskId)) {
+            row.classList.add('highlighted');
+        }
+    });
+}
+
+clearTaskHighlights() {
+    const taskRows = document.querySelectorAll('.task-row');
+    taskRows.forEach(row => {
+        row.classList.remove('highlighted');
+    });
+}
+
+isIgnoredItemForHighlight(itemId) {
+    // Items that shouldn't be highlighted as tasks
+    const ignored = ['burnt_food', 'uncut_sapphire', 'uncut_emerald', 'uncut_ruby', 'uncut_diamond', 'ashes'];
+    return ignored.includes(itemId);
+}
+    
 getPossibleTasks() {
     const skill = skillRegistry.getSkill(this.currentSkillId);
     if (!skill) return [];
