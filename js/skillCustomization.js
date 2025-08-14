@@ -3,6 +3,7 @@ class SkillCustomizationUI {
         this.isOpen = false;
         this.currentSkillId = null;
         this.overlay = null;
+        this.hoveredTaskId = null; // Track which task is being hovered
         this.initialize();
     }
     
@@ -55,6 +56,7 @@ class SkillCustomizationUI {
         this.isOpen = false;
         this.overlay.style.display = 'none';
         this.currentSkillId = null;
+        this.hoveredTaskId = null;
     }
     
     render() {
@@ -288,6 +290,17 @@ class SkillCustomizationUI {
         row.className = 'task-row';
         row.dataset.taskId = task.itemId; // Add data attribute for highlighting
         
+        // Add hover events for highlighting nodes
+        row.addEventListener('mouseenter', () => {
+            this.hoveredTaskId = task.itemId;
+            this.highlightNodesForTask(task.itemId);
+        });
+        
+        row.addEventListener('mouseleave', () => {
+            this.hoveredTaskId = null;
+            this.clearNodeHighlights();
+        });
+        
         // Task info
         const infoDiv = document.createElement('div');
         infoDiv.className = 'task-info';
@@ -383,6 +396,7 @@ class SkillCustomizationUI {
     createNodeRow(nodeId) {
         const row = document.createElement('div');
         row.className = 'node-row';
+        row.dataset.nodeId = nodeId; // Add data attribute for highlighting
         
         const nodeData = nodes.getNode(nodeId);
         
@@ -399,6 +413,11 @@ class SkillCustomizationUI {
         const infoDiv = document.createElement('div');
         infoDiv.className = 'node-info';
         
+        // Create weight display span (hidden by default)
+        const weightDisplay = document.createElement('span');
+        weightDisplay.className = 'node-weight-display';
+        weightDisplay.style.display = 'none';
+        
         if (nodeData) {
             let nodeText = nodeData.name;
             
@@ -410,7 +429,12 @@ class SkillCustomizationUI {
                 nodeText += ` (${bankName}: ${nodeData.nearestBankDistance} yards)`;
             }
             
-            infoDiv.textContent = nodeText;
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'node-name';
+            nameSpan.textContent = nodeText;
+            
+            infoDiv.appendChild(nameSpan);
+            infoDiv.appendChild(weightDisplay);
         } else {
             infoDiv.textContent = nodeId;
         }
@@ -534,10 +558,104 @@ class SkillCustomizationUI {
         });
     }
     
+    highlightNodesForTask(taskItemId) {
+        // Clear existing highlights
+        this.clearNodeHighlights();
+        
+        // Get activities that can produce this task item
+        const activitiesData = loadingManager.getData('activities');
+        const validNodeIds = new Set();
+        
+        // Find which nodes can complete this task
+        for (const [activityId, activity] of Object.entries(activitiesData)) {
+            if (activity.skill !== this.currentSkillId) continue;
+            
+            let canDoTask = false;
+            
+            // Check if this activity can produce the task item
+            if (this.currentSkillId === 'runecraft') {
+                canDoTask = taskItemId === `runecraft_trips_${activityId}`;
+            } else if (this.currentSkillId === 'agility') {
+                canDoTask = taskItemId === `agility_laps_${activityId}`;
+            } else if (this.currentSkillId === 'thieving') {
+                canDoTask = taskItemId === `thieving_${activityId}`;
+            } else if (this.currentSkillId === 'firemaking') {
+                if (activity.firemakingTable) {
+                    canDoTask = activity.firemakingTable.some(log => log.logId === taskItemId);
+                }
+            } else if (this.currentSkillId === 'cooking') {
+                if (activity.cookingTable) {
+                    canDoTask = activity.cookingTable.some(recipe => recipe.rawItemId === taskItemId);
+                }
+            } else {
+                // Standard gathering skills
+                if (activity.rewards) {
+                    canDoTask = activity.rewards.some(r => r.itemId === taskItemId);
+                }
+                if (!canDoTask && activity.alternatingRewards) {
+                    canDoTask = activity.alternatingRewards.some(r => r.itemId === taskItemId);
+                }
+            }
+            
+            if (canDoTask) {
+                // Find nodes with this activity
+                const allNodes = nodes.getAllNodes();
+                for (const [nodeId, node] of Object.entries(allNodes)) {
+                    if (node.activities && node.activities.includes(activityId)) {
+                        validNodeIds.add(nodeId);
+                    }
+                }
+            }
+        }
+        
+        // Calculate total weight for the valid nodes
+        let totalWeight = 0;
+        const nodeWeights = {};
+        
+        for (const nodeId of validNodeIds) {
+            const weight = runeCreditManager.getNodeWeight(this.currentSkillId, nodeId);
+            nodeWeights[nodeId] = weight;
+            totalWeight += weight;
+        }
+        
+        // Highlight and show weights for matching nodes
+        const nodeRows = document.querySelectorAll('.node-row');
+        nodeRows.forEach(row => {
+            const nodeId = row.dataset.nodeId;
+            if (validNodeIds.has(nodeId)) {
+                row.classList.add('highlighted');
+                
+                // Show weight percentage for this node
+                const weightDisplay = row.querySelector('.node-weight-display');
+                if (weightDisplay && totalWeight > 0) {
+                    const nodeWeight = nodeWeights[nodeId];
+                    const percentage = Math.round((nodeWeight / totalWeight) * 100);
+                    weightDisplay.textContent = ` - ${percentage}% chance`;
+                    weightDisplay.style.display = 'inline';
+                    weightDisplay.style.color = '#f39c12';
+                    weightDisplay.style.fontWeight = 'bold';
+                }
+            }
+        });
+    }
+    
     clearTaskHighlights() {
         const taskRows = document.querySelectorAll('.task-row');
         taskRows.forEach(row => {
             row.classList.remove('highlighted');
+        });
+    }
+    
+    clearNodeHighlights() {
+        const nodeRows = document.querySelectorAll('.node-row');
+        nodeRows.forEach(row => {
+            row.classList.remove('highlighted');
+            
+            // Hide weight display
+            const weightDisplay = row.querySelector('.node-weight-display');
+            if (weightDisplay) {
+                weightDisplay.style.display = 'none';
+            }
         });
     }
     
