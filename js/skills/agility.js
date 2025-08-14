@@ -11,7 +11,7 @@ class AgilitySkill extends BaseSkill {
             { itemId: 'agility_laps_al_kharid_rooftop',   name: 'Al Kharid Rooftop laps',   minCount: 4, maxCount: 8, level: 20 },
             { itemId: 'agility_laps_varrock_rooftop',     name: 'Varrock Rooftop laps',     minCount: 4,  maxCount: 8, level: 30 },
             { itemId: 'agility_laps_canifis_rooftop',     name: 'Canifis Rooftop laps',     minCount: 4, maxCount: 8, level: 40 },
-            { itemId: 'agility_laps_falador_rooftop',     name: 'Falador Rooftop laps',     minCount: 4,  maxCount: 8, level: 50 e},
+            { itemId: 'agility_laps_falador_rooftop',     name: 'Falador Rooftop laps',     minCount: 4,  maxCount: 8, level: 50 },
             { itemId: 'agility_laps_seers_rooftop',       name: "Seers' Village Rooftop laps", minCount: 4, maxCount: 8, level: 60 },
             { itemId: 'agility_laps_pollnivneach_rooftop', name: 'Pollnivneach Rooftop laps', minCount: 4,  maxCount: 8, level: 70 },
             { itemId: 'agility_laps_rellekka_rooftop',    name: 'Rellekka Rooftop laps',    minCount: 4,  maxCount: 8, level: 80 },
