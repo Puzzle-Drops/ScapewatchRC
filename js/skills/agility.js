@@ -225,7 +225,7 @@ class AgilitySkill extends BaseSkill {
         
         // All agility courses with their base counts
         const courseData = [
-            { id: 'draynor_rooftop', name: 'Draynor Rooftop', min: 10, max: 25, level: 10 },
+            { id: 'draynor_rooftop', name: 'Draynor Rooftop', min: 10, max: 25, level: 1 },
             { id: 'al_kharid_rooftop', name: 'Al Kharid Rooftop', min: 10, max: 20, level: 20 },
             { id: 'varrock_rooftop', name: 'Varrock Rooftop', min: 8, max: 18, level: 30 },
             { id: 'canifis_rooftop', name: 'Canifis Rooftop', min: 10, max: 20, level: 40 },
