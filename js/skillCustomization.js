@@ -175,11 +175,11 @@ class SkillCustomizationUI {
     // Create the percentage span
     const percentSpan = document.createElement('span');
     percentSpan.className = 'bonus-percent';
-    percentSpan.textContent = `+${bonusPercent}%`;
+    percentSpan.textContent = `+${bonusPercent}%  `;
     
     // Create the text
     const textSpan = document.createElement('span');
-    textSpan.textContent = ' increased speed';
+    textSpan.textContent = '  increased speed';
     
     // Create bonuses container
     const bonusesDiv = document.createElement('div');
@@ -306,7 +306,7 @@ class SkillCustomizationUI {
     const levelReq = task.requiredLevel || 1;
     
     infoDiv.innerHTML = `
-        <span class="task-level">${levelReq}</span>
+        <span class="task-level">Lv ${levelReq}</span>
         <span class="task-chance">${percentage}%</span>
         <span class="task-name">${itemName}</span>
         <span class="task-quantity">(${minQty}-${maxQty})</span>
