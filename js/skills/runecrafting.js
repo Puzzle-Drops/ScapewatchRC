@@ -31,6 +31,29 @@ class RunecraftingSkill extends BaseSkill {
         this.craftingStartTime = 0;
     }
     
+    // ==================== CENTRALIZED SKILL DATA ====================
+    // Single source of truth for all runecrafting data
+    // Note: itemId is virtual (runecraft_trips_X), display name is for the runes
+    initializeSkillData() {
+        this.SKILL_DATA = [
+            { itemId: 'runecraft_trips_craft_air_runes',    name: 'Air runes trips',    minCount: 5, maxCount: 10, level: 1  },
+            { itemId: 'runecraft_trips_craft_mind_runes',   name: 'Mind runes trips',   minCount: 5, maxCount: 10, level: 2  },
+            { itemId: 'runecraft_trips_craft_water_runes',  name: 'Water runes trips',  minCount: 5, maxCount: 10, level: 5  },
+            { itemId: 'runecraft_trips_craft_earth_runes',  name: 'Earth runes trips',  minCount: 5, maxCount: 10, level: 9  },
+            { itemId: 'runecraft_trips_craft_fire_runes',   name: 'Fire runes trips',   minCount: 5, maxCount: 10, level: 14 },
+            { itemId: 'runecraft_trips_craft_body_runes',   name: 'Body runes trips',   minCount: 5, maxCount: 10, level: 20 },
+            { itemId: 'runecraft_trips_craft_cosmic_runes', name: 'Cosmic runes trips', minCount: 5, maxCount: 10,  level: 27 },
+            { itemId: 'runecraft_trips_craft_chaos_runes',  name: 'Chaos runes trips',  minCount: 5, maxCount: 10,  level: 35 },
+            { itemId: 'runecraft_trips_craft_astral_runes', name: 'Astral runes trips', minCount: 5, maxCount: 10,  level: 40 },
+            { itemId: 'runecraft_trips_craft_nature_runes', name: 'Nature runes trips', minCount: 5, maxCount: 10,  level: 44 },
+            { itemId: 'runecraft_trips_craft_law_runes',    name: 'Law runes trips',    minCount: 5, maxCount: 10,  level: 54 },
+            { itemId: 'runecraft_trips_craft_death_runes',  name: 'Death runes trips',  minCount: 5, maxCount: 10,  level: 65 },
+            { itemId: 'runecraft_trips_craft_blood_runes',  name: 'Blood runes trips',  minCount: 5, maxCount: 10,  level: 77 },
+            { itemId: 'runecraft_trips_craft_soul_runes',   name: 'Soul runes trips',   minCount: 5, maxCount: 10,  level: 90 },
+            { itemId: 'runecraft_trips_craft_wrath_runes',  name: 'Wrath runes trips',  minCount: 5, maxCount: 10,  level: 95 }
+        ];
+    }
+    
     // ==================== TASK GENERATION ====================
     
     generateTask() {
@@ -46,8 +69,8 @@ class RunecraftingSkill extends BaseSkill {
         const essenceAvailable = this.getTotalEssenceAvailable();
         const essencePerTrip = 58; // Approximate max essence per trip at level 75+
         
-        if (essenceAvailable < essencePerTrip * 2) {
-            console.log(`Not enough rune essence for runecrafting task (have ${essenceAvailable}, need ${essencePerTrip * 2} for 2 trips)`);
+        if (essenceAvailable < essencePerTrip * 10) {
+            console.log(`Not enough rune essence for runecrafting task (have ${essenceAvailable}, need ${essencePerTrip * 10} for 10 trips)`);
             return null;
         }
         
@@ -70,8 +93,8 @@ class RunecraftingSkill extends BaseSkill {
         const desiredTrips = this.determineTargetTrips(selectedAltar.activityId);
         const targetTrips = Math.min(desiredTrips, maxTrips);
         
-        // Don't create task for less than 2 trips
-        if (targetTrips < 2) {
+        // Don't create task for less than 1 trip
+        if (targetTrips < 1) {
             console.log(`Not enough trips possible for task (only ${targetTrips} trips)`);
             return null;
         }
@@ -151,7 +174,7 @@ class RunecraftingSkill extends BaseSkill {
             return altars[0]; // Fallback
         }
         
-        // Default: equal weights if RuneCred not available
+        // DEFAULT: Equal weights if RuneCred not available
         return altars[Math.floor(Math.random() * altars.length)];
     }
     
@@ -207,8 +230,8 @@ class RunecraftingSkill extends BaseSkill {
                 return viableNodes[0]; // Fallback
             }
             
-            // Default: return first viable node
-            return viableNodes[0];
+            // Default: random selection
+            return viableNodes[Math.floor(Math.random() * viableNodes.length)];
         }
         
         return null;
@@ -229,32 +252,22 @@ class RunecraftingSkill extends BaseSkill {
     }
     
     determineTargetTrips(activityId) {
-        // Different trip counts based on altar
-        const tripCounts = {
-            'craft_air_runes': { min: 5, max: 15 },
-            'craft_mind_runes': { min: 5, max: 15 },
-            'craft_water_runes': { min: 5, max: 12 },
-            'craft_earth_runes': { min: 5, max: 12 },
-            'craft_fire_runes': { min: 4, max: 10 },
-            'craft_body_runes': { min: 4, max: 10 },
-            'craft_cosmic_runes': { min: 3, max: 8 },
-            'craft_chaos_runes': { min: 3, max: 8 },
-            'craft_astral_runes': { min: 3, max: 7 },
-            'craft_nature_runes': { min: 3, max: 7 },
-            'craft_law_runes': { min: 2, max: 6 },
-            'craft_death_runes': { min: 2, max: 5 },
-            'craft_blood_runes': { min: 2, max: 4 },
-            'craft_soul_runes': { min: 2, max: 4 },
-            'craft_wrath_runes': { min: 2, max: 3 }
-        };
+        // Get trip counts from centralized data
+        const virtualItemId = `runecraft_trips_${activityId}`;
+        const skillData = this.getSkillDataForItem(virtualItemId);
         
-        const counts = tripCounts[activityId] || { min: 3, max: 8 };
-        const baseCount = counts.min + Math.random() * (counts.max - counts.min);
+        if (!skillData) {
+            // Fallback if not found
+            const min = 3, max = 8;
+            const baseCount = min + Math.random() * (max - min);
+            return Math.round(baseCount);
+        }
+        
+        const baseCount = skillData.minCount + Math.random() * (skillData.maxCount - skillData.minCount);
         let count = Math.round(baseCount);
         
         // Apply RuneCred quantity modifier
         if (window.runeCreditManager) {
-            const virtualItemId = `runecraft_trips_${activityId}`;
             const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
             count = Math.round(count * modifier);
             count = Math.max(1, count); // Minimum of 1 trip
@@ -289,75 +302,8 @@ class RunecraftingSkill extends BaseSkill {
     
     // ==================== UI DISPLAY METHODS ====================
     
-    // Get all possible tasks for UI display (not for generation)
-    getAllPossibleTasksForUI() {
-        const tasks = [];
-        const activities = loadingManager.getData('activities');
-        const items = loadingManager.getData('items');
-        
-        // All runecrafting altars with their base counts
-        const altarData = [
-            { id: 'craft_air_runes', rune: 'air_rune', name: 'Air runes', min: 5, max: 15, level: 1 },
-            { id: 'craft_mind_runes', rune: 'mind_rune', name: 'Mind runes', min: 5, max: 15, level: 2 },
-            { id: 'craft_water_runes', rune: 'water_rune', name: 'Water runes', min: 5, max: 12, level: 5 },
-            { id: 'craft_earth_runes', rune: 'earth_rune', name: 'Earth runes', min: 5, max: 12, level: 9 },
-            { id: 'craft_fire_runes', rune: 'fire_rune', name: 'Fire runes', min: 4, max: 10, level: 14 },
-            { id: 'craft_body_runes', rune: 'body_rune', name: 'Body runes', min: 4, max: 10, level: 20 },
-            { id: 'craft_cosmic_runes', rune: 'cosmic_rune', name: 'Cosmic runes', min: 3, max: 8, level: 27 },
-            { id: 'craft_chaos_runes', rune: 'chaos_rune', name: 'Chaos runes', min: 3, max: 8, level: 35 },
-            { id: 'craft_astral_runes', rune: 'astral_rune', name: 'Astral runes', min: 3, max: 7, level: 40 },
-            { id: 'craft_nature_runes', rune: 'nature_rune', name: 'Nature runes', min: 3, max: 7, level: 44 },
-            { id: 'craft_law_runes', rune: 'law_rune', name: 'Law runes', min: 2, max: 6, level: 54 },
-            { id: 'craft_death_runes', rune: 'death_rune', name: 'Death runes', min: 2, max: 5, level: 65 },
-            { id: 'craft_blood_runes', rune: 'blood_rune', name: 'Blood runes', min: 2, max: 4, level: 77 },
-            { id: 'craft_soul_runes', rune: 'soul_rune', name: 'Soul runes', min: 2, max: 4, level: 90 },
-            { id: 'craft_wrath_runes', rune: 'wrath_rune', name: 'Wrath runes', min: 2, max: 3, level: 95 }
-        ];
-        
-        for (const altar of altarData) {
-            // Get rune name from items data if available
-            let displayName = altar.name;
-            if (items[altar.rune]) {
-                displayName = items[altar.rune].name;
-            }
-            
-            tasks.push({
-                itemId: `runecraft_trips_${altar.id}`,
-                displayName: `${displayName} trips`,
-                minCount: altar.min,
-                maxCount: altar.max,
-                requiredLevel: altar.level
-            });
-        }
-        
-        return tasks;
-    }
-    
-    // Get base task counts without modifiers (for UI)
-    getBaseTaskCounts(itemId) {
-        // Remove the 'runecraft_trips_' prefix to get activityId
-        const activityId = itemId.replace('runecraft_trips_', '');
-        
-        const tripCounts = {
-            'craft_air_runes': { min: 5, max: 15 },
-            'craft_mind_runes': { min: 5, max: 15 },
-            'craft_water_runes': { min: 5, max: 12 },
-            'craft_earth_runes': { min: 5, max: 12 },
-            'craft_fire_runes': { min: 4, max: 10 },
-            'craft_body_runes': { min: 4, max: 10 },
-            'craft_cosmic_runes': { min: 3, max: 8 },
-            'craft_chaos_runes': { min: 3, max: 8 },
-            'craft_astral_runes': { min: 3, max: 7 },
-            'craft_nature_runes': { min: 3, max: 7 },
-            'craft_law_runes': { min: 2, max: 6 },
-            'craft_death_runes': { min: 2, max: 5 },
-            'craft_blood_runes': { min: 2, max: 4 },
-            'craft_soul_runes': { min: 2, max: 4 },
-            'craft_wrath_runes': { min: 2, max: 3 }
-        };
-        
-        return tripCounts[activityId] || { min: 3, max: 8 };
-    }
+    // getAllPossibleTasksForUI now uses base class implementation
+    // getBaseTaskCounts now uses base class implementation
     
     // ==================== PROCESSING SKILL INTERFACE ====================
     
