@@ -391,10 +391,25 @@ class SkillCustomizationUI {
         this.clearTaskHighlights();
     });
     
-    // Node info
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'node-info';
-    infoDiv.textContent = nodeData ? nodeData.name : nodeId;
+    // Node info with bank distance
+const infoDiv = document.createElement('div');
+infoDiv.className = 'node-info';
+
+if (nodeData) {
+    let nodeText = nodeData.name;
+    
+    // Add bank information if available
+    if (nodeData.nearestBank && nodeData.nearestBankDistance) {
+        // Get the bank name (format it nicely)
+        const bankNode = nodes.getNode(nodeData.nearestBank);
+        const bankName = bankNode ? bankNode.name : nodeData.nearestBank.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        nodeText += ` (${bankName}: ${nodeData.nearestBankDistance} yards)`;
+    }
+    
+    infoDiv.textContent = nodeText;
+} else {
+    infoDiv.textContent = nodeId;
+}
     
     // Control buttons
     const controlsDiv = document.createElement('div');
