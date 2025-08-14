@@ -879,3 +879,225 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+/* Skill Customization Overlay */
+.skill-customization-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.skill-customization-container {
+    width: 90%;
+    max-width: 1200px;
+    height: 80%;
+    background: #2c3e50;
+    border: 2px solid #34495e;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.skill-customization-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: #e74c3c;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.skill-customization-content {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.skill-customization-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #34495e;
+}
+
+.header-left {
+    flex: 1;
+}
+
+.skill-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.skill-icon-large {
+    width: 48px;
+    height: 48px;
+}
+
+.skill-name {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ecf0f1;
+}
+
+.skill-stats {
+    display: flex;
+    gap: 20px;
+    color: #95a5a6;
+}
+
+.header-right {
+    text-align: right;
+}
+
+.runecred-display {
+    font-size: 20px;
+    color: #f39c12;
+    margin-bottom: 10px;
+}
+
+.rc-amount {
+    font-weight: bold;
+}
+
+.total-tasks {
+    color: #95a5a6;
+}
+
+.speed-bonuses {
+    background: #34495e;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.speed-bonus-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.bonus-percent {
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.speed-bonus-list {
+    display: flex;
+    gap: 20px;
+}
+
+.speed-bonus-item {
+    padding: 5px 10px;
+    background: #2c3e50;
+    border-radius: 3px;
+    color: #7f8c8d;
+}
+
+.speed-bonus-item.active {
+    background: #27ae60;
+    color: white;
+}
+
+.skill-customization-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.customization-column {
+    background: #34495e;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.customization-column h3 {
+    margin: 0 0 15px 0;
+    color: #ecf0f1;
+}
+
+.tasks-list, .nodes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task-row, .node-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: #2c3e50;
+    border-radius: 3px;
+}
+
+.task-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.task-chance {
+    color: #f39c12;
+    font-weight: bold;
+    min-width: 40px;
+}
+
+.task-name {
+    color: #ecf0f1;
+}
+
+.task-quantity {
+    color: #95a5a6;
+}
+
+.task-controls, .node-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.control-button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #7f8c8d;
+    background: #2c3e50;
+    color: #ecf0f1;
+    cursor: pointer;
+    border-radius: 3px;
+    position: relative;
+}
+
+.control-button:hover {
+    background: #34495e;
+}
+
+.spent-amount {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #e74c3c;
+    color: white;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 10px;
+}
+
+.node-info {
+    color: #ecf0f1;
+}
