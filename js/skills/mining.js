@@ -9,16 +9,16 @@ class MiningSkill extends BaseSkill {
     // Single source of truth for all mining data
     initializeSkillData() {
         this.SKILL_DATA = [
-            { itemId: 'copper_ore',     name: 'Copper ore',     minCount: 50, maxCount: 150, level: 1  },
-            { itemId: 'tin_ore',        name: 'Tin ore',        minCount: 50, maxCount: 150, level: 1  },
-            { itemId: 'iron_ore',       name: 'Iron ore',       minCount: 40, maxCount: 120, level: 15 },
-            { itemId: 'silver_ore',     name: 'Silver ore',     minCount: 30, maxCount: 80,  level: 20 },
+            { itemId: 'copper_ore',     name: 'Copper ore',     minCount: 25, maxCount: 50, level: 1  },
+            { itemId: 'tin_ore',        name: 'Tin ore',        minCount: 25, maxCount: 50, level: 1  },
+            { itemId: 'iron_ore',       name: 'Iron ore',       minCount: 50, maxCount: 100, level: 15 },
+            { itemId: 'silver_ore',     name: 'Silver ore',     minCount: 50, maxCount: 100,  level: 20 },
             { itemId: 'coal',           name: 'Coal',           minCount: 50, maxCount: 100, level: 30 },
-            { itemId: 'gold_ore',       name: 'Gold ore',       minCount: 25, maxCount: 60,  level: 40 },
-            { itemId: 'mithril_ore',    name: 'Mithril ore',    minCount: 20, maxCount: 50,  level: 55 },
-            { itemId: 'adamantite_ore', name: 'Adamantite ore', minCount: 15, maxCount: 35,  level: 70 },
-            { itemId: 'runite_ore',     name: 'Runite ore',     minCount: 10, maxCount: 20,  level: 85 },
-            { itemId: 'amethyst',       name: 'Amethyst',       minCount: 10, maxCount: 25,  level: 92 }
+            { itemId: 'gold_ore',       name: 'Gold ore',       minCount: 50, maxCount: 100,  level: 40 },
+            { itemId: 'mithril_ore',    name: 'Mithril ore',    minCount: 50, maxCount: 100,  level: 55 },
+            { itemId: 'adamantite_ore', name: 'Adamantite ore', minCount: 50, maxCount: 100,  level: 70 },
+            { itemId: 'runite_ore',     name: 'Runite ore',     minCount: 50, maxCount: 100,  level: 85 },
+            { itemId: 'amethyst',       name: 'Amethyst',       minCount: 50, maxCount: 100,  level: 92 }
         ];
     }
     
