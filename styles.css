@@ -1250,3 +1250,13 @@ body {
 .task-row.unavailable .task-chance {
     color: #555;
 }
+
+/* Red outline for tasks player can't do yet when hovering nodes */
+.task-row.red-outline,
+.node-row.red-outline {
+    outline: 2px solid #e74c3c;
+    outline-offset: -2px;
+    position: relative;
+    z-index: 1;
+}
+
