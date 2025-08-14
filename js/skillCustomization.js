@@ -290,115 +290,120 @@ class SkillCustomizationUI {
     }
     
     createTaskRow(task, totalWeight, currentLevel) {
-        const row = document.createElement('div');
-        row.className = 'task-row';
-        row.dataset.taskId = task.itemId;
-        
-        // Check if player has the level for this task
-        const hasLevel = currentLevel >= task.requiredLevel;
-        
-        // Grey out if player doesn't have the level
-        if (!hasLevel) {
-            row.classList.add('unavailable');
-        }
-        
-        // Add hover events for highlighting nodes (only if available)
-        if (hasLevel) {
-            row.addEventListener('mouseenter', () => {
-                row.classList.add('hover-outline');
-                this.highlightNodesForTask(task.itemId);
-            });
-            
-            row.addEventListener('mouseleave', () => {
-                row.classList.remove('hover-outline');
-                this.clearNodeHighlights();
-            });
-        }
-        
-        // Task info
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'task-info';
-        
-        const weight = runeCreditManager.getTaskWeight(this.currentSkillId, task.itemId);
-        // Only show percentage if player can get this task
-        const percentage = hasLevel ? Math.round((weight / totalWeight) * 100) : 0;
-        
-        const modifier = runeCreditManager.getQuantityModifier(this.currentSkillId, task.itemId);
-        const minQty = Math.round(task.minCount * modifier);
-        const maxQty = Math.round(task.maxCount * modifier);
-        
-        const itemData = loadingManager.getData('items')[task.itemId];
-        const itemName = task.displayName || (itemData ? itemData.name : task.itemId);
-        
-        // Get level requirement
-        const levelReq = task.requiredLevel || 1;
-        
-        // Create level span with appropriate color
-        const levelClass = hasLevel ? 'task-level-has' : 'task-level-needs';
-        
-        infoDiv.innerHTML = `
-            <span class="task-level ${levelClass}">Lv ${levelReq}</span>
-            <span class="task-chance">${hasLevel ? percentage + '%' : '-'}</span>
-            <span class="task-name">${itemName}</span>
-            <span class="task-quantity">(${minQty}-${maxQty})</span>
-        `;
-        
-        // Control buttons
-        const controlsDiv = document.createElement('div');
-        controlsDiv.className = 'task-controls';
-        
-        // Get current modification levels
-        const weightLevel = runeCreditManager.taskModLevels[this.currentSkillId]?.[task.itemId] || 0;
-        const qtyLevel = runeCreditManager.quantityModLevels[this.currentSkillId]?.[task.itemId] || 0;
-        
-        // Only enable controls if player has the level
-        if (hasLevel) {
-            // Weight controls
-            const weightUp = this.createControlButton('+', () => {
-                if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, true)) {
-                    this.render();
-                }
-            }, weightLevel);
-            
-            const weightDown = this.createControlButton('-', () => {
-                if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, false)) {
-                    this.render();
-                }
-            }, weightLevel);
-            
-            // Quantity controls
-            const qtyUp = this.createControlButton('+', () => {
-                if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, true)) {
-                    this.render();
-                }
-            }, qtyLevel);
-            
-            const qtyDown = this.createControlButton('-', () => {
-                if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, false)) {
-                    this.render();
-                }
-            }, qtyLevel);
-            
-            controlsDiv.appendChild(weightUp);
-            controlsDiv.appendChild(weightDown);
-            controlsDiv.appendChild(qtyUp);
-            controlsDiv.appendChild(qtyDown);
-        } else {
-            // Add disabled placeholder buttons
-            for (let i = 0; i < 4; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'control-button disabled';
-                btn.disabled = true;
-                btn.textContent = i % 2 === 0 ? '+' : '-';
-                controlsDiv.appendChild(btn);
-            }
-        }
-        
-        row.appendChild(infoDiv);
-        row.appendChild(controlsDiv);
-        
-        return row;
+    const row = document.createElement('div');
+    row.className = 'task-row';
+    row.dataset.taskId = task.itemId;
+    
+    // Check if player has the level for this task
+    const hasLevel = currentLevel >= task.requiredLevel;
+    
+    // Grey out if player doesn't have the level
+    if (!hasLevel) {
+        row.classList.add('unavailable');
     }
+    
+    // Add hover events for highlighting nodes (for both available and unavailable)
+    row.addEventListener('mouseenter', () => {
+        // Use red outline for unavailable tasks, green for available
+        if (hasLevel) {
+            row.classList.add('hover-outline-green');
+        } else {
+            row.classList.add('hover-outline-red');
+        }
+        this.highlightNodesForTask(task.itemId, hasLevel);
+    });
+    
+    row.addEventListener('mouseleave', () => {
+        row.classList.remove('hover-outline-green');
+        row.classList.remove('hover-outline-red');
+        this.clearNodeHighlights();
+    });
+    
+    // Rest of the method remains the same...
+    // Task info
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'task-info';
+    
+    const weight = runeCreditManager.getTaskWeight(this.currentSkillId, task.itemId);
+    // Only show percentage if player can get this task
+    const percentage = hasLevel ? Math.round((weight / totalWeight) * 100) : 0;
+    
+    const modifier = runeCreditManager.getQuantityModifier(this.currentSkillId, task.itemId);
+    const minQty = Math.round(task.minCount * modifier);
+    const maxQty = Math.round(task.maxCount * modifier);
+    
+    const itemData = loadingManager.getData('items')[task.itemId];
+    const itemName = task.displayName || (itemData ? itemData.name : task.itemId);
+    
+    // Get level requirement
+    const levelReq = task.requiredLevel || 1;
+    
+    // Create level span with appropriate color
+    const levelClass = hasLevel ? 'task-level-has' : 'task-level-needs';
+    
+    infoDiv.innerHTML = `
+        <span class="task-level ${levelClass}">Lv ${levelReq}</span>
+        <span class="task-chance">${hasLevel ? percentage + '%' : '-'}</span>
+        <span class="task-name">${itemName}</span>
+        <span class="task-quantity">(${minQty}-${maxQty})</span>
+    `;
+    
+    // Control buttons
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'task-controls';
+    
+    // Get current modification levels
+    const weightLevel = runeCreditManager.taskModLevels[this.currentSkillId]?.[task.itemId] || 0;
+    const qtyLevel = runeCreditManager.quantityModLevels[this.currentSkillId]?.[task.itemId] || 0;
+    
+    // Only enable controls if player has the level
+    if (hasLevel) {
+        // Weight controls
+        const weightUp = this.createControlButton('+', () => {
+            if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, true)) {
+                this.render();
+            }
+        }, weightLevel);
+        
+        const weightDown = this.createControlButton('-', () => {
+            if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, false)) {
+                this.render();
+            }
+        }, weightLevel);
+        
+        // Quantity controls
+        const qtyUp = this.createControlButton('+', () => {
+            if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, true)) {
+                this.render();
+            }
+        }, qtyLevel);
+        
+        const qtyDown = this.createControlButton('-', () => {
+            if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, false)) {
+                this.render();
+            }
+        }, qtyLevel);
+        
+        controlsDiv.appendChild(weightUp);
+        controlsDiv.appendChild(weightDown);
+        controlsDiv.appendChild(qtyUp);
+        controlsDiv.appendChild(qtyDown);
+    } else {
+        // Add disabled placeholder buttons
+        for (let i = 0; i < 4; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'control-button disabled';
+            btn.disabled = true;
+            btn.textContent = i % 2 === 0 ? '+' : '-';
+            controlsDiv.appendChild(btn);
+        }
+    }
+    
+    row.appendChild(infoDiv);
+    row.appendChild(controlsDiv);
+    
+    return row;
+}
     
     createNodesColumn() {
         const column = document.createElement('div');
@@ -650,42 +655,47 @@ class SkillCustomizationUI {
     });
 }
     
-    highlightNodesForTask(taskItemId) {
-        // Clear existing highlights
-        this.clearNodeHighlights();
-        
-        // Get current player level
-        const currentLevel = skills.getLevel(this.currentSkillId);
-        
-        // Get all nodes that can do this task
-        const compatibleNodes = this.getNodesForTask(taskItemId, currentLevel);
-        
-        // Calculate weights for these nodes
-        const nodeWeights = this.calculateNodeWeightsForTask(compatibleNodes);
-        
-        // Hide all nodes first
-        const nodeRows = document.querySelectorAll('.node-row');
-        nodeRows.forEach(row => {
-            row.style.display = 'none';
-        });
-        
-        // Show and highlight matching nodes
-        nodeRows.forEach(row => {
-            const nodeId = row.dataset.nodeId;
-            if (nodeWeights.has(nodeId)) {
-                row.style.display = 'flex';
+    highlightNodesForTask(taskItemId, isAvailable = true) {
+    // Clear existing highlights
+    this.clearNodeHighlights();
+    
+    // Get current player level
+    const currentLevel = skills.getLevel(this.currentSkillId);
+    
+    // Get all nodes that can do this task
+    const compatibleNodes = this.getNodesForTask(taskItemId, currentLevel);
+    
+    // Calculate weights for these nodes
+    const nodeWeights = this.calculateNodeWeightsForTask(compatibleNodes);
+    
+    // Hide all nodes first
+    const nodeRows = document.querySelectorAll('.node-row');
+    nodeRows.forEach(row => {
+        row.style.display = 'none';
+    });
+    
+    // Show and highlight matching nodes
+    nodeRows.forEach(row => {
+        const nodeId = row.dataset.nodeId;
+        if (nodeWeights.has(nodeId)) {
+            row.style.display = 'flex';
+            // Use red outline if task is unavailable, green if available
+            if (isAvailable) {
                 row.classList.add('green-outline');
-                
-                // Show weight percentage at the front
-                const weightDisplay = row.querySelector('.node-weight-display');
-                if (weightDisplay) {
-                    const percentage = nodeWeights.get(nodeId);
-                    weightDisplay.textContent = `${percentage}%`;
-                    weightDisplay.style.display = 'inline';
-                }
+            } else {
+                row.classList.add('red-outline');
             }
-        });
-    }
+            
+            // Show weight percentage at the front
+            const weightDisplay = row.querySelector('.node-weight-display');
+            if (weightDisplay) {
+                const percentage = nodeWeights.get(nodeId);
+                weightDisplay.textContent = `${percentage}%`;
+                weightDisplay.style.display = 'inline';
+            }
+        }
+    });
+}
     
     getNodesForTask(taskItemId, currentLevel) {
         const compatibleNodes = new Set();
@@ -781,18 +791,19 @@ class SkillCustomizationUI {
 }
     
     clearNodeHighlights() {
-        const nodeRows = document.querySelectorAll('.node-row');
-        nodeRows.forEach(row => {
-            row.classList.remove('green-outline');
-            row.style.display = 'flex'; // Show all nodes again
-            
-            // Hide weight display
-            const weightDisplay = row.querySelector('.node-weight-display');
-            if (weightDisplay) {
-                weightDisplay.style.display = 'none';
-            }
-        });
-    }
+    const nodeRows = document.querySelectorAll('.node-row');
+    nodeRows.forEach(row => {
+        row.classList.remove('green-outline');
+        row.classList.remove('red-outline');
+        row.style.display = 'flex'; // Show all nodes again
+        
+        // Hide weight display
+        const weightDisplay = row.querySelector('.node-weight-display');
+        if (weightDisplay) {
+            weightDisplay.style.display = 'none';
+        }
+    });
+}
     
     isIgnoredItemForHighlight(itemId) {
         const ignored = ['burnt_food', 'uncut_sapphire', 'uncut_emerald', 'uncut_ruby', 'uncut_diamond', 'ashes'];
