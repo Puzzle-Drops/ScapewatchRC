@@ -31,7 +31,88 @@ class FishingSkill extends BaseSkill {
         
         const counts = fishCounts[itemId] || { min: 20, max: 50 };
         const baseCount = counts.min + Math.random() * (counts.max - counts.min);
-        return Math.round(baseCount / 5) * 5;
+        let count = Math.round(baseCount / 5) * 5;
+        
+        // Apply RuneCred quantity modifier
+        if (window.runeCreditManager) {
+            const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
+            count = Math.round(count * modifier);
+            count = Math.max(5, count); // Minimum of 5
+        }
+        
+        return count;
+    }
+    
+    // ==================== UI DISPLAY METHODS ====================
+    
+    // Get all possible tasks for UI display (not for generation)
+    getAllPossibleTasksForUI() {
+        const tasks = [];
+        const items = loadingManager.getData('items');
+        
+        // All possible fish with their base counts
+        const fishData = [
+            { id: 'raw_shrimps', name: 'Raw shrimps', min: 50, max: 150, level: 1 },
+            { id: 'raw_anchovies', name: 'Raw anchovies', min: 50, max: 125, level: 1 },
+            { id: 'raw_sardine', name: 'Raw sardine', min: 50, max: 125, level: 5 },
+            { id: 'raw_herring', name: 'Raw herring', min: 40, max: 100, level: 10 },
+            { id: 'raw_mackerel', name: 'Raw mackerel', min: 40, max: 90, level: 16 },
+            { id: 'raw_trout', name: 'Raw trout', min: 35, max: 80, level: 20 },
+            { id: 'raw_cod', name: 'Raw cod', min: 35, max: 75, level: 23 },
+            { id: 'raw_pike', name: 'Raw pike', min: 30, max: 70, level: 25 },
+            { id: 'raw_salmon', name: 'Raw salmon', min: 30, max: 60, level: 30 },
+            { id: 'raw_tuna', name: 'Raw tuna', min: 25, max: 50, level: 35 },
+            { id: 'raw_lobster', name: 'Raw lobster', min: 20, max: 40, level: 40 },
+            { id: 'raw_bass', name: 'Raw bass', min: 20, max: 35, level: 46 },
+            { id: 'raw_swordfish', name: 'Raw swordfish', min: 15, max: 30, level: 50 },
+            { id: 'raw_shark', name: 'Raw shark', min: 10, max: 20, level: 76 }
+        ];
+        
+        for (const fish of fishData) {
+            // Check if item exists in items data
+            if (items[fish.id]) {
+                tasks.push({
+                    itemId: fish.id,
+                    displayName: items[fish.id].name || fish.name,
+                    minCount: fish.min,
+                    maxCount: fish.max,
+                    requiredLevel: fish.level
+                });
+            } else {
+                // Use fallback data if item not in items.json
+                tasks.push({
+                    itemId: fish.id,
+                    displayName: fish.name,
+                    minCount: fish.min,
+                    maxCount: fish.max,
+                    requiredLevel: fish.level
+                });
+            }
+        }
+        
+        return tasks;
+    }
+    
+    // Get base task counts without modifiers (for UI)
+    getBaseTaskCounts(itemId) {
+        const fishCounts = {
+            'raw_shrimps': { min: 50, max: 150 },
+            'raw_anchovies': { min: 50, max: 125 },
+            'raw_sardine': { min: 50, max: 125 },
+            'raw_herring': { min: 40, max: 100 },
+            'raw_mackerel': { min: 40, max: 90 },
+            'raw_trout': { min: 35, max: 80 },
+            'raw_cod': { min: 35, max: 75 },
+            'raw_pike': { min: 30, max: 70 },
+            'raw_salmon': { min: 30, max: 60 },
+            'raw_tuna': { min: 25, max: 50 },
+            'raw_lobster': { min: 20, max: 40 },
+            'raw_bass': { min: 20, max: 35 },
+            'raw_swordfish': { min: 15, max: 30 },
+            'raw_shark': { min: 10, max: 20 }
+        };
+        
+        return fishCounts[itemId] || { min: 20, max: 50 };
     }
     
     // ==================== BANKING LOGIC ====================
@@ -103,11 +184,20 @@ class FishingSkill extends BaseSkill {
     // ==================== CORE BEHAVIOR ====================
     
     getDuration(baseDuration, level, activityData) {
-        // Handle duration boosts (pike has 20% chance of 3600ms boost)
+        let duration = baseDuration;
+        
+        // First handle existing duration boosts (pike has 20% chance of 3600ms boost)
         if (activityData.durationBoost && Math.random() < activityData.durationBoost.chance) {
-            return activityData.durationBoost.duration;
+            duration = activityData.durationBoost.duration;
         }
-        return baseDuration;
+        
+        // Then apply RuneCred speed bonus on top
+        if (window.runeCreditManager) {
+            const speedBonus = runeCreditManager.getSkillSpeedBonus(this.id);
+            duration = duration / (1 + speedBonus); // Speed bonus reduces duration
+        }
+        
+        return duration;
     }
     
     processRewards(activityData, level) {
