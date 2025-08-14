@@ -131,8 +131,17 @@ class ThievingSkill extends BaseSkill {
         
         const range = counts[activityId] || { min: 20, max: 50 };
         const baseCount = range.min + Math.random() * (range.max - range.min);
-        return Math.round(baseCount / 5) * 5;
+        let count = Math.round(baseCount / 5) * 5;
+    
+    // Apply RuneCred quantity modifier
+    if (window.runeCreditManager) {
+        const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
+        count = Math.round(count * modifier);
+        count = Math.max(5, count); // Minimum of 5
     }
+    
+    return count;
+}
     
     // Update thieving task progress
     updateThievingTaskProgress() {
