@@ -97,8 +97,11 @@ class RuneCreditManager {
         // Calculate new level
         const newLevel = increase ? currentLevel + 1 : currentLevel - 1;
         
-        if (increase) {
-            // Going up - charge based on new level's distance from 0
+        // Determine if we're moving away from or toward 0
+        const movingAwayFromZero = Math.abs(newLevel) > Math.abs(currentLevel);
+        
+        if (movingAwayFromZero) {
+            // Moving away from 0 - charge based on new level's absolute value
             const cost = baseCost * Math.abs(newLevel);
             
             // Check if we have enough RC
@@ -112,7 +115,7 @@ class RuneCreditManager {
             this.rcPools.skills[skillId] = (this.rcPools.skills[skillId] || 0) + cost;
             this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
         } else {
-            // Going down - refund based on current level's distance from 0
+            // Moving toward 0 - refund based on current level's absolute value
             const refund = baseCost * Math.abs(currentLevel);
             
             // Update level
@@ -149,8 +152,11 @@ class RuneCreditManager {
         // Calculate new level
         const newLevel = increase ? currentLevel + 1 : currentLevel - 1;
         
-        if (increase) {
-            // Going up - charge based on new level's distance from 0
+        // Determine if we're moving away from or toward 0
+        const movingAwayFromZero = Math.abs(newLevel) > Math.abs(currentLevel);
+        
+        if (movingAwayFromZero) {
+            // Moving away from 0 - charge based on new level's absolute value
             const cost = baseCost * Math.abs(newLevel);
             
             // Check if we have enough RC
@@ -165,7 +171,7 @@ class RuneCreditManager {
             this.rcPools.tasks[skillId][itemId] = (this.rcPools.tasks[skillId][itemId] || 0) + cost;
             this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
         } else {
-            // Going down - refund based on current level's distance from 0
+            // Moving toward 0 - refund based on current level's absolute value
             const refund = baseCost * Math.abs(currentLevel);
             
             // Update level
@@ -196,8 +202,11 @@ class RuneCreditManager {
         // Calculate new level
         const newLevel = increase ? currentLevel + 1 : currentLevel - 1;
         
-        if (increase) {
-            // Going up - charge based on new level's distance from 0
+        // Determine if we're moving away from or toward 0
+        const movingAwayFromZero = Math.abs(newLevel) > Math.abs(currentLevel);
+        
+        if (movingAwayFromZero) {
+            // Moving away from 0 - charge based on new level's absolute value
             const cost = baseCost * Math.abs(newLevel);
             
             // Check if we have enough RC
@@ -212,7 +221,7 @@ class RuneCreditManager {
             this.rcPools.nodes[skillId][nodeId] = (this.rcPools.nodes[skillId][nodeId] || 0) + cost;
             this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
         } else {
-            // Going down - refund based on current level's distance from 0
+            // Moving toward 0 - refund based on current level's absolute value
             const refund = baseCost * Math.abs(currentLevel);
             
             // Update level
@@ -243,8 +252,11 @@ class RuneCreditManager {
         // Calculate new level
         const newLevel = extend ? currentLevel + 1 : currentLevel - 1;
         
-        if (extend) {
-            // Going up - charge based on new level's distance from 0
+        // Determine if we're moving away from or toward 0
+        const movingAwayFromZero = Math.abs(newLevel) > Math.abs(currentLevel);
+        
+        if (movingAwayFromZero) {
+            // Moving away from 0 - charge based on new level's absolute value
             const cost = baseCost * Math.abs(newLevel);
             
             // Check if we have enough RC
@@ -259,7 +271,7 @@ class RuneCreditManager {
             this.rcPools.quantities[skillId][itemId] = (this.rcPools.quantities[skillId][itemId] || 0) + cost;
             this.rcSpentPerSkill[skillId] = (this.rcSpentPerSkill[skillId] || 0) + cost;
         } else {
-            // Going down - refund based on current level's distance from 0
+            // Moving toward 0 - refund based on current level's absolute value
             const refund = baseCost * Math.abs(currentLevel);
             
             // Update level
