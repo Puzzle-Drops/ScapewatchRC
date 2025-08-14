@@ -1101,17 +1101,6 @@ body {
     background: #34495e;
 }
 
-.spent-amount {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #e74c3c;
-    color: white;
-    font-size: 10px;
-    padding: 2px 4px;
-    border-radius: 10px;
-}
-
 .node-info {
     color: #ecf0f1;
 }
@@ -1131,4 +1120,35 @@ body {
     font-weight: bold;
     min-width: 30px;
     text-align: center;
+}
+
+/* Modification level orbs */
+.mod-orb-green, .mod-orb-red {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mod-orb-green {
+    background: #27ae60;
+    border: 1px solid #229954;
+}
+
+.mod-orb-red {
+    background: #e74c3c;
+    border: 1px solid #c0392b;
+}
+
+.spent-amount {
+    display: none;
 }
