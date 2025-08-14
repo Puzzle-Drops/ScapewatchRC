@@ -103,38 +103,38 @@ class FiremakingSkill extends BaseSkill {
     }
     
     // Filter out logs that already have tasks (ANY skill, not just firemaking)
-filterOutExistingTasks(availableLogs) {
-    if (!window.taskManager) return availableLogs;
-    
-    const filtered = [];
-    const existingTasks = taskManager.getAllTasks();
-    
-    for (const log of availableLogs) {
-        // Check if there's already ANY task (from any skill) for this log
-        const existingTask = existingTasks.find(task => 
-            task.itemId === log.logId &&
-            task.progress < 1
-        );
+    filterOutExistingTasks(availableLogs) {
+        if (!window.taskManager) return availableLogs;
         
-        if (existingTask) {
-            // Only allow if we have 10x the amount needed for a typical task
-            const typicalTaskSize = this.determineTargetCount(log.logId);
-            const safeAmount = typicalTaskSize * 10;
+        const filtered = [];
+        const existingTasks = taskManager.getAllTasks();
+        
+        for (const log of availableLogs) {
+            // Check if there's already ANY task (from any skill) for this log
+            const existingTask = existingTasks.find(task => 
+                task.itemId === log.logId &&
+                task.progress < 1
+            );
             
-            if (log.available >= safeAmount) {
-                console.log(`Allowing duplicate task for ${log.logId} (used by ${existingTask.skill}) - have ${log.available}, safe threshold is ${safeAmount}`);
-                filtered.push(log);
+            if (existingTask) {
+                // Only allow if we have 10x the amount needed for a typical task
+                const typicalTaskSize = this.determineTargetCount(log.logId);
+                const safeAmount = typicalTaskSize * 10;
+                
+                if (log.available >= safeAmount) {
+                    console.log(`Allowing duplicate task for ${log.logId} (used by ${existingTask.skill}) - have ${log.available}, safe threshold is ${safeAmount}`);
+                    filtered.push(log);
+                } else {
+                    console.log(`Filtering out ${log.logId} - already has task in ${existingTask.skill} and only ${log.available} available`);
+                }
             } else {
-                console.log(`Filtering out ${log.logId} - already has task in ${existingTask.skill} and only ${log.available} available`);
+                // No existing task for this item, safe to use
+                filtered.push(log);
             }
-        } else {
-            // No existing task for this item, safe to use
-            filtered.push(log);
         }
+        
+        return filtered;
     }
-    
-    return filtered;
-}
     
     // Get all available logs
     getAvailableLogs() {
@@ -168,6 +168,29 @@ filterOutExistingTasks(availableLogs) {
     selectWeightedLog(availableLogs) {
         if (availableLogs.length === 0) return null;
         
+        // Use RuneCred weights if available
+        if (window.runeCreditManager) {
+            const weightedLogs = [];
+            let totalWeight = 0;
+            
+            for (const log of availableLogs) {
+                // Get the weight modifier for this log
+                const weight = runeCreditManager.getTaskWeight(this.id, log.logId);
+                totalWeight += weight;
+                weightedLogs.push({ log, weight: totalWeight });
+            }
+            
+            const random = Math.random() * totalWeight;
+            for (const weighted of weightedLogs) {
+                if (random < weighted.weight) {
+                    return weighted.log;
+                }
+            }
+            
+            return availableLogs[0]; // Fallback
+        }
+        
+        // DEFAULT: Original weighting system when RuneCred not available
         // Sort by required level (highest first)
         availableLogs.sort((a, b) => b.requiredLevel - a.requiredLevel);
         
@@ -253,7 +276,74 @@ filterOutExistingTasks(availableLogs) {
         
         const counts = logCounts[logId] || { min: 20, max: 50 };
         const baseCount = counts.min + Math.random() * (counts.max - counts.min);
-        return Math.round(baseCount / 5) * 5;
+        let count = Math.round(baseCount / 5) * 5;
+        
+        // Apply RuneCred quantity modifier
+        if (window.runeCreditManager) {
+            const modifier = runeCreditManager.getQuantityModifier(this.id, logId);
+            count = Math.round(count * modifier);
+            count = Math.max(5, count); // Minimum of 5
+        }
+        
+        return count;
+    }
+    
+    // ==================== UI DISPLAY METHODS ====================
+    
+    // Get all possible tasks for UI display (not for generation)
+    getAllPossibleTasksForUI() {
+        const tasks = [];
+        const items = loadingManager.getData('items');
+        
+        // All possible logs with their base counts
+        const logData = [
+            { id: 'logs', name: 'Logs', min: 30, max: 80, level: 1 },
+            { id: 'oak_logs', name: 'Oak logs', min: 25, max: 70, level: 15 },
+            { id: 'willow_logs', name: 'Willow logs', min: 25, max: 60, level: 30 },
+            { id: 'maple_logs', name: 'Maple logs', min: 20, max: 50, level: 45 },
+            { id: 'yew_logs', name: 'Yew logs', min: 15, max: 40, level: 60 },
+            { id: 'magic_logs', name: 'Magic logs', min: 10, max: 30, level: 75 },
+            { id: 'redwood_logs', name: 'Redwood logs', min: 10, max: 25, level: 90 }
+        ];
+        
+        for (const log of logData) {
+            // Check if item exists in items data
+            if (items[log.id]) {
+                tasks.push({
+                    itemId: log.id,
+                    displayName: items[log.id].name || log.name,
+                    minCount: log.min,
+                    maxCount: log.max,
+                    requiredLevel: log.level
+                });
+            } else {
+                // Use fallback data if item not in items.json
+                tasks.push({
+                    itemId: log.id,
+                    displayName: log.name,
+                    minCount: log.min,
+                    maxCount: log.max,
+                    requiredLevel: log.level
+                });
+            }
+        }
+        
+        return tasks;
+    }
+    
+    // Get base task counts without modifiers (for UI)
+    getBaseTaskCounts(itemId) {
+        const logCounts = {
+            'logs': { min: 30, max: 80 },
+            'oak_logs': { min: 25, max: 70 },
+            'willow_logs': { min: 25, max: 60 },
+            'maple_logs': { min: 20, max: 50 },
+            'yew_logs': { min: 15, max: 40 },
+            'magic_logs': { min: 10, max: 30 },
+            'redwood_logs': { min: 10, max: 25 }
+        };
+        
+        return logCounts[itemId] || { min: 20, max: 50 };
     }
     
     // Check if we have logs for the CURRENT TASK specifically
@@ -291,7 +381,15 @@ filterOutExistingTasks(availableLogs) {
     // ==================== CORE BEHAVIOR ====================
     
     getDuration(baseDuration, level, activityData) {
-        return 2400; // Firemaking is always 2400ms per attempt
+        let duration = 2400; // Firemaking is always 2400ms per attempt
+        
+        // Apply speed bonus from RuneCred system
+        if (window.runeCreditManager) {
+            const speedBonus = runeCreditManager.getSkillSpeedBonus(this.id);
+            duration = duration / (1 + speedBonus); // Speed bonus reduces duration
+        }
+        
+        return duration;
     }
     
     beforeActivityStart(activityData) {
