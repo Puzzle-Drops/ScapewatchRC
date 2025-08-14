@@ -286,7 +286,7 @@ class SkillCustomizationUI {
         const maxQty = Math.round(task.maxCount * modifier);
         
         const itemData = loadingManager.getData('items')[task.itemId];
-        const itemName = itemData ? itemData.name : task.itemId;
+        const itemName = task.displayName || (itemData ? itemData.name : task.itemId);
         
         infoDiv.innerHTML = `
             <span class="task-chance">${percentage}%</span>
@@ -407,27 +407,41 @@ class SkillCustomizationUI {
         return btn;
     }
     
-    getPossibleTasks() {
-        // Get the skill object
-        const skill = skillRegistry.getSkill(this.currentSkillId);
-        if (!skill) return [];
-        
-        // Get possible items
-        const possibleItems = skill.getPossibleItems();
-        
-        // Get min/max counts for each item
-        const tasks = [];
-        for (const item of possibleItems) {
-            const counts = this.getItemCounts(item.itemId);
-            tasks.push({
-                itemId: item.itemId,
-                minCount: counts.min,
-                maxCount: counts.max
-            });
-        }
-        
-        return tasks;
+getPossibleTasks() {
+    // Get the skill object
+    const skill = skillRegistry.getSkill(this.currentSkillId);
+    if (!skill) return [];
+    
+    // Use the new method that returns ALL possible tasks
+    const possibleTasks = skill.getAllPossibleTasks ? 
+        skill.getAllPossibleTasks() : [];
+    
+    // Ensure all tasks have proper structure
+    return possibleTasks.map(task => ({
+        itemId: task.itemId,
+        displayName: task.displayName || this.getItemDisplayName(task.itemId),
+        minCount: task.minCount || 20,
+        maxCount: task.maxCount || 50,
+        requiredLevel: task.requiredLevel || 1
+    }));
+}
+
+getItemDisplayName(itemId) {
+    // Handle special virtual items
+    if (itemId.startsWith('agility_laps_')) {
+        return itemId.replace('agility_laps_', '').replace(/_/g, ' ') + ' laps';
     }
+    if (itemId.startsWith('thieving_')) {
+        return itemId.replace('thieving_', '').replace(/_/g, ' ');
+    }
+    if (itemId.startsWith('runecraft_trips_')) {
+        return itemId.replace('runecraft_trips_', '').replace(/_/g, ' ');
+    }
+    
+    // Get from items data
+    const itemData = loadingManager.getData('items')[itemId];
+    return itemData ? itemData.name : itemId.replace(/_/g, ' ');
+}
     
     getItemCounts(itemId) {
         // Get counts from skill-specific data
