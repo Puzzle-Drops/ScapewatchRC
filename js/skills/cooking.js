@@ -20,21 +20,21 @@ class CookingSkill extends BaseSkill {
     // Note: itemId is the RAW item, but we display the cooked name
     initializeSkillData() {
         this.SKILL_DATA = [
-            { itemId: 'raw_meat',      name: 'Meat',      minCount: 25, maxCount: 75, level: 1  },
-            { itemId: 'raw_shrimps',   name: 'Shrimps',   minCount: 25, maxCount: 75, level: 1  },
-            { itemId: 'raw_anchovies', name: 'Anchovies', minCount: 25, maxCount: 70, level: 1  },
-            { itemId: 'raw_sardine',   name: 'Sardine',   minCount: 25, maxCount: 70, level: 1  },
-            { itemId: 'raw_herring',   name: 'Herring',   minCount: 25, maxCount: 60, level: 5  },
-            { itemId: 'raw_mackerel',  name: 'Mackerel',  minCount: 20, maxCount: 50, level: 10 },
-            { itemId: 'raw_trout',     name: 'Trout',     minCount: 20, maxCount: 45, level: 15 },
-            { itemId: 'raw_cod',       name: 'Cod',       minCount: 20, maxCount: 45, level: 18 },
-            { itemId: 'raw_pike',      name: 'Pike',      minCount: 15, maxCount: 40, level: 20 },
-            { itemId: 'raw_salmon',    name: 'Salmon',    minCount: 15, maxCount: 35, level: 25 },
-            { itemId: 'raw_tuna',      name: 'Tuna',      minCount: 15, maxCount: 30, level: 30 },
-            { itemId: 'raw_lobster',   name: 'Lobster',   minCount: 10, maxCount: 25, level: 40 },
-            { itemId: 'raw_bass',      name: 'Bass',      minCount: 10, maxCount: 20, level: 43 },
-            { itemId: 'raw_swordfish', name: 'Swordfish', minCount: 10, maxCount: 20, level: 45 },
-            { itemId: 'raw_shark',     name: 'Shark',     minCount: 5,  maxCount: 15, level: 80 }
+            { itemId: 'raw_meat',      name: 'Meat',      minCount: 25, maxCount: 50, level: 1  },
+            { itemId: 'raw_shrimps',   name: 'Shrimps',   minCount: 25, maxCount: 50, level: 1  },
+            { itemId: 'raw_anchovies', name: 'Anchovies', minCount: 25, maxCount: 50, level: 1  },
+            { itemId: 'raw_sardine',   name: 'Sardine',   minCount: 25, maxCount: 50, level: 1  },
+            { itemId: 'raw_herring',   name: 'Herring',   minCount: 25, maxCount: 50, level: 5  },
+            { itemId: 'raw_mackerel',  name: 'Mackerel',  minCount: 25, maxCount: 50, level: 10 },
+            { itemId: 'raw_trout',     name: 'Trout',     minCount: 25, maxCount: 50, level: 15 },
+            { itemId: 'raw_cod',       name: 'Cod',       minCount: 25, maxCount: 50, level: 18 },
+            { itemId: 'raw_pike',      name: 'Pike',      minCount: 25, maxCount: 50, level: 20 },
+            { itemId: 'raw_salmon',    name: 'Salmon',    minCount: 25, maxCount: 50, level: 25 },
+            { itemId: 'raw_tuna',      name: 'Tuna',      minCount: 25, maxCount: 50, level: 30 },
+            { itemId: 'raw_lobster',   name: 'Lobster',   minCount: 25, maxCount: 50, level: 40 },
+            { itemId: 'raw_bass',      name: 'Bass',      minCount: 25, maxCount: 50, level: 43 },
+            { itemId: 'raw_swordfish', name: 'Swordfish', minCount: 25, maxCount: 50, level: 45 },
+            { itemId: 'raw_shark',     name: 'Shark',     minCount: 25,  maxCount: 50, level: 80 }
         ];
     }
     
