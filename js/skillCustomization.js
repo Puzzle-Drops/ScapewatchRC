@@ -567,83 +567,88 @@ class SkillCustomizationUI {
     }
     
     highlightTasksForNode(nodeId, currentLevel) {
-        // Clear existing highlights
-        this.clearTaskHighlights();
+    // Clear existing highlights
+    this.clearTaskHighlights();
+    
+    // Get node data
+    const nodeData = nodes.getNode(nodeId);
+    if (!nodeData || !nodeData.activities) return;
+    
+    // Get activities data
+    const activitiesData = loadingManager.getData('activities');
+    
+    // Build list of possible task itemIds from this node's activities
+    // Track which ones the player can actually do
+    const possibleTaskIds = new Map(); // itemId -> canDo (boolean)
+    
+    for (const activityId of nodeData.activities) {
+        const activity = activitiesData[activityId];
+        if (!activity || activity.skill !== this.currentSkillId) continue;
         
-        // Get node data
-        const nodeData = nodes.getNode(nodeId);
-        if (!nodeData || !nodeData.activities) return;
+        // Check if player has level for this activity
+        const activityRequiredLevel = activity.requiredLevel || 1;
+        const canDoActivity = currentLevel >= activityRequiredLevel;
         
-        // Get activities data
-        const activitiesData = loadingManager.getData('activities');
-        
-        // Build list of possible task itemIds from this node's activities
-        const possibleTaskIds = new Set();
-        
-        for (const activityId of nodeData.activities) {
-            const activity = activitiesData[activityId];
-            if (!activity || activity.skill !== this.currentSkillId) continue;
-            
-            // Check if player has level for this activity
-            const requiredLevel = activity.requiredLevel || 1;
-            if (currentLevel < requiredLevel) continue;
-            
-            // Map activity to task itemIds based on skill type
-            if (this.currentSkillId === 'runecraft') {
-                possibleTaskIds.add(`runecraft_trips_${activityId}`);
-            } else if (this.currentSkillId === 'agility') {
-                possibleTaskIds.add(`agility_laps_${activityId}`);
-            } else if (this.currentSkillId === 'thieving') {
-                possibleTaskIds.add(`thieving_${activityId}`);
-            } else if (this.currentSkillId === 'firemaking') {
-                if (activity.firemakingTable) {
-                    for (const logData of activity.firemakingTable) {
-                        // Only add if player has level for this log
-                        if (currentLevel >= logData.requiredLevel) {
-                            possibleTaskIds.add(logData.logId);
-                        }
+        // Map activity to task itemIds based on skill type
+        if (this.currentSkillId === 'runecraft') {
+            possibleTaskIds.set(`runecraft_trips_${activityId}`, canDoActivity);
+        } else if (this.currentSkillId === 'agility') {
+            possibleTaskIds.set(`agility_laps_${activityId}`, canDoActivity);
+        } else if (this.currentSkillId === 'thieving') {
+            possibleTaskIds.set(`thieving_${activityId}`, canDoActivity);
+        } else if (this.currentSkillId === 'firemaking') {
+            if (activity.firemakingTable) {
+                for (const logData of activity.firemakingTable) {
+                    // Check if player can do this specific log
+                    const canDoLog = currentLevel >= logData.requiredLevel;
+                    possibleTaskIds.set(logData.logId, canDoLog && canDoActivity);
+                }
+            }
+        } else if (this.currentSkillId === 'cooking') {
+            if (activity.cookingTable) {
+                for (const recipe of activity.cookingTable) {
+                    // Check if player can do this specific recipe
+                    const canDoRecipe = currentLevel >= recipe.requiredLevel;
+                    possibleTaskIds.set(recipe.rawItemId, canDoRecipe && canDoActivity);
+                }
+            }
+        } else {
+            // Standard gathering skills - get items from rewards
+            if (activity.rewards) {
+                for (const reward of activity.rewards) {
+                    if (reward.itemId && !this.isIgnoredItemForHighlight(reward.itemId)) {
+                        const rewardLevel = reward.requiredLevel || activityRequiredLevel;
+                        const canDoReward = currentLevel >= rewardLevel;
+                        possibleTaskIds.set(reward.itemId, canDoReward && canDoActivity);
                     }
                 }
-            } else if (this.currentSkillId === 'cooking') {
-                if (activity.cookingTable) {
-                    for (const recipe of activity.cookingTable) {
-                        // Only add if player has level for this recipe
-                        if (currentLevel >= recipe.requiredLevel) {
-                            possibleTaskIds.add(recipe.rawItemId);
-                        }
-                    }
-                }
-            } else {
-                // Standard gathering skills - get items from rewards
-                if (activity.rewards) {
-                    for (const reward of activity.rewards) {
-                        // Check if player has level for this reward
-                        const rewardLevel = reward.requiredLevel || requiredLevel;
-                        if (currentLevel >= rewardLevel && reward.itemId && !this.isIgnoredItemForHighlight(reward.itemId)) {
-                            possibleTaskIds.add(reward.itemId);
-                        }
-                    }
-                }
-                if (activity.alternatingRewards) {
-                    for (const reward of activity.alternatingRewards) {
-                        const rewardLevel = reward.requiredLevel || requiredLevel;
-                        if (currentLevel >= rewardLevel && reward.itemId && !this.isIgnoredItemForHighlight(reward.itemId)) {
-                            possibleTaskIds.add(reward.itemId);
-                        }
+            }
+            if (activity.alternatingRewards) {
+                for (const reward of activity.alternatingRewards) {
+                    if (reward.itemId && !this.isIgnoredItemForHighlight(reward.itemId)) {
+                        const rewardLevel = reward.requiredLevel || activityRequiredLevel;
+                        const canDoReward = currentLevel >= rewardLevel;
+                        possibleTaskIds.set(reward.itemId, canDoReward && canDoActivity);
                     }
                 }
             }
         }
-        
-        // Highlight matching task rows with green outline
-        const taskRows = document.querySelectorAll('.task-row');
-        taskRows.forEach(row => {
-            const taskId = row.dataset.taskId;
-            if (possibleTaskIds.has(taskId)) {
-                row.classList.add('green-outline');
-            }
-        });
     }
+    
+    // Highlight matching task rows with appropriate color
+    const taskRows = document.querySelectorAll('.task-row');
+    taskRows.forEach(row => {
+        const taskId = row.dataset.taskId;
+        if (possibleTaskIds.has(taskId)) {
+            const canDo = possibleTaskIds.get(taskId);
+            if (canDo) {
+                row.classList.add('green-outline');
+            } else {
+                row.classList.add('red-outline');
+            }
+        }
+    });
+}
     
     highlightNodesForTask(taskItemId) {
         // Clear existing highlights
@@ -768,11 +773,12 @@ class SkillCustomizationUI {
     }
     
     clearTaskHighlights() {
-        const taskRows = document.querySelectorAll('.task-row');
-        taskRows.forEach(row => {
-            row.classList.remove('green-outline');
-        });
-    }
+    const taskRows = document.querySelectorAll('.task-row');
+    taskRows.forEach(row => {
+        row.classList.remove('green-outline');
+        row.classList.remove('red-outline');
+    });
+}
     
     clearNodeHighlights() {
         const nodeRows = document.querySelectorAll('.node-row');
