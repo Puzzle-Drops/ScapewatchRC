@@ -19,13 +19,13 @@ class FiremakingSkill extends BaseSkill {
     // Single source of truth for all firemaking data
     initializeSkillData() {
         this.SKILL_DATA = [
-            { itemId: 'logs',         name: 'Logs',         minCount: 30, maxCount: 80, level: 1  },
-            { itemId: 'oak_logs',     name: 'Oak logs',     minCount: 25, maxCount: 70, level: 15 },
-            { itemId: 'willow_logs',  name: 'Willow logs',  minCount: 25, maxCount: 60, level: 30 },
-            { itemId: 'maple_logs',   name: 'Maple logs',   minCount: 20, maxCount: 50, level: 45 },
-            { itemId: 'yew_logs',     name: 'Yew logs',     minCount: 15, maxCount: 40, level: 60 },
-            { itemId: 'magic_logs',   name: 'Magic logs',   minCount: 10, maxCount: 30, level: 75 },
-            { itemId: 'redwood_logs', name: 'Redwood logs', minCount: 10, maxCount: 25, level: 90 }
+            { itemId: 'logs',         name: 'Logs',         minCount: 25, maxCount: 50, level: 1  },
+            { itemId: 'oak_logs',     name: 'Oak logs',     minCount: 25, maxCount: 50, level: 15 },
+            { itemId: 'willow_logs',  name: 'Willow logs',  minCount: 25, maxCount: 50, level: 30 },
+            { itemId: 'maple_logs',   name: 'Maple logs',   minCount: 25, maxCount: 50, level: 45 },
+            { itemId: 'yew_logs',     name: 'Yew logs',     minCount: 25, maxCount: 50, level: 60 },
+            { itemId: 'magic_logs',   name: 'Magic logs',   minCount: 25, maxCount: 50, level: 75 },
+            { itemId: 'redwood_logs', name: 'Redwood logs', minCount: 25, maxCount: 50, level: 90 }
         ];
     }
     
