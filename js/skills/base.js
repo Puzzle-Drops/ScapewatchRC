@@ -4,6 +4,22 @@ class BaseSkill {
         this.name = name;
         this.requiresBankingBeforeTask = false; // Default: most skills don't need to bank first
         this.isProcessingSkill = false; // Default: gathering skills are not processing skills
+        
+        // Initialize skill data if the subclass defines it
+        this.initializeSkillData();
+    }
+    
+    // ==================== DATA INITIALIZATION ====================
+    // Subclasses can override this to set up their SKILL_DATA
+    initializeSkillData() {
+        // Default: no specific data
+        // Subclasses will override this to set their SKILL_DATA
+    }
+    
+    // Helper method to get skill data for an item
+    getSkillDataForItem(itemId) {
+        if (!this.SKILL_DATA) return null;
+        return this.SKILL_DATA.find(data => data.itemId === itemId);
     }
     
     // ==================== PROCESSING SKILL INTERFACE ====================
@@ -189,42 +205,9 @@ class BaseSkill {
             return items[0]; // Fallback
         }
         
-        // DEFAULT: Keep the original weighting system when RuneCred not available
-        // Sort by required level (highest first)
-        items.sort((a, b) => b.requiredLevel - a.requiredLevel);
-        
-        // Apply weights: 40% highest, 30% second highest, 30% split among rest
-        const weights = [];
-        
-        if (items.length === 1) {
-            weights.push(1.0);
-        } else if (items.length === 2) {
-            weights.push(0.4); // Highest
-            weights.push(0.6); // Rest
-        } else {
-            weights.push(0.4); // Highest
-            weights.push(0.3); // Second highest
-            
-            // Split remaining 30% among the rest
-            const remaining = items.length - 2;
-            const eachWeight = 0.3 / remaining;
-            for (let i = 2; i < items.length; i++) {
-                weights.push(eachWeight);
-            }
-        }
-        
-        // Random selection based on weights
-        const random = Math.random();
-        let cumulative = 0;
-        
-        for (let i = 0; i < items.length; i++) {
-            cumulative += weights[i];
-            if (random < cumulative) {
-                return items[i];
-            }
-        }
-        
-        return items[items.length - 1]; // Fallback
+        // DEFAULT: Equal weights for all items when RuneCred not available
+        // This ensures RuneCred only provides benefits, never disadvantages
+        return items[Math.floor(Math.random() * items.length)];
     }
     
     // Find activities that produce a specific item
@@ -315,11 +298,22 @@ class BaseSkill {
         return viableNodes[Math.floor(Math.random() * viableNodes.length)];
     }
     
-    // Determine target count for an item (override in subclasses for custom logic)
+    // Determine target count for an item (now uses SKILL_DATA if available)
     determineTargetCount(itemId) {
-        // Default: 50-150 items
-        const base = 50 + Math.floor(Math.random() * 100);
-        let count = Math.round(base / 5) * 5; // Round to nearest 5
+        let baseCount, count;
+        
+        // Check if we have skill data for this item
+        const skillData = this.getSkillDataForItem(itemId);
+        if (skillData) {
+            // Use the centralized data
+            const range = skillData.maxCount - skillData.minCount;
+            baseCount = skillData.minCount + Math.random() * range;
+            count = Math.round(baseCount / 5) * 5; // Round to nearest 5
+        } else {
+            // Fallback to default
+            baseCount = 50 + Math.floor(Math.random() * 100);
+            count = Math.round(baseCount / 5) * 5;
+        }
         
         // Apply RuneCred quantity modifier
         if (window.runeCreditManager) {
@@ -333,15 +327,45 @@ class BaseSkill {
     
     // ==================== UI DISPLAY METHODS ====================
     
-    // Get all possible tasks for UI display (not for generation)
+    // Get all possible tasks for UI display (now uses SKILL_DATA if available)
     getAllPossibleTasksForUI() {
-        // Default implementation - skills should override this
+        // If subclass defines SKILL_DATA, use it
+        if (this.SKILL_DATA) {
+            const tasks = [];
+            const items = loadingManager.getData('items');
+            
+            for (const data of this.SKILL_DATA) {
+                // Check if item exists in items data for better naming
+                let displayName = data.name;
+                if (items[data.itemId]) {
+                    displayName = items[data.itemId].name || data.name;
+                }
+                
+                tasks.push({
+                    itemId: data.itemId,
+                    displayName: displayName,
+                    minCount: data.minCount,
+                    maxCount: data.maxCount,
+                    requiredLevel: data.level
+                });
+            }
+            
+            return tasks;
+        }
+        
+        // Default implementation for skills without SKILL_DATA
         return [];
     }
     
-    // Get base task counts without modifiers
+    // Get base task counts without modifiers (now uses SKILL_DATA if available)
     getBaseTaskCounts(itemId) {
-        // Override in subclasses for specific counts
+        // Check if we have skill data for this item
+        const skillData = this.getSkillDataForItem(itemId);
+        if (skillData) {
+            return { min: skillData.minCount, max: skillData.maxCount };
+        }
+        
+        // Default fallback
         return { min: 20, max: 50 };
     }
     
