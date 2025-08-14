@@ -7,6 +7,33 @@ class ThievingSkill extends BaseSkill {
         this.blackjackCounter = {}; // Track consecutive successful blackjacks per NPC
     }
     
+    // ==================== CENTRALIZED SKILL DATA ====================
+    // Single source of truth for all thieving data
+    // Note: itemId is virtual (thieving_X), display name is the NPC name
+    initializeSkillData() {
+        this.SKILL_DATA = [
+            { itemId: 'thieving_pickpocket_man',          name: 'Man/Woman',                minCount: 50, maxCount: 100, level: 1  },
+            { itemId: 'thieving_pickpocket_farmer',       name: 'Farmer',                   minCount: 50, maxCount: 100,  level: 10 },
+            { itemId: 'thieving_pickpocket_ham',          name: 'H.A.M. Member',            minCount: 50, maxCount: 100,  level: 15 },
+            { itemId: 'thieving_pickpocket_warrior',      name: 'Warrior',                  minCount: 50, maxCount: 100,  level: 25 },
+            { itemId: 'thieving_pickpocket_rogue',        name: 'Rogue',                    minCount: 50, maxCount: 100,  level: 32 },
+            { itemId: 'thieving_pickpocket_master_farmer', name: 'Master Farmer',           minCount: 50, maxCount: 100,  level: 38 },
+            { itemId: 'thieving_pickpocket_guard',        name: 'Guard',                    minCount: 50, maxCount: 100,  level: 40 },
+            { itemId: 'thieving_blackjack_bearded',       name: 'Bearded Pollnivnian Bandit', minCount: 50, maxCount: 100,  level: 45 },
+            { itemId: 'thieving_pickpocket_bandit_camp',  name: 'Bandit',                   minCount: 50, maxCount: 100,  level: 53 },
+            { itemId: 'thieving_blackjack_bandit',        name: 'Menaphite Thug',           minCount: 50, maxCount: 100,  level: 55 },
+            { itemId: 'thieving_pickpocket_knight',       name: 'Knight of Ardougne',       minCount: 50, maxCount: 100,  level: 55 },
+            { itemId: 'thieving_pickpocket_watchman',     name: 'Watchman',                 minCount: 50, maxCount: 100,  level: 65 },
+            { itemId: 'thieving_pickpocket_menaphite',    name: 'Menaphite Thug',           minCount: 50, maxCount: 100,  level: 65 },
+            { itemId: 'thieving_pickpocket_paladin',      name: 'Paladin',                  minCount: 50, maxCount: 100,  level: 70 },
+            { itemId: 'thieving_pickpocket_gnome',        name: 'Gnome',                    minCount: 50, maxCount: 100,  level: 75 },
+            { itemId: 'thieving_pickpocket_hero',         name: 'Hero',                     minCount: 50, maxCount: 100,  level: 80 },
+            { itemId: 'thieving_pickpocket_vyre',         name: 'Vyre',                     minCount: 50, maxCount: 100,  level: 82 },
+            { itemId: 'thieving_pickpocket_elf',          name: 'Elf',                      minCount: 50, maxCount: 100,  level: 85 },
+            { itemId: 'thieving_pickpocket_tzhaar',       name: 'TzHaar-Hur',               minCount: 50, maxCount: 100,  level: 90 }
+        ];
+    }
+    
     // ==================== TASK GENERATION ====================
     
     getTaskVerb() {
@@ -38,8 +65,8 @@ class ThievingSkill extends BaseSkill {
         // Select a node using weighted distribution
         const selected = this.selectWeightedNode(viableNodes);
         
-        // Determine target count
-        const targetCount = this.determineTargetCount(selectedNPC.activityId);
+        // Determine target count (using centralized data)
+        const targetCount = this.determineTargetCount(`thieving_${selectedNPC.activityId}`);
         
         // Get activity data for the name
         const activityData = loadingManager.getData('activities')[selectedNPC.activityId];
@@ -106,7 +133,7 @@ class ThievingSkill extends BaseSkill {
             return npcs[0]; // Fallback
         }
         
-        // Default: equal weights if RuneCred not available
+        // DEFAULT: Equal weights if RuneCred not available
         return npcs[Math.floor(Math.random() * npcs.length)];
     }
     
@@ -136,44 +163,7 @@ class ThievingSkill extends BaseSkill {
         return viableNodes;
     }
     
-    determineTargetCount(activityId) {
-        // Different counts based on NPC difficulty
-        const counts = {
-            'pickpocket_man': { min: 50, max: 100 },
-            'pickpocket_farmer': { min: 40, max: 80 },
-            'pickpocket_ham': { min: 35, max: 70 },
-            'pickpocket_warrior': { min: 30, max: 60 },
-            'pickpocket_rogue': { min: 30, max: 60 },
-            'pickpocket_master_farmer': { min: 30, max: 65 },
-            'pickpocket_guard': { min: 25, max: 50 },
-            'blackjack_bearded': { min: 30, max: 60 },
-            'pickpocket_bandit_camp': { min: 25, max: 50 },
-            'blackjack_bandit': { min: 30, max: 60 },
-            'pickpocket_knight': { min: 30, max: 60 },
-            'pickpocket_watchman': { min: 20, max: 40 },
-            'pickpocket_menaphite': { min: 25, max: 50 },
-            'pickpocket_paladin': { min: 20, max: 40 },
-            'pickpocket_gnome': { min: 20, max: 40 },
-            'pickpocket_hero': { min: 15, max: 30 },
-            'pickpocket_vyre': { min: 15, max: 30 },
-            'pickpocket_elf': { min: 15, max: 30 },
-            'pickpocket_tzhaar': { min: 20, max: 40 }
-        };
-        
-        const range = counts[activityId] || { min: 20, max: 50 };
-        const baseCount = range.min + Math.random() * (range.max - range.min);
-        let count = Math.round(baseCount / 5) * 5;
-        
-        // Apply RuneCred quantity modifier
-        if (window.runeCreditManager) {
-            const virtualItemId = `thieving_${activityId}`;
-            const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
-            count = Math.round(count * modifier);
-            count = Math.max(5, count); // Minimum of 5
-        }
-        
-        return count;
-    }
+    // determineTargetCount now uses base class implementation
     
     // Update thieving task progress
     updateThievingTaskProgress() {
@@ -193,89 +183,35 @@ class ThievingSkill extends BaseSkill {
     
     // ==================== UI DISPLAY METHODS ====================
     
-    // Get all possible tasks for UI display (not for generation)
+    // Override getAllPossibleTasksForUI to handle activity names properly
     getAllPossibleTasksForUI() {
         const tasks = [];
         const activities = loadingManager.getData('activities');
         
-        // All thieving NPCs with their base counts
-        const npcData = [
-            { id: 'pickpocket_man', name: 'Man/Woman', min: 50, max: 100, level: 1 },
-            { id: 'pickpocket_farmer', name: 'Farmer', min: 40, max: 80, level: 10 },
-            { id: 'pickpocket_ham', name: 'H.A.M. Member', min: 35, max: 70, level: 15 },
-            { id: 'pickpocket_warrior', name: 'Warrior woman', min: 30, max: 60, level: 25 },
-            { id: 'pickpocket_rogue', name: 'Rogue', min: 30, max: 60, level: 32 },
-            { id: 'pickpocket_master_farmer', name: 'Master Farmer', min: 30, max: 65, level: 38 },
-            { id: 'pickpocket_guard', name: 'Guard', min: 25, max: 50, level: 40 },
-            { id: 'blackjack_bearded', name: 'Bearded Pollnivnian Bandit', min: 30, max: 60, level: 45 },
-            { id: 'pickpocket_bandit_camp', name: 'Bandit', min: 25, max: 50, level: 53 },
-            { id: 'blackjack_bandit', name: 'Menaphite Thug', min: 30, max: 60, level: 65 },
-            { id: 'pickpocket_knight', name: 'Knight of Ardougne', min: 30, max: 60, level: 55 },
-            { id: 'pickpocket_watchman', name: 'Watchman', min: 20, max: 40, level: 65 },
-            { id: 'pickpocket_menaphite', name: 'Menaphite Thug', min: 25, max: 50, level: 65 },
-            { id: 'pickpocket_paladin', name: 'Paladin', min: 20, max: 40, level: 70 },
-            { id: 'pickpocket_gnome', name: 'Gnome', min: 20, max: 40, level: 75 },
-            { id: 'pickpocket_hero', name: 'Hero', min: 15, max: 30, level: 80 },
-            { id: 'pickpocket_vyre', name: 'Vyre', min: 15, max: 30, level: 82 },
-            { id: 'pickpocket_elf', name: 'Elf', min: 15, max: 30, level: 85 },
-            { id: 'pickpocket_tzhaar', name: 'TzHaar-Hur', min: 20, max: 40, level: 90 }
-        ];
-        
-        for (const npc of npcData) {
-            // Check if activity exists
-            if (activities[npc.id]) {
-                const activity = activities[npc.id];
-                tasks.push({
-                    itemId: `thieving_${npc.id}`,
-                    displayName: activity.targetName || activity.name || npc.name,
-                    minCount: npc.min,
-                    maxCount: npc.max,
-                    requiredLevel: npc.level
-                });
-            } else {
-                // Use fallback data
-                tasks.push({
-                    itemId: `thieving_${npc.id}`,
-                    displayName: npc.name,
-                    minCount: npc.min,
-                    maxCount: npc.max,
-                    requiredLevel: npc.level
-                });
+        for (const data of this.SKILL_DATA) {
+            // Get the activity ID from the virtual item ID
+            const activityId = data.itemId.replace('thieving_', '');
+            
+            // Check if activity exists to get better naming
+            let displayName = data.name;
+            if (activities[activityId]) {
+                const activity = activities[activityId];
+                displayName = activity.targetName || activity.name || data.name;
             }
+            
+            tasks.push({
+                itemId: data.itemId,
+                displayName: displayName,
+                minCount: data.minCount,
+                maxCount: data.maxCount,
+                requiredLevel: data.level
+            });
         }
         
         return tasks;
     }
     
-    // Get base task counts without modifiers (for UI)
-    getBaseTaskCounts(itemId) {
-        // Remove the 'thieving_' prefix to get activityId
-        const activityId = itemId.replace('thieving_', '');
-        
-        const counts = {
-            'pickpocket_man': { min: 50, max: 100 },
-            'pickpocket_farmer': { min: 40, max: 80 },
-            'pickpocket_ham': { min: 35, max: 70 },
-            'pickpocket_warrior': { min: 30, max: 60 },
-            'pickpocket_rogue': { min: 30, max: 60 },
-            'pickpocket_master_farmer': { min: 30, max: 65 },
-            'pickpocket_guard': { min: 25, max: 50 },
-            'blackjack_bearded': { min: 30, max: 60 },
-            'pickpocket_bandit_camp': { min: 25, max: 50 },
-            'blackjack_bandit': { min: 30, max: 60 },
-            'pickpocket_knight': { min: 30, max: 60 },
-            'pickpocket_watchman': { min: 20, max: 40 },
-            'pickpocket_menaphite': { min: 25, max: 50 },
-            'pickpocket_paladin': { min: 20, max: 40 },
-            'pickpocket_gnome': { min: 20, max: 40 },
-            'pickpocket_hero': { min: 15, max: 30 },
-            'pickpocket_vyre': { min: 15, max: 30 },
-            'pickpocket_elf': { min: 15, max: 30 },
-            'pickpocket_tzhaar': { min: 20, max: 40 }
-        };
-        
-        return counts[activityId] || { min: 20, max: 50 };
-    }
+    // getBaseTaskCounts now uses base class implementation
     
     // ==================== CORE BEHAVIOR ====================
     
