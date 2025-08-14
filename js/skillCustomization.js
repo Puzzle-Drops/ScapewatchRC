@@ -26,13 +26,25 @@ class SkillCustomizationUI {
         closeBtn.textContent = '×';
         closeBtn.addEventListener('click', () => this.close());
         
-        // Content area
+        // Create two-column layout wrapper
+        const layoutWrapper = document.createElement('div');
+        layoutWrapper.className = 'skill-customization-layout';
+        
+        // Left column - Completed tasks for this skill
+        const completedColumn = document.createElement('div');
+        completedColumn.className = 'skill-customization-completed';
+        completedColumn.id = 'skill-customization-completed';
+        
+        // Right column - Main content area
         const content = document.createElement('div');
         content.className = 'skill-customization-content';
         content.id = 'skill-customization-content';
         
+        layoutWrapper.appendChild(completedColumn);
+        layoutWrapper.appendChild(content);
+        
         container.appendChild(closeBtn);
-        container.appendChild(content);
+        container.appendChild(layoutWrapper);
         this.overlay.appendChild(container);
         
         // Add to scaled container
@@ -60,6 +72,10 @@ class SkillCustomizationUI {
     render() {
         if (!this.currentSkillId) return;
         
+        // Render completed tasks column
+        this.renderCompletedTasks();
+        
+        // Render main content
         const content = document.getElementById('skill-customization-content');
         content.innerHTML = '';
         
@@ -87,6 +103,129 @@ class SkillCustomizationUI {
         mainContent.appendChild(nodesColumn);
         
         content.appendChild(mainContent);
+    }
+    
+    renderCompletedTasks() {
+        const completedColumn = document.getElementById('skill-customization-completed');
+        completedColumn.innerHTML = '';
+        
+        // Header for completed tasks
+        const header = document.createElement('div');
+        header.className = 'completed-tasks-header';
+        
+        const skillData = loadingManager.getData('skills')[this.currentSkillId];
+        const title = document.createElement('h3');
+        title.textContent = `${skillData.name} History`;
+        header.appendChild(title);
+        
+        completedColumn.appendChild(header);
+        
+        // Get completed tasks for this skill
+        const completedTasksForSkill = this.getCompletedTasksForSkill();
+        
+        // Stats section
+        const statsDiv = document.createElement('div');
+        statsDiv.className = 'completed-tasks-stats';
+        
+        const totalCompleted = completedTasksForSkill.length;
+        const statsText = document.createElement('div');
+        statsText.className = 'completed-stats-text';
+        statsText.textContent = `${totalCompleted} ${skillData.name} tasks completed`;
+        statsDiv.appendChild(statsText);
+        
+        completedColumn.appendChild(statsDiv);
+        
+        // Scrollable list container
+        const listContainer = document.createElement('div');
+        listContainer.className = 'completed-tasks-scroll';
+        
+        if (completedTasksForSkill.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'completed-tasks-empty';
+            emptyDiv.textContent = `No ${skillData.name} tasks completed yet`;
+            listContainer.appendChild(emptyDiv);
+        } else {
+            // Show tasks in reverse order (most recent first)
+            completedTasksForSkill.slice().reverse().forEach(taskInfo => {
+                const taskRow = this.createCompletedTaskRow(taskInfo.task, taskInfo.globalIndex);
+                listContainer.appendChild(taskRow);
+            });
+        }
+        
+        completedColumn.appendChild(listContainer);
+    }
+    
+    getCompletedTasksForSkill() {
+        if (!window.taskManager) return [];
+        
+        const allCompleted = taskManager.getCompletedTasks();
+        const skillTasks = [];
+        
+        // Filter and track global index
+        allCompleted.forEach((task, index) => {
+            if (task.skill === this.currentSkillId) {
+                skillTasks.push({
+                    task: task,
+                    globalIndex: index + 1 // 1-based index
+                });
+            }
+        });
+        
+        return skillTasks;
+    }
+    
+    createCompletedTaskRow(task, globalIndex) {
+        const row = document.createElement('div');
+        row.className = 'completed-task-row';
+        
+        // Task number
+        const numberDiv = document.createElement('div');
+        numberDiv.className = 'completed-task-number';
+        numberDiv.textContent = `#${globalIndex}`;
+        
+        // Task info
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'completed-task-info';
+        
+        // Parse the description to extract key info
+        const descParts = task.description.split(' at ');
+        const mainDesc = descParts[0]; // e.g., "Mine 50 Iron ore"
+        const location = descParts[1] || ''; // e.g., "Iron Rocks"
+        
+        const mainDiv = document.createElement('div');
+        mainDiv.className = 'completed-task-main';
+        mainDiv.textContent = mainDesc;
+        
+        const locationDiv = document.createElement('div');
+        locationDiv.className = 'completed-task-location';
+        locationDiv.textContent = location;
+        
+        infoDiv.appendChild(mainDiv);
+        if (location) {
+            infoDiv.appendChild(locationDiv);
+        }
+        
+        // Time ago (if we tracked completion time)
+        if (task.completedAt) {
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'completed-task-time';
+            timeDiv.textContent = this.getTimeAgo(task.completedAt);
+            infoDiv.appendChild(timeDiv);
+        }
+        
+        row.appendChild(numberDiv);
+        row.appendChild(infoDiv);
+        
+        return row;
+    }
+    
+    getTimeAgo(timestamp) {
+        const seconds = Math.floor((Date.now() - timestamp) / 1000);
+        
+        if (seconds < 60) return 'just now';
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+        return `${Math.floor(seconds / 86400)}d ago`;
     }
     
     createHeader(skill, skillData) {
@@ -128,14 +267,9 @@ class SkillCustomizationUI {
         const rcSpent = runeCreditManager.rcSpentPerSkill[this.currentSkillId] || 0;
         rcSpentSpan.textContent = `${rcSpent} RC spent on ${skillData.name}`;
         
-        const tasksSpan = document.createElement('span');
-        const taskCount = this.getSkillTaskCount();
-        tasksSpan.textContent = `${taskCount} ${skillData.name} tasks completed`;
-        
         statsDiv.appendChild(levelSpan);
         statsDiv.appendChild(xpSpan);
         statsDiv.appendChild(rcSpentSpan);
-        statsDiv.appendChild(tasksSpan);
         
         leftSide.appendChild(titleDiv);
         leftSide.appendChild(statsDiv);
@@ -151,7 +285,7 @@ class SkillCustomizationUI {
         
         const totalTasksDiv = document.createElement('div');
         totalTasksDiv.className = 'total-tasks';
-        totalTasksDiv.textContent = `${runeCreditManager.totalTasksCompleted} tasks completed`;
+        totalTasksDiv.textContent = `${runeCreditManager.totalTasksCompleted} total tasks completed`;
         
         rightSide.appendChild(rcDiv);
         rightSide.appendChild(totalTasksDiv);
