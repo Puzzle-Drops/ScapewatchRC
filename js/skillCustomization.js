@@ -407,23 +407,18 @@ class SkillCustomizationUI {
         return btn;
     }
     
+// In skillCustomization.js
 getPossibleTasks() {
-    // Get the skill object
     const skill = skillRegistry.getSkill(this.currentSkillId);
     if (!skill) return [];
     
-    // Use the new method that returns ALL possible tasks
-    const possibleTasks = skill.getAllPossibleTasks ? 
-        skill.getAllPossibleTasks() : [];
+    // Use the UI-specific method if it exists
+    if (skill.getAllPossibleTasksForUI) {
+        return skill.getAllPossibleTasksForUI();
+    }
     
-    // Ensure all tasks have proper structure
-    return possibleTasks.map(task => ({
-        itemId: task.itemId,
-        displayName: task.displayName || this.getItemDisplayName(task.itemId),
-        minCount: task.minCount || 20,
-        maxCount: task.maxCount || 50,
-        requiredLevel: task.requiredLevel || 1
-    }));
+    // Fallback for skills that don't have it yet
+    return [];
 }
 
 getItemDisplayName(itemId) {
