@@ -18,7 +18,7 @@ class AgilitySkill extends BaseSkill {
         }
         
         // Select a course using weighted distribution
-        const selectedCourse = this.selectWeightedItem(possibleCourses);
+        const selectedCourse = this.selectWeightedCourse(possibleCourses);
         if (!selectedCourse) {
             console.log('Failed to select agility course');
             return null;
@@ -50,27 +50,6 @@ class AgilitySkill extends BaseSkill {
             lapsCompleted: 0
         };
     }
-
-    // Add after generateTask method
-getAllPossibleTasks() {
-    const tasks = [];
-    const activities = loadingManager.getData('activities');
-    
-    for (const [activityId, activity] of Object.entries(activities)) {
-        if (activity.skill !== 'agility') continue;
-        
-        const lapCounts = this.determineLapCount(activityId);
-        tasks.push({
-            itemId: `agility_laps_${activityId}`,
-            displayName: activity.name || activityId.replace(/_/g, ' '),
-            minCount: lapCounts.min || 8,
-            maxCount: lapCounts.max || 20,
-            requiredLevel: activity.requiredLevel || 1
-        });
-    }
-    
-    return tasks;
-}
     
     getAvailableCourses() {
         const courses = [];
@@ -98,6 +77,37 @@ getAllPossibleTasks() {
         }
         
         return courses;
+    }
+    
+    // Select a course using weighted distribution (with RuneCred support)
+    selectWeightedCourse(courses) {
+        if (courses.length === 0) return null;
+        
+        // Use RuneCred weights if available
+        if (window.runeCreditManager) {
+            const weightedCourses = [];
+            let totalWeight = 0;
+            
+            for (const course of courses) {
+                // Get the weight modifier for this course's virtual item
+                const virtualItemId = `agility_laps_${course.activityId}`;
+                const weight = runeCreditManager.getTaskWeight(this.id, virtualItemId);
+                totalWeight += weight;
+                weightedCourses.push({ course, weight: totalWeight });
+            }
+            
+            const random = Math.random() * totalWeight;
+            for (const weighted of weightedCourses) {
+                if (random < weighted.weight) {
+                    return weighted.course;
+                }
+            }
+            
+            return courses[0]; // Fallback
+        }
+        
+        // Default: equal weights if RuneCred not available
+        return courses[Math.floor(Math.random() * courses.length)];
     }
     
     findNodeForCourse(activityId) {
@@ -132,8 +142,29 @@ getAllPossibleTasks() {
             }
         }
         
-        // Return a random viable node if we have any
+        // Select a node using weighted distribution if we have any
         if (viableNodes.length > 0) {
+            if (window.runeCreditManager) {
+                const weightedNodes = [];
+                let totalWeight = 0;
+                
+                for (const nodeId of viableNodes) {
+                    const weight = runeCreditManager.getNodeWeight(this.id, nodeId);
+                    totalWeight += weight;
+                    weightedNodes.push({ nodeId, weight: totalWeight });
+                }
+                
+                const random = Math.random() * totalWeight;
+                for (const weighted of weightedNodes) {
+                    if (random < weighted.weight) {
+                        return weighted.nodeId;
+                    }
+                }
+                
+                return viableNodes[0]; // Fallback
+            }
+            
+            // Default: random selection
             return viableNodes[Math.floor(Math.random() * viableNodes.length)];
         }
         
@@ -157,16 +188,17 @@ getAllPossibleTasks() {
         const counts = lapCounts[activityId] || { min: 10, max: 20 };
         const baseCount = counts.min + Math.random() * (counts.max - counts.min);
         let count = Math.round(baseCount);
-    
-    // Apply RuneCred quantity modifier
-    if (window.runeCreditManager) {
-        const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
-        count = Math.round(count * modifier);
-        count = Math.max(5, count); // Minimum of 5
+        
+        // Apply RuneCred quantity modifier
+        if (window.runeCreditManager) {
+            const virtualItemId = `agility_laps_${activityId}`;
+            const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
+            count = Math.round(count * modifier);
+            count = Math.max(2, count); // Minimum of 2 laps
+        }
+        
+        return count;
     }
-    
-    return count;
-}
     
     // Update task progress when lap completes
     updateAgilityTaskProgress() {
@@ -184,8 +216,85 @@ getAllPossibleTasks() {
         }
     }
     
+    // ==================== UI DISPLAY METHODS ====================
+    
+    // Get all possible tasks for UI display (not for generation)
+    getAllPossibleTasksForUI() {
+        const tasks = [];
+        const activities = loadingManager.getData('activities');
+        
+        // All agility courses with their base counts
+        const courseData = [
+            { id: 'draynor_rooftop', name: 'Draynor Rooftop', min: 10, max: 25, level: 10 },
+            { id: 'al_kharid_rooftop', name: 'Al Kharid Rooftop', min: 10, max: 20, level: 20 },
+            { id: 'varrock_rooftop', name: 'Varrock Rooftop', min: 8, max: 18, level: 30 },
+            { id: 'canifis_rooftop', name: 'Canifis Rooftop', min: 10, max: 20, level: 40 },
+            { id: 'falador_rooftop', name: 'Falador Rooftop', min: 8, max: 15, level: 50 },
+            { id: 'seers_rooftop', name: "Seers' Village Rooftop", min: 10, max: 20, level: 60 },
+            { id: 'pollnivneach_rooftop', name: 'Pollnivneach Rooftop', min: 8, max: 15, level: 70 },
+            { id: 'rellekka_rooftop', name: 'Rellekka Rooftop', min: 8, max: 15, level: 80 },
+            { id: 'ardougne_rooftop', name: 'Ardougne Rooftop', min: 8, max: 15, level: 90 }
+        ];
+        
+        for (const course of courseData) {
+            // Check if activity exists
+            if (activities[course.id]) {
+                const activity = activities[course.id];
+                tasks.push({
+                    itemId: `agility_laps_${course.id}`,
+                    displayName: `${activity.name || course.name} laps`,
+                    minCount: course.min,
+                    maxCount: course.max,
+                    requiredLevel: course.level
+                });
+            } else {
+                // Use fallback data
+                tasks.push({
+                    itemId: `agility_laps_${course.id}`,
+                    displayName: `${course.name} laps`,
+                    minCount: course.min,
+                    maxCount: course.max,
+                    requiredLevel: course.level
+                });
+            }
+        }
+        
+        return tasks;
+    }
+    
+    // Get base task counts without modifiers (for UI)
+    getBaseTaskCounts(itemId) {
+        // Remove the 'agility_laps_' prefix to get activityId
+        const activityId = itemId.replace('agility_laps_', '');
+        
+        const lapCounts = {
+            'draynor_rooftop': { min: 10, max: 25 },
+            'al_kharid_rooftop': { min: 10, max: 20 },
+            'varrock_rooftop': { min: 8, max: 18 },
+            'canifis_rooftop': { min: 10, max: 20 },
+            'falador_rooftop': { min: 8, max: 15 },
+            'seers_rooftop': { min: 10, max: 20 },
+            'pollnivneach_rooftop': { min: 8, max: 15 },
+            'rellekka_rooftop': { min: 8, max: 15 },
+            'ardougne_rooftop': { min: 8, max: 15 }
+        };
+        
+        return lapCounts[activityId] || { min: 10, max: 20 };
+    }
+    
     // ==================== CORE BEHAVIOR ====================
     
+    getDuration(baseDuration, level, activityData) {
+        let duration = baseDuration;
+        
+        // Apply speed bonus from RuneCred system
+        if (window.runeCreditManager) {
+            const speedBonus = runeCreditManager.getSkillSpeedBonus(this.id);
+            duration = duration / (1 + speedBonus); // Speed bonus reduces duration
+        }
+        
+        return duration;
+    }
     
     beforeActivityStart(activityData) {
         // Check if inventory is full (need space for marks of grace)
