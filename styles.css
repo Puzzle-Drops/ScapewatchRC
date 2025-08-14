@@ -1238,3 +1238,133 @@ body {
 .spent-amount {
     display: none;
 }
+
+/* Skill Customization - Two Column Layout */
+.skill-customization-layout {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    gap: 20px;
+}
+
+/* Left Column - Completed Tasks */
+.skill-customization-completed {
+    width: 300px;
+    background: #2c3e50;
+    padding: 20px;
+    border-right: 2px solid #34495e;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.completed-tasks-header {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #34495e;
+}
+
+.completed-tasks-header h3 {
+    margin: 0;
+    color: #ecf0f1;
+    font-size: 20px;
+}
+
+.completed-tasks-stats {
+    background: #34495e;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.completed-stats-text {
+    color: #f39c12;
+    font-weight: bold;
+    text-align: center;
+}
+
+.completed-tasks-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
+}
+
+.completed-tasks-empty {
+    text-align: center;
+    color: #7f8c8d;
+    padding: 30px 10px;
+    font-style: italic;
+}
+
+.completed-task-row {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: #34495e;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    border: 1px solid #2c3e50;
+    transition: all 0.2s;
+}
+
+.completed-task-row:hover {
+    background: #3a4d63;
+    border-color: #7f8c8d;
+}
+
+.completed-task-number {
+    color: #f39c12;
+    font-weight: bold;
+    min-width: 45px;
+    font-size: 14px;
+}
+
+.completed-task-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.completed-task-main {
+    color: #ecf0f1;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.completed-task-location {
+    color: #95a5a6;
+    font-size: 11px;
+}
+
+.completed-task-time {
+    color: #7f8c8d;
+    font-size: 10px;
+    font-style: italic;
+}
+
+/* Adjust main content to account for the completed tasks column */
+.skill-customization-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Scrollbar styling for completed tasks */
+.completed-tasks-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.completed-tasks-scroll::-webkit-scrollbar-track {
+    background: #2c3e50;
+}
+
+.completed-tasks-scroll::-webkit-scrollbar-thumb {
+    background: #7f8c8d;
+    border-radius: 3px;
+}
+
+.completed-tasks-scroll::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+}
