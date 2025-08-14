@@ -5,103 +5,32 @@ class MiningSkill extends BaseSkill {
         this.alternatingStates = {};
     }
     
+    // ==================== CENTRALIZED SKILL DATA ====================
+    // Single source of truth for all mining data
+    initializeSkillData() {
+        this.SKILL_DATA = [
+            { itemId: 'copper_ore',     name: 'Copper ore',     minCount: 50, maxCount: 150, level: 1  },
+            { itemId: 'tin_ore',        name: 'Tin ore',        minCount: 50, maxCount: 150, level: 1  },
+            { itemId: 'iron_ore',       name: 'Iron ore',       minCount: 40, maxCount: 120, level: 15 },
+            { itemId: 'silver_ore',     name: 'Silver ore',     minCount: 30, maxCount: 80,  level: 20 },
+            { itemId: 'coal',           name: 'Coal',           minCount: 50, maxCount: 100, level: 30 },
+            { itemId: 'gold_ore',       name: 'Gold ore',       minCount: 25, maxCount: 60,  level: 40 },
+            { itemId: 'mithril_ore',    name: 'Mithril ore',    minCount: 20, maxCount: 50,  level: 55 },
+            { itemId: 'adamantite_ore', name: 'Adamantite ore', minCount: 15, maxCount: 35,  level: 70 },
+            { itemId: 'runite_ore',     name: 'Runite ore',     minCount: 10, maxCount: 20,  level: 85 },
+            { itemId: 'amethyst',       name: 'Amethyst',       minCount: 10, maxCount: 25,  level: 92 }
+        ];
+    }
+    
     // ==================== TASK GENERATION OVERRIDES ====================
     
     getTaskVerb() {
         return 'Mine';
     }
     
-    determineTargetCount(itemId) {
-        const oreCounts = {
-            'copper_ore': { min: 50, max: 150 },
-            'tin_ore': { min: 50, max: 150 },
-            'iron_ore': { min: 40, max: 120 },
-            'silver_ore': { min: 30, max: 80 },
-            'coal': { min: 50, max: 100 },
-            'gold_ore': { min: 25, max: 60 },
-            'mithril_ore': { min: 20, max: 50 },
-            'adamantite_ore': { min: 15, max: 35 },
-            'runite_ore': { min: 10, max: 20 },
-            'amethyst': { min: 10, max: 25 }
-        };
-        
-        const counts = oreCounts[itemId] || { min: 20, max: 50 };
-        const baseCount = counts.min + Math.random() * (counts.max - counts.min);
-        let count = Math.round(baseCount / 5) * 5;
-        
-        // Apply RuneCred quantity modifier
-        if (window.runeCreditManager) {
-            const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
-            count = Math.round(count * modifier);
-            count = Math.max(5, count); // Minimum of 5
-        }
-        
-        return count;
-    }
-    
-    // ==================== UI DISPLAY METHODS ====================
-    
-    // Get all possible tasks for UI display (not for generation)
-    getAllPossibleTasksForUI() {
-        const tasks = [];
-        const items = loadingManager.getData('items');
-        
-        // All possible ores with their base counts
-        const oreData = [
-            { id: 'copper_ore', name: 'Copper ore', min: 50, max: 150, level: 1 },
-            { id: 'tin_ore', name: 'Tin ore', min: 50, max: 150, level: 1 },
-            { id: 'iron_ore', name: 'Iron ore', min: 40, max: 120, level: 15 },
-            { id: 'silver_ore', name: 'Silver ore', min: 30, max: 80, level: 20 },
-            { id: 'coal', name: 'Coal', min: 50, max: 100, level: 30 },
-            { id: 'gold_ore', name: 'Gold ore', min: 25, max: 60, level: 40 },
-            { id: 'mithril_ore', name: 'Mithril ore', min: 20, max: 50, level: 55 },
-            { id: 'adamantite_ore', name: 'Adamantite ore', min: 15, max: 35, level: 70 },
-            { id: 'runite_ore', name: 'Runite ore', min: 10, max: 20, level: 85 },
-            { id: 'amethyst', name: 'Amethyst', min: 10, max: 25, level: 92 }
-        ];
-        
-        for (const ore of oreData) {
-            // Check if item exists in items data
-            if (items[ore.id]) {
-                tasks.push({
-                    itemId: ore.id,
-                    displayName: items[ore.id].name || ore.name,
-                    minCount: ore.min,
-                    maxCount: ore.max,
-                    requiredLevel: ore.level
-                });
-            } else {
-                // Use fallback data if item not in items.json
-                tasks.push({
-                    itemId: ore.id,
-                    displayName: ore.name,
-                    minCount: ore.min,
-                    maxCount: ore.max,
-                    requiredLevel: ore.level
-                });
-            }
-        }
-        
-        return tasks;
-    }
-    
-    // Get base task counts without modifiers (for UI)
-    getBaseTaskCounts(itemId) {
-        const oreCounts = {
-            'copper_ore': { min: 50, max: 150 },
-            'tin_ore': { min: 50, max: 150 },
-            'iron_ore': { min: 40, max: 120 },
-            'silver_ore': { min: 30, max: 80 },
-            'coal': { min: 50, max: 100 },
-            'gold_ore': { min: 25, max: 60 },
-            'mithril_ore': { min: 20, max: 50 },
-            'adamantite_ore': { min: 15, max: 35 },
-            'runite_ore': { min: 10, max: 20 },
-            'amethyst': { min: 10, max: 25 }
-        };
-        
-        return oreCounts[itemId] || { min: 20, max: 50 };
-    }
+    // determineTargetCount now uses base class implementation
+    // getAllPossibleTasksForUI now uses base class implementation  
+    // getBaseTaskCounts now uses base class implementation
     
     // ==================== CORE BEHAVIOR ====================
     
