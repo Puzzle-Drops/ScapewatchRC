@@ -22,7 +22,7 @@ class ThievingSkill extends BaseSkill {
         }
         
         // Select an NPC using weighted distribution
-        const selectedNPC = this.selectWeightedItem(possibleNPCs);
+        const selectedNPC = this.selectWeightedNPC(possibleNPCs);
         if (!selectedNPC) {
             console.log('Failed to select NPC for thieving');
             return null;
@@ -35,8 +35,8 @@ class ThievingSkill extends BaseSkill {
             return null;
         }
         
-        // Randomly select a node
-        const selected = viableNodes[Math.floor(Math.random() * viableNodes.length)];
+        // Select a node using weighted distribution
+        const selected = this.selectWeightedNode(viableNodes);
         
         // Determine target count
         const targetCount = this.determineTargetCount(selectedNPC.activityId);
@@ -77,6 +77,37 @@ class ThievingSkill extends BaseSkill {
         }
         
         return npcs;
+    }
+    
+    // Select an NPC using weighted distribution (with RuneCred support)
+    selectWeightedNPC(npcs) {
+        if (npcs.length === 0) return null;
+        
+        // Use RuneCred weights if available
+        if (window.runeCreditManager) {
+            const weightedNPCs = [];
+            let totalWeight = 0;
+            
+            for (const npc of npcs) {
+                // Get the weight modifier for this NPC's virtual item
+                const virtualItemId = `thieving_${npc.activityId}`;
+                const weight = runeCreditManager.getTaskWeight(this.id, virtualItemId);
+                totalWeight += weight;
+                weightedNPCs.push({ npc, weight: totalWeight });
+            }
+            
+            const random = Math.random() * totalWeight;
+            for (const weighted of weightedNPCs) {
+                if (random < weighted.weight) {
+                    return weighted.npc;
+                }
+            }
+            
+            return npcs[0]; // Fallback
+        }
+        
+        // Default: equal weights if RuneCred not available
+        return npcs[Math.floor(Math.random() * npcs.length)];
     }
     
     findViableNodesForNPC(activityId) {
@@ -132,16 +163,17 @@ class ThievingSkill extends BaseSkill {
         const range = counts[activityId] || { min: 20, max: 50 };
         const baseCount = range.min + Math.random() * (range.max - range.min);
         let count = Math.round(baseCount / 5) * 5;
-    
-    // Apply RuneCred quantity modifier
-    if (window.runeCreditManager) {
-        const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
-        count = Math.round(count * modifier);
-        count = Math.max(5, count); // Minimum of 5
+        
+        // Apply RuneCred quantity modifier
+        if (window.runeCreditManager) {
+            const virtualItemId = `thieving_${activityId}`;
+            const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
+            count = Math.round(count * modifier);
+            count = Math.max(5, count); // Minimum of 5
+        }
+        
+        return count;
     }
-    
-    return count;
-}
     
     // Update thieving task progress
     updateThievingTaskProgress() {
@@ -157,6 +189,92 @@ class ThievingSkill extends BaseSkill {
             
             taskManager.setTaskProgress(currentTask, progress);
         }
+    }
+    
+    // ==================== UI DISPLAY METHODS ====================
+    
+    // Get all possible tasks for UI display (not for generation)
+    getAllPossibleTasksForUI() {
+        const tasks = [];
+        const activities = loadingManager.getData('activities');
+        
+        // All thieving NPCs with their base counts
+        const npcData = [
+            { id: 'pickpocket_man', name: 'Man/Woman', min: 50, max: 100, level: 1 },
+            { id: 'pickpocket_farmer', name: 'Farmer', min: 40, max: 80, level: 10 },
+            { id: 'pickpocket_ham', name: 'H.A.M. Member', min: 35, max: 70, level: 15 },
+            { id: 'pickpocket_warrior', name: 'Warrior woman', min: 30, max: 60, level: 25 },
+            { id: 'pickpocket_rogue', name: 'Rogue', min: 30, max: 60, level: 32 },
+            { id: 'pickpocket_master_farmer', name: 'Master Farmer', min: 30, max: 65, level: 38 },
+            { id: 'pickpocket_guard', name: 'Guard', min: 25, max: 50, level: 40 },
+            { id: 'blackjack_bearded', name: 'Bearded Pollnivnian Bandit', min: 30, max: 60, level: 45 },
+            { id: 'pickpocket_bandit_camp', name: 'Bandit', min: 25, max: 50, level: 53 },
+            { id: 'blackjack_bandit', name: 'Menaphite Thug', min: 30, max: 60, level: 65 },
+            { id: 'pickpocket_knight', name: 'Knight of Ardougne', min: 30, max: 60, level: 55 },
+            { id: 'pickpocket_watchman', name: 'Watchman', min: 20, max: 40, level: 65 },
+            { id: 'pickpocket_menaphite', name: 'Menaphite Thug', min: 25, max: 50, level: 65 },
+            { id: 'pickpocket_paladin', name: 'Paladin', min: 20, max: 40, level: 70 },
+            { id: 'pickpocket_gnome', name: 'Gnome', min: 20, max: 40, level: 75 },
+            { id: 'pickpocket_hero', name: 'Hero', min: 15, max: 30, level: 80 },
+            { id: 'pickpocket_vyre', name: 'Vyre', min: 15, max: 30, level: 82 },
+            { id: 'pickpocket_elf', name: 'Elf', min: 15, max: 30, level: 85 },
+            { id: 'pickpocket_tzhaar', name: 'TzHaar-Hur', min: 20, max: 40, level: 90 }
+        ];
+        
+        for (const npc of npcData) {
+            // Check if activity exists
+            if (activities[npc.id]) {
+                const activity = activities[npc.id];
+                tasks.push({
+                    itemId: `thieving_${npc.id}`,
+                    displayName: activity.targetName || activity.name || npc.name,
+                    minCount: npc.min,
+                    maxCount: npc.max,
+                    requiredLevel: npc.level
+                });
+            } else {
+                // Use fallback data
+                tasks.push({
+                    itemId: `thieving_${npc.id}`,
+                    displayName: npc.name,
+                    minCount: npc.min,
+                    maxCount: npc.max,
+                    requiredLevel: npc.level
+                });
+            }
+        }
+        
+        return tasks;
+    }
+    
+    // Get base task counts without modifiers (for UI)
+    getBaseTaskCounts(itemId) {
+        // Remove the 'thieving_' prefix to get activityId
+        const activityId = itemId.replace('thieving_', '');
+        
+        const counts = {
+            'pickpocket_man': { min: 50, max: 100 },
+            'pickpocket_farmer': { min: 40, max: 80 },
+            'pickpocket_ham': { min: 35, max: 70 },
+            'pickpocket_warrior': { min: 30, max: 60 },
+            'pickpocket_rogue': { min: 30, max: 60 },
+            'pickpocket_master_farmer': { min: 30, max: 65 },
+            'pickpocket_guard': { min: 25, max: 50 },
+            'blackjack_bearded': { min: 30, max: 60 },
+            'pickpocket_bandit_camp': { min: 25, max: 50 },
+            'blackjack_bandit': { min: 30, max: 60 },
+            'pickpocket_knight': { min: 30, max: 60 },
+            'pickpocket_watchman': { min: 20, max: 40 },
+            'pickpocket_menaphite': { min: 25, max: 50 },
+            'pickpocket_paladin': { min: 20, max: 40 },
+            'pickpocket_gnome': { min: 20, max: 40 },
+            'pickpocket_hero': { min: 15, max: 30 },
+            'pickpocket_vyre': { min: 15, max: 30 },
+            'pickpocket_elf': { min: 15, max: 30 },
+            'pickpocket_tzhaar': { min: 20, max: 40 }
+        };
+        
+        return counts[activityId] || { min: 20, max: 50 };
     }
     
     // ==================== CORE BEHAVIOR ====================
@@ -183,7 +301,15 @@ class ThievingSkill extends BaseSkill {
         }
         
         // All thieving activities are 600ms base
-        return 600;
+        let duration = 600;
+        
+        // Apply speed bonus from RuneCred system
+        if (window.runeCreditManager) {
+            const speedBonus = runeCreditManager.getSkillSpeedBonus(this.id);
+            duration = duration / (1 + speedBonus); // Speed bonus reduces duration
+        }
+        
+        return duration;
     }
     
     beforeActivityStart(activityData) {
