@@ -50,20 +50,36 @@ class Player {
         }
         
         // Check if path preparation animation finished
-if (this.isPreparingPath && Date.now() >= this.pathPrepEndTime) {
-    this.isPreparingPath = false;
-    console.log('Path preparation complete');
-    
-    // CRITICAL: Reset segment progress to ensure smooth start
-    // This prevents the first movement frame from using accumulated deltaTime
-    this.segmentProgress = 0;
-    this.pathIndex = 0;
-    
-    // Trigger AI to continue
-    if (window.ai) {
-        window.ai.decisionCooldown = 0;
-    }
-}
+        if (this.isPreparingPath && Date.now() >= this.pathPrepEndTime) {
+            this.isPreparingPath = false;
+            console.log('Path preparation complete');
+            
+            // CRITICAL: Reset segment progress to ensure smooth start
+            this.segmentProgress = 0;
+            this.pathIndex = 0;
+            
+            // NEW: Check if we're already at the destination
+            if (this.path.length === 1 && this.targetNode) {
+                const targetPos = this.path[0];
+                const dist = distance(this.position.x, this.position.y, targetPos.x, targetPos.y);
+                
+                if (dist <= 1) { // Already at destination
+                    console.log('Already at destination after path prep, completing immediately');
+                    this.position.x = targetPos.x;
+                    this.position.y = targetPos.y;
+                    this.path = [];
+                    this.pathIndex = 0;
+                    this.targetPosition = null;
+                    this.onReachedTarget();
+                    return;
+                }
+            }
+            
+            // Trigger AI to continue
+            if (window.ai) {
+                window.ai.decisionCooldown = 0;
+            }
+        }
     }
 
     updateSmoothMovement(deltaTime) {
@@ -281,6 +297,19 @@ if (this.isPreparingPath && Date.now() >= this.pathPrepEndTime) {
         // If we're already at the target node, don't move
         if (this.currentNode === targetNodeId) {
             console.log(`Already at node ${targetNodeId}`);
+            return;
+        }
+        
+        // NEW: Check if we're already at the target position (within tolerance)
+        const distToTarget = distance(this.position.x, this.position.y, node.position.x, node.position.y);
+        if (distToTarget <= 1) { // Within 1 tile tolerance
+            console.log(`Already at position of node ${targetNodeId}, setting currentNode`);
+            this.currentNode = targetNodeId;
+            
+            // Notify AI to continue with the task
+            if (window.ai) {
+                window.ai.decisionCooldown = 0;
+            }
             return;
         }
         
