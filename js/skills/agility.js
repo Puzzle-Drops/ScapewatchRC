@@ -156,7 +156,7 @@ getAllPossibleTasks() {
         
         const counts = lapCounts[activityId] || { min: 10, max: 20 };
         const baseCount = counts.min + Math.random() * (counts.max - counts.min);
-        let count = Math.round(baseCount / 5) * 5;
+        let count = Math.round(baseCount);
     
     // Apply RuneCred quantity modifier
     if (window.runeCreditManager) {
