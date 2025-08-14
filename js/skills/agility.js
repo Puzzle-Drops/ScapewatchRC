@@ -50,6 +50,27 @@ class AgilitySkill extends BaseSkill {
             lapsCompleted: 0
         };
     }
+
+    // Add after generateTask method
+getAllPossibleTasks() {
+    const tasks = [];
+    const activities = loadingManager.getData('activities');
+    
+    for (const [activityId, activity] of Object.entries(activities)) {
+        if (activity.skill !== 'agility') continue;
+        
+        const lapCounts = this.determineLapCount(activityId);
+        tasks.push({
+            itemId: `agility_laps_${activityId}`,
+            displayName: activity.name || activityId.replace(/_/g, ' '),
+            minCount: lapCounts.min || 8,
+            maxCount: lapCounts.max || 20,
+            requiredLevel: activity.requiredLevel || 1
+        });
+    }
+    
+    return tasks;
+}
     
     getAvailableCourses() {
         const courses = [];
