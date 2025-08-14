@@ -179,17 +179,17 @@ return {
             'craft_mind_runes': { min: 5, max: 15 },
             'craft_water_runes': { min: 5, max: 12 },
             'craft_earth_runes': { min: 5, max: 12 },
-            'craft_fire_runes': { min: 4, max: 10 },
-            'craft_body_runes': { min: 4, max: 10 },
-            'craft_cosmic_runes': { min: 3, max: 8 },
-            'craft_chaos_runes': { min: 3, max: 8 },
-            'craft_astral_runes': { min: 3, max: 7 },
-            'craft_nature_runes': { min: 3, max: 7 },
-            'craft_law_runes': { min: 2, max: 6 },
-            'craft_death_runes': { min: 2, max: 5 },
-            'craft_blood_runes': { min: 2, max: 4 },
-            'craft_soul_runes': { min: 2, max: 4 },
-            'craft_wrath_runes': { min: 2, max: 3 }
+            'craft_fire_runes': { min: 5, max: 10 },
+            'craft_body_runes': { min: 5, max: 10 },
+            'craft_cosmic_runes': { min: 5, max: 10 },
+            'craft_chaos_runes': { min: 5, max: 10 },
+            'craft_astral_runes': { min: 5, max: 10 },
+            'craft_nature_runes': { min: 5, max: 10 },
+            'craft_law_runes': { min: 5, max: 10 },
+            'craft_death_runes': { min: 5, max: 10 },
+            'craft_blood_runes': { min: 5, max: 10 },
+            'craft_soul_runes': { min: 5, max: 10 },
+            'craft_wrath_runes': { min: 5, max: 10 }
         };
         
         const counts = tripCounts[activityId] || { min: 3, max: 8 };
