@@ -263,6 +263,19 @@ class AIManager {
             return;
         }
 
+        // NEW: Check actual distance to node, not just currentNode property
+        const node = nodes.getNode(task.nodeId);
+        if (node) {
+            const dist = window.distance(player.position.x, player.position.y, node.position.x, node.position.y);
+            if (dist <= 2) { // Within 2 tiles is close enough
+                // We're at the node, set currentNode if not already set
+                if (player.currentNode !== task.nodeId) {
+                    console.log(`Already at ${task.nodeId} position (distance: ${dist.toFixed(1)}), setting currentNode`);
+                    player.currentNode = task.nodeId;
+                }
+            }
+        }
+
         // Check if we're at the right node
         if (player.currentNode !== task.nodeId) {
             // Double-check we're not already moving to this node
@@ -277,7 +290,6 @@ class AIManager {
         }
 
         // Verify we're actually at the node (not just have it set incorrectly)
-        const node = nodes.getNode(task.nodeId);
         if (node) {
             const dist = window.distance(player.position.x, player.position.y, node.position.x, node.position.y);
             if (dist > 2) { // More than 2 tiles away
