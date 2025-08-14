@@ -65,12 +65,13 @@ class RunecraftingSkill extends BaseSkill {
             return null;
         }
         
-        // Check if we have enough essence for at least 2 trips
+        // Get total essence available
         const essenceAvailable = this.getTotalEssenceAvailable();
         const essencePerTrip = 58; // Approximate max essence per trip at level 75+
         
-        if (essenceAvailable < essencePerTrip * 10) {
-            console.log(`Not enough rune essence for runecrafting task (have ${essenceAvailable}, need ${essencePerTrip * 10} for 10 trips)`);
+        // Basic check - need at least enough for 1 trip
+        if (essenceAvailable < essencePerTrip) {
+            console.log(`Not enough rune essence for any runecrafting task (have ${essenceAvailable}, need at least ${essencePerTrip} for 1 trip)`);
             return null;
         }
         
@@ -88,16 +89,20 @@ class RunecraftingSkill extends BaseSkill {
             return null;
         }
         
-        // Determine number of trips (capped by available essence)
-        const maxTrips = Math.floor(essenceAvailable / essencePerTrip);
+        // Determine desired number of trips (including RuneCred modifiers)
         const desiredTrips = this.determineTargetTrips(selectedAltar.activityId);
-        const targetTrips = Math.min(desiredTrips, maxTrips);
         
-        // Don't create task for less than 1 trip
-        if (targetTrips < 1) {
-            console.log(`Not enough trips possible for task (only ${targetTrips} trips)`);
+        // Calculate essence needed for this specific task
+        const essenceNeeded = desiredTrips * essencePerTrip;
+        
+        // Check if we have enough essence for the rolled task
+        if (essenceAvailable < essenceNeeded) {
+            console.log(`Not enough essence for ${desiredTrips} trips of ${selectedAltar.activityId} (have ${essenceAvailable}, need ${essenceNeeded})`);
             return null;
         }
+        
+        // We have enough essence, proceed with this task
+        const targetTrips = desiredTrips;
         
         // Get activity data for the name
         const activityData = loadingManager.getData('activities')[selectedAltar.activityId];
