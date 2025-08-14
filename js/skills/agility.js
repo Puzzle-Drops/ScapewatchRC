@@ -3,6 +3,22 @@ class AgilitySkill extends BaseSkill {
         super('agility', 'Agility');
     }
     
+    // ==================== CENTRALIZED SKILL DATA ====================
+    // Single source of truth for all agility course data
+    initializeSkillData() {
+        this.SKILL_DATA = [
+            { itemId: 'agility_laps_draynor_rooftop',     name: 'Draynor Rooftop laps',     minCount: 10, maxCount: 25, level: 1  },
+            { itemId: 'agility_laps_al_kharid_rooftop',   name: 'Al Kharid Rooftop laps',   minCount: 10, maxCount: 20, level: 20 },
+            { itemId: 'agility_laps_varrock_rooftop',     name: 'Varrock Rooftop laps',     minCount: 8,  maxCount: 18, level: 30 },
+            { itemId: 'agility_laps_canifis_rooftop',     name: 'Canifis Rooftop laps',     minCount: 10, maxCount: 20, level: 40 },
+            { itemId: 'agility_laps_falador_rooftop',     name: 'Falador Rooftop laps',     minCount: 8,  maxCount: 15, level: 50 },
+            { itemId: 'agility_laps_seers_rooftop',       name: "Seers' Village Rooftop laps", minCount: 10, maxCount: 20, level: 60 },
+            { itemId: 'agility_laps_pollnivneach_rooftop', name: 'Pollnivneach Rooftop laps', minCount: 8,  maxCount: 15, level: 70 },
+            { itemId: 'agility_laps_rellekka_rooftop',    name: 'Rellekka Rooftop laps',    minCount: 8,  maxCount: 15, level: 80 },
+            { itemId: 'agility_laps_ardougne_rooftop',    name: 'Ardougne Rooftop laps',    minCount: 8,  maxCount: 15, level: 90 }
+        ];
+    }
+    
     // ==================== TASK GENERATION ====================
     
     getTaskVerb() {
@@ -106,7 +122,7 @@ class AgilitySkill extends BaseSkill {
             return courses[0]; // Fallback
         }
         
-        // Default: equal weights if RuneCred not available
+        // DEFAULT: Equal weights if RuneCred not available
         return courses[Math.floor(Math.random() * courses.length)];
     }
     
@@ -172,26 +188,22 @@ class AgilitySkill extends BaseSkill {
     }
     
     determineLapCount(activityId) {
-        // Base lap counts on course difficulty/level
-        const lapCounts = {
-            'draynor_rooftop': { min: 10, max: 25 },
-            'al_kharid_rooftop': { min: 10, max: 20 },
-            'varrock_rooftop': { min: 8, max: 18 },
-            'canifis_rooftop': { min: 10, max: 20 },
-            'falador_rooftop': { min: 8, max: 15 },
-            'seers_rooftop': { min: 10, max: 20 },
-            'pollnivneach_rooftop': { min: 8, max: 15 },
-            'rellekka_rooftop': { min: 8, max: 15 },
-            'ardougne_rooftop': { min: 8, max: 15 }
-        };
+        // Get base lap counts from centralized data
+        const virtualItemId = `agility_laps_${activityId}`;
+        const skillData = this.getSkillDataForItem(virtualItemId);
         
-        const counts = lapCounts[activityId] || { min: 10, max: 20 };
-        const baseCount = counts.min + Math.random() * (counts.max - counts.min);
+        if (!skillData) {
+            // Fallback if not found
+            const min = 10, max = 20;
+            const baseCount = min + Math.random() * (max - min);
+            return Math.round(baseCount);
+        }
+        
+        const baseCount = skillData.minCount + Math.random() * (skillData.maxCount - skillData.minCount);
         let count = Math.round(baseCount);
         
         // Apply RuneCred quantity modifier
         if (window.runeCreditManager) {
-            const virtualItemId = `agility_laps_${activityId}`;
             const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
             count = Math.round(count * modifier);
             count = Math.max(2, count); // Minimum of 2 laps
@@ -218,69 +230,8 @@ class AgilitySkill extends BaseSkill {
     
     // ==================== UI DISPLAY METHODS ====================
     
-    // Get all possible tasks for UI display (not for generation)
-    getAllPossibleTasksForUI() {
-        const tasks = [];
-        const activities = loadingManager.getData('activities');
-        
-        // All agility courses with their base counts
-        const courseData = [
-            { id: 'draynor_rooftop', name: 'Draynor Rooftop', min: 10, max: 25, level: 1 },
-            { id: 'al_kharid_rooftop', name: 'Al Kharid Rooftop', min: 10, max: 20, level: 20 },
-            { id: 'varrock_rooftop', name: 'Varrock Rooftop', min: 8, max: 18, level: 30 },
-            { id: 'canifis_rooftop', name: 'Canifis Rooftop', min: 10, max: 20, level: 40 },
-            { id: 'falador_rooftop', name: 'Falador Rooftop', min: 8, max: 15, level: 50 },
-            { id: 'seers_rooftop', name: "Seers' Village Rooftop", min: 10, max: 20, level: 60 },
-            { id: 'pollnivneach_rooftop', name: 'Pollnivneach Rooftop', min: 8, max: 15, level: 70 },
-            { id: 'rellekka_rooftop', name: 'Rellekka Rooftop', min: 8, max: 15, level: 80 },
-            { id: 'ardougne_rooftop', name: 'Ardougne Rooftop', min: 8, max: 15, level: 90 }
-        ];
-        
-        for (const course of courseData) {
-            // Check if activity exists
-            if (activities[course.id]) {
-                const activity = activities[course.id];
-                tasks.push({
-                    itemId: `agility_laps_${course.id}`,
-                    displayName: `${activity.name || course.name} laps`,
-                    minCount: course.min,
-                    maxCount: course.max,
-                    requiredLevel: course.level
-                });
-            } else {
-                // Use fallback data
-                tasks.push({
-                    itemId: `agility_laps_${course.id}`,
-                    displayName: `${course.name} laps`,
-                    minCount: course.min,
-                    maxCount: course.max,
-                    requiredLevel: course.level
-                });
-            }
-        }
-        
-        return tasks;
-    }
-    
-    // Get base task counts without modifiers (for UI)
-    getBaseTaskCounts(itemId) {
-        // Remove the 'agility_laps_' prefix to get activityId
-        const activityId = itemId.replace('agility_laps_', '');
-        
-        const lapCounts = {
-            'draynor_rooftop': { min: 10, max: 25 },
-            'al_kharid_rooftop': { min: 10, max: 20 },
-            'varrock_rooftop': { min: 8, max: 18 },
-            'canifis_rooftop': { min: 10, max: 20 },
-            'falador_rooftop': { min: 8, max: 15 },
-            'seers_rooftop': { min: 10, max: 20 },
-            'pollnivneach_rooftop': { min: 8, max: 15 },
-            'rellekka_rooftop': { min: 8, max: 15 },
-            'ardougne_rooftop': { min: 8, max: 15 }
-        };
-        
-        return lapCounts[activityId] || { min: 10, max: 20 };
-    }
+    // getAllPossibleTasksForUI and getBaseTaskCounts now use base class implementation
+    // which automatically uses our SKILL_DATA
     
     // ==================== CORE BEHAVIOR ====================
     
