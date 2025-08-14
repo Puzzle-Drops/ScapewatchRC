@@ -1260,3 +1260,49 @@ body {
     z-index: 1;
 }
 
+/* Separate hover outline classes for available vs unavailable */
+.task-row.hover-outline-green,
+.node-row.hover-outline-green {
+    outline: 2px solid #27ae60;
+    outline-offset: -2px;
+    position: relative;
+    z-index: 1;
+}
+
+.task-row.hover-outline-red,
+.node-row.hover-outline-red {
+    outline: 2px solid #e74c3c;
+    outline-offset: -2px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Keep the green-outline and red-outline for node highlighting */
+.task-row.green-outline,
+.node-row.green-outline {
+    outline: 2px solid #27ae60;
+    outline-offset: -2px;
+    position: relative;
+    z-index: 1;
+}
+
+.task-row.red-outline,
+.node-row.red-outline {
+    outline: 2px solid #e74c3c;
+    outline-offset: -2px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Unavailable items should still be hoverable */
+.task-row.unavailable,
+.node-row.unavailable {
+    opacity: 0.4;
+    cursor: pointer; /* Changed from cursor: default */
+}
+
+/* Remove the previous hover prevention for unavailable items */
+.task-row.unavailable:hover,
+.node-row.unavailable:hover {
+    background: #333; /* Allow background change on hover */
+}
