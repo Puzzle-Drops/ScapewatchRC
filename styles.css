@@ -1057,10 +1057,20 @@ body {
     align-items: center;
 }
 
+.task-level {
+    color: #e74c3c;
+    font-weight: bold;
+    min-width: 45px;
+    text-align: center;
+    display: inline-block;
+}
+
 .task-chance {
     color: #f39c12;
     font-weight: bold;
-    min-width: 40px;
+    min-width: 45px;
+    text-align: center;
+    display: inline-block;
 }
 
 .task-name {
