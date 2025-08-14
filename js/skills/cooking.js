@@ -179,6 +179,29 @@ class CookingSkill extends BaseSkill {
     selectWeightedRawFood(availableFood) {
         if (availableFood.length === 0) return null;
         
+        // Use RuneCred weights if available
+        if (window.runeCreditManager) {
+            const weightedFood = [];
+            let totalWeight = 0;
+            
+            for (const food of availableFood) {
+                // Get the weight modifier for this raw food item
+                const weight = runeCreditManager.getTaskWeight(this.id, food.rawItemId);
+                totalWeight += weight;
+                weightedFood.push({ food, weight: totalWeight });
+            }
+            
+            const random = Math.random() * totalWeight;
+            for (const weighted of weightedFood) {
+                if (random < weighted.weight) {
+                    return weighted.food;
+                }
+            }
+            
+            return availableFood[0]; // Fallback
+        }
+        
+        // DEFAULT: Original weighting system when RuneCred not available
         // Sort by required level (highest first)
         availableFood.sort((a, b) => b.requiredLevel - a.requiredLevel);
         
@@ -277,7 +300,105 @@ class CookingSkill extends BaseSkill {
         
         const counts = foodCounts[itemId] || { min: 15, max: 40 };
         const baseCount = counts.min + Math.random() * (counts.max - counts.min);
-        return Math.round(baseCount / 5) * 5;
+        let count = Math.round(baseCount / 5) * 5;
+        
+        // Apply RuneCred quantity modifier
+        if (window.runeCreditManager) {
+            const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
+            count = Math.round(count * modifier);
+            count = Math.max(5, count); // Minimum of 5
+        }
+        
+        return count;
+    }
+    
+    // ==================== UI DISPLAY METHODS ====================
+    
+    // Get all possible tasks for UI display (not for generation)
+    getAllPossibleTasksForUI() {
+        const tasks = [];
+        const items = loadingManager.getData('items');
+        
+        // All possible cooked foods with their base counts (using raw item IDs)
+        const foodData = [
+            { rawId: 'raw_meat', cookedId: 'meat', name: 'Meat', min: 25, max: 75, level: 1 },
+            { rawId: 'raw_shrimps', cookedId: 'shrimps', name: 'Shrimps', min: 25, max: 75, level: 1 },
+            { rawId: 'raw_sardine', cookedId: 'sardine', name: 'Sardine', min: 25, max: 70, level: 1 },
+            { rawId: 'raw_anchovies', cookedId: 'anchovies', name: 'Anchovies', min: 25, max: 70, level: 1 },
+            { rawId: 'raw_herring', cookedId: 'herring', name: 'Herring', min: 25, max: 60, level: 5 },
+            { rawId: 'raw_mackerel', cookedId: 'mackerel', name: 'Mackerel', min: 20, max: 50, level: 10 },
+            { rawId: 'raw_trout', cookedId: 'trout', name: 'Trout', min: 20, max: 45, level: 15 },
+            { rawId: 'raw_cod', cookedId: 'cod', name: 'Cod', min: 20, max: 45, level: 18 },
+            { rawId: 'raw_pike', cookedId: 'pike', name: 'Pike', min: 15, max: 40, level: 20 },
+            { rawId: 'raw_salmon', cookedId: 'salmon', name: 'Salmon', min: 15, max: 35, level: 25 },
+            { rawId: 'raw_tuna', cookedId: 'tuna', name: 'Tuna', min: 15, max: 30, level: 30 },
+            { rawId: 'raw_lobster', cookedId: 'lobster', name: 'Lobster', min: 10, max: 25, level: 40 },
+            { rawId: 'raw_bass', cookedId: 'bass', name: 'Bass', min: 10, max: 20, level: 43 },
+            { rawId: 'raw_swordfish', cookedId: 'swordfish', name: 'Swordfish', min: 10, max: 20, level: 45 },
+            { rawId: 'raw_shark', cookedId: 'shark', name: 'Shark', min: 5, max: 15, level: 80 }
+        ];
+        
+        for (const food of foodData) {
+            // Check if raw item exists in items data
+            let displayName = food.name;
+            if (items[food.rawId]) {
+                displayName = items[food.rawId].name || food.name;
+            }
+            
+            tasks.push({
+                itemId: food.rawId, // Use raw item ID for task tracking
+                displayName: displayName,
+                minCount: food.min,
+                maxCount: food.max,
+                requiredLevel: food.level
+            });
+        }
+        
+        return tasks;
+    }
+    
+    // Get base task counts without modifiers (for UI)
+    getBaseTaskCounts(itemId) {
+        // Map raw item IDs to their cooked versions for count lookup
+        const rawToCookedMap = {
+            'raw_meat': 'meat',
+            'raw_shrimps': 'shrimps',
+            'raw_sardine': 'sardine',
+            'raw_anchovies': 'anchovies',
+            'raw_herring': 'herring',
+            'raw_mackerel': 'mackerel',
+            'raw_trout': 'trout',
+            'raw_cod': 'cod',
+            'raw_pike': 'pike',
+            'raw_salmon': 'salmon',
+            'raw_tuna': 'tuna',
+            'raw_lobster': 'lobster',
+            'raw_bass': 'bass',
+            'raw_swordfish': 'swordfish',
+            'raw_shark': 'shark'
+        };
+        
+        const cookedId = rawToCookedMap[itemId] || itemId;
+        
+        const foodCounts = {
+            'meat': { min: 25, max: 75 },
+            'shrimps': { min: 25, max: 75 },
+            'sardine': { min: 25, max: 70 },
+            'anchovies': { min: 25, max: 70 },
+            'herring': { min: 25, max: 60 },
+            'mackerel': { min: 20, max: 50 },
+            'trout': { min: 20, max: 45 },
+            'cod': { min: 20, max: 45 },
+            'pike': { min: 15, max: 40 },
+            'salmon': { min: 15, max: 35 },
+            'tuna': { min: 15, max: 30 },
+            'lobster': { min: 10, max: 25 },
+            'bass': { min: 10, max: 20 },
+            'swordfish': { min: 10, max: 20 },
+            'shark': { min: 5, max: 15 }
+        };
+        
+        return foodCounts[cookedId] || { min: 15, max: 40 };
     }
     
     // Check if we still have access to raw food for cooking
@@ -342,7 +463,15 @@ class CookingSkill extends BaseSkill {
     // ==================== CORE BEHAVIOR ====================
     
     getDuration(baseDuration, level, activityData) {
-        return 2400; // Cooking is always 2400ms
+        let duration = 2400; // Cooking is always 2400ms base
+        
+        // Apply speed bonus from RuneCred system
+        if (window.runeCreditManager) {
+            const speedBonus = runeCreditManager.getSkillSpeedBonus(this.id);
+            duration = duration / (1 + speedBonus); // Speed bonus reduces duration
+        }
+        
+        return duration;
     }
     
     beforeActivityStart(activityData) {
