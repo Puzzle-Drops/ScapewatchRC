@@ -1197,3 +1197,56 @@ body {
     box-shadow: none !important;
     background: inherit !important;
 }
+
+/* Add these styles to your existing styles.css */
+
+/* Unavailable tasks and nodes (greyed out) */
+.task-row.unavailable,
+.node-row.unavailable {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.task-row.unavailable .task-name,
+.node-row.unavailable .node-name {
+    color: #7f8c8d;
+}
+
+/* Level requirement colors */
+.task-level-has {
+    color: #27ae60 !important; /* Green when player has the level */
+    font-weight: bold;
+}
+
+.task-level-needs {
+    color: #e74c3c !important; /* Red when player doesn't have the level */
+    font-weight: bold;
+}
+
+/* Disabled control buttons */
+.control-button.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: #1a1a1a;
+}
+
+.control-button.disabled:hover {
+    background: #1a1a1a;
+}
+
+/* Hide nodes when task is hovered (handled by JS with display: none) */
+.node-row {
+    transition: opacity 0.2s ease;
+}
+
+/* Ensure hover outlines work properly with greyed out items */
+.task-row.unavailable:hover,
+.node-row.unavailable:hover {
+    background: #2c3e50; /* Keep same background */
+    outline: none; /* No outline for unavailable items */
+}
+
+/* Fix task chance display for unavailable tasks */
+.task-row.unavailable .task-chance {
+    color: #555;
+}
