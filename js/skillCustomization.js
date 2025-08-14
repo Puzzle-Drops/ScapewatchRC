@@ -3,7 +3,6 @@ class SkillCustomizationUI {
         this.isOpen = false;
         this.currentSkillId = null;
         this.overlay = null;
-        this.hoveredTaskId = null; // Track which task is being hovered
         this.initialize();
     }
     
@@ -56,7 +55,6 @@ class SkillCustomizationUI {
         this.isOpen = false;
         this.overlay.style.display = 'none';
         this.currentSkillId = null;
-        this.hoveredTaskId = null;
     }
     
     render() {
@@ -292,12 +290,12 @@ class SkillCustomizationUI {
         
         // Add hover events for highlighting nodes
         row.addEventListener('mouseenter', () => {
-            this.hoveredTaskId = task.itemId;
+            row.classList.add('hover-outline');
             this.highlightNodesForTask(task.itemId);
         });
         
         row.addEventListener('mouseleave', () => {
-            this.hoveredTaskId = null;
+            row.classList.remove('hover-outline');
             this.clearNodeHighlights();
         });
         
@@ -402,10 +400,12 @@ class SkillCustomizationUI {
         
         // Add hover events for highlighting
         row.addEventListener('mouseenter', () => {
+            row.classList.add('hover-outline');
             this.highlightTasksForNode(nodeId);
         });
         
         row.addEventListener('mouseleave', () => {
+            row.classList.remove('hover-outline');
             this.clearTaskHighlights();
         });
         
@@ -413,7 +413,7 @@ class SkillCustomizationUI {
         const infoDiv = document.createElement('div');
         infoDiv.className = 'node-info';
         
-        // Create weight display span (hidden by default)
+        // Create weight display (hidden by default) - now at the front
         const weightDisplay = document.createElement('span');
         weightDisplay.className = 'node-weight-display';
         weightDisplay.style.display = 'none';
@@ -429,14 +429,19 @@ class SkillCustomizationUI {
                 nodeText += ` (${bankName}: ${nodeData.nearestBankDistance} yards)`;
             }
             
+            // Put weight display FIRST, then node name
+            infoDiv.appendChild(weightDisplay);
             const nameSpan = document.createElement('span');
             nameSpan.className = 'node-name';
             nameSpan.textContent = nodeText;
-            
             infoDiv.appendChild(nameSpan);
-            infoDiv.appendChild(weightDisplay);
         } else {
-            infoDiv.textContent = nodeId;
+            // Put weight display FIRST, then node name
+            infoDiv.appendChild(weightDisplay);
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'node-name';
+            nameSpan.textContent = nodeId;
+            infoDiv.appendChild(nameSpan);
         }
         
         // Control buttons
@@ -548,12 +553,12 @@ class SkillCustomizationUI {
             }
         }
         
-        // Highlight matching task rows
+        // Highlight matching task rows with green outline
         const taskRows = document.querySelectorAll('.task-row');
         taskRows.forEach(row => {
             const taskId = row.dataset.taskId;
             if (possibleTaskIds.has(taskId)) {
-                row.classList.add('highlighted');
+                row.classList.add('green-outline');
             }
         });
     }
@@ -562,94 +567,112 @@ class SkillCustomizationUI {
         // Clear existing highlights
         this.clearNodeHighlights();
         
-        // Get activities that can produce this task item
-        const activitiesData = loadingManager.getData('activities');
-        const validNodeIds = new Set();
+        // Get all nodes that can do this task
+        const compatibleNodes = this.getNodesForTask(taskItemId);
         
-        // Find which nodes can complete this task
-        for (const [activityId, activity] of Object.entries(activitiesData)) {
-            if (activity.skill !== this.currentSkillId) continue;
-            
-            let canDoTask = false;
-            
-            // Check if this activity can produce the task item
-            if (this.currentSkillId === 'runecraft') {
-                canDoTask = taskItemId === `runecraft_trips_${activityId}`;
-            } else if (this.currentSkillId === 'agility') {
-                canDoTask = taskItemId === `agility_laps_${activityId}`;
-            } else if (this.currentSkillId === 'thieving') {
-                canDoTask = taskItemId === `thieving_${activityId}`;
-            } else if (this.currentSkillId === 'firemaking') {
-                if (activity.firemakingTable) {
-                    canDoTask = activity.firemakingTable.some(log => log.logId === taskItemId);
-                }
-            } else if (this.currentSkillId === 'cooking') {
-                if (activity.cookingTable) {
-                    canDoTask = activity.cookingTable.some(recipe => recipe.rawItemId === taskItemId);
-                }
-            } else {
-                // Standard gathering skills
-                if (activity.rewards) {
-                    canDoTask = activity.rewards.some(r => r.itemId === taskItemId);
-                }
-                if (!canDoTask && activity.alternatingRewards) {
-                    canDoTask = activity.alternatingRewards.some(r => r.itemId === taskItemId);
-                }
-            }
-            
-            if (canDoTask) {
-                // Find nodes with this activity
-                const allNodes = nodes.getAllNodes();
-                for (const [nodeId, node] of Object.entries(allNodes)) {
-                    if (node.activities && node.activities.includes(activityId)) {
-                        validNodeIds.add(nodeId);
-                    }
-                }
-            }
-        }
+        // Calculate weights for these nodes
+        const nodeWeights = this.calculateNodeWeightsForTask(compatibleNodes);
         
-        // Calculate total weight for the valid nodes
-        let totalWeight = 0;
-        const nodeWeights = {};
-        
-        for (const nodeId of validNodeIds) {
-            const weight = runeCreditManager.getNodeWeight(this.currentSkillId, nodeId);
-            nodeWeights[nodeId] = weight;
-            totalWeight += weight;
-        }
-        
-        // Highlight and show weights for matching nodes
+        // Highlight matching node rows and show weights
         const nodeRows = document.querySelectorAll('.node-row');
         nodeRows.forEach(row => {
             const nodeId = row.dataset.nodeId;
-            if (validNodeIds.has(nodeId)) {
-                row.classList.add('highlighted');
+            if (nodeWeights.has(nodeId)) {
+                row.classList.add('green-outline');
                 
-                // Show weight percentage for this node
+                // Show weight percentage at the front
                 const weightDisplay = row.querySelector('.node-weight-display');
-                if (weightDisplay && totalWeight > 0) {
-                    const nodeWeight = nodeWeights[nodeId];
-                    const percentage = Math.round((nodeWeight / totalWeight) * 100);
-                    weightDisplay.textContent = ` - ${percentage}% chance`;
+                if (weightDisplay) {
+                    const percentage = nodeWeights.get(nodeId);
+                    weightDisplay.textContent = `${percentage}%`;
                     weightDisplay.style.display = 'inline';
-                    weightDisplay.style.color = '#f39c12';
-                    weightDisplay.style.fontWeight = 'bold';
                 }
             }
         });
     }
     
+    getNodesForTask(taskItemId) {
+        const compatibleNodes = new Set();
+        const allNodes = nodes.getAllNodes();
+        const activitiesData = loadingManager.getData('activities');
+        
+        for (const [nodeId, node] of Object.entries(allNodes)) {
+            if (!node.activities) continue;
+            
+            for (const activityId of node.activities) {
+                const activity = activitiesData[activityId];
+                if (!activity || activity.skill !== this.currentSkillId) continue;
+                
+                // Check if this activity can produce the task item
+                let canProduce = false;
+                
+                if (this.currentSkillId === 'runecraft') {
+                    canProduce = taskItemId === `runecraft_trips_${activityId}`;
+                } else if (this.currentSkillId === 'agility') {
+                    canProduce = taskItemId === `agility_laps_${activityId}`;
+                } else if (this.currentSkillId === 'thieving') {
+                    canProduce = taskItemId === `thieving_${activityId}`;
+                } else if (this.currentSkillId === 'firemaking') {
+                    if (activity.firemakingTable) {
+                        canProduce = activity.firemakingTable.some(log => log.logId === taskItemId);
+                    }
+                } else if (this.currentSkillId === 'cooking') {
+                    if (activity.cookingTable) {
+                        canProduce = activity.cookingTable.some(recipe => recipe.rawItemId === taskItemId);
+                    }
+                } else {
+                    // Standard gathering skills
+                    if (activity.rewards) {
+                        canProduce = activity.rewards.some(r => r.itemId === taskItemId);
+                    }
+                    if (!canProduce && activity.alternatingRewards) {
+                        canProduce = activity.alternatingRewards.some(r => r.itemId === taskItemId);
+                    }
+                }
+                
+                if (canProduce) {
+                    compatibleNodes.add(nodeId);
+                    break;
+                }
+            }
+        }
+        
+        return Array.from(compatibleNodes);
+    }
+    
+    calculateNodeWeightsForTask(nodeIds) {
+        const weights = new Map();
+        
+        if (nodeIds.length === 0) return weights;
+        
+        // Calculate total weight
+        let totalWeight = 0;
+        for (const nodeId of nodeIds) {
+            const weight = runeCreditManager.getNodeWeight(this.currentSkillId, nodeId);
+            totalWeight += weight;
+        }
+        
+        // Calculate percentages
+        for (const nodeId of nodeIds) {
+            const weight = runeCreditManager.getNodeWeight(this.currentSkillId, nodeId);
+            const percentage = Math.round((weight / totalWeight) * 100);
+            weights.set(nodeId, percentage);
+        }
+        
+        return weights;
+    }
+    
     clearTaskHighlights() {
         const taskRows = document.querySelectorAll('.task-row');
         taskRows.forEach(row => {
-            row.classList.remove('highlighted');
+            row.classList.remove('green-outline');
         });
     }
     
     clearNodeHighlights() {
         const nodeRows = document.querySelectorAll('.node-row');
         nodeRows.forEach(row => {
-            row.classList.remove('highlighted');
+            row.classList.remove('green-outline');
             
             // Hide weight display
             const weightDisplay = row.querySelector('.node-weight-display');
