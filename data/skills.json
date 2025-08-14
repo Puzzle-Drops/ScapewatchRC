@@ -1,0 +1,117 @@
+{
+    "attack": {
+        "name": "Attack",
+        "category": "combat",
+        "description": "Increases accuracy in melee combat"
+    },
+    "strength": {
+        "name": "Strength",
+        "category": "combat",
+        "description": "Increases melee damage"
+    },
+    "defence": {
+        "name": "Defence",
+        "category": "combat",
+        "description": "Reduces damage taken"
+    },
+    "hitpoints": {
+        "name": "Hitpoints",
+        "category": "combat",
+        "description": "Your health points"
+    },
+    "ranged": {
+        "name": "Ranged",
+        "category": "combat",
+        "description": "Accuracy and damage with ranged weapons"
+    },
+    "magic": {
+        "name": "Magic",
+        "category": "combat",
+        "description": "Cast spells and magic combat"
+    },
+    "prayer": {
+        "name": "Prayer",
+        "category": "combat",
+        "description": "Activate prayers for buffs"
+    },
+    "woodcutting": {
+        "name": "Woodcutting",
+        "category": "gathering",
+        "description": "Cut trees for logs"
+    },
+    "mining": {
+        "name": "Mining",
+        "category": "gathering",
+        "description": "Mine rocks for ores"
+    },
+    "fishing": {
+        "name": "Fishing",
+        "category": "gathering",
+        "description": "Catch fish"
+    },
+    "cooking": {
+        "name": "Cooking",
+        "category": "production",
+        "description": "Cook raw food"
+    },
+    "crafting": {
+        "name": "Crafting",
+        "category": "production",
+        "description": "Create armor and jewelry"
+    },
+    "smithing": {
+        "name": "Smithing",
+        "category": "production",
+        "description": "Smith metal items"
+    },
+    "agility": {
+        "name": "Agility",
+        "category": "utility",
+        "description": "Increases movement speed"
+    },
+    "thieving": {
+        "name": "Thieving",
+        "category": "utility",
+        "description": "Steal from NPCs"
+    },
+    "runecraft": {
+        "name": "Runecraft",
+        "category": "production",
+        "description": "Create magical runes"
+    },
+    "hunter": {
+        "name": "Hunter",
+        "category": "gathering",
+        "description": "Track and trap creatures"
+    },
+    "farming": {
+        "name": "Farming",
+        "category": "gathering",
+        "description": "Grow crops and herbs"
+    },
+    "slayer": {
+        "name": "Slayer",
+        "category": "combat",
+        "description": "Kill assigned monsters"
+    },
+    "herblore": {
+        "name": "Herblore",
+        "category": "production",
+        "description": "Create potions from herbs"
+    },
+    "fletching": {
+        "name": "Fletching",
+        "category": "production",
+        "description": "Create ranged weapons and ammo"
+    },
+    "construction": {
+        "name": "Construction",
+        "category": "utility",
+        "description": "Build structures and furniture"
+    },
+    "firemaking": {
+        "name": "Firemaking",
+        "category": "utility",
+        "description": "Light fires"
+    }
+}
