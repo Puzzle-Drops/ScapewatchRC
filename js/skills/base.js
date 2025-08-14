@@ -112,6 +112,42 @@ class BaseSkill {
         
         return items;
     }
+
+    // Add this NEW method after getPossibleItems (around line 95)
+// Get ALL possible tasks for UI display (not filtered by current conditions)
+getAllPossibleTasks() {
+    const tasks = [];
+    const activities = loadingManager.getData('activities');
+    
+    for (const [activityId, activity] of Object.entries(activities)) {
+        if (activity.skill !== this.id) continue;
+        
+        // Get items from this activity
+        const activityItems = this.getItemsFromActivity(activity);
+        for (const item of activityItems) {
+            // Don't filter by level - show ALL possible items
+            // Don't add duplicates
+            if (!tasks.some(t => t.itemId === item.itemId)) {
+                // Get the actual counts for this item
+                const counts = this.getBaseTaskCounts(item.itemId);
+                tasks.push({
+                    itemId: item.itemId,
+                    minCount: counts.min,
+                    maxCount: counts.max,
+                    requiredLevel: item.requiredLevel || activity.requiredLevel || 1
+                });
+            }
+        }
+    }
+    
+    return tasks;
+}
+
+// Add this helper method to get base counts
+getBaseTaskCounts(itemId) {
+    // Override in subclasses for specific counts
+    return { min: 20, max: 50 };
+}
     
     // Extract items from an activity (handles different structures)
     getItemsFromActivity(activity) {
