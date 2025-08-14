@@ -1105,11 +1105,6 @@ body {
     color: #ecf0f1;
 }
 
-.task-row.highlighted {
-    background: #27ae60 !important;
-    box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
-}
-
 .node-row:hover {
     background: #34495e;
     cursor: pointer;
@@ -1153,33 +1148,52 @@ body {
     display: none;
 }
 
-/* Updated highlighting for skill customization */
-.task-row.highlighted {
-    background: #2c3e50 !important;  /* Keep original background */
-    border: 2px solid #27ae60 !important;  /* Green border */
-    box-shadow: 0 0 8px rgba(39, 174, 96, 0.4);  /* Subtle green glow */
+/* Green outline for highlights - doesn't affect size */
+.task-row.green-outline,
+.node-row.green-outline,
+.task-row.hover-outline,
+.node-row.hover-outline {
+    outline: 2px solid #27ae60;
+    outline-offset: -2px;
+    position: relative;
+    z-index: 1;
 }
 
-.node-row.highlighted {
-    background: #2c3e50 !important;  /* Keep original background */
-    border: 2px solid #27ae60 !important;  /* Green border */
-    box-shadow: 0 0 8px rgba(39, 174, 96, 0.4);  /* Subtle green glow */
+/* Remove background color change on hover */
+.task-row:hover,
+.node-row:hover {
+    background: #2c3e50; /* Keep the same background as non-hovered */
+    cursor: pointer;
 }
 
-/* Node weight display */
+/* Node weight display - styled like task percentages */
 .node-weight-display {
-    margin-left: 10px;
     color: #f39c12;
     font-weight: bold;
-    font-size: 14px;
+    min-width: 45px;
+    text-align: center;
+    display: inline-block;
+    margin-right: 10px;
 }
 
+/* Ensure consistent spacing in node info */
 .node-info {
     display: flex;
     align-items: center;
     flex: 1;
+    gap: 10px;
 }
 
 .node-name {
     flex: 1;
+}
+
+/* Remove any old highlight rules */
+.task-row.highlighted,
+.task-row.highlight-border,
+.node-row.highlight-border {
+    /* Remove these old rules if they exist */
+    border: none !important;
+    box-shadow: none !important;
+    background: inherit !important;
 }
