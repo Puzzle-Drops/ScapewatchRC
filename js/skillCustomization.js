@@ -267,15 +267,21 @@ class SkillCustomizationUI {
         // Get all possible tasks for this skill
         const possibleTasks = this.getPossibleTasks();
         
+        // Get current player level
+        const currentLevel = skills.getLevel(this.currentSkillId);
+        
         // Calculate total weight for percentage calculation
+        // Only include tasks the player can actually get
         let totalWeight = 0;
         for (const task of possibleTasks) {
-            const weight = runeCreditManager.getTaskWeight(this.currentSkillId, task.itemId);
-            totalWeight += weight;
+            if (currentLevel >= task.requiredLevel) {
+                const weight = runeCreditManager.getTaskWeight(this.currentSkillId, task.itemId);
+                totalWeight += weight;
+            }
         }
         
         for (const task of possibleTasks) {
-            const taskRow = this.createTaskRow(task, totalWeight);
+            const taskRow = this.createTaskRow(task, totalWeight, currentLevel);
             tasksList.appendChild(taskRow);
         }
         
@@ -283,28 +289,39 @@ class SkillCustomizationUI {
         return column;
     }
     
-    createTaskRow(task, totalWeight) {
+    createTaskRow(task, totalWeight, currentLevel) {
         const row = document.createElement('div');
         row.className = 'task-row';
-        row.dataset.taskId = task.itemId; // Add data attribute for highlighting
+        row.dataset.taskId = task.itemId;
         
-        // Add hover events for highlighting nodes
-        row.addEventListener('mouseenter', () => {
-            row.classList.add('hover-outline');
-            this.highlightNodesForTask(task.itemId);
-        });
+        // Check if player has the level for this task
+        const hasLevel = currentLevel >= task.requiredLevel;
         
-        row.addEventListener('mouseleave', () => {
-            row.classList.remove('hover-outline');
-            this.clearNodeHighlights();
-        });
+        // Grey out if player doesn't have the level
+        if (!hasLevel) {
+            row.classList.add('unavailable');
+        }
+        
+        // Add hover events for highlighting nodes (only if available)
+        if (hasLevel) {
+            row.addEventListener('mouseenter', () => {
+                row.classList.add('hover-outline');
+                this.highlightNodesForTask(task.itemId);
+            });
+            
+            row.addEventListener('mouseleave', () => {
+                row.classList.remove('hover-outline');
+                this.clearNodeHighlights();
+            });
+        }
         
         // Task info
         const infoDiv = document.createElement('div');
         infoDiv.className = 'task-info';
         
         const weight = runeCreditManager.getTaskWeight(this.currentSkillId, task.itemId);
-        const percentage = Math.round((weight / totalWeight) * 100);
+        // Only show percentage if player can get this task
+        const percentage = hasLevel ? Math.round((weight / totalWeight) * 100) : 0;
         
         const modifier = runeCreditManager.getQuantityModifier(this.currentSkillId, task.itemId);
         const minQty = Math.round(task.minCount * modifier);
@@ -316,9 +333,12 @@ class SkillCustomizationUI {
         // Get level requirement
         const levelReq = task.requiredLevel || 1;
         
+        // Create level span with appropriate color
+        const levelClass = hasLevel ? 'task-level-has' : 'task-level-needs';
+        
         infoDiv.innerHTML = `
-            <span class="task-level">Lv ${levelReq}</span>
-            <span class="task-chance">${percentage}%</span>
+            <span class="task-level ${levelClass}">Lv ${levelReq}</span>
+            <span class="task-chance">${hasLevel ? percentage + '%' : '-'}</span>
             <span class="task-name">${itemName}</span>
             <span class="task-quantity">(${minQty}-${maxQty})</span>
         `;
@@ -331,36 +351,48 @@ class SkillCustomizationUI {
         const weightLevel = runeCreditManager.taskModLevels[this.currentSkillId]?.[task.itemId] || 0;
         const qtyLevel = runeCreditManager.quantityModLevels[this.currentSkillId]?.[task.itemId] || 0;
         
-        // Weight controls
-        const weightUp = this.createControlButton('+', () => {
-            if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, true)) {
-                this.render();
+        // Only enable controls if player has the level
+        if (hasLevel) {
+            // Weight controls
+            const weightUp = this.createControlButton('+', () => {
+                if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, true)) {
+                    this.render();
+                }
+            }, weightLevel);
+            
+            const weightDown = this.createControlButton('-', () => {
+                if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, false)) {
+                    this.render();
+                }
+            }, weightLevel);
+            
+            // Quantity controls
+            const qtyUp = this.createControlButton('+', () => {
+                if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, true)) {
+                    this.render();
+                }
+            }, qtyLevel);
+            
+            const qtyDown = this.createControlButton('-', () => {
+                if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, false)) {
+                    this.render();
+                }
+            }, qtyLevel);
+            
+            controlsDiv.appendChild(weightUp);
+            controlsDiv.appendChild(weightDown);
+            controlsDiv.appendChild(qtyUp);
+            controlsDiv.appendChild(qtyDown);
+        } else {
+            // Add disabled placeholder buttons
+            for (let i = 0; i < 4; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'control-button disabled';
+                btn.disabled = true;
+                btn.textContent = i % 2 === 0 ? '+' : '-';
+                controlsDiv.appendChild(btn);
             }
-        }, weightLevel);
-        
-        const weightDown = this.createControlButton('-', () => {
-            if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, false)) {
-                this.render();
-            }
-        }, weightLevel);
-        
-        // Quantity controls
-        const qtyUp = this.createControlButton('+', () => {
-            if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, true)) {
-                this.render();
-            }
-        }, qtyLevel);
-        
-        const qtyDown = this.createControlButton('-', () => {
-            if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, false)) {
-                this.render();
-            }
-        }, qtyLevel);
-        
-        controlsDiv.appendChild(weightUp);
-        controlsDiv.appendChild(weightDown);
-        controlsDiv.appendChild(qtyUp);
-        controlsDiv.appendChild(qtyDown);
+        }
         
         row.appendChild(infoDiv);
         row.appendChild(controlsDiv);
@@ -382,8 +414,11 @@ class SkillCustomizationUI {
         // Get all possible nodes for this skill
         const possibleNodes = this.getPossibleNodes();
         
+        // Get current player level
+        const currentLevel = skills.getLevel(this.currentSkillId);
+        
         for (const nodeId of possibleNodes) {
-            const nodeRow = this.createNodeRow(nodeId);
+            const nodeRow = this.createNodeRow(nodeId, currentLevel);
             nodesList.appendChild(nodeRow);
         }
         
@@ -391,29 +426,39 @@ class SkillCustomizationUI {
         return column;
     }
     
-    createNodeRow(nodeId) {
+    createNodeRow(nodeId, currentLevel) {
         const row = document.createElement('div');
         row.className = 'node-row';
-        row.dataset.nodeId = nodeId; // Add data attribute for highlighting
+        row.dataset.nodeId = nodeId;
         
         const nodeData = nodes.getNode(nodeId);
         
-        // Add hover events for highlighting
-        row.addEventListener('mouseenter', () => {
-            row.classList.add('hover-outline');
-            this.highlightTasksForNode(nodeId);
-        });
+        // Check if node has any activities the player can do
+        const hasUsableActivities = this.nodeHasUsableActivities(nodeId, currentLevel);
         
-        row.addEventListener('mouseleave', () => {
-            row.classList.remove('hover-outline');
-            this.clearTaskHighlights();
-        });
+        // Grey out if no usable activities
+        if (!hasUsableActivities) {
+            row.classList.add('unavailable');
+        }
+        
+        // Add hover events for highlighting (only if usable)
+        if (hasUsableActivities) {
+            row.addEventListener('mouseenter', () => {
+                row.classList.add('hover-outline');
+                this.highlightTasksForNode(nodeId, currentLevel);
+            });
+            
+            row.addEventListener('mouseleave', () => {
+                row.classList.remove('hover-outline');
+                this.clearTaskHighlights();
+            });
+        }
         
         // Node info with bank distance
         const infoDiv = document.createElement('div');
         infoDiv.className = 'node-info';
         
-        // Create weight display (hidden by default) - now at the front
+        // Create weight display (hidden by default)
         const weightDisplay = document.createElement('span');
         weightDisplay.className = 'node-weight-display';
         weightDisplay.style.display = 'none';
@@ -423,20 +468,17 @@ class SkillCustomizationUI {
             
             // Add bank information if available
             if (nodeData.nearestBank && nodeData.nearestBankDistance) {
-                // Get the bank name (format it nicely)
                 const bankNode = nodes.getNode(nodeData.nearestBank);
                 const bankName = bankNode ? bankNode.name : nodeData.nearestBank.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 nodeText += ` (${bankName}: ${nodeData.nearestBankDistance} yards)`;
             }
             
-            // Put weight display FIRST, then node name
             infoDiv.appendChild(weightDisplay);
             const nameSpan = document.createElement('span');
             nameSpan.className = 'node-name';
             nameSpan.textContent = nodeText;
             infoDiv.appendChild(nameSpan);
         } else {
-            // Put weight display FIRST, then node name
             infoDiv.appendChild(weightDisplay);
             const nameSpan = document.createElement('span');
             nameSpan.className = 'node-name';
@@ -451,25 +493,57 @@ class SkillCustomizationUI {
         // Get current modification level
         const nodeLevel = runeCreditManager.nodeModLevels[this.currentSkillId]?.[nodeId] || 0;
         
-        const weightUp = this.createControlButton('+', () => {
-            if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, true)) {
-                this.render();
+        // Only enable controls if node has usable activities
+        if (hasUsableActivities) {
+            const weightUp = this.createControlButton('+', () => {
+                if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, true)) {
+                    this.render();
+                }
+            }, nodeLevel);
+            
+            const weightDown = this.createControlButton('-', () => {
+                if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, false)) {
+                    this.render();
+                }
+            }, nodeLevel);
+            
+            controlsDiv.appendChild(weightUp);
+            controlsDiv.appendChild(weightDown);
+        } else {
+            // Add disabled placeholder buttons
+            for (let i = 0; i < 2; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'control-button disabled';
+                btn.disabled = true;
+                btn.textContent = i === 0 ? '+' : '-';
+                controlsDiv.appendChild(btn);
             }
-        }, nodeLevel);
-        
-        const weightDown = this.createControlButton('-', () => {
-            if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, false)) {
-                this.render();
-            }
-        }, nodeLevel);
-        
-        controlsDiv.appendChild(weightUp);
-        controlsDiv.appendChild(weightDown);
+        }
         
         row.appendChild(infoDiv);
         row.appendChild(controlsDiv);
         
         return row;
+    }
+    
+    nodeHasUsableActivities(nodeId, currentLevel) {
+        const nodeData = nodes.getNode(nodeId);
+        if (!nodeData || !nodeData.activities) return false;
+        
+        const activitiesData = loadingManager.getData('activities');
+        
+        for (const activityId of nodeData.activities) {
+            const activity = activitiesData[activityId];
+            if (!activity || activity.skill !== this.currentSkillId) continue;
+            
+            // Check if player has level for this activity
+            const requiredLevel = activity.requiredLevel || 1;
+            if (currentLevel >= requiredLevel) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     createControlButton(text, onClick, modLevel) {
@@ -492,7 +566,7 @@ class SkillCustomizationUI {
         return btn;
     }
     
-    highlightTasksForNode(nodeId) {
+    highlightTasksForNode(nodeId, currentLevel) {
         // Clear existing highlights
         this.clearTaskHighlights();
         
@@ -510,42 +584,50 @@ class SkillCustomizationUI {
             const activity = activitiesData[activityId];
             if (!activity || activity.skill !== this.currentSkillId) continue;
             
+            // Check if player has level for this activity
+            const requiredLevel = activity.requiredLevel || 1;
+            if (currentLevel < requiredLevel) continue;
+            
             // Map activity to task itemIds based on skill type
             if (this.currentSkillId === 'runecraft') {
-                // Runecraft uses virtual items
                 possibleTaskIds.add(`runecraft_trips_${activityId}`);
             } else if (this.currentSkillId === 'agility') {
-                // Agility uses virtual items
                 possibleTaskIds.add(`agility_laps_${activityId}`);
             } else if (this.currentSkillId === 'thieving') {
-                // Thieving uses virtual items
                 possibleTaskIds.add(`thieving_${activityId}`);
             } else if (this.currentSkillId === 'firemaking') {
-                // Firemaking uses logs from the firemaking table
                 if (activity.firemakingTable) {
                     for (const logData of activity.firemakingTable) {
-                        possibleTaskIds.add(logData.logId);
+                        // Only add if player has level for this log
+                        if (currentLevel >= logData.requiredLevel) {
+                            possibleTaskIds.add(logData.logId);
+                        }
                     }
                 }
             } else if (this.currentSkillId === 'cooking') {
-                // Cooking uses raw items
                 if (activity.cookingTable) {
                     for (const recipe of activity.cookingTable) {
-                        possibleTaskIds.add(recipe.rawItemId);
+                        // Only add if player has level for this recipe
+                        if (currentLevel >= recipe.requiredLevel) {
+                            possibleTaskIds.add(recipe.rawItemId);
+                        }
                     }
                 }
             } else {
                 // Standard gathering skills - get items from rewards
                 if (activity.rewards) {
                     for (const reward of activity.rewards) {
-                        if (reward.itemId && !this.isIgnoredItemForHighlight(reward.itemId)) {
+                        // Check if player has level for this reward
+                        const rewardLevel = reward.requiredLevel || requiredLevel;
+                        if (currentLevel >= rewardLevel && reward.itemId && !this.isIgnoredItemForHighlight(reward.itemId)) {
                             possibleTaskIds.add(reward.itemId);
                         }
                     }
                 }
                 if (activity.alternatingRewards) {
                     for (const reward of activity.alternatingRewards) {
-                        if (reward.itemId && !this.isIgnoredItemForHighlight(reward.itemId)) {
+                        const rewardLevel = reward.requiredLevel || requiredLevel;
+                        if (currentLevel >= rewardLevel && reward.itemId && !this.isIgnoredItemForHighlight(reward.itemId)) {
                             possibleTaskIds.add(reward.itemId);
                         }
                     }
@@ -567,17 +649,26 @@ class SkillCustomizationUI {
         // Clear existing highlights
         this.clearNodeHighlights();
         
+        // Get current player level
+        const currentLevel = skills.getLevel(this.currentSkillId);
+        
         // Get all nodes that can do this task
-        const compatibleNodes = this.getNodesForTask(taskItemId);
+        const compatibleNodes = this.getNodesForTask(taskItemId, currentLevel);
         
         // Calculate weights for these nodes
         const nodeWeights = this.calculateNodeWeightsForTask(compatibleNodes);
         
-        // Highlight matching node rows and show weights
+        // Hide all nodes first
         const nodeRows = document.querySelectorAll('.node-row');
+        nodeRows.forEach(row => {
+            row.style.display = 'none';
+        });
+        
+        // Show and highlight matching nodes
         nodeRows.forEach(row => {
             const nodeId = row.dataset.nodeId;
             if (nodeWeights.has(nodeId)) {
+                row.style.display = 'flex';
                 row.classList.add('green-outline');
                 
                 // Show weight percentage at the front
@@ -591,7 +682,7 @@ class SkillCustomizationUI {
         });
     }
     
-    getNodesForTask(taskItemId) {
+    getNodesForTask(taskItemId, currentLevel) {
         const compatibleNodes = new Set();
         const allNodes = nodes.getAllNodes();
         const activitiesData = loadingManager.getData('activities');
@@ -602,6 +693,10 @@ class SkillCustomizationUI {
             for (const activityId of node.activities) {
                 const activity = activitiesData[activityId];
                 if (!activity || activity.skill !== this.currentSkillId) continue;
+                
+                // Check if player has level for this activity
+                const requiredLevel = activity.requiredLevel || 1;
+                if (currentLevel < requiredLevel) continue;
                 
                 // Check if this activity can produce the task item
                 let canProduce = false;
@@ -614,19 +709,29 @@ class SkillCustomizationUI {
                     canProduce = taskItemId === `thieving_${activityId}`;
                 } else if (this.currentSkillId === 'firemaking') {
                     if (activity.firemakingTable) {
-                        canProduce = activity.firemakingTable.some(log => log.logId === taskItemId);
+                        canProduce = activity.firemakingTable.some(log => 
+                            log.logId === taskItemId && currentLevel >= log.requiredLevel
+                        );
                     }
                 } else if (this.currentSkillId === 'cooking') {
                     if (activity.cookingTable) {
-                        canProduce = activity.cookingTable.some(recipe => recipe.rawItemId === taskItemId);
+                        canProduce = activity.cookingTable.some(recipe => 
+                            recipe.rawItemId === taskItemId && currentLevel >= recipe.requiredLevel
+                        );
                     }
                 } else {
                     // Standard gathering skills
                     if (activity.rewards) {
-                        canProduce = activity.rewards.some(r => r.itemId === taskItemId);
+                        canProduce = activity.rewards.some(r => {
+                            const rewardLevel = r.requiredLevel || requiredLevel;
+                            return r.itemId === taskItemId && currentLevel >= rewardLevel;
+                        });
                     }
                     if (!canProduce && activity.alternatingRewards) {
-                        canProduce = activity.alternatingRewards.some(r => r.itemId === taskItemId);
+                        canProduce = activity.alternatingRewards.some(r => {
+                            const rewardLevel = r.requiredLevel || requiredLevel;
+                            return r.itemId === taskItemId && currentLevel >= rewardLevel;
+                        });
                     }
                 }
                 
@@ -673,6 +778,7 @@ class SkillCustomizationUI {
         const nodeRows = document.querySelectorAll('.node-row');
         nodeRows.forEach(row => {
             row.classList.remove('green-outline');
+            row.style.display = 'flex'; // Show all nodes again
             
             // Hide weight display
             const weightDisplay = row.querySelector('.node-weight-display');
@@ -683,7 +789,6 @@ class SkillCustomizationUI {
     }
     
     isIgnoredItemForHighlight(itemId) {
-        // Items that shouldn't be highlighted as tasks
         const ignored = ['burnt_food', 'uncut_sapphire', 'uncut_emerald', 'uncut_ruby', 'uncut_diamond', 'ashes'];
         return ignored.includes(itemId);
     }
@@ -692,17 +797,14 @@ class SkillCustomizationUI {
         const skill = skillRegistry.getSkill(this.currentSkillId);
         if (!skill) return [];
         
-        // Use the UI-specific method if it exists
         if (skill.getAllPossibleTasksForUI) {
             return skill.getAllPossibleTasksForUI();
         }
         
-        // Fallback for skills that don't have it yet
         return [];
     }
     
     getItemDisplayName(itemId) {
-        // Handle special virtual items
         if (itemId.startsWith('agility_laps_')) {
             return itemId.replace('agility_laps_', '').replace(/_/g, ' ') + ' laps';
         }
@@ -713,18 +815,12 @@ class SkillCustomizationUI {
             return itemId.replace('runecraft_trips_', '').replace(/_/g, ' ');
         }
         
-        // Get from items data
         const itemData = loadingManager.getData('items')[itemId];
         return itemData ? itemData.name : itemId.replace(/_/g, ' ');
     }
     
     getItemCounts(itemId) {
-        // Get counts from skill-specific data
-        // This is hardcoded per skill for now
         const defaultCounts = { min: 20, max: 50 };
-        
-        // You would need to extract these from each skill's determineTargetCount method
-        // For now, returning defaults
         return defaultCounts;
     }
     
@@ -732,11 +828,9 @@ class SkillCustomizationUI {
         const possibleNodes = new Set();
         const activities = loadingManager.getData('activities');
         
-        // Find all nodes that have activities for this skill
         for (const [activityId, activity] of Object.entries(activities)) {
             if (activity.skill !== this.currentSkillId) continue;
             
-            // Find nodes with this activity
             const allNodes = nodes.getAllNodes();
             for (const [nodeId, node] of Object.entries(allNodes)) {
                 if (node.activities && node.activities.includes(activityId)) {
@@ -749,7 +843,6 @@ class SkillCustomizationUI {
     }
     
     getSkillTaskCount() {
-        // Count completed tasks for this skill
         let count = 0;
         if (window.taskManager) {
             for (const task of taskManager.completedTasks) {
