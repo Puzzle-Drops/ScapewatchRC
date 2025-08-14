@@ -1042,6 +1042,7 @@ body {
     gap: 10px;
 }
 
+/* Base task and node row styles */
 .task-row, .node-row {
     display: flex;
     justify-content: space-between;
@@ -1049,8 +1050,11 @@ body {
     padding: 8px;
     background: #2c3e50;
     border-radius: 3px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
 }
 
+/* Task info styling */
 .task-info {
     display: flex;
     gap: 10px;
@@ -1058,11 +1062,18 @@ body {
 }
 
 .task-level {
-    color: #e74c3c;
     font-weight: bold;
     min-width: 45px;
     text-align: center;
     display: inline-block;
+}
+
+.task-level-has {
+    color: #27ae60 !important; /* Green when player has the level */
+}
+
+.task-level-needs {
+    color: #e74c3c !important; /* Red when player doesn't have the level */
 }
 
 .task-chance {
@@ -1081,6 +1092,29 @@ body {
     color: #95a5a6;
 }
 
+/* Node info styling */
+.node-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 10px;
+    color: #ecf0f1;
+}
+
+.node-weight-display {
+    color: #f39c12;
+    font-weight: bold;
+    min-width: 45px;
+    text-align: center;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.node-name {
+    flex: 1;
+}
+
+/* Control buttons */
 .task-controls, .node-controls {
     display: flex;
     gap: 5px;
@@ -1101,20 +1135,14 @@ body {
     background: #34495e;
 }
 
-.node-info {
-    color: #ecf0f1;
+.control-button.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: #1a1a1a;
 }
 
-.node-row:hover {
-    background: #34495e;
-    cursor: pointer;
-}
-
-.task-level {
-    color: #e74c3c;
-    font-weight: bold;
-    min-width: 30px;
-    text-align: center;
+.control-button.disabled:hover {
+    background: #1a1a1a;
 }
 
 /* Modification level orbs */
@@ -1144,67 +1172,10 @@ body {
     border: 1px solid #c0392b;
 }
 
-.spent-amount {
-    display: none;
-}
-
-/* Green outline for highlights - doesn't affect size */
-.task-row.green-outline,
-.node-row.green-outline,
-.task-row.hover-outline,
-.node-row.hover-outline {
-    outline: 2px solid #27ae60;
-    outline-offset: -2px;
-    position: relative;
-    z-index: 1;
-}
-
-/* Remove background color change on hover */
-.task-row:hover,
-.node-row:hover {
-    background: #2c3e50; /* Keep the same background as non-hovered */
-    cursor: pointer;
-}
-
-/* Node weight display - styled like task percentages */
-.node-weight-display {
-    color: #f39c12;
-    font-weight: bold;
-    min-width: 45px;
-    text-align: center;
-    display: inline-block;
-    margin-right: 10px;
-}
-
-/* Ensure consistent spacing in node info */
-.node-info {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    gap: 10px;
-}
-
-.node-name {
-    flex: 1;
-}
-
-/* Remove any old highlight rules */
-.task-row.highlighted,
-.task-row.highlight-border,
-.node-row.highlight-border {
-    /* Remove these old rules if they exist */
-    border: none !important;
-    box-shadow: none !important;
-    background: inherit !important;
-}
-
-/* Add these styles to your existing styles.css */
-
-/* Unavailable tasks and nodes (greyed out) */
+/* Unavailable items (greyed out) */
 .task-row.unavailable,
 .node-row.unavailable {
     opacity: 0.4;
-    cursor: default;
 }
 
 .task-row.unavailable .task-name,
@@ -1212,58 +1183,27 @@ body {
     color: #7f8c8d;
 }
 
-/* Level requirement colors */
-.task-level-has {
-    color: #27ae60 !important; /* Green when player has the level */
-    font-weight: bold;
-}
-
-.task-level-needs {
-    color: #e74c3c !important; /* Red when player doesn't have the level */
-    font-weight: bold;
-}
-
-/* Disabled control buttons */
-.control-button.disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    background: #1a1a1a;
-}
-
-.control-button.disabled:hover {
-    background: #1a1a1a;
-}
-
-/* Hide nodes when task is hovered (handled by JS with display: none) */
-.node-row {
-    transition: opacity 0.2s ease;
-}
-
-/* Ensure hover outlines work properly with greyed out items */
-.task-row.unavailable:hover,
-.node-row.unavailable:hover {
-    background: #2c3e50; /* Keep same background */
-    outline: none; /* No outline for unavailable items */
-}
-
-/* Fix task chance display for unavailable tasks */
 .task-row.unavailable .task-chance {
     color: #555;
 }
 
-/* Red outline for tasks player can't do yet when hovering nodes */
-.task-row.red-outline,
-.node-row.red-outline {
-    outline: 2px solid #e74c3c;
-    outline-offset: -2px;
-    position: relative;
-    z-index: 1;
+/* Hover behavior - NO background changes, NO opacity changes */
+.task-row:hover,
+.node-row:hover {
+    /* Do not change background or opacity */
+    /* Outline classes handle all visual feedback */
 }
 
-/* Separate hover outline classes for available vs unavailable */
+.task-row.unavailable:hover,
+.node-row.unavailable:hover {
+    opacity: 0.4; /* Maintain the same opacity */
+    background: #2c3e50; /* Maintain the same background */
+}
+
+/* Hover outline classes (when hovering the item itself) */
 .task-row.hover-outline-green,
 .node-row.hover-outline-green {
-    outline: 2px solid #27ae60;
+    outline: 2px solid #27ae60 !important;
     outline-offset: -2px;
     position: relative;
     z-index: 1;
@@ -1271,16 +1211,16 @@ body {
 
 .task-row.hover-outline-red,
 .node-row.hover-outline-red {
-    outline: 2px solid #e74c3c;
+    outline: 2px solid #e74c3c !important;
     outline-offset: -2px;
     position: relative;
     z-index: 1;
 }
 
-/* Keep the green-outline and red-outline for node highlighting */
+/* Highlight outlines (when OTHER items are hovered) */
 .task-row.green-outline,
 .node-row.green-outline {
-    outline: 2px solid #27ae60;
+    outline: 2px solid #27ae60 !important;
     outline-offset: -2px;
     position: relative;
     z-index: 1;
@@ -1288,21 +1228,13 @@ body {
 
 .task-row.red-outline,
 .node-row.red-outline {
-    outline: 2px solid #e74c3c;
+    outline: 2px solid #e74c3c !important;
     outline-offset: -2px;
     position: relative;
     z-index: 1;
 }
 
-/* Unavailable items should still be hoverable */
-.task-row.unavailable,
-.node-row.unavailable {
-    opacity: 0.4;
-    cursor: pointer; /* Changed from cursor: default */
-}
-
-/* Remove the previous hover prevention for unavailable items */
-.task-row.unavailable:hover,
-.node-row.unavailable:hover {
-    background: #333; /* Allow background change on hover */
+/* Utility class */
+.spent-amount {
+    display: none;
 }
