@@ -277,17 +277,8 @@ class CookingSkill extends BaseSkill {
         
         const counts = foodCounts[itemId] || { min: 15, max: 40 };
         const baseCount = counts.min + Math.random() * (counts.max - counts.min);
-        let count = Math.round(baseCount / 5) * 5;
-    
-    // Apply RuneCred quantity modifier
-    if (window.runeCreditManager) {
-        const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
-        count = Math.round(count * modifier);
-        count = Math.max(5, count); // Minimum of 5
+        return Math.round(baseCount / 5) * 5;
     }
-    
-    return count;
-}
     
     // Check if we still have access to raw food for cooking
     hasAccessToRawFood() {
