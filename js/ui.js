@@ -196,6 +196,13 @@ class UIManager {
         const skillDiv = document.createElement('div');
         skillDiv.className = 'skill-item';
         
+skillDiv.addEventListener('click', () => {
+    if (window.skillCustomizationUI) {
+        skillCustomizationUI.open(skillId);
+    }
+});
+skillDiv.style.cursor = 'pointer';
+        
         const contentDiv = document.createElement('div');
         contentDiv.className = 'skill-content';
         
