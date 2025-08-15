@@ -308,17 +308,18 @@ body {
 
 .skill-level {
     color: #FFD700;
-    font-size: 34px;
+    font-size: 38px;
     font-family: Courier New, monospace;
 }
 
 .skill-tooltip {
     position: absolute;
     background-color: rgba(0, 0, 0, 0.95);
-    color: #fff;
+    color: #FFD700;
     padding: 8px 12px;
     border-radius: 4px;
-    font-size: 18px;
+    font-size: 24px;
+    font-family: 'Courier New', monospace;
     line-height: 1.4;
     white-space: nowrap;
     pointer-events: none;
@@ -370,6 +371,13 @@ body {
 
 .level-item:hover .skill-tooltip {
     opacity: 1;
+}
+
+/* Override the text styling for level items */
+.level-item > div {
+    color: #FFD700 !important;
+    font-size: 34px !important;
+    font-family: 'Courier New', monospace !important;
 }
 
 .level-icon {
