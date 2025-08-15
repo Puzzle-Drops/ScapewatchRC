@@ -376,8 +376,9 @@ body {
 /* Override the text styling for level items */
 .level-item > div {
     color: #FFD700 !important;
-    font-size: 34px !important;
+    font-size: 42px !important;
     font-family: 'Courier New', monospace !important;
+    font-weight: normal !important;
 }
 
 .level-icon {
