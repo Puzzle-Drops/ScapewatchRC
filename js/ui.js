@@ -689,31 +689,33 @@ class UIManager {
     // ==================== ITEM DISPLAY HELPERS ====================
 
     createItemSlot(itemId, quantity, slotClass) {
-        const slotDiv = document.createElement('div');
-        slotDiv.className = slotClass;
-        
-        const itemData = loadingManager.getData('items')[itemId];
-        
-        const img = this.createItemImage(itemId, quantity);
-        
-        img.onerror = function() {
-            this.style.display = 'none';
-            const textDiv = document.createElement('div');
-            textDiv.style.fontSize = '12px';
-            textDiv.textContent = itemData.name.substring(0, 3);
-            slotDiv.appendChild(textDiv);
-        };
-        
-        slotDiv.appendChild(img);
-        
-        // Always show count for all items (even quantity of 1)
+    const slotDiv = document.createElement('div');
+    slotDiv.className = slotClass;
+    
+    const itemData = loadingManager.getData('items')[itemId];
+    
+    const img = this.createItemImage(itemId, quantity);
+    
+    img.onerror = function() {
+        this.style.display = 'none';
+        const textDiv = document.createElement('div');
+        textDiv.style.fontSize = '12px';
+        textDiv.textContent = itemData.name.substring(0, 3);
+        slotDiv.appendChild(textDiv);
+    };
+    
+    slotDiv.appendChild(img);
+    
+    // Only show count if quantity is greater than 1
+    if (quantity > 1) {
         const countDiv = this.createItemCount(itemId, quantity);
         slotDiv.appendChild(countDiv);
-        
-        slotDiv.title = `${itemData.name} x${formatNumber(quantity)}`;
-        
-        return slotDiv;
     }
+    
+    slotDiv.title = `${itemData.name} x${formatNumber(quantity)}`;
+    
+    return slotDiv;
+}
 
     createItemImage(itemId, quantity) {
         const img = document.createElement('img');
