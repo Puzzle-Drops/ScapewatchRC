@@ -71,6 +71,7 @@ async function startGame() {
     
     // Initialize game systems (order matters!)
     window.skills = new SkillsManager();
+    window.runeCreditManager = new RuneCreditManager();
     window.inventory = new Inventory();
     window.bank = new Bank();
     window.shop = new ShopSystem();
