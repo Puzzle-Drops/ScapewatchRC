@@ -1521,8 +1521,10 @@ body {
     color: #f39c12;
     font-weight: bold;
     font-size: 22px;
-    min-width: 45px;
+    min-width: 50px;
     text-align: center;
+    display: inline-block;
+    margin-right: 10px;
 }
 
 .skill-weight-controls {
