@@ -975,19 +975,45 @@ body {
     margin-right: 60px;
 }
 
-.runecred-display {
+/* Three-tier credit display */
+.skill-cred-display {
     font-size: 44px;
-    color: #f39c12;
+    color: #3498db;  /* Blue for skill-specific credits */
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.skill-cred-display .cred-amount {
+    font-weight: bold;
+    color: #3498db;
+}
+
+.other-credits {
+    display: flex;
+    gap: 30px;
     margin-bottom: 10px;
 }
 
-.rc-amount {
+.secondary-cred {
+    font-size: 28px;
+    color: #95a5a6;
+}
+
+.secondary-cred .cred-amount-secondary {
+    color: #ecf0f1;
     font-weight: bold;
+}
+
+.skill-tasks-completed {
+    color: #95a5a6;
+    font-size: 24px;
+    font-style: italic;
 }
 
 .total-tasks {
     color: #95a5a6;
-    font-size: 30px;
+    font-size: 24px;
+    display: none;  /* We're not showing this anymore */
 }
 
 .speed-bonuses {
