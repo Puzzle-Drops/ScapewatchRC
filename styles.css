@@ -377,11 +377,6 @@ body {
 }
 
 /* Tasks Panel - NEW STYLES */
-.tasks-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
 
 .task-section {
     background-color: #1a1a1a;
@@ -539,13 +534,6 @@ body {
     border: 1px solid #444;
 }
 
-.completed-task-number {
-    font-size: 14px;
-    font-weight: bold;
-    color: #f39c12;
-    min-width: 30px;
-}
-
 .completed-task-icon {
     width: 24px;
     height: 24px;
@@ -561,12 +549,6 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
-}
-
-.completed-task-description {
-    flex: 1;
-    font-size: 13px;
-    color: #fff;
 }
 
 /* Item count displays */
@@ -952,7 +934,7 @@ body {
 }
 
 .skill-name {
-    font-size: 24px;
+    font-size: 44px;
     font-weight: bold;
     color: #ecf0f1;
 }
@@ -961,14 +943,16 @@ body {
     display: flex;
     gap: 20px;
     color: #95a5a6;
+    font-size: 30px;
 }
 
 .header-right {
     text-align: right;
+    margin-right: 60px;
 }
 
 .runecred-display {
-    font-size: 20px;
+    font-size: 44px;
     color: #f39c12;
     margin-bottom: 10px;
 }
@@ -979,6 +963,7 @@ body {
 
 .total-tasks {
     color: #95a5a6;
+    font-size: 30px;
 }
 
 .speed-bonuses {
@@ -989,7 +974,7 @@ body {
 }
 
 .speed-bonus-title {
-    font-size: 18px;
+    font-size: 30px;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -998,6 +983,7 @@ body {
 .bonus-percent {
     color: #2ecc71;
     font-weight: bold;
+    font-size: 30px;
 }
 
 .speed-bonus-list {
@@ -1011,7 +997,7 @@ body {
     background: #2c3e50;
     border-radius: 3px;
     color: #7f8c8d;
-    font-size: 14px;
+    font-size: 30px;
 }
 
 .speed-bonus-item.active {
@@ -1034,12 +1020,14 @@ body {
 .customization-column h3 {
     margin: 0 0 15px 0;
     color: #ecf0f1;
+    font-size: 30px;
 }
 
 .tasks-list, .nodes-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    font-size: 22px;
 }
 
 /* Base task and node row styles */
@@ -1117,18 +1105,19 @@ body {
 /* Control buttons */
 .task-controls, .node-controls {
     display: flex;
-    gap: 5px;
+    gap: 12px;
 }
 
 .control-button {
     width: 30px;
     height: 30px;
-    border: 1px solid #7f8c8d;
+    border: 2px solid #7f8c8d;
     background: #2c3e50;
     color: #ecf0f1;
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: 4px;
     position: relative;
+    font-size: 18px;
 }
 
 .control-button:hover {
@@ -1154,8 +1143,7 @@ body {
     height: 20px;
     border-radius: 50%;
     color: white;
-    font-size: 11px;
-    font-weight: bold;
+    font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1249,7 +1237,7 @@ body {
 
 /* Left Column - Completed Tasks */
 .skill-customization-completed {
-    width: 400px; /* Increased width for longer task descriptions */
+    width: 600px;
     background: #2c3e50;
     padding: 20px;
     border-right: 2px solid #34495e;
@@ -1267,7 +1255,7 @@ body {
 .completed-tasks-header h3 {
     margin: 0;
     color: #ecf0f1;
-    font-size: 20px;
+    font-size: 44px;
 }
 
 .completed-tasks-stats {
@@ -1280,6 +1268,7 @@ body {
 .completed-stats-text {
     color: #f39c12;
     font-weight: bold;
+    font-size: 30px;
     text-align: center;
 }
 
@@ -1319,21 +1308,20 @@ body {
 
 .completed-task-number {
     color: #f39c12;
-    font-weight: bold;
-    min-width: 40px;
-    font-size: 13px;
+    min-width: 60px;
+    font-size: 22px;
 }
 
 .completed-task-separator {
     color: #7f8c8d;
-    font-size: 13px;
+    font-size: 22px;
     user-select: none;
 }
 
 .completed-task-description {
     flex: 1;
     color: #ecf0f1;
-    font-size: 13px;
+    font-size: 22px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1341,8 +1329,8 @@ body {
 
 .completed-task-time {
     color: #95a5a6;
-    font-size: 12px;
-    min-width: 50px;
+    font-size: 22px;
+    min-width: 60px;
     text-align: right;
 }
 
