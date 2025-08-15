@@ -391,8 +391,8 @@ body {
     position: relative;
     cursor: pointer;
     transition: background-color 0.3s;
-    min-width: 220px;
-    width: 220px;
+    min-width: 200px;
+    width: 200px;
 }
 
 .level-item:hover {
