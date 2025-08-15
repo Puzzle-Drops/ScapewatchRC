@@ -373,8 +373,8 @@ body {
     opacity: 1;
 }
 
-/* Override the text styling for level items */
-.level-item > div {
+/* Override the text styling for level items - but NOT tooltips */
+.level-item > div:not(.skill-tooltip) {
     color: #FFD700 !important;
     font-size: 42px !important;
     font-family: 'Courier New', monospace !important;
@@ -383,7 +383,7 @@ body {
 
 .level-item {
     background-color: #222;
-    padding: 12px;  /* Slightly more padding than skill items */
+    padding: 12px;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -391,6 +391,8 @@ body {
     position: relative;
     cursor: pointer;
     transition: background-color 0.3s;
+    min-width: 240px;
+    width: 240px;
 }
 
 .level-item:hover {
