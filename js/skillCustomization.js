@@ -393,41 +393,48 @@ class SkillCustomizationUI {
     }
     
     createSkillWeightRow(skillId, totalWeight, registeredSkills) {
-        const row = document.createElement('div');
-        row.className = 'skill-weight-row';
-        
-        // Skill info
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'skill-weight-info';
-        
-        // Percentage FIRST (at far left)
-        const isRegistered = registeredSkills.has(skillId);
-        let percentage = 0;
-        if (isRegistered && totalWeight > 0) {
-            const weight = runeCreditManager.getSkillWeight(skillId);
-            percentage = Math.round((weight / totalWeight) * 100);
-        }
-        
-        const percentSpan = document.createElement('span');
-        percentSpan.className = 'skill-weight-percent';
-        percentSpan.textContent = isRegistered ? `${percentage}%` : '-';
-        infoDiv.appendChild(percentSpan);
-        
-        // Icon
-        const icon = loadingManager.getImage(`skill_${skillId}`);
-        if (icon) {
-            const iconImg = document.createElement('img');
-            iconImg.src = icon.src;
-            iconImg.className = 'skill-weight-icon';
-            infoDiv.appendChild(iconImg);
-        }
-        
-        // Name
-        const skillData = loadingManager.getData('skills')[skillId];
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'skill-weight-name';
-        nameSpan.textContent = skillData.name;
-        infoDiv.appendChild(nameSpan);
+    const row = document.createElement('div');
+    row.className = 'skill-weight-row';
+    
+    // Skill info
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'skill-weight-info';
+    
+    // Percentage
+    const isRegistered = registeredSkills.has(skillId);
+    let percentage = 0;
+    if (isRegistered && totalWeight > 0) {
+        const weight = runeCreditManager.getSkillWeight(skillId);
+        percentage = Math.round((weight / totalWeight) * 100);
+    }
+    
+    const percentSpan = document.createElement('span');
+    percentSpan.className = 'skill-weight-percent';
+    percentSpan.textContent = isRegistered ? `${percentage}%` : '-';
+    infoDiv.appendChild(percentSpan);
+    
+    // Level
+    const currentLevel = skills.getLevel(skillId);
+    const levelSpan = document.createElement('span');
+    levelSpan.className = 'skill-weight-level';
+    levelSpan.textContent = `Lv ${currentLevel}`;
+    infoDiv.appendChild(levelSpan);
+    
+    // Icon
+    const icon = loadingManager.getImage(`skill_${skillId}`);
+    if (icon) {
+        const iconImg = document.createElement('img');
+        iconImg.src = icon.src;
+        iconImg.className = 'skill-weight-icon';
+        infoDiv.appendChild(iconImg);
+    }
+    
+    // Name
+    const skillData = loadingManager.getData('skills')[skillId];
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'skill-weight-name';
+    nameSpan.textContent = skillData.name;
+    infoDiv.appendChild(nameSpan);
         
         // Control buttons
         const controlsDiv = document.createElement('div');
