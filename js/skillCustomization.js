@@ -175,46 +175,46 @@ class SkillCustomizationUI {
     }
     
     createCompletedTaskRow(task, globalIndex) {
-    const row = document.createElement('div');
-    row.className = 'completed-task-row';
-    
-    // Task number
-    const numberDiv = document.createElement('div');
-    numberDiv.className = 'completed-task-number';
-    numberDiv.textContent = `#${globalIndex}`;
-    
-    // Separator 1
-    const sep1 = document.createElement('div');
-    sep1.className = 'completed-task-separator';
-    sep1.textContent = '|';
-    
-    // Task description (full, on one line)
-    const descDiv = document.createElement('div');
-    descDiv.className = 'completed-task-description';
-    descDiv.textContent = task.description;
-    
-    // Separator 2
-    const sep2 = document.createElement('div');
-    sep2.className = 'completed-task-separator';
-    sep2.textContent = '|';
-    
-    // Time ago
-    const timeDiv = document.createElement('div');
-    timeDiv.className = 'completed-task-time';
-    if (task.completedAt) {
-        timeDiv.textContent = this.getTimeAgo(task.completedAt);
-    } else {
-        timeDiv.textContent = '-';
+        const row = document.createElement('div');
+        row.className = 'completed-task-row';
+        
+        // Task number
+        const numberDiv = document.createElement('div');
+        numberDiv.className = 'completed-task-number';
+        numberDiv.textContent = `#${globalIndex}`;
+        
+        // Separator 1
+        const sep1 = document.createElement('div');
+        sep1.className = 'completed-task-separator';
+        sep1.textContent = '|';
+        
+        // Task description (full, on one line)
+        const descDiv = document.createElement('div');
+        descDiv.className = 'completed-task-description';
+        descDiv.textContent = task.description;
+        
+        // Separator 2
+        const sep2 = document.createElement('div');
+        sep2.className = 'completed-task-separator';
+        sep2.textContent = '|';
+        
+        // Time ago
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'completed-task-time';
+        if (task.completedAt) {
+            timeDiv.textContent = this.getTimeAgo(task.completedAt);
+        } else {
+            timeDiv.textContent = '-';
+        }
+        
+        row.appendChild(numberDiv);
+        row.appendChild(sep1);
+        row.appendChild(descDiv);
+        row.appendChild(sep2);
+        row.appendChild(timeDiv);
+        
+        return row;
     }
-    
-    row.appendChild(numberDiv);
-    row.appendChild(sep1);
-    row.appendChild(descDiv);
-    row.appendChild(sep2);
-    row.appendChild(timeDiv);
-    
-    return row;
-}
     
     getTimeAgo(timestamp) {
         const seconds = Math.floor((Date.now() - timestamp) / 1000);
@@ -260,32 +260,56 @@ class SkillCustomizationUI {
         const xpSpan = document.createElement('span');
         xpSpan.textContent = `${formatNumber(Math.floor(skill.xp))} XP`;
         
-        const rcSpentSpan = document.createElement('span');
-        const rcSpent = runeCreditManager.rcSpentPerSkill[this.currentSkillId] || 0;
-        rcSpentSpan.textContent = `${rcSpent} RC spent on ${skillData.name}`;
+        const creditsSpentSpan = document.createElement('span');
+        const creditsSpent = runeCreditManager.creditsSpentPerSkill[this.currentSkillId] || 0;
+        const skillCredName = runeCreditManager.getSkillCredName(this.currentSkillId);
+        creditsSpentSpan.textContent = `${creditsSpent} ${skillCredName} spent`;
         
         statsDiv.appendChild(levelSpan);
         statsDiv.appendChild(xpSpan);
-        statsDiv.appendChild(rcSpentSpan);
+        statsDiv.appendChild(creditsSpentSpan);
         
         leftSide.appendChild(titleDiv);
         leftSide.appendChild(statsDiv);
         
-        // Right side - RuneCred
+        // Right side - Credits Display (now shows all three types)
         const rightSide = document.createElement('div');
         rightSide.className = 'header-right';
         
-        const rcDiv = document.createElement('div');
-        rcDiv.className = 'runecred-display';
-        rcDiv.id = 'runecred-display';
-        rcDiv.innerHTML = `RuneCred: <span class="rc-amount">${runeCreditManager.runecred}</span>`;
+        // Skill-specific credits (primary, larger)
+        const skillCredDiv = document.createElement('div');
+        skillCredDiv.className = 'skill-cred-display';
+        skillCredDiv.id = 'skill-cred-display';
+        const skillCredName = runeCreditManager.getSkillCredName(this.currentSkillId);
+        const skillCredAmount = runeCreditManager.getSkillCredits(this.currentSkillId);
+        skillCredDiv.innerHTML = `${skillCredName}: <span class="cred-amount">${skillCredAmount}</span>`;
         
-        const totalTasksDiv = document.createElement('div');
-        totalTasksDiv.className = 'total-tasks';
-        totalTasksDiv.textContent = `${runeCreditManager.totalTasksCompleted} total tasks completed`;
+        // Container for other credits
+        const otherCredsDiv = document.createElement('div');
+        otherCredsDiv.className = 'other-credits';
         
-        rightSide.appendChild(rcDiv);
-        rightSide.appendChild(totalTasksDiv);
+        // Rune Cred
+        const runeCredDiv = document.createElement('div');
+        runeCredDiv.className = 'secondary-cred';
+        runeCredDiv.innerHTML = `Rune Cred: <span class="cred-amount-secondary">${runeCreditManager.runeCred}</span>`;
+        
+        // Skill Cred
+        const globalSkillCredDiv = document.createElement('div');
+        globalSkillCredDiv.className = 'secondary-cred';
+        globalSkillCredDiv.innerHTML = `Skill Cred: <span class="cred-amount-secondary">${runeCreditManager.skillCred}</span>`;
+        
+        // Tasks completed for this skill
+        const tasksDiv = document.createElement('div');
+        tasksDiv.className = 'skill-tasks-completed';
+        const tasksCompleted = runeCreditManager.tasksPerSkill[this.currentSkillId] || 0;
+        tasksDiv.textContent = `${tasksCompleted} ${skillData.name} tasks earned credits`;
+        
+        otherCredsDiv.appendChild(runeCredDiv);
+        otherCredsDiv.appendChild(globalSkillCredDiv);
+        
+        rightSide.appendChild(skillCredDiv);
+        rightSide.appendChild(otherCredsDiv);
+        rightSide.appendChild(tasksDiv);
         
         header.appendChild(leftSide);
         header.appendChild(rightSide);
@@ -1001,10 +1025,20 @@ class SkillCustomizationUI {
         return count;
     }
     
-    updateRuneCred() {
-        const display = document.getElementById('runecred-display');
-        if (display) {
-            display.innerHTML = `RuneCred: <span class="rc-amount">${runeCreditManager.runecred}</span>`;
+    updateCredits() {
+        // Update skill-specific credits
+        const skillCredDisplay = document.getElementById('skill-cred-display');
+        if (skillCredDisplay) {
+            const skillCredName = runeCreditManager.getSkillCredName(this.currentSkillId);
+            const skillCredAmount = runeCreditManager.getSkillCredits(this.currentSkillId);
+            skillCredDisplay.innerHTML = `${skillCredName}: <span class="cred-amount">${skillCredAmount}</span>`;
+        }
+        
+        // Update other credit displays
+        const runeCredElements = document.querySelectorAll('.secondary-cred');
+        if (runeCredElements.length >= 2) {
+            runeCredElements[0].innerHTML = `Rune Cred: <span class="cred-amount-secondary">${runeCreditManager.runeCred}</span>`;
+            runeCredElements[1].innerHTML = `Skill Cred: <span class="cred-amount-secondary">${runeCreditManager.skillCred}</span>`;
         }
     }
 }
