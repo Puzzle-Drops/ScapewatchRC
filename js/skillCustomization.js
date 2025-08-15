@@ -280,9 +280,10 @@ class SkillCustomizationUI {
         const skillCredDiv = document.createElement('div');
         skillCredDiv.className = 'skill-cred-display';
         skillCredDiv.id = 'skill-cred-display';
-        // Use the already declared skillCredName from above
-        const skillCredAmount = runeCreditManager.getSkillCredits(this.currentSkillId);
-        skillCredDiv.innerHTML = `${skillCredName}: <span class="cred-amount">${skillCredAmount}</span>`;
+        // Calculate total and available credits
+        const availableCredits = runeCreditManager.getSkillCredits(this.currentSkillId);
+        const totalCredits = 10 + (runeCreditManager.tasksPerSkill[this.currentSkillId] || 0);
+        skillCredDiv.innerHTML = `${skillCredName}: <span class="cred-amount">${availableCredits}/${totalCredits}</span>`;
         
         // Container for other credits
         const otherCredsDiv = document.createElement('div');
@@ -293,10 +294,11 @@ class SkillCustomizationUI {
         runeCredDiv.className = 'secondary-cred';
         runeCredDiv.innerHTML = `Rune Cred: <span class="cred-amount-secondary">${runeCreditManager.runeCred}</span>`;
         
-        // Skill Cred
+        // Skill Cred (not spent yet, so available = total)
         const globalSkillCredDiv = document.createElement('div');
         globalSkillCredDiv.className = 'secondary-cred';
-        globalSkillCredDiv.innerHTML = `Skill Cred: <span class="cred-amount-secondary">${runeCreditManager.skillCred}</span>`;
+        const skillCredTotal = runeCreditManager.skillCred;
+        globalSkillCredDiv.innerHTML = `Skill Cred: <span class="cred-amount-secondary">${skillCredTotal}/${skillCredTotal}</span>`;
         
         // Tasks completed for this skill
         const tasksDiv = document.createElement('div');
@@ -1030,15 +1032,17 @@ class SkillCustomizationUI {
         const skillCredDisplay = document.getElementById('skill-cred-display');
         if (skillCredDisplay) {
             const skillCredName = runeCreditManager.getSkillCredName(this.currentSkillId);
-            const skillCredAmount = runeCreditManager.getSkillCredits(this.currentSkillId);
-            skillCredDisplay.innerHTML = `${skillCredName}: <span class="cred-amount">${skillCredAmount}</span>`;
+            const availableCredits = runeCreditManager.getSkillCredits(this.currentSkillId);
+            const totalCredits = 10 + (runeCreditManager.tasksPerSkill[this.currentSkillId] || 0);
+            skillCredDisplay.innerHTML = `${skillCredName}: <span class="cred-amount">${availableCredits}/${totalCredits}</span>`;
         }
         
         // Update other credit displays
         const runeCredElements = document.querySelectorAll('.secondary-cred');
         if (runeCredElements.length >= 2) {
             runeCredElements[0].innerHTML = `Rune Cred: <span class="cred-amount-secondary">${runeCreditManager.runeCred}</span>`;
-            runeCredElements[1].innerHTML = `Skill Cred: <span class="cred-amount-secondary">${runeCreditManager.skillCred}</span>`;
+            const skillCredTotal = runeCreditManager.skillCred;
+            runeCredElements[1].innerHTML = `Skill Cred: <span class="cred-amount-secondary">${skillCredTotal}/${skillCredTotal}</span>`;
         }
     }
 }
