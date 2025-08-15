@@ -105,6 +105,25 @@
             border: 2px solid #f39c12;
         }
 
+        .position-display.inaccessible {
+            border: 2px solid #e74c3c;
+            background-color: #3c1f1f;
+        }
+
+        .accessibility-status {
+            margin-top: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .accessibility-status.accessible {
+            color: #27ae60;
+        }
+
+        .accessibility-status.inaccessible {
+            color: #e74c3c;
+        }
+
         /* Form Controls */
         .form-group {
             margin-bottom: 15px;
@@ -245,6 +264,13 @@
             background-color: rgba(243, 156, 18, 0.2);
         }
 
+        .highlighted-pixel.inaccessible {
+            border-color: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.8),
+                       inset 0 0 10px rgba(231, 76, 60, 0.3);
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+
         /* Node info tooltip */
         .node-tooltip {
             position: absolute;
@@ -300,6 +326,25 @@
             height: 20px;
             cursor: pointer;
         }
+
+        .collision-indicator {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .collision-indicator.on {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        .collision-indicator.off {
+            background-color: #444;
+            color: #999;
+        }
     </style>
 </head>
 <body>
@@ -321,7 +366,9 @@
             <div id="zoom-level">Zoom: 1x</div>
             <div style="font-size: 11px; color: #666;">
                 Nodes loaded: <span id="nodeCount">0</span> | 
-                Activities loaded: <span id="activityCount">0</span>
+                Activities loaded: <span id="activityCount">0</span> | 
+                <span id="collisionStatus" style="color: #e74c3c;">Collision: Loading...</span>
+                <span class="collision-indicator" id="collisionIndicator">Collision: OFF</span>
             </div>
             
             <div class="quick-actions">
@@ -340,16 +387,23 @@
                 <label for="showLabels" style="margin: 0;">Show node labels</label>
             </div>
             
+            <div class="toggle-container">
+                <input type="checkbox" id="showCollision" onchange="toggleCollision()">
+                <label for="showCollision" style="margin: 0;">Show collision map (C key)</label>
+            </div>
+            
             <div style="font-size: 11px; color: #666; margin: 10px 0; background-color: #222; padding: 8px; border-radius: 4px;">
                 <strong>Node Icons:</strong><br>
                 🏦 Banks use bank icon<br>
                 📜 Quests use quest icon<br>
                 ⛏️ Skills show activity icons<br>
+                🔴 Red areas are inaccessible<br>
                 Hover over nodes for details
             </div>
             
             <div class="position-display" id="positionDisplay">
                 Click on map to select position
+                <div class="accessibility-status" id="accessibilityStatus"></div>
             </div>
             
             <div style="font-size: 11px; color: #666; margin: 10px 0;">
@@ -358,7 +412,8 @@
                 • Right-click: Select & jump to name field<br>
                 • Shift+Click or Middle-click: Drag map<br>
                 • Scroll: Zoom in/out<br>
-                • +/- keys: Zoom | 1: Reset | G: Focus name field
+                • +/- keys: Zoom | 1: Reset | G: Focus name field<br>
+                • C: Toggle collision overlay
             </div>
             
             <button class="btn btn-secondary" onclick="copyPosition()">Copy Position to Clipboard</button>
@@ -423,6 +478,9 @@
         
         // Map state
         let mapImage = null;
+        let collisionMapImage = null;
+        let collisionCanvas = null;
+        let collisionCtx = null;
         let zoom = 1;
         let camera = { x: 4395, y: 1882 }; // Start at Lumbridge
         let isDragging = false;
@@ -430,6 +488,7 @@
         let selectedPosition = null;
         let showNodes = true;
         let showLabels = true;
+        let showCollision = false;
         
         // Data
         let existingNodes = {};
@@ -451,6 +510,50 @@
                     console.log('Map loaded');
                 };
                 mapImage.src = 'https://puzzle-drops.github.io/Scapewatch/assets/map.png';
+                
+                // Load collision map
+                collisionMapImage = new Image();
+                collisionMapImage.crossOrigin = 'anonymous';
+                collisionMapImage.onload = function() {
+                    // Create off-screen canvas for collision detection
+                    collisionCanvas = document.createElement('canvas');
+                    collisionCanvas.width = collisionMapImage.width;
+                    collisionCanvas.height = collisionMapImage.height;
+                    collisionCtx = collisionCanvas.getContext('2d');
+                    collisionCtx.drawImage(collisionMapImage, 0, 0);
+                    console.log(`Collision map loaded: ${collisionMapImage.width}x${collisionMapImage.height}`);
+                    
+                    // Update status
+                    const collisionStatus = document.getElementById('collisionStatus');
+                    if (collisionStatus) {
+                        collisionStatus.textContent = 'Collision: Ready';
+                        collisionStatus.style.color = '#27ae60';
+                    }
+                    
+                    // Test collision detection at a few points
+                    const testPoints = [
+                        {x: 4395, y: 1882, name: "Lumbridge"},
+                        {x: 4370, y: 1480, name: "Varrock"},
+                        {x: 4281, y: 1340, name: "GE"}
+                    ];
+                    
+                    testPoints.forEach(point => {
+                        const accessible = isPositionAccessible(point.x, point.y);
+                        console.log(`${point.name} (${point.x}, ${point.y}): ${accessible ? 'Accessible' : 'BLOCKED'}`);
+                    });
+                    
+                    render();
+                };
+                collisionMapImage.onerror = function() {
+                    console.error('Failed to load collision map');
+                    const collisionStatus = document.getElementById('collisionStatus');
+                    if (collisionStatus) {
+                        collisionStatus.textContent = 'Collision: Failed';
+                        collisionStatus.style.color = '#e74c3c';
+                    }
+                    showToast('Warning: Collision map failed to load', 'error');
+                };
+                collisionMapImage.src = 'https://puzzle-drops.github.io/Scapewatch/assets/collision-map.png';
                 
                 // Load nodes
                 const nodesResponse = await fetch('https://puzzle-drops.github.io/Scapewatch/data/nodes.json');
@@ -478,6 +581,75 @@
             } catch (error) {
                 console.error('Error loading data:', error);
                 showToast('Error loading data. Some features may not work.', 'error');
+            }
+        }
+        
+        // Check if position is accessible
+        function isPositionAccessible(x, y) {
+            if (!collisionCtx || !collisionMapImage || !collisionMapImage.complete) {
+                console.log('Collision map not ready');
+                return true; // Default to accessible if no collision map
+            }
+            
+            // Ensure coordinates are within bounds
+            if (x < 0 || y < 0 || x >= collisionMapImage.width || y >= collisionMapImage.height) {
+                console.log('Position out of bounds:', x, y);
+                return false;
+            }
+            
+            // Get pixel data at position
+            const pixelData = collisionCtx.getImageData(x, y, 1, 1).data;
+            
+            // Debug log
+            const isAccessible = pixelData[3] === 0;
+            if (!isAccessible) {
+                console.log(`Position (${x}, ${y}) is blocked - RGBA: ${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}, ${pixelData[3]}`);
+            }
+            
+            // Check if pixel is transparent (alpha = 0)
+            // If there's any color at all (alpha > 0), it's not accessible
+            return isAccessible;
+        }
+        
+        // Update accessibility status display
+        function updateAccessibilityStatus() {
+            if (!selectedPosition) {
+                document.getElementById('accessibilityStatus').textContent = '';
+                document.getElementById('positionDisplay').classList.remove('inaccessible');
+                return;
+            }
+            
+            const accessible = isPositionAccessible(selectedPosition.x, selectedPosition.y);
+            const statusElement = document.getElementById('accessibilityStatus');
+            const posDisplay = document.getElementById('positionDisplay');
+            
+            if (accessible) {
+                statusElement.textContent = '✓ Position is accessible';
+                statusElement.className = 'accessibility-status accessible';
+                posDisplay.classList.remove('inaccessible');
+            } else {
+                statusElement.textContent = '✗ Position is NOT accessible (blocked)';
+                statusElement.className = 'accessibility-status inaccessible';
+                posDisplay.classList.add('inaccessible');
+            }
+        }
+        
+        // Toggle collision display
+        function toggleCollision() {
+            showCollision = document.getElementById('showCollision').checked;
+            updateCollisionIndicator();
+            render();
+        }
+        
+        // Update collision indicator
+        function updateCollisionIndicator() {
+            const indicator = document.getElementById('collisionIndicator');
+            if (showCollision) {
+                indicator.textContent = 'Collision: ON';
+                indicator.className = 'collision-indicator on';
+            } else {
+                indicator.textContent = 'Collision: OFF';
+                indicator.className = 'collision-indicator off';
             }
         }
         
@@ -596,6 +768,40 @@
             // Draw map
             ctx.drawImage(mapImage, 0, 0);
             
+            // Draw collision map overlay if enabled
+            if (showCollision && collisionMapImage && collisionMapImage.complete) {
+                ctx.save();
+                ctx.globalAlpha = 0.5;
+                ctx.globalCompositeOperation = 'multiply';
+                
+                // Create a red tinted version
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = collisionMapImage.width;
+                tempCanvas.height = collisionMapImage.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Draw collision map
+                tempCtx.drawImage(collisionMapImage, 0, 0);
+                
+                // Apply red tint to non-transparent pixels
+                const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                const data = imageData.data;
+                
+                for (let i = 0; i < data.length; i += 4) {
+                    if (data[i + 3] > 0) { // If not transparent
+                        data[i] = 255;     // Red
+                        data[i + 1] = 0;   // Green
+                        data[i + 2] = 0;   // Blue
+                        data[i + 3] = 128; // Semi-transparent
+                    }
+                }
+                
+                tempCtx.putImageData(imageData, 0, 0);
+                ctx.drawImage(tempCanvas, 0, 0);
+                
+                ctx.restore();
+            }
+            
             // Draw nodes if enabled
             if (showNodes) {
                 drawNodes();
@@ -616,6 +822,9 @@
                 
                 const x = Math.floor(node.position.x) + 0.5;
                 const y = Math.floor(node.position.y) + 0.5;
+                
+                // Check if node position is accessible
+                const accessible = isPositionAccessible(node.position.x, node.position.y);
                 
                 // Draw icons based on node type
                 if (node.type === 'bank') {
@@ -672,10 +881,17 @@
                     }
                 }
                 
+                // Draw inaccessible indicator
+                if (!accessible) {
+                    ctx.strokeStyle = '#e74c3c';
+                    ctx.lineWidth = 0.5;
+                    ctx.strokeRect(x - 3, y - 3, 6, 6);
+                }
+                
                 // Draw node name if labels are enabled
                 if (showLabels) {
                     ctx.font = '2px Arial';
-                    ctx.fillStyle = '#fff';
+                    ctx.fillStyle = accessible ? '#fff' : '#ff9999';
                     ctx.strokeStyle = '#000';
                     ctx.lineWidth = 0.25;
                     ctx.textAlign = 'center';
@@ -753,6 +969,16 @@
             pixel.style.top = `${screen.y - pixelSize/2}px`;
             pixel.style.width = `${pixelSize}px`;
             pixel.style.height = `${pixelSize}px`;
+            
+            // Check accessibility and update color immediately
+            const accessible = isPositionAccessible(selectedPosition.x, selectedPosition.y);
+            if (accessible) {
+                pixel.classList.remove('inaccessible');
+            } else {
+                pixel.classList.add('inaccessible');
+            }
+            
+            updateAccessibilityStatus();
         }
         
         // Mouse events
@@ -773,10 +999,17 @@
                 
                 updateHighlight();
                 
+                // Check accessibility and show appropriate toast
+                const accessible = isPositionAccessible(world.x, world.y);
+                console.log(`Right-clicked position (${world.x}, ${world.y}): ${accessible ? 'Accessible' : 'BLOCKED'}`);
+                if (accessible) {
+                    showToast('Position selected! Enter node ID.', 'success');
+                } else {
+                    showToast('Position selected but is BLOCKED! Enter node ID.', 'error');
+                }
+                
                 document.getElementById('nodeId').focus();
                 document.getElementById('nodeId').select();
-                
-                showToast('Position selected! Enter node ID.', 'success');
             } else if (e.button === 0 && !e.shiftKey) { // Left click
                 const world = screenToWorld(e.clientX, e.clientY);
                 selectedPosition = world;
@@ -786,6 +1019,14 @@
                 display.classList.add('active');
                 
                 updateHighlight();
+                
+                // Check accessibility for toast message
+                const accessible = isPositionAccessible(world.x, world.y);
+                console.log(`Left-clicked position (${world.x}, ${world.y}): ${accessible ? 'Accessible' : 'BLOCKED'}`);
+                if (!accessible) {
+                    showToast('Warning: Position is blocked!', 'error');
+                }
+                
                 copyPosition(true);
             } else if (e.button === 0 && e.shiftKey || e.button === 1) { // Drag
                 isDragging = true;
@@ -841,6 +1082,12 @@
                 tooltipHTML += `ID: ${foundId}<br>`;
                 tooltipHTML += `Type: ${foundNode.type}<br>`;
                 tooltipHTML += `Pos: ${foundNode.position.x}, ${foundNode.position.y}`;
+                
+                // Check accessibility
+                const accessible = isPositionAccessible(foundNode.position.x, foundNode.position.y);
+                if (!accessible) {
+                    tooltipHTML += `<br><span style="color: #e74c3c;">⚠ Inaccessible</span>`;
+                }
                 
                 if (foundNode.activities && foundNode.activities.length > 0) {
                     tooltipHTML += `<br>Activities: ${foundNode.activities.length}`;
@@ -903,7 +1150,14 @@
             const positionText = `"x": ${selectedPosition.x}, "y": ${selectedPosition.y}`;
             navigator.clipboard.writeText(positionText);
             
-            if (!silent) showToast('Position copied to clipboard!');
+            if (!silent) {
+                const accessible = isPositionAccessible(selectedPosition.x, selectedPosition.y);
+                if (accessible) {
+                    showToast('Position copied to clipboard!');
+                } else {
+                    showToast('Position copied (Warning: blocked location!)', 'error');
+                }
+            }
         }
         
         // Update form based on node type
@@ -956,6 +1210,14 @@
                 return;
             }
             
+            // Check if position is accessible
+            const accessible = isPositionAccessible(selectedPosition.x, selectedPosition.y);
+            if (!accessible) {
+                if (!confirm('Warning: This position is NOT accessible (blocked by collision). Do you still want to create the node?')) {
+                    return;
+                }
+            }
+            
             // Build node object
             const node = {
                 id: nodeId,
@@ -990,7 +1252,7 @@
             document.getElementById('output').textContent = jsonText;
             navigator.clipboard.writeText(jsonText);
             
-            showToast('Node copied to clipboard!');
+            showToast('Node copied to clipboard!' + (accessible ? '' : ' (Warning: inaccessible position)'));
             
             // Clear form for next node
             document.getElementById('nodeName').value = '';
@@ -1026,9 +1288,13 @@
                 zoomOut();
             } else if (e.key === '1') {
                 resetZoom();
-            } else if (e.key === 'c' && e.ctrlKey) {
-                e.preventDefault();
-                copyPosition();
+            } else if (e.key === 'c' || e.key === 'C') {
+                if (!e.ctrlKey) { // Make sure it's not Ctrl+C
+                    e.preventDefault();
+                    const checkbox = document.getElementById('showCollision');
+                    checkbox.checked = !checkbox.checked;
+                    toggleCollision();
+                }
             } else if (e.key === 'g' || e.key === 'G') {
                 document.getElementById('nodeId').focus();
                 document.getElementById('nodeId').select();
@@ -1049,6 +1315,7 @@
             canvas.height = mapContainer.clientHeight;
             loadData();
             updateActivityList();
+            updateCollisionIndicator();
         });
     </script>
 </body>
