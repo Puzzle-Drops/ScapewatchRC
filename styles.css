@@ -309,6 +309,7 @@ body {
 .skill-level {
     color: #FFD700;
     font-size: 34px;
+    font-family: Courier New, monospace;
 }
 
 .skill-tooltip {
