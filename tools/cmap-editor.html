@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collision Map Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Map Container */
+        .map-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-color: #000;
+            background-image: 
+                linear-gradient(45deg, #222 25%, transparent 25%),
+                linear-gradient(-45deg, #222 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #222 75%),
+                linear-gradient(-45deg, transparent 75%, #222 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        #map-canvas {
+            position: absolute;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        /* Grid Overlay */
+        #grid-overlay {
+            position: absolute;
+            pointer-events: none;
+            display: none;
+            opacity: 0.3;
+        }
+
+        /* Selection Box */
+        .selection-box {
+            position: absolute;
+            border: 2px solid #00ff00;
+            background-color: rgba(0, 255, 0, 0.15);
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(0, 0, 0, 0.5);
+            animation: marching-ants 1s linear infinite;
+        }
+        
+        @keyframes marching-ants {
+            0% {
+                border-dashoffset: 0;
+            }
+            100% {
+                border-dashoffset: 10;
+            }
+        }
+        
+        .selection-box {
+            border-style: dashed;
+            border-dasharray: 5 5;
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            width: 350px;
+            background-color: #2a2a2a;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            background-color: #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        h3 {
+            color: #f39c12;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        /* Tool Buttons */
+        .tool-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .tool-buttons button:nth-child(5) {
+            grid-column: 1 / -1;
+        }
+
+        .tool-btn {
+            padding: 10px;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .tool-btn:hover {
+            background-color: #555;
+        }
+
+        .tool-btn.active {
+            background-color: #f39c12;
+            color: #000;
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .zoom-controls button {
+            flex: 1;
+            padding: 8px;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .zoom-controls button:hover {
+            background-color: #555;
+        }
+
+        #zoom-level {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        /* Toggle */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .toggle-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .toggle-container label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* Protected Colors */
+        .protected-colors {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-chip {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .color-chip.protected {
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .color-chip .remove-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 16px;
+            height: 16px;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 10px;
+            line-height: 16px;
+            text-align: center;
+            display: none;
+        }
+
+        .color-chip:hover .remove-btn {
+            display: block;
+        }
+
+        /* Action Buttons */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #f39c12;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background-color: #e67e22;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-success {
+            background-color: #27ae60;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background-color: #229954;
+        }
+
+        .btn-secondary {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #2980b9;
+        }
+
+        /* Stats */
+        .stats {
+            background-color: #222;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .stat-line {
+            margin-bottom: 5px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #27ae60;
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.error {
+            background-color: #e74c3c;
+        }
+
+        /* Cursor Info */
+        .cursor-info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+            z-index: 100;
+        }
+
+        /* Help text */
+        .help-text {
+            font-size: 11px;
+            color: #888;
+            line-height: 1.4;
+            margin-top: 10px;
+        }
+
+        .help-text strong {
+            color: #f39c12;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-text {
+            font-size: 24px;
+            color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-text">Loading collision map...</div>
+    </div>
+
+    <div class="map-container" id="mapContainer">
+        <canvas id="map-canvas"></canvas>
+        <canvas id="grid-overlay"></canvas>
+        <div class="selection-box" id="selectionBox"></div>
+    </div>
+
+    <div class="cursor-info" id="cursorInfo">
+        Position: x: 0, y: 0<br>
+        Color: -
+    </div>
+
+    <div class="controls-panel">
+        <div class="panel-section">
+            <h2>Tools</h2>
+            
+            <div class="tool-buttons">
+                <button class="tool-btn active" id="eraserTool" onclick="selectTool('eraser')">
+                    🗑️ Eraser
+                </button>
+                <button class="tool-btn" id="protectorTool" onclick="selectTool('protector')">
+                    🛡️ Protector
+                </button>
+                <button class="tool-btn" id="selectTool" onclick="selectTool('select')">
+                    ⬚ Select
+                </button>
+                <button class="tool-btn" id="eyedropperTool" onclick="selectTool('eyedropper')">
+                    💧 Eyedropper
+                </button>
+                <button class="tool-btn" id="areaTool" onclick="selectTool('area')">
+                    ▦ Area Select
+                </button>
+            </div>
+            
+            <div class="help-text">
+                <strong>Eraser:</strong> Right-click to delete pixels<br>
+                <strong>Protector:</strong> Right-click to convert to protected color<br>
+                <strong>Select:</strong> Left-drag to select, DEL to delete<br>
+                <strong>Eyedropper:</strong> Click to add protected color<br>
+                <strong>Area:</strong> Select area for bulk operations
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <h2>Map Controls</h2>
+            
+            <div class="zoom-controls">
+                <button onclick="zoomIn()">Zoom In</button>
+                <button onclick="zoomOut()">Zoom Out</button>
+                <button onclick="resetZoom()">Reset</button>
+            </div>
+            <div id="zoom-level">Zoom: 1x</div>
+            
+            <button class="btn btn-secondary" onclick="reloadCollisionMap()" style="margin-bottom: 10px;">
+                🔄 Reload Latest Map
+            </button>
+            
+            <div class="toggle-container">
+                <input type="checkbox" id="showGrid" onchange="toggleGrid()">
+                <label for="showGrid">Show grid at high zoom</label>
+            </div>
+            
+            <div class="help-text">
+                <strong>Pan:</strong> Middle-click or Shift+drag<br>
+                <strong>Zoom:</strong> Scroll wheel or buttons<br>
+                <strong>Keys:</strong> +/- zoom, 1 reset, ESC deselect
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <h2>Protected Colors</h2>
+            <div class="protected-colors" id="protectedColors"></div>
+            <button class="btn" onclick="clearProtectedColors()">Clear All Protected</button>
+            <button class="btn" onclick="addDefaultProtectedColors()">Add Default Colors</button>
+            
+            <div class="help-text">
+                Use eyedropper to add colors that won't be deleted by area operations<br>
+                <strong>Defaults:</strong> RGB(204,204,204) and RGB(104,125,170)<br>
+                <strong>Protector tool:</strong> Uses first protected color
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <h2>Actions</h2>
+            
+            <button class="btn btn-success" onclick="copyToClipboard()">
+                📋 Copy Image to Clipboard
+            </button>
+            
+            <button class="btn btn-success" onclick="downloadImage()">
+                💾 Download as collision-map.png
+            </button>
+            
+            <button class="btn btn-danger" onclick="deleteSelected()">
+                Delete Selected Pixels
+            </button>
+            
+            <button class="btn" onclick="deleteNonProtectedInSelection()">
+                Delete Non-Protected in Selection
+            </button>
+            
+            <button class="btn" onclick="undoAction()">
+                ↶ Undo (Ctrl+Z)
+            </button>
+            
+            <button class="btn" onclick="redoAction()">
+                ↷ Redo (Ctrl+Y)
+            </button>
+            
+            <button class="btn btn-danger" onclick="resetImage()">
+                Reset to Original
+            </button>
+        </div>
+
+        <div class="panel-section">
+            <h2>Statistics</h2>
+            <div class="stats" id="stats">
+                <div class="stat-line">Pixels deleted: <span id="pixelsDeleted">0</span></div>
+                <div class="stat-line">Selection size: <span id="selectionSize">0</span></div>
+                <div class="stat-line">Protected colors: <span id="protectedCount">0</span></div>
+                <div class="stat-line">History: <span id="historyInfo">0/0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Canvas and context
+        const canvas = document.getElementById('map-canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const mapContainer = document.getElementById('mapContainer');
+        const gridCanvas = document.getElementById('grid-overlay');
+        const gridCtx = gridCanvas.getContext('2d');
+        
+        // State
+        let collisionMapImage = null;
+        let originalImageData = null;
+        let currentImageData = null;
+        let zoom = 1;
+        let camera = { x: 0, y: 0 };
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        let currentTool = 'eraser';
+        let isSelecting = false;
+        let selectionStart = null;
+        let selectionEnd = null;
+        let selectedPixels = new Set();
+        let protectedColors = new Set();
+        let pixelsDeleted = 0;
+        let showGrid = false;
+        
+        // Default protected colors
+        const DEFAULT_PROTECTED_COLORS = [
+            '204,204,204',  // Light gray
+            '104,125,170'   // Blue-gray
+        ];
+        
+        // History for undo/redo
+        let history = [];
+        let historyIndex = -1;
+        const MAX_HISTORY = 50;
+        
+        // Load collision map
+        async function loadCollisionMap() {
+            try {
+                collisionMapImage = new Image();
+                collisionMapImage.crossOrigin = 'anonymous';
+                
+                collisionMapImage.onload = function() {
+                    // Set canvas size to image size
+                    canvas.width = collisionMapImage.width;
+                    canvas.height = collisionMapImage.height;
+                    
+                    // Draw image and store data
+                    ctx.drawImage(collisionMapImage, 0, 0);
+                    originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    // Center camera
+                    camera.x = canvas.width / 2;
+                    camera.y = canvas.height / 2;
+                    
+                    // Save initial state
+                    saveState();
+                    
+                    // Hide loading overlay
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    
+                    resetView();
+                    render();
+                    showToast('Collision map loaded successfully!');
+                };
+                
+                collisionMapImage.onerror = function() {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    showToast('Failed to load collision map!', 'error');
+                };
+                
+                // Add timestamp to bypass cache
+                const timestamp = new Date().getTime();
+                collisionMapImage.src = `https://puzzle-drops.github.io/ScapewatchRC/assets/collision-map.png?t=${timestamp}`;
+                
+            } catch (error) {
+                console.error('Error loading collision map:', error);
+                document.getElementById('loadingOverlay').style.display = 'none';
+                showToast('Error loading collision map!', 'error');
+            }
+        }
+        
+        // Reload collision map (bypass cache)
+        function reloadCollisionMap() {
+            if (confirm('Reload the collision map? This will reset all your edits!')) {
+                // Show loading overlay
+                document.getElementById('loadingOverlay').style.display = 'flex';
+                
+                // Reset state
+                pixelsDeleted = 0;
+                clearSelection();
+                history = [];
+                historyIndex = -1;
+                
+                // Force reload with new timestamp
+                loadCollisionMap();
+            }
+        }
+        
+        // Save state for undo
+        function saveState() {
+            // Remove any states after current index
+            history = history.slice(0, historyIndex + 1);
+            
+            // Add new state
+            const newState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            history.push(newState);
+            
+            // Limit history size
+            if (history.length > MAX_HISTORY) {
+                history.shift();
+            } else {
+                historyIndex++;
+            }
+            
+            updateHistoryInfo();
+        }
+        
+        // Undo action
+        function undoAction() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                const state = history[historyIndex];
+                ctx.putImageData(state, 0, 0);
+                currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                render();
+                updateStats();
+                showToast('Undo!');
+            }
+        }
+        
+        // Redo action
+        function redoAction() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                const state = history[historyIndex];
+                ctx.putImageData(state, 0, 0);
+                currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                render();
+                updateStats();
+                showToast('Redo!');
+            }
+        }
+        
+        // Update history info
+        function updateHistoryInfo() {
+            document.getElementById('historyInfo').textContent = `${historyIndex + 1}/${history.length}`;
+        }
+        
+        // Reset view (center the map)
+        function resetView() {
+            zoom = 1;
+            
+            const containerRect = mapContainer.getBoundingClientRect();
+            // Center the map in the container
+            camera.x = (containerRect.width - canvas.width) / 2;
+            camera.y = (containerRect.height - canvas.height) / 2;
+            
+            canvas.style.width = canvas.width + 'px';
+            canvas.style.height = canvas.height + 'px';
+            canvas.style.left = camera.x + 'px';
+            canvas.style.top = camera.y + 'px';
+            
+            updateGrid();
+            render();
+        }
+        
+        // Render
+        function render() {
+            if (!currentImageData) return;
+            
+            // Apply current image data (WITHOUT selection overlay)
+            ctx.putImageData(currentImageData, 0, 0);
+            
+            updateStats();
+        }
+        
+        // Toggle grid
+        function toggleGrid() {
+            showGrid = document.getElementById('showGrid').checked;
+            updateGrid();
+        }
+        
+        // Update grid
+        function updateGrid() {
+            if (!showGrid || zoom < 5) {
+                gridCanvas.style.display = 'none';
+                return;
+            }
+            
+            gridCanvas.style.display = 'block';
+            gridCanvas.width = canvas.width;
+            gridCanvas.height = canvas.height;
+            gridCanvas.style.width = (canvas.width * zoom) + 'px';
+            gridCanvas.style.height = (canvas.height * zoom) + 'px';
+            gridCanvas.style.left = canvas.style.left;
+            gridCanvas.style.top = canvas.style.top;
+            
+            gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+            gridCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            gridCtx.lineWidth = 0.5;
+            
+            // Draw grid
+            for (let x = 0; x <= canvas.width; x++) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(x, 0);
+                gridCtx.lineTo(x, canvas.height);
+                gridCtx.stroke();
+            }
+            
+            for (let y = 0; y <= canvas.height; y++) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(0, y);
+                gridCtx.lineTo(canvas.width, y);
+                gridCtx.stroke();
+            }
+        }
+        
+        // Convert screen to canvas coordinates
+        function screenToCanvas(screenX, screenY) {
+            const rect = canvas.getBoundingClientRect();
+            const x = (screenX - rect.left) * (canvas.width / rect.width);
+            const y = (screenY - rect.top) * (canvas.height / rect.height);
+            
+            return {
+                x: Math.floor(x),
+                y: Math.floor(y)
+            };
+        }
+        
+        // Get pixel color at position
+        function getPixelColor(x, y) {
+            if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) {
+                return null;
+            }
+            
+            const index = (y * canvas.width + x) * 4;
+            const data = currentImageData.data;
+            
+            return {
+                r: data[index],
+                g: data[index + 1],
+                b: data[index + 2],
+                a: data[index + 3]
+            };
+        }
+        
+        // Delete pixel at position
+        function deletePixel(x, y) {
+            if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) {
+                return;
+            }
+            
+            const index = (y * canvas.width + x) * 4;
+            const data = currentImageData.data;
+            
+            // Check if pixel has content
+            if (data[index + 3] > 0) {
+                // Make pixel transparent
+                data[index + 3] = 0;
+                pixelsDeleted++;
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // Protect pixel at position (change to protected color)
+        function protectPixel(x, y) {
+            if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) {
+                return false;
+            }
+            
+            // Get the first protected color, or use default if none
+            let protectColor;
+            if (protectedColors.size > 0) {
+                protectColor = protectedColors.values().next().value;
+            } else {
+                protectColor = DEFAULT_PROTECTED_COLORS[0]; // Use first default color
+            }
+            
+            const [r, g, b] = protectColor.split(',').map(Number);
+            const index = (y * canvas.width + x) * 4;
+            const data = currentImageData.data;
+            
+            // Set pixel to protected color
+            data[index] = r;
+            data[index + 1] = g;
+            data[index + 2] = b;
+            data[index + 3] = 255; // Full opacity
+            
+            return true;
+        }
+        
+        // Select tool
+        function selectTool(tool) {
+            currentTool = tool;
+            
+            // Update UI
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tool + 'Tool').classList.add('active');
+            
+            // Update cursor
+            if (tool === 'eraser' || tool === 'protector') {
+                canvas.style.cursor = 'crosshair';
+            } else if (tool === 'select' || tool === 'area') {
+                canvas.style.cursor = 'crosshair';
+            } else if (tool === 'eyedropper') {
+                canvas.style.cursor = 'crosshair';
+            }
+            
+            // Clear selection if switching away from select tools
+            if (tool !== 'select' && tool !== 'area') {
+                clearSelection();
+            }
+        }
+        
+        // Clear selection
+        function clearSelection() {
+            selectedPixels.clear();
+            selectionStart = null;
+            selectionEnd = null;
+            document.getElementById('selectionBox').style.display = 'none';
+            render();
+        }
+        
+        // Delete selected pixels
+        function deleteSelected() {
+            if (selectedPixels.size === 0) {
+                showToast('No pixels selected!', 'error');
+                return;
+            }
+            
+            let deleted = 0;
+            selectedPixels.forEach(key => {
+                const [x, y] = key.split(',').map(Number);
+                if (deletePixel(x, y)) {
+                    deleted++;
+                }
+            });
+            
+            if (deleted > 0) {
+                saveState();
+                clearSelection();
+                render();
+                showToast(`Deleted ${deleted} pixels!`);
+            }
+        }
+        
+        // Delete non-protected pixels in selection
+        function deleteNonProtectedInSelection() {
+            if (selectedPixels.size === 0) {
+                showToast('No area selected!', 'error');
+                return;
+            }
+            
+            if (protectedColors.size === 0) {
+                showToast('No protected colors set! Use eyedropper first.', 'error');
+                return;
+            }
+            
+            let deleted = 0;
+            selectedPixels.forEach(key => {
+                const [x, y] = key.split(',').map(Number);
+                const color = getPixelColor(x, y);
+                
+                if (color && color.a > 0) {
+                    const colorKey = `${color.r},${color.g},${color.b}`;
+                    if (!protectedColors.has(colorKey)) {
+                        if (deletePixel(x, y)) {
+                            deleted++;
+                        }
+                    }
+                }
+            });
+            
+            if (deleted > 0) {
+                saveState();
+                clearSelection();
+                render();
+                showToast(`Deleted ${deleted} non-protected pixels!`);
+            } else {
+                showToast('No non-protected pixels to delete!');
+            }
+        }
+        
+        // Add protected color
+        function addProtectedColor(r, g, b) {
+            const colorKey = `${r},${g},${b}`;
+            if (!protectedColors.has(colorKey)) {
+                protectedColors.add(colorKey);
+                updateProtectedColorsUI();
+                showToast('Color protected!');
+            } else {
+                showToast('Color already protected!');
+            }
+        }
+        
+        // Update protected colors UI
+        function updateProtectedColorsUI() {
+            const container = document.getElementById('protectedColors');
+            container.innerHTML = '';
+            
+            protectedColors.forEach(colorKey => {
+                const [r, g, b] = colorKey.split(',').map(Number);
+                
+                const chip = document.createElement('div');
+                chip.className = 'color-chip protected';
+                chip.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                chip.title = `RGB(${r}, ${g}, ${b})`;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    protectedColors.delete(colorKey);
+                    updateProtectedColorsUI();
+                    updateStats();
+                };
+                
+                chip.appendChild(removeBtn);
+                container.appendChild(chip);
+            });
+            
+            updateStats();
+        }
+        
+        // Clear protected colors
+        function clearProtectedColors() {
+            protectedColors.clear();
+            updateProtectedColorsUI();
+            showToast('Protected colors cleared!');
+        }
+        
+        // Add default protected colors
+        function addDefaultProtectedColors() {
+            DEFAULT_PROTECTED_COLORS.forEach(colorKey => {
+                protectedColors.add(colorKey);
+            });
+            updateProtectedColorsUI();
+            showToast('Default colors added!');
+        }
+        
+        // Copy to clipboard
+        async function copyToClipboard() {
+            try {
+                // Create a temporary canvas with just the collision map
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Draw current state
+                tempCtx.putImageData(currentImageData, 0, 0);
+                
+                // Convert to blob
+                tempCanvas.toBlob(async (blob) => {
+                    try {
+                        // Try to use clipboard API
+                        await navigator.clipboard.write([
+                            new ClipboardItem({
+                                'image/png': blob
+                            })
+                        ]);
+                        showToast('Image copied to clipboard! Paste into Gmail.');
+                    } catch (err) {
+                        console.error('Clipboard API failed:', err);
+                        // Fallback: create download link
+                        const url = tempCanvas.toDataURL('image/png');
+                        const link = document.createElement('a');
+                        link.download = 'collision-map-edited.png';
+                        link.href = url;
+                        showToast('Clipboard failed. Right-click image and copy.');
+                        
+                        // Show the image in a new window
+                        const win = window.open();
+                        win.document.write(`<img src="${url}" style="max-width:100%"/>`);
+                    }
+                }, 'image/png');
+                
+            } catch (error) {
+                console.error('Error copying to clipboard:', error);
+                showToast('Failed to copy to clipboard!', 'error');
+            }
+        }
+        
+        // Download image with specific filename
+        function downloadImage() {
+            try {
+                // Create a temporary canvas with just the collision map
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Draw current state
+                tempCtx.putImageData(currentImageData, 0, 0);
+                
+                // Create download link
+                const url = tempCanvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = 'collision-map.png';
+                link.href = url;
+                link.click();
+                
+                showToast('Downloaded as collision-map.png!');
+                
+            } catch (error) {
+                console.error('Error downloading image:', error);
+                showToast('Failed to download image!', 'error');
+            }
+        }
+        
+        // Reset image
+        function resetImage() {
+            if (confirm('Reset to original image? This will clear all edits!')) {
+                currentImageData = new ImageData(
+                    new Uint8ClampedArray(originalImageData.data),
+                    originalImageData.width,
+                    originalImageData.height
+                );
+                pixelsDeleted = 0;
+                clearSelection();
+                saveState();
+                render();
+                showToast('Image reset to original!');
+            }
+        }
+        
+        // Update stats
+        function updateStats() {
+            document.getElementById('pixelsDeleted').textContent = pixelsDeleted;
+            document.getElementById('selectionSize').textContent = selectedPixels.size;
+            document.getElementById('protectedCount').textContent = protectedColors.size;
+        }
+        
+        // Zoom controls with mouse centering
+        function zoomIn() {
+            zoomAt(zoom * 1.5);
+        }
+        
+        function zoomOut() {
+            zoomAt(zoom / 1.5);
+        }
+        
+        function resetZoom() {
+            resetView();
+            document.getElementById('zoom-level').textContent = `Zoom: 1x`;
+        }
+        
+        function zoomAt(newZoom, mouseX, mouseY) {
+            newZoom = Math.max(0.5, Math.min(50, newZoom));
+            
+            if (mouseX !== undefined && mouseY !== undefined) {
+                // Zoom centered on mouse position
+                const rect = canvas.getBoundingClientRect();
+                const containerRect = mapContainer.getBoundingClientRect();
+                
+                // Get mouse position relative to container
+                const relX = mouseX - containerRect.left;
+                const relY = mouseY - containerRect.top;
+                
+                // Calculate canvas position under mouse before zoom
+                const canvasX = (relX - camera.x) / zoom;
+                const canvasY = (relY - camera.y) / zoom;
+                
+                // Update zoom
+                zoom = newZoom;
+                
+                // Calculate new camera position to keep same canvas point under mouse
+                camera.x = relX - canvasX * zoom;
+                camera.y = relY - canvasY * zoom;
+            } else {
+                // Zoom centered on view
+                const containerRect = mapContainer.getBoundingClientRect();
+                const centerX = containerRect.width / 2;
+                const centerY = containerRect.height / 2;
+                
+                const canvasX = (centerX - camera.x) / zoom;
+                const canvasY = (centerY - camera.y) / zoom;
+                
+                zoom = newZoom;
+                
+                camera.x = centerX - canvasX * zoom;
+                camera.y = centerY - canvasY * zoom;
+            }
+            
+            // Update canvas style
+            canvas.style.width = (canvas.width * zoom) + 'px';
+            canvas.style.height = (canvas.height * zoom) + 'px';
+            canvas.style.left = camera.x + 'px';
+            canvas.style.top = camera.y + 'px';
+            
+            // Update grid
+            updateGrid();
+            
+            document.getElementById('zoom-level').textContent = `Zoom: ${Math.round(zoom * 10) / 10}x`;
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            if (type === 'error') {
+                toast.classList.add('error');
+            }
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Mouse events
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+        
+        canvas.addEventListener('mousedown', (e) => {
+            const pos = screenToCanvas(e.clientX, e.clientY);
+            
+            if (e.button === 2) { // Right click
+                if (currentTool === 'eraser') {
+                    if (deletePixel(pos.x, pos.y)) {
+                        saveState();
+                        render();
+                    }
+                } else if (currentTool === 'protector') {
+                    if (protectPixel(pos.x, pos.y)) {
+                        saveState();
+                        render();
+                    }
+                }
+            } else if (e.button === 0) { // Left click
+                if (e.shiftKey || currentTool === 'pan') {
+                    // Pan mode
+                    isDragging = true;
+                    dragStart = { x: e.clientX, y: e.clientY };
+                    canvas.style.cursor = 'grabbing';
+                } else if (currentTool === 'select' || currentTool === 'area') {
+                    // Start selection
+                    isSelecting = true;
+                    selectionStart = pos;
+                    selectionEnd = pos;
+                    selectedPixels.clear();
+                } else if (currentTool === 'eyedropper') {
+                    // Pick color
+                    const color = getPixelColor(pos.x, pos.y);
+                    if (color && color.a > 0) {
+                        addProtectedColor(color.r, color.g, color.b);
+                    } else {
+                        showToast('No color at this position!', 'error');
+                    }
+                }
+            } else if (e.button === 1) { // Middle click
+                isDragging = true;
+                dragStart = { x: e.clientX, y: e.clientY };
+                canvas.style.cursor = 'grabbing';
+            }
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            const pos = screenToCanvas(e.clientX, e.clientY);
+            
+            // Update cursor info
+            const cursorInfo = document.getElementById('cursorInfo');
+            const color = getPixelColor(pos.x, pos.y);
+            let colorText = '-';
+            if (color && color.a > 0) {
+                colorText = `RGB(${color.r}, ${color.g}, ${color.b})`;
+                const colorKey = `${color.r},${color.g},${color.b}`;
+                if (protectedColors.has(colorKey)) {
+                    colorText += ' [PROTECTED]';
+                }
+            }
+            
+            let extraInfo = '';
+            if (currentTool === 'protector') {
+                let protectColor = protectedColors.size > 0 ? 
+                    protectedColors.values().next().value : 
+                    DEFAULT_PROTECTED_COLORS[0];
+                const [r, g, b] = protectColor.split(',').map(Number);
+                extraInfo = `<br>Protect color: RGB(${r}, ${g}, ${b})`;
+            }
+            
+            cursorInfo.innerHTML = `Position: x: ${pos.x}, y: ${pos.y}<br>Color: ${colorText}${extraInfo}`;
+            
+            if (isDragging) {
+                // Pan
+                const dx = e.clientX - dragStart.x;
+                const dy = e.clientY - dragStart.y;
+                
+                camera.x += dx;
+                camera.y += dy;
+                
+                canvas.style.left = camera.x + 'px';
+                canvas.style.top = camera.y + 'px';
+                
+                // Update grid position
+                if (showGrid && zoom >= 5) {
+                    gridCanvas.style.left = camera.x + 'px';
+                    gridCanvas.style.top = camera.y + 'px';
+                }
+                
+                dragStart = { x: e.clientX, y: e.clientY };
+            } else if (isSelecting) {
+                // Update selection
+                selectionEnd = pos;
+                updateSelection();
+            }
+        });
+        
+        canvas.addEventListener('mouseup', (e) => {
+            if (isSelecting) {
+                isSelecting = false;
+                updateSelection();
+            }
+            
+            isDragging = false;
+            canvas.style.cursor = 'crosshair';
+        });
+        
+        // Update selection
+        function updateSelection() {
+            if (!selectionStart || !selectionEnd) return;
+            
+            const minX = Math.min(selectionStart.x, selectionEnd.x);
+            const maxX = Math.max(selectionStart.x, selectionEnd.x);
+            const minY = Math.min(selectionStart.y, selectionEnd.y);
+            const maxY = Math.max(selectionStart.y, selectionEnd.y);
+            
+            // Update selection box visual
+            const rect = canvas.getBoundingClientRect();
+            const box = document.getElementById('selectionBox');
+            
+            const startScreen = {
+                x: minX * (rect.width / canvas.width) + rect.left,
+                y: minY * (rect.height / canvas.height) + rect.top
+            };
+            
+            const endScreen = {
+                x: maxX * (rect.width / canvas.width) + rect.left,
+                y: maxY * (rect.height / canvas.height) + rect.top
+            };
+            
+            box.style.left = startScreen.x + 'px';
+            box.style.top = startScreen.y + 'px';
+            box.style.width = (endScreen.x - startScreen.x) + 'px';
+            box.style.height = (endScreen.y - startScreen.y) + 'px';
+            box.style.display = 'block';
+            
+            // Update selected pixels
+            selectedPixels.clear();
+            for (let x = minX; x <= maxX; x++) {
+                for (let y = minY; y <= maxY; y++) {
+                    selectedPixels.add(`${x},${y}`);
+                }
+            }
+            
+            render();
+        }
+        
+        // Scroll wheel zoom
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const newZoom = zoom * delta;
+            zoomAt(newZoom, e.clientX, e.clientY);
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete') {
+                deleteSelected();
+            } else if (e.key === 'Escape') {
+                clearSelection();
+            } else if (e.key === '+' || e.key === '=') {
+                zoomIn();
+            } else if (e.key === '-') {
+                zoomOut();
+            } else if (e.key === '1') {
+                resetZoom();
+            } else if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                undoAction();
+            } else if (e.ctrlKey && e.key === 'y') {
+                e.preventDefault();
+                redoAction();
+            } else if (e.ctrlKey && e.key === 'c') {
+                e.preventDefault();
+                copyToClipboard();
+            }
+        });
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCollisionMap();
+            
+            // Add default protected colors
+            DEFAULT_PROTECTED_COLORS.forEach(colorKey => {
+                protectedColors.add(colorKey);
+            });
+            updateProtectedColorsUI();
+            
+            updateStats();
+            updateHistoryInfo();
+        });
+    </script>
+</body>
+</html>
