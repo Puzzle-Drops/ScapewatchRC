@@ -196,12 +196,12 @@ class UIManager {
         const skillDiv = document.createElement('div');
         skillDiv.className = 'skill-item';
         
-skillDiv.addEventListener('click', () => {
-    if (window.skillCustomizationUI) {
-        skillCustomizationUI.open(skillId);
-    }
-});
-skillDiv.style.cursor = 'pointer';
+        skillDiv.addEventListener('click', () => {
+            if (window.skillCustomizationUI) {
+                skillCustomizationUI.open(skillId);
+            }
+        });
+        skillDiv.style.cursor = 'pointer';
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'skill-content';
@@ -296,6 +296,14 @@ skillDiv.style.cursor = 'pointer';
             '#f39c12',
             `Total Level: ${skills.getTotalLevel()}<br>Total Exp: ${formatNumber(this.calculateTotalExp(allSkills))}`
         );
+        
+        // Add click handler to open Skill Customization (global mode)
+        totalLevelItem.addEventListener('click', () => {
+            if (window.skillCustomizationUI) {
+                skillCustomizationUI.openSkillCustomization();
+            }
+        });
+        totalLevelItem.style.cursor = 'pointer';
         
         const combatLevelItem = this.createLevelItem(
             'skill_combat',
