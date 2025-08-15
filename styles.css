@@ -381,6 +381,27 @@ body {
     font-weight: normal !important;
 }
 
+.level-item {
+    background-color: #222;
+    padding: 12px;  /* Slightly more padding than skill items */
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.level-item:hover {
+    background-color: #333;
+}
+
+/* Keep the existing tooltip behavior */
+.level-item:hover .skill-tooltip {
+    opacity: 1;
+}
+
 .level-icon {
     width: 40px;
     height: 40px;
