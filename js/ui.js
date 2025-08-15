@@ -698,10 +698,9 @@ skillDiv.style.cursor = 'pointer';
         
         slotDiv.appendChild(img);
         
-        if (quantity > 1 || slotClass === 'bank-slot') {
-            const countDiv = this.createItemCount(itemId, quantity);
-            slotDiv.appendChild(countDiv);
-        }
+        // Always show count for all items (even quantity of 1)
+        const countDiv = this.createItemCount(itemId, quantity);
+        slotDiv.appendChild(countDiv);
         
         slotDiv.title = `${itemData.name} x${formatNumber(quantity)}`;
         
@@ -729,15 +728,10 @@ skillDiv.style.cursor = 'pointer';
         const countDiv = document.createElement('div');
         countDiv.className = 'item-count';
         
-        if (itemId === 'coins') {
-            const formatted = this.formatCoinCount(quantity);
-            countDiv.textContent = formatted.text;
-            if (formatted.isGreen) {
-                countDiv.style.color = '#2ecc71';
-            }
-        } else {
-            countDiv.textContent = formatNumber(quantity);
-        }
+        // Use the new universal formatting for all items
+        const formatted = this.formatItemCount(quantity);
+        countDiv.textContent = formatted.text;
+        countDiv.style.color = formatted.color;
         
         return countDiv;
     }
@@ -755,11 +749,29 @@ skillDiv.style.cursor = 'pointer';
         return 'coins_1';
     }
 
-    formatCoinCount(quantity) {
+    formatItemCount(quantity) {
+        // 10M or more - green color
         if (quantity >= 10000000) {
             const millions = Math.floor(quantity / 1000000);
-            return { text: `${millions}M`, isGreen: true };
+            return { 
+                text: `${millions}M`, 
+                color: '#2ecc71'  // Green
+            };
         }
-        return { text: formatNumber(quantity), isGreen: false };
+        
+        // 100K to 9,999,999 - white color
+        if (quantity >= 100000) {
+            const thousands = Math.floor(quantity / 1000);
+            return { 
+                text: `${thousands}K`, 
+                color: '#ffffff'  // White
+            };
+        }
+        
+        // Below 100K - gold color with commas
+        return { 
+            text: formatNumber(quantity),  // Uses existing comma formatting
+            color: '#FFD700'  // Gold
+        };
     }
 }
