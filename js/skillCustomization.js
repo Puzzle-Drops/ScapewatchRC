@@ -280,7 +280,7 @@ class SkillCustomizationUI {
         const skillCredDiv = document.createElement('div');
         skillCredDiv.className = 'skill-cred-display';
         skillCredDiv.id = 'skill-cred-display';
-        const skillCredName = runeCreditManager.getSkillCredName(this.currentSkillId);
+        // Use the already declared skillCredName from above
         const skillCredAmount = runeCreditManager.getSkillCredits(this.currentSkillId);
         skillCredDiv.innerHTML = `${skillCredName}: <span class="cred-amount">${skillCredAmount}</span>`;
         
