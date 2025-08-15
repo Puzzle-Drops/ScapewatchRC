@@ -8,6 +8,9 @@ class RuneCreditManager {
         this.skillCred = 0; // 100 + total level (calculated dynamically)
         this.runeCred = 5; // Universal currency (start at 5)
         
+        // Track Skill Cred spent separately
+        this.skillCredSpent = 0; // Track how much Skill Cred has been spent
+        
         // Track total tasks completed
         this.totalTasksCompleted = 0;
         this.tasksPerSkill = {}; // skillId -> count
@@ -82,6 +85,11 @@ class RuneCreditManager {
         return this.skillCredits[skillId] || 0;
     }
     
+    // Get available Skill Cred (total - spent)
+    getAvailableSkillCred() {
+        return this.skillCred - this.skillCredSpent;
+    }
+    
     // Get formatted name for a skill's credits
     getSkillCredName(skillId) {
         const skillsData = loadingManager.getData('skills');
@@ -121,7 +129,8 @@ class RuneCreditManager {
     }
     
     // Modify skill weight level
-    modifySkillWeight(skillId, increase) {
+    // NEW PARAMETER: useSkillCred - if true, use Skill Cred instead of skill-specific credits
+    modifySkillWeight(skillId, increase, useSkillCred = false) {
         const baseCost = 25;
         const currentLevel = this.skillModLevels[skillId] || 0;
         
@@ -139,15 +148,27 @@ class RuneCreditManager {
             // Moving away from 0 - charge based on new level's absolute value
             const cost = baseCost * Math.abs(newLevel);
             
-            // Check if we have enough skill-specific credits
-            if (this.skillCredits[skillId] < cost) return false;
-            
-            // Update level
-            this.skillModLevels[skillId] = newLevel;
-            
-            // Spend skill-specific credits
-            this.skillCredits[skillId] -= cost;
-            this.creditsSpentPerSkill[skillId] = (this.creditsSpentPerSkill[skillId] || 0) + cost;
+            if (useSkillCred) {
+                // Use Skill Cred for global customization
+                const availableSkillCred = this.getAvailableSkillCred();
+                if (availableSkillCred < cost) return false;
+                
+                // Update level
+                this.skillModLevels[skillId] = newLevel;
+                
+                // Spend Skill Cred
+                this.skillCredSpent += cost;
+            } else {
+                // Use skill-specific credits for individual customization
+                if (this.skillCredits[skillId] < cost) return false;
+                
+                // Update level
+                this.skillModLevels[skillId] = newLevel;
+                
+                // Spend skill-specific credits
+                this.skillCredits[skillId] -= cost;
+                this.creditsSpentPerSkill[skillId] = (this.creditsSpentPerSkill[skillId] || 0) + cost;
+            }
         } else {
             // Moving toward 0 - refund based on current level's absolute value
             const refund = baseCost * Math.abs(currentLevel);
@@ -155,9 +176,14 @@ class RuneCreditManager {
             // Update level
             this.skillModLevels[skillId] = newLevel;
             
-            // Refund skill-specific credits
-            this.skillCredits[skillId] += refund;
-            this.creditsSpentPerSkill[skillId] = Math.max(0, (this.creditsSpentPerSkill[skillId] || 0) - refund);
+            if (useSkillCred) {
+                // Refund Skill Cred
+                this.skillCredSpent = Math.max(0, this.skillCredSpent - refund);
+            } else {
+                // Refund skill-specific credits
+                this.skillCredits[skillId] += refund;
+                this.creditsSpentPerSkill[skillId] = Math.max(0, (this.creditsSpentPerSkill[skillId] || 0) - refund);
+            }
         }
         
         this.saveData();
@@ -430,6 +456,7 @@ class RuneCreditManager {
         
         const data = {
             skillCredits: this.skillCredits,
+            skillCredSpent: this.skillCredSpent,
             runeCred: this.runeCred,
             totalTasksCompleted: this.totalTasksCompleted,
             tasksPerSkill: this.tasksPerSkill,
@@ -465,6 +492,7 @@ class RuneCreditManager {
                 
                 // Load all the saved data
                 this.skillCredits = data.skillCredits || {};
+                this.skillCredSpent = data.skillCredSpent || 0;
                 this.runeCred = data.runeCred || 5;
                 this.totalTasksCompleted = data.totalTasksCompleted || 0;
                 this.tasksPerSkill = data.tasksPerSkill || {};
@@ -503,4 +531,3 @@ class RuneCreditManager {
         }
     }
 }
-
