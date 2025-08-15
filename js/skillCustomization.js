@@ -1,7 +1,7 @@
 class SkillCustomizationUI {
     constructor() {
         this.isOpen = false;
-        this.currentSkillId = null;
+        this.currentSkillId = null; // null means global Skill Customization
         this.overlay = null;
         this.initialize();
     }
@@ -30,7 +30,7 @@ class SkillCustomizationUI {
         const layoutWrapper = document.createElement('div');
         layoutWrapper.className = 'skill-customization-layout';
         
-        // Left column - Completed tasks for this skill
+        // Left column - Completed tasks for this skill (or all skills)
         const completedColumn = document.createElement('div');
         completedColumn.className = 'skill-customization-completed';
         completedColumn.id = 'skill-customization-completed';
@@ -56,8 +56,17 @@ class SkillCustomizationUI {
         }
     }
     
+    // Open for a specific skill
     open(skillId) {
         this.currentSkillId = skillId;
+        this.isOpen = true;
+        this.overlay.style.display = 'flex';
+        this.render();
+    }
+    
+    // Open for global Skill Customization (no specific skill)
+    openSkillCustomization() {
+        this.currentSkillId = null; // null indicates global mode
         this.isOpen = true;
         this.overlay.style.display = 'flex';
         this.render();
@@ -70,12 +79,387 @@ class SkillCustomizationUI {
     }
     
     render() {
-        if (!this.currentSkillId) return;
-        
-        // Render completed tasks column
-        this.renderCompletedTasks();
+        // Determine if we're in global mode or skill-specific mode
+        if (this.currentSkillId === null) {
+            // Global Skill Customization mode
+            this.renderGlobalCustomization();
+        } else {
+            // Skill-specific customization mode
+            this.renderSkillSpecificCustomization();
+        }
+    }
+    
+    // ==================== GLOBAL SKILL CUSTOMIZATION ====================
+    
+    renderGlobalCustomization() {
+        // Render completed tasks column (ALL skills)
+        this.renderAllCompletedTasks();
         
         // Render main content
+        const content = document.getElementById('skill-customization-content');
+        content.innerHTML = '';
+        
+        // Header
+        const header = this.createGlobalHeader();
+        content.appendChild(header);
+        
+        // Capes and Pets section (replaces speed bonuses)
+        const capesAndPets = this.createCapesAndPetsSection();
+        content.appendChild(capesAndPets);
+        
+        // Three-column skill weight layout
+        const skillColumns = this.createSkillColumns();
+        content.appendChild(skillColumns);
+    }
+    
+    renderAllCompletedTasks() {
+        const completedColumn = document.getElementById('skill-customization-completed');
+        completedColumn.innerHTML = '';
+        
+        // Header for completed tasks
+        const header = document.createElement('div');
+        header.className = 'completed-tasks-header';
+        
+        const title = document.createElement('h3');
+        title.textContent = 'Skill History';
+        header.appendChild(title);
+        
+        completedColumn.appendChild(header);
+        
+        // Get ALL completed tasks
+        const allCompletedTasks = this.getAllCompletedTasks();
+        
+        // Stats section
+        const statsDiv = document.createElement('div');
+        statsDiv.className = 'completed-tasks-stats';
+        
+        const totalCompleted = allCompletedTasks.length;
+        const statsText = document.createElement('div');
+        statsText.className = 'completed-stats-text';
+        statsText.textContent = `${totalCompleted} Skill tasks completed`;
+        statsDiv.appendChild(statsText);
+        
+        completedColumn.appendChild(statsDiv);
+        
+        // Scrollable list container
+        const listContainer = document.createElement('div');
+        listContainer.className = 'completed-tasks-scroll';
+        
+        if (allCompletedTasks.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'completed-tasks-empty';
+            emptyDiv.textContent = 'No Skill tasks completed yet';
+            listContainer.appendChild(emptyDiv);
+        } else {
+            // Show tasks in reverse order (most recent first)
+            allCompletedTasks.slice().reverse().forEach((task, reverseIndex) => {
+                const actualIndex = allCompletedTasks.length - reverseIndex;
+                const taskRow = this.createCompletedTaskRow(task, actualIndex);
+                listContainer.appendChild(taskRow);
+            });
+        }
+        
+        completedColumn.appendChild(listContainer);
+    }
+    
+    getAllCompletedTasks() {
+        if (!window.taskManager) return [];
+        return taskManager.getCompletedTasks();
+    }
+    
+    createGlobalHeader() {
+        const header = document.createElement('div');
+        header.className = 'skill-customization-header';
+        
+        // Left side - global skill info
+        const leftSide = document.createElement('div');
+        leftSide.className = 'header-left';
+        
+        // Skill icon and name
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'skill-title';
+        
+        const icon = loadingManager.getImage('skill_skills');
+        if (icon) {
+            const iconImg = document.createElement('img');
+            iconImg.src = icon.src;
+            iconImg.className = 'skill-icon-large';
+            titleDiv.appendChild(iconImg);
+        }
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'skill-name';
+        nameSpan.textContent = 'Skill Customization';
+        titleDiv.appendChild(nameSpan);
+        
+        // Global stats
+        const statsDiv = document.createElement('div');
+        statsDiv.className = 'skill-stats';
+        
+        const totalLevel = skills.getTotalLevel();
+        const levelSpan = document.createElement('span');
+        levelSpan.textContent = `Total Level ${totalLevel}`;
+        
+        const totalXp = this.calculateTotalXp();
+        const xpSpan = document.createElement('span');
+        xpSpan.textContent = `${formatNumber(totalXp)} Total XP`;
+        
+        const creditsSpentSpan = document.createElement('span');
+        const creditsSpent = this.calculateTotalSkillCredSpent();
+        creditsSpentSpan.textContent = `${creditsSpent} Skill Cred spent`;
+        
+        statsDiv.appendChild(levelSpan);
+        statsDiv.appendChild(xpSpan);
+        statsDiv.appendChild(creditsSpentSpan);
+        
+        leftSide.appendChild(titleDiv);
+        leftSide.appendChild(statsDiv);
+        
+        // Right side - Credits Display
+        const rightSide = document.createElement('div');
+        rightSide.className = 'header-right';
+        
+        // Skill Cred (primary, larger)
+        const skillCredDiv = document.createElement('div');
+        skillCredDiv.className = 'skill-cred-display';
+        skillCredDiv.id = 'skill-cred-display';
+        const availableSkillCred = runeCreditManager.skillCred - creditsSpent;
+        const totalSkillCred = runeCreditManager.skillCred;
+        skillCredDiv.innerHTML = `Skill Cred: <span class="cred-amount">${availableSkillCred}/${totalSkillCred}</span>`;
+        
+        // Container for other credits (just Rune Cred for global view)
+        const otherCredsDiv = document.createElement('div');
+        otherCredsDiv.className = 'other-credits';
+        
+        // Rune Cred
+        const runeCredDiv = document.createElement('div');
+        runeCredDiv.className = 'secondary-cred';
+        runeCredDiv.innerHTML = `Rune Cred: <span class="cred-amount-secondary">${runeCreditManager.runeCred}</span>`;
+        
+        otherCredsDiv.appendChild(runeCredDiv);
+        
+        rightSide.appendChild(skillCredDiv);
+        rightSide.appendChild(otherCredsDiv);
+        
+        header.appendChild(leftSide);
+        header.appendChild(rightSide);
+        
+        return header;
+    }
+    
+    calculateTotalXp() {
+        let total = 0;
+        if (window.skills) {
+            for (const skill of Object.values(skills.skills)) {
+                total += Math.floor(skill.xp);
+            }
+        }
+        return total;
+    }
+    
+    calculateTotalSkillCredSpent() {
+        // Calculate how much Skill Cred has been spent on skill weights
+        let totalSpent = 0;
+        for (const [skillId, level] of Object.entries(runeCreditManager.skillModLevels)) {
+            // Cost is 25 * abs(level) for each level away from 0
+            totalSpent += 25 * Math.abs(level);
+        }
+        return totalSpent;
+    }
+    
+    createCapesAndPetsSection() {
+        const container = document.createElement('div');
+        container.className = 'capes-and-pets-section';
+        
+        // Capes row
+        const capesRow = document.createElement('div');
+        capesRow.className = 'achievement-row';
+        
+        const capesLabel = document.createElement('div');
+        capesLabel.className = 'achievement-label';
+        capesLabel.textContent = 'Capes:';
+        
+        const capesContainer = document.createElement('div');
+        capesContainer.className = 'achievement-items';
+        
+        // Check each skill for cape (99)
+        for (const [skillId, skill] of Object.entries(skills.skills)) {
+            if (skill.level >= 99) {
+                const capeItem = this.createAchievementItem(skillId, 'cape');
+                capesContainer.appendChild(capeItem);
+            }
+        }
+        
+        if (capesContainer.children.length === 0) {
+            const noneText = document.createElement('span');
+            noneText.className = 'achievement-none';
+            noneText.textContent = 'No capes earned yet';
+            capesContainer.appendChild(noneText);
+        }
+        
+        capesRow.appendChild(capesLabel);
+        capesRow.appendChild(capesContainer);
+        
+        // Pets row
+        const petsRow = document.createElement('div');
+        petsRow.className = 'achievement-row';
+        
+        const petsLabel = document.createElement('div');
+        petsLabel.className = 'achievement-label';
+        petsLabel.textContent = 'Pets:';
+        
+        const petsContainer = document.createElement('div');
+        petsContainer.className = 'achievement-items';
+        
+        // Check for pets (if implemented in runeCreditManager)
+        for (const [skillId, hasPet] of Object.entries(runeCreditManager.speedBonuses.pets)) {
+            if (hasPet) {
+                const petItem = this.createAchievementItem(skillId, 'pet');
+                petsContainer.appendChild(petItem);
+            }
+        }
+        
+        if (petsContainer.children.length === 0) {
+            const noneText = document.createElement('span');
+            noneText.className = 'achievement-none';
+            noneText.textContent = 'No pets earned yet';
+            petsContainer.appendChild(noneText);
+        }
+        
+        petsRow.appendChild(petsLabel);
+        petsRow.appendChild(petsContainer);
+        
+        container.appendChild(capesRow);
+        container.appendChild(petsRow);
+        
+        return container;
+    }
+    
+    createAchievementItem(skillId, type) {
+        const item = document.createElement('div');
+        item.className = `achievement-item achievement-${type}`;
+        
+        const icon = loadingManager.getImage(`skill_${skillId}`);
+        if (icon) {
+            const img = document.createElement('img');
+            img.src = icon.src;
+            img.className = 'achievement-icon';
+            item.appendChild(img);
+        }
+        
+        const skillData = loadingManager.getData('skills')[skillId];
+        item.title = `${skillData.name} ${type === 'cape' ? 'Cape' : 'Pet'}`;
+        
+        return item;
+    }
+    
+    createSkillColumns() {
+        const container = document.createElement('div');
+        container.className = 'skill-weight-columns';
+        
+        // Define the three columns of skills
+        const skillColumns = [
+            // Column 1
+            ['attack', 'strength', 'defence', 'ranged', 'prayer', 'magic', 'runecraft', 'construction'],
+            // Column 2
+            ['hitpoints', 'agility', 'herblore', 'thieving', 'crafting', 'fletching', 'slayer', 'hunter'],
+            // Column 3
+            ['mining', 'smithing', 'fishing', 'cooking', 'firemaking', 'woodcutting', 'farming']
+        ];
+        
+        // Calculate total weight for percentage calculation
+        let totalWeight = 0;
+        const skillsData = loadingManager.getData('skills');
+        for (const skillId of Object.keys(skillsData)) {
+            const weight = runeCreditManager.getSkillWeight(skillId);
+            totalWeight += weight;
+        }
+        
+        // Create each column
+        for (const columnSkills of skillColumns) {
+            const column = document.createElement('div');
+            column.className = 'skill-weight-column';
+            
+            for (const skillId of columnSkills) {
+                const skillRow = this.createSkillWeightRow(skillId, totalWeight);
+                column.appendChild(skillRow);
+            }
+            
+            container.appendChild(column);
+        }
+        
+        return container;
+    }
+    
+    createSkillWeightRow(skillId, totalWeight) {
+        const row = document.createElement('div');
+        row.className = 'skill-weight-row';
+        
+        // Skill info
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'skill-weight-info';
+        
+        // Icon
+        const icon = loadingManager.getImage(`skill_${skillId}`);
+        if (icon) {
+            const iconImg = document.createElement('img');
+            iconImg.src = icon.src;
+            iconImg.className = 'skill-weight-icon';
+            infoDiv.appendChild(iconImg);
+        }
+        
+        // Name
+        const skillData = loadingManager.getData('skills')[skillId];
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'skill-weight-name';
+        nameSpan.textContent = skillData.name;
+        infoDiv.appendChild(nameSpan);
+        
+        // Percentage
+        const weight = runeCreditManager.getSkillWeight(skillId);
+        const percentage = Math.round((weight / totalWeight) * 100);
+        const percentSpan = document.createElement('span');
+        percentSpan.className = 'skill-weight-percent';
+        percentSpan.textContent = `${percentage}%`;
+        infoDiv.appendChild(percentSpan);
+        
+        // Control buttons
+        const controlsDiv = document.createElement('div');
+        controlsDiv.className = 'skill-weight-controls';
+        
+        // Get current modification level
+        const modLevel = runeCreditManager.skillModLevels[skillId] || 0;
+        
+        // Weight controls
+        const weightUp = this.createControlButton('+', () => {
+            if (runeCreditManager.modifySkillWeight(skillId, true)) {
+                this.render();
+                this.updateCredits();
+            }
+        }, modLevel);
+        
+        const weightDown = this.createControlButton('-', () => {
+            if (runeCreditManager.modifySkillWeight(skillId, false)) {
+                this.render();
+                this.updateCredits();
+            }
+        }, modLevel);
+        
+        controlsDiv.appendChild(weightUp);
+        controlsDiv.appendChild(weightDown);
+        
+        row.appendChild(infoDiv);
+        row.appendChild(controlsDiv);
+        
+        return row;
+    }
+    
+    // ==================== SKILL-SPECIFIC CUSTOMIZATION (EXISTING) ====================
+    
+    renderSkillSpecificCustomization() {
+        // This is all the existing code for individual skills
+        this.renderCompletedTasks();
+        
         const content = document.getElementById('skill-customization-content');
         content.innerHTML = '';
         
@@ -1028,21 +1412,35 @@ class SkillCustomizationUI {
     }
     
     updateCredits() {
-        // Update skill-specific credits
-        const skillCredDisplay = document.getElementById('skill-cred-display');
-        if (skillCredDisplay) {
-            const skillCredName = runeCreditManager.getSkillCredName(this.currentSkillId);
-            const availableCredits = runeCreditManager.getSkillCredits(this.currentSkillId);
-            const totalCredits = 10 + (runeCreditManager.tasksPerSkill[this.currentSkillId] || 0);
-            skillCredDisplay.innerHTML = `${skillCredName}: <span class="cred-amount">${availableCredits}/${totalCredits}</span>`;
+        // Check if we're in global mode or skill-specific mode
+        if (this.currentSkillId === null) {
+            // Global mode - update Skill Cred display
+            const skillCredDisplay = document.getElementById('skill-cred-display');
+            if (skillCredDisplay) {
+                const creditsSpent = this.calculateTotalSkillCredSpent();
+                const availableSkillCred = runeCreditManager.skillCred - creditsSpent;
+                const totalSkillCred = runeCreditManager.skillCred;
+                skillCredDisplay.innerHTML = `Skill Cred: <span class="cred-amount">${availableSkillCred}/${totalSkillCred}</span>`;
+            }
+        } else {
+            // Skill-specific mode - update skill-specific credits
+            const skillCredDisplay = document.getElementById('skill-cred-display');
+            if (skillCredDisplay) {
+                const skillCredName = runeCreditManager.getSkillCredName(this.currentSkillId);
+                const availableCredits = runeCreditManager.getSkillCredits(this.currentSkillId);
+                const totalCredits = 10 + (runeCreditManager.tasksPerSkill[this.currentSkillId] || 0);
+                skillCredDisplay.innerHTML = `${skillCredName}: <span class="cred-amount">${availableCredits}/${totalCredits}</span>`;
+            }
         }
         
-        // Update other credit displays
+        // Update other credit displays (always the same)
         const runeCredElements = document.querySelectorAll('.secondary-cred');
-        if (runeCredElements.length >= 2) {
+        if (runeCredElements.length >= 1) {
             runeCredElements[0].innerHTML = `Rune Cred: <span class="cred-amount-secondary">${runeCreditManager.runeCred}</span>`;
-            const skillCredTotal = runeCreditManager.skillCred;
-            runeCredElements[1].innerHTML = `Skill Cred: <span class="cred-amount-secondary">${skillCredTotal}/${skillCredTotal}</span>`;
+            if (runeCredElements.length >= 2) {
+                const skillCredTotal = runeCreditManager.skillCred;
+                runeCredElements[1].innerHTML = `Skill Cred: <span class="cred-amount-secondary">${skillCredTotal}/${skillCredTotal}</span>`;
+            }
         }
     }
 }
