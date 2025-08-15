@@ -1517,6 +1517,16 @@ body {
     flex: 1;
 }
 
+.skill-weight-level {
+    color: #27ae60;
+    font-weight: bold;
+    font-size: 22px;
+    min-width: 45px;
+    text-align: center;
+    display: inline-block;
+    margin-right: 10px;
+}
+
 .skill-weight-percent {
     color: #f39c12;
     font-weight: bold;
