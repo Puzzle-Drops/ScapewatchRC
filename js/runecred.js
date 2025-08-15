@@ -504,5 +504,3 @@ class RuneCreditManager {
     }
 }
 
-// Create global instance
-window.runeCreditManager = new RuneCreditManager();
