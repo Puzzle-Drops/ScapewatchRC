@@ -62,10 +62,10 @@ class TaskManager {
         while (generatedTasks.length < count && attempts < maxAttempts) {
             attempts++;
             
-// Pick a skill using weighted selection
-const skill = window.runeCreditManager ? 
-    runeCreditManager.getWeightedSkill(availableSkills) :
-    availableSkills[Math.floor(Math.random() * availableSkills.length)];
+            // Pick a skill using weighted selection
+            const skill = window.runeCreditManager ? 
+                runeCreditManager.getWeightedSkill(availableSkills) :
+                availableSkills[Math.floor(Math.random() * availableSkills.length)];
             
             // Try to generate a task for this skill
             const task = skill.generateTask();
@@ -195,29 +195,29 @@ const skill = window.runeCreditManager ?
     }
 
     // Mark a task as complete and move to completed list
-completeTask(task) {
-    console.log(`Task complete: ${task.description}`);
-    task.progress = 1;
-    task.completedAt = Date.now();
-    
-    // Add to completed tasks
-    this.completedTasks.push(task);
-    
-    // Award RuneCred
-    if (window.runeCreditManager) {
-        runeCreditManager.onTaskComplete();
+    completeTask(task) {
+        console.log(`Task complete: ${task.description}`);
+        task.progress = 1;
+        task.completedAt = Date.now();
+        
+        // Add to completed tasks
+        this.completedTasks.push(task);
+        
+        // Award credits - NOW PASSING THE TASK OBJECT
+        if (window.runeCreditManager) {
+            runeCreditManager.onTaskComplete(task);
+        }
+        
+        // Update speed bonuses based on current levels
+        if (window.runeCreditManager) {
+            runeCreditManager.updateSpeedBonuses();
+        }
+        
+        // If this was the current task, promote next task
+        if (task === this.currentTask) {
+            this.promoteNextTask();
+        }
     }
-    
-    // Update speed bonuses based on current levels
-    if (window.runeCreditManager) {
-        runeCreditManager.updateSpeedBonuses();
-    }
-    
-    // If this was the current task, promote next task
-    if (task === this.currentTask) {
-        this.promoteNextTask();
-    }
-}
 
     // Skip the current task when it's impossible
     skipCurrentTask() {
