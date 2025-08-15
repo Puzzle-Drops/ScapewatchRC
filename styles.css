@@ -1409,3 +1409,123 @@ body {
 .completed-tasks-scroll::-webkit-scrollbar-thumb:hover {
     background: #95a5a6;
 }
+
+/* ==================== SKILL CUSTOMIZATION - GLOBAL MODE ==================== */
+
+/* Capes and Pets Section */
+.capes-and-pets-section {
+    background: #34495e;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.achievement-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.achievement-row:last-child {
+    margin-bottom: 0;
+}
+
+.achievement-label {
+    font-size: 30px;
+    color: #ecf0f1;
+    font-weight: bold;
+    min-width: 100px;
+}
+
+.achievement-items {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex: 1;
+    align-items: center;
+}
+
+.achievement-item {
+    width: 40px;
+    height: 40px;
+    background: #2c3e50;
+    border-radius: 5px;
+    padding: 5px;
+    position: relative;
+}
+
+.achievement-item.achievement-cape {
+    border: 2px solid #f39c12;
+}
+
+.achievement-item.achievement-pet {
+    border: 2px solid #9b59b6;
+}
+
+.achievement-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.achievement-none {
+    color: #7f8c8d;
+    font-style: italic;
+    font-size: 24px;
+}
+
+/* Three Column Skill Weights Layout */
+.skill-weight-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.skill-weight-column {
+    background: #34495e;
+    padding: 15px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skill-weight-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: #2c3e50;
+    border-radius: 3px;
+}
+
+.skill-weight-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.skill-weight-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.skill-weight-name {
+    color: #ecf0f1;
+    font-size: 22px;
+    flex: 1;
+}
+
+.skill-weight-percent {
+    color: #f39c12;
+    font-weight: bold;
+    font-size: 22px;
+    min-width: 45px;
+    text-align: center;
+}
+
+.skill-weight-controls {
+    display: flex;
+    gap: 12px;
+}
