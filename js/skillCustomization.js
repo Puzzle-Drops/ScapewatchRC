@@ -205,7 +205,7 @@ class SkillCustomizationUI {
         xpSpan.textContent = `${formatNumber(totalXp)} Total XP`;
         
         const creditsSpentSpan = document.createElement('span');
-        const creditsSpent = this.calculateTotalSkillCredSpent();
+        const creditsSpent = runeCreditManager.skillCredSpent || 0;
         creditsSpentSpan.textContent = `${creditsSpent} Skill Cred spent`;
         
         statsDiv.appendChild(levelSpan);
@@ -223,7 +223,7 @@ class SkillCustomizationUI {
         const skillCredDiv = document.createElement('div');
         skillCredDiv.className = 'skill-cred-display';
         skillCredDiv.id = 'skill-cred-display';
-        const availableSkillCred = runeCreditManager.skillCred - creditsSpent;
+        const availableSkillCred = runeCreditManager.getAvailableSkillCred();
         const totalSkillCred = runeCreditManager.skillCred;
         skillCredDiv.innerHTML = `Skill Cred: <span class="cred-amount">${availableSkillCred}/${totalSkillCred}</span>`;
         
@@ -255,16 +255,6 @@ class SkillCustomizationUI {
             }
         }
         return total;
-    }
-    
-    calculateTotalSkillCredSpent() {
-        // Calculate how much Skill Cred has been spent on skill weights
-        let totalSpent = 0;
-        for (const [skillId, level] of Object.entries(runeCreditManager.skillModLevels)) {
-            // Cost is 25 * abs(level) for each level away from 0
-            totalSpent += 25 * Math.abs(level);
-        }
-        return totalSpent;
     }
     
     createCapesAndPetsSection() {
@@ -367,12 +357,23 @@ class SkillCustomizationUI {
             ['mining', 'smithing', 'fishing', 'cooking', 'firemaking', 'woodcutting', 'farming']
         ];
         
-        // Calculate total weight for percentage calculation
+        // Get registered skills to filter properly
+        const registeredSkills = new Set();
+        if (window.skillRegistry && window.skillRegistry.initialized) {
+            for (const skill of skillRegistry.getAllSkills()) {
+                registeredSkills.add(skill.id);
+            }
+        }
+        
+        // Calculate total weight for percentage calculation (only registered skills)
         let totalWeight = 0;
         const skillsData = loadingManager.getData('skills');
         for (const skillId of Object.keys(skillsData)) {
-            const weight = runeCreditManager.getSkillWeight(skillId);
-            totalWeight += weight;
+            // Only include registered skills in weight calculation
+            if (registeredSkills.has(skillId)) {
+                const weight = runeCreditManager.getSkillWeight(skillId);
+                totalWeight += weight;
+            }
         }
         
         // Create each column
@@ -381,7 +382,7 @@ class SkillCustomizationUI {
             column.className = 'skill-weight-column';
             
             for (const skillId of columnSkills) {
-                const skillRow = this.createSkillWeightRow(skillId, totalWeight);
+                const skillRow = this.createSkillWeightRow(skillId, totalWeight, registeredSkills);
                 column.appendChild(skillRow);
             }
             
@@ -391,13 +392,26 @@ class SkillCustomizationUI {
         return container;
     }
     
-    createSkillWeightRow(skillId, totalWeight) {
+    createSkillWeightRow(skillId, totalWeight, registeredSkills) {
         const row = document.createElement('div');
         row.className = 'skill-weight-row';
         
         // Skill info
         const infoDiv = document.createElement('div');
         infoDiv.className = 'skill-weight-info';
+        
+        // Percentage FIRST (at far left)
+        const isRegistered = registeredSkills.has(skillId);
+        let percentage = 0;
+        if (isRegistered && totalWeight > 0) {
+            const weight = runeCreditManager.getSkillWeight(skillId);
+            percentage = Math.round((weight / totalWeight) * 100);
+        }
+        
+        const percentSpan = document.createElement('span');
+        percentSpan.className = 'skill-weight-percent';
+        percentSpan.textContent = isRegistered ? `${percentage}%` : '-';
+        infoDiv.appendChild(percentSpan);
         
         // Icon
         const icon = loadingManager.getImage(`skill_${skillId}`);
@@ -415,38 +429,45 @@ class SkillCustomizationUI {
         nameSpan.textContent = skillData.name;
         infoDiv.appendChild(nameSpan);
         
-        // Percentage
-        const weight = runeCreditManager.getSkillWeight(skillId);
-        const percentage = Math.round((weight / totalWeight) * 100);
-        const percentSpan = document.createElement('span');
-        percentSpan.className = 'skill-weight-percent';
-        percentSpan.textContent = `${percentage}%`;
-        infoDiv.appendChild(percentSpan);
-        
         // Control buttons
         const controlsDiv = document.createElement('div');
         controlsDiv.className = 'skill-weight-controls';
         
-        // Get current modification level
-        const modLevel = runeCreditManager.skillModLevels[skillId] || 0;
-        
-        // Weight controls
-        const weightUp = this.createControlButton('+', () => {
-            if (runeCreditManager.modifySkillWeight(skillId, true)) {
-                this.render();
-                this.updateCredits();
+        // Only enable controls if skill is registered
+        if (isRegistered) {
+            // Get current modification level
+            const modLevel = runeCreditManager.skillModLevels[skillId] || 0;
+            
+            // Weight controls - PASS true FOR useSkillCred IN GLOBAL MODE
+            const weightUp = this.createControlButton('+', () => {
+                if (runeCreditManager.modifySkillWeight(skillId, true, true)) { // true for useSkillCred
+                    this.render();
+                    this.updateCredits();
+                }
+            }, modLevel);
+            
+            const weightDown = this.createControlButton('-', () => {
+                if (runeCreditManager.modifySkillWeight(skillId, false, true)) { // true for useSkillCred
+                    this.render();
+                    this.updateCredits();
+                }
+            }, modLevel);
+            
+            controlsDiv.appendChild(weightUp);
+            controlsDiv.appendChild(weightDown);
+        } else {
+            // Add disabled placeholder buttons for unregistered skills
+            for (let i = 0; i < 2; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'control-button disabled';
+                btn.disabled = true;
+                btn.textContent = i === 0 ? '+' : '-';
+                controlsDiv.appendChild(btn);
             }
-        }, modLevel);
-        
-        const weightDown = this.createControlButton('-', () => {
-            if (runeCreditManager.modifySkillWeight(skillId, false)) {
-                this.render();
-                this.updateCredits();
-            }
-        }, modLevel);
-        
-        controlsDiv.appendChild(weightUp);
-        controlsDiv.appendChild(weightDown);
+            
+            // Grey out unregistered skills
+            row.classList.add('unavailable');
+        }
         
         row.appendChild(infoDiv);
         row.appendChild(controlsDiv);
@@ -902,7 +923,7 @@ class SkillCustomizationUI {
         
         // Only enable controls if player has the level
         if (hasLevel) {
-            // Weight controls
+            // Weight controls - DON'T pass useSkillCred (use skill-specific credits)
             const weightUp = this.createControlButton('+', () => {
                 if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, true)) {
                     this.render();
@@ -1417,8 +1438,7 @@ class SkillCustomizationUI {
             // Global mode - update Skill Cred display
             const skillCredDisplay = document.getElementById('skill-cred-display');
             if (skillCredDisplay) {
-                const creditsSpent = this.calculateTotalSkillCredSpent();
-                const availableSkillCred = runeCreditManager.skillCred - creditsSpent;
+                const availableSkillCred = runeCreditManager.getAvailableSkillCred();
                 const totalSkillCred = runeCreditManager.skillCred;
                 skillCredDisplay.innerHTML = `Skill Cred: <span class="cred-amount">${availableSkillCred}/${totalSkillCred}</span>`;
             }
