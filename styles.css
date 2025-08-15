@@ -516,13 +516,6 @@ body {
     padding: 10px;
 }
 
-.completed-tasks-empty {
-    text-align: center;
-    color: #999;
-    padding: 40px;
-    font-size: 16px;
-}
-
 .completed-task-item {
     display: flex;
     align-items: center;
@@ -878,8 +871,7 @@ body {
 
 .skill-customization-container {
     width: 90%;
-    max-width: 1200px;
-    height: 80%;
+    height: 90%;
     background: #2c3e50;
     border: 2px solid #34495e;
     border-radius: 10px;
@@ -1237,7 +1229,7 @@ body {
 
 /* Left Column - Completed Tasks */
 .skill-customization-completed {
-    width: 600px;
+    width: 720px;
     background: #2c3e50;
     padding: 20px;
     border-right: 2px solid #34495e;
@@ -1284,6 +1276,7 @@ body {
     color: #7f8c8d;
     padding: 30px 10px;
     font-style: italic;
+    font-size: 22px;
 }
 
 /* Single-line completed task display */
