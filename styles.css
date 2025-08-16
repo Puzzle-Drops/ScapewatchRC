@@ -212,8 +212,6 @@ body {
 .panel-content {
     flex: 1;
     padding: 15px;
-    overflow-y: auto;
-    overflow-x: hidden;
 }
 
 .panel {
