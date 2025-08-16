@@ -10,8 +10,8 @@ class MapRenderer {
         x: 4395, // Start at player position
         y: 1882, // Start at player position
         zoom: 14, // Current zoom level
-        minZoom: 10, // Maximum zoom out (see more of the map)
-        maxZoom: 30, // Maximum zoom in (see less of the map, bigger sprites)
+        minZoom: 1, // Maximum zoom out (see more of the map)
+        maxZoom: 40, // Maximum zoom in (see less of the map, bigger sprites)
         zoomSpeed: 2 // How much to zoom per wheel tick
     };
     this.worldMap = loadingManager.getImage('worldMap');
