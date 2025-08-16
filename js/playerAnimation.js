@@ -21,7 +21,7 @@ constructor() {
     // Hysteresis threshold - prevents flickering at diagonal angles
     // When already facing horizontal, need 60% vertical to switch
     // When already facing vertical, need 60% horizontal to switch
-    this.directionBias = 0.1; // 20% bias toward current direction
+    this.directionBias = 0.05; // 5% bias toward current direction
 }
     
     initialize() {
