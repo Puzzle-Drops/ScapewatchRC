@@ -963,7 +963,7 @@ body {
 
 .skill-stats {
     display: flex;
-    gap: 20px;
+    gap: 40px;
     color: #95a5a6;
     font-size: 30px;
 }
@@ -1032,12 +1032,13 @@ body {
     color: #2ecc71;
     font-weight: bold;
     font-size: 30px;
+    min-width: 84px;
 }
 
 .speed-bonus-list {
     display: inline-flex;
-    gap: 15px;
-    margin-left: 20px;
+    gap: 30px;
+    margin-left: 30px;
 }
 
 .speed-bonus-item {
@@ -1432,7 +1433,7 @@ body {
     font-size: 30px;
     color: #ecf0f1;
     font-weight: bold;
-    min-width: 100px;
+    min-width: 140px;
 }
 
 .achievement-items {
