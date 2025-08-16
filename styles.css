@@ -976,14 +976,14 @@ body {
 /* Three-tier credit display */
 .skill-cred-display {
     font-size: 44px;
-    color: #3498db;  /* Blue for skill-specific credits */
+    color: #FFD700;
     margin-bottom: 10px;
     font-weight: bold;
 }
 
 .skill-cred-display .cred-amount {
     font-weight: bold;
-    color: #3498db;
+    color: #FFD700;
 }
 
 .other-credits {
