@@ -351,14 +351,14 @@ drawPlayerCircle(x, y) {
     drawPlayerPath() {
     if (!player.path || player.path.length === 0) return;
 
-    // INVERSE scale path visuals - thicker when zoomed OUT
-    // At zoom 14 (default), line width is 0.4 and dot radius is 0.3
-    // At zoom 1 (max out), we want thick lines so they're visible
-    // At zoom 50 (max in), we want thin lines since everything is big
-    const inverseZoomScale = 14 / this.camera.zoom;
-    const lineWidth = Math.max(0.2, Math.min(4, 0.4 * inverseZoomScale));
-    const dotRadius = Math.max(0.2, Math.min(3, 0.3 * inverseZoomScale));
-    const dashSize = Math.max(0.5, Math.min(10, 1 * inverseZoomScale));
+// INVERSE scale path visuals - thicker when zoomed OUT
+// At zoom 14 (default), line width is 0.4 and dot radius is 0.3
+// At zoom 1 (max out), we want thick lines so they're visible
+// At zoom 50 (max in), we want thin lines since everything is big
+const inverseZoomScale = 14 / this.camera.zoom;
+const lineWidth = Math.max(0.2, Math.min(8, 0.4 * inverseZoomScale));
+const dotRadius = Math.max(0.2, Math.min(6, 0.3 * inverseZoomScale));
+const dashSize = Math.max(0.5, Math.min(20, 1 * inverseZoomScale));
 
     // Draw the path from destination back to player (reversed)
     this.ctx.beginPath();
