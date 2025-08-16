@@ -1,22 +1,28 @@
 class MapRenderer {
     constructor() {
-        this.canvas = document.getElementById('game-canvas');
-        this.ctx = this.canvas.getContext('2d');
-        
-        // Apply crisp rendering settings
-        this.applyNoSmoothing();
-        
-        this.camera = {
-            x: 4395, // Start at player position
-            y: 1882, // Start at player position
-            zoom: 10 // increased by 1/4 from 5
-        };
-        this.worldMap = loadingManager.getImage('worldMap');
-        this.showNodeText = false; // Flag for showing node text
-        this.showCollisionDebug = false; // Flag for showing collision areas
-        this.mapCache = null; // Cached map canvas
-        this.initMapCache();
-    }
+    this.canvas = document.getElementById('game-canvas');
+    this.ctx = this.canvas.getContext('2d');
+    
+    // Apply crisp rendering settings
+    this.applyNoSmoothing();
+    
+    this.camera = {
+        x: 4395, // Start at player position
+        y: 1882, // Start at player position
+        zoom: 10, // Current zoom level
+        minZoom: 10, // Maximum zoom out (see more of the map)
+        maxZoom: 30, // Maximum zoom in (see less of the map, bigger sprites)
+        zoomSpeed: 2 // How much to zoom per wheel tick
+    };
+    this.worldMap = loadingManager.getImage('worldMap');
+    this.showNodeText = false; // Flag for showing node text
+    this.showCollisionDebug = false; // Flag for showing collision areas
+    this.mapCache = null; // Cached map canvas
+    this.initMapCache();
+    
+    // Set up zoom controls
+    this.setupZoomControls();
+}
 
     // Add this new method right after the constructor
     applyNoSmoothing() {
@@ -41,6 +47,36 @@ class MapRenderer {
         
         console.log('Map cached to offscreen canvas');
     }
+
+    setupZoomControls() {
+    // Mouse wheel zoom
+    this.canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        
+        // Determine zoom direction
+        const zoomDelta = e.deltaY > 0 ? -this.camera.zoomSpeed : this.camera.zoomSpeed;
+        this.zoomCamera(this.camera.zoom + zoomDelta);
+    });
+    
+    // Keyboard zoom controls (+ and - keys)
+    window.addEventListener('keydown', (e) => {
+        if (e.key === '+' || e.key === '=') {
+            this.zoomCamera(this.camera.zoom + this.camera.zoomSpeed);
+        } else if (e.key === '-' || e.key === '_') {
+            this.zoomCamera(this.camera.zoom - this.camera.zoomSpeed);
+        }
+    });
+}
+
+zoomCamera(newZoom) {
+    // Clamp zoom to min/max
+    this.camera.zoom = Math.max(this.camera.minZoom, Math.min(this.camera.maxZoom, newZoom));
+    
+    // Ensure we re-apply no smoothing after zoom change
+    this.applyNoSmoothing();
+    
+    console.log(`Zoom: ${this.camera.zoom.toFixed(1)} (min: ${this.camera.minZoom}, max: ${this.camera.maxZoom})`);
+}
 
     render() {
         // Ensure no smoothing is applied (in case context was reset)
@@ -359,26 +395,27 @@ drawPlayerCircle(x, y) {
     }
 
     drawDebugInfo() {
-        // Draw debug info in top-right corner
-        this.ctx.font = '14px Arial';
-        this.ctx.fillStyle = '#ff0';
-        this.ctx.strokeStyle = '#000';
-        this.ctx.lineWidth = 2;
-        this.ctx.textAlign = 'right';
-        this.ctx.textBaseline = 'top';
-        
-        const debugInfo = [
-            `Pos: ${Math.round(player.position.x)}, ${Math.round(player.position.y)}`,
-            `Collision: ${this.showCollisionDebug ? 'ON' : 'OFF'} (Press C)`,
-            `Node Text: ${this.showNodeText ? 'ON' : 'OFF'} (Press N)`
-        ];
-        
-        debugInfo.forEach((text, index) => {
-            const y = 10 + index * 20;
-            this.ctx.strokeText(text, this.canvas.width - 10, y);
-            this.ctx.fillText(text, this.canvas.width - 10, y);
-        });
-    }
+    // Draw debug info in top-right corner
+    this.ctx.font = '14px Arial';
+    this.ctx.fillStyle = '#ff0';
+    this.ctx.strokeStyle = '#000';
+    this.ctx.lineWidth = 2;
+    this.ctx.textAlign = 'right';
+    this.ctx.textBaseline = 'top';
+    
+    const debugInfo = [
+        `Pos: ${Math.round(player.position.x)}, ${Math.round(player.position.y)}`,
+        `Zoom: ${this.camera.zoom.toFixed(1)}x (Scroll or +/- to zoom)`,
+        `Collision: ${this.showCollisionDebug ? 'ON' : 'OFF'} (Press C)`,
+        `Node Text: ${this.showNodeText ? 'ON' : 'OFF'} (Press N)`
+    ];
+    
+    debugInfo.forEach((text, index) => {
+        const y = 10 + index * 20;
+        this.ctx.strokeText(text, this.canvas.width - 10, y);
+        this.ctx.fillText(text, this.canvas.width - 10, y);
+    });
+}
 
     handleClick(screenX, screenY) {
         // Convert screen coordinates to game coordinates using scaling system
