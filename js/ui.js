@@ -70,22 +70,6 @@ class UIManager {
     }
 
     setupModalButtons() {
-        // Bank close button
-        const closeBankBtn = document.getElementById('close-bank');
-        if (closeBankBtn) {
-            closeBankBtn.addEventListener('click', () => {
-                this.closeBank();
-            });
-        }
-        
-        // Shop close button
-        const closeShopBtn = document.getElementById('close-shop');
-        if (closeShopBtn) {
-            closeShopBtn.addEventListener('click', () => {
-                this.closeShop();
-            });
-        }
-        
         // View completed tasks button
         const viewCompletedBtn = document.getElementById('view-completed-tasks-btn');
         if (!viewCompletedBtn) {
@@ -609,6 +593,12 @@ class UIManager {
             const content = document.createElement('div');
             content.className = 'modal-content';
             
+            // Add close button (X)
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'modal-close-x';
+            closeBtn.textContent = '×';
+            closeBtn.addEventListener('click', () => this.closeCompletedTasks());
+            
             const title = document.createElement('h2');
             title.textContent = 'Completed Tasks';
             
@@ -616,14 +606,9 @@ class UIManager {
             listContainer.id = 'completed-tasks-list';
             listContainer.className = 'completed-tasks-list';
             
-            const closeBtn = document.createElement('button');
-            closeBtn.id = 'close-completed-tasks';
-            closeBtn.textContent = 'Close';
-            closeBtn.addEventListener('click', () => this.closeCompletedTasks());
-            
+            content.appendChild(closeBtn);
             content.appendChild(title);
             content.appendChild(listContainer);
-            content.appendChild(closeBtn);
             modal.appendChild(content);
             
             // Add to scaled container
@@ -708,11 +693,47 @@ class UIManager {
 
     openBank() {
         this.bankOpen = true;
-        const modal = document.getElementById('bank-modal');
-        if (modal) {
-            modal.style.display = 'flex';
-            this.updateBank();
+        let modal = document.getElementById('bank-modal');
+        
+        // Create modal if it doesn't exist
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'bank-modal';
+            modal.className = 'modal';
+            modal.style.display = 'none';
+            
+            const content = document.createElement('div');
+            content.className = 'modal-content';
+            
+            // Add close button (X)
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'modal-close-x';
+            closeBtn.textContent = '×';
+            closeBtn.addEventListener('click', () => this.closeBank());
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Bank';
+            
+            const bankGrid = document.createElement('div');
+            bankGrid.id = 'bank-grid';
+            bankGrid.className = 'bank-grid';
+            
+            content.appendChild(closeBtn);
+            content.appendChild(title);
+            content.appendChild(bankGrid);
+            modal.appendChild(content);
+            
+            // Add to scaled container
+            const scaledContainer = document.getElementById('scaled-container');
+            if (scaledContainer) {
+                scaledContainer.appendChild(modal);
+            } else {
+                document.body.appendChild(modal);
+            }
         }
+        
+        modal.style.display = 'flex';
+        this.updateBank();
     }
 
     closeBank() {
