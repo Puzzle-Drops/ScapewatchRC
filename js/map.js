@@ -12,7 +12,7 @@ class MapRenderer {
         zoom: 14, // Current zoom level
         minZoom: 1, // Maximum zoom out (see more of the map)
         maxZoom: 50, // Maximum zoom in (see less of the map, bigger sprites)
-        zoomSpeed: 2 // How much to zoom per wheel tick
+        zoomSpeed: 1 // How much to zoom per wheel tick
     };
     this.worldMap = loadingManager.getImage('worldMap');
     this.showNodeText = false; // Flag for showing node text
