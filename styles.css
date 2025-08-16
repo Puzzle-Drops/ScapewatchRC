@@ -738,7 +738,7 @@ body {
     cursor: not-allowed;
 }
 
-/* Universal modal close button (X) - matches skill customization style */
+/* Universal modal close button (X) */
 .modal-close-x,
 .skill-customization-close {
     position: absolute;
@@ -767,14 +767,14 @@ body {
     transform: scale(1.1);
 }
 
-.modal-close-x:active,
-.skill-customization-close:active {
-    transform: scale(0.95);
-}
-
 /* Ensure modal content has proper positioning context */
 .modal-content {
     position: relative;
+}
+
+.modal-close-x:active,
+.skill-customization-close:active {
+    transform: scale(0.95);
 }
 
 /* Developer Console - Split View */
