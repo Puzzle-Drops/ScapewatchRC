@@ -587,46 +587,62 @@ class SkillCustomizationUI {
     }
     
     createCompletedTaskRow(task, globalIndex) {
-        const row = document.createElement('div');
-        row.className = 'completed-task-row';
-        
-        // Task number
-        const numberDiv = document.createElement('div');
-        numberDiv.className = 'completed-task-number';
-        numberDiv.textContent = `#${globalIndex}`;
-        
-        // Separator 1
-        const sep1 = document.createElement('div');
-        sep1.className = 'completed-task-separator';
-        sep1.textContent = '|';
-        
-        // Task description (full, on one line)
-        const descDiv = document.createElement('div');
-        descDiv.className = 'completed-task-description';
-        descDiv.textContent = task.description;
-        
-        // Separator 2
-        const sep2 = document.createElement('div');
-        sep2.className = 'completed-task-separator';
-        sep2.textContent = '|';
-        
-        // Time ago
-        const timeDiv = document.createElement('div');
-        timeDiv.className = 'completed-task-time';
-        if (task.completedAt) {
-            timeDiv.textContent = this.getTimeAgo(task.completedAt);
+    const row = document.createElement('div');
+    row.className = 'completed-task-row';
+    
+    // Task number
+    const numberDiv = document.createElement('div');
+    numberDiv.className = 'completed-task-number';
+    numberDiv.textContent = `#${globalIndex}`;
+    
+    // Separator 1
+    const sep1 = document.createElement('div');
+    sep1.className = 'completed-task-separator';
+    sep1.textContent = '|';
+    
+    // Skill icon (NEW)
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'completed-task-skill-icon';
+    if (task.skill) {
+        const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
+        if (skillIcon) {
+            const icon = document.createElement('img');
+            icon.src = skillIcon.src;
+            iconDiv.appendChild(icon);
         } else {
-            timeDiv.textContent = '-';
+            // Fallback text if icon doesn't load
+            iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
         }
-        
-        row.appendChild(numberDiv);
-        row.appendChild(sep1);
-        row.appendChild(descDiv);
-        row.appendChild(sep2);
-        row.appendChild(timeDiv);
-        
-        return row;
     }
+    
+    // Task description (full, on one line)
+    const descDiv = document.createElement('div');
+    descDiv.className = 'completed-task-description';
+    descDiv.textContent = task.description;
+    
+    // Separator 2
+    const sep2 = document.createElement('div');
+    sep2.className = 'completed-task-separator';
+    sep2.textContent = '|';
+    
+    // Time ago
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'completed-task-time';
+    if (task.completedAt) {
+        timeDiv.textContent = this.getTimeAgo(task.completedAt);
+    } else {
+        timeDiv.textContent = '-';
+    }
+    
+    row.appendChild(numberDiv);
+    row.appendChild(sep1);
+    row.appendChild(iconDiv);  // Add icon before description
+    row.appendChild(descDiv);
+    row.appendChild(sep2);
+    row.appendChild(timeDiv);
+    
+    return row;
+}
     
     getTimeAgo(timestamp) {
         const seconds = Math.floor((Date.now() - timestamp) / 1000);
