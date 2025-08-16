@@ -26,6 +26,11 @@ class Player {
     }
 
     update(deltaTime) {
+        // Update animation system
+        if (window.playerAnimation) {
+            playerAnimation.update(deltaTime, this);
+        }
+    
         // Handle movement along path (don't move while banking or preparing path)
         if (this.path.length > 0 && this.pathIndex < this.path.length && !this.isBanking && !this.isPreparingPath) {
             this.updateSmoothMovement(deltaTime);
