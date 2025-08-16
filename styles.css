@@ -738,20 +738,43 @@ body {
     cursor: not-allowed;
 }
 
-#close-bank, #close-shop, #close-completed-tasks {
-    width: 100%;
-    padding: 10px;
-    background-color: #e74c3c;
-    color: #fff;
+/* Universal modal close button (X) - matches skill customization style */
+.modal-close-x,
+.skill-customization-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #e74c3c;
+    color: white;
     border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: bold;
+    width: 30px;
+    height: 30px;
+    font-size: 24px;
+    line-height: 1;
     cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 1000;
+    font-weight: bold;
 }
 
-#close-bank:hover, #close-shop:hover, #close-completed-tasks:hover {
-    background-color: #c0392b;
+.modal-close-x:hover,
+.skill-customization-close:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+}
+
+.modal-close-x:active,
+.skill-customization-close:active {
+    transform: scale(0.95);
+}
+
+/* Ensure modal content has proper positioning context */
+.modal-content {
+    position: relative;
 }
 
 /* Developer Console - Split View */
