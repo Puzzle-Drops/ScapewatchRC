@@ -28,25 +28,27 @@ class PlayerAnimation {
     }
     
     updateFacing(player) {
-        // Determine if walking based on path
-        if (player.path && player.path.length > 0 && player.pathIndex < player.path.length) {
-            this.isWalking = true;
-            
-            // Calculate direction to next waypoint
-            const target = player.path[player.pathIndex];
-            const dx = target.x - player.position.x;
-            const dy = target.y - player.position.y;
-            
-            // Set facing based on dominant axis
-            if (Math.abs(dx) > Math.abs(dy)) {
-                this.facing = dx > 0 ? 'east' : 'west';
-            } else if (Math.abs(dy) > 0.1) {
-                this.facing = dy > 0 ? 'south' : 'north';
-            }
-        } else {
-            this.isWalking = false;
+    // Determine if walking based on path
+    if (player.path && player.path.length > 0 && player.pathIndex < player.path.length) {
+        this.isWalking = true;
+        
+        // Calculate direction to next waypoint
+        const target = player.path[player.pathIndex];
+        const dx = target.x - player.position.x;
+        const dy = target.y - player.position.y;
+        
+        // Set facing based on dominant axis
+        if (Math.abs(dx) > Math.abs(dy)) {
+            this.facing = dx > 0 ? 'east' : 'west';
+        } else if (Math.abs(dy) > 0.1) {
+            this.facing = dy > 0 ? 'south' : 'north';
         }
+    } else {
+        // When idle, always face south
+        this.isWalking = false;
+        this.facing = 'south';
     }
+}
     
     update(deltaTime, player) {
         this.updateFacing(player);
