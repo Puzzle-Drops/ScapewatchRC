@@ -113,7 +113,7 @@
       "draynor_rooftop"
     ],
     "nearestBank": "draynor_bank",
-    "nearestBankDistance": 84
+    "nearestBankDistance": 81
   },
   "al_kharid_rooftop": {
     "id": "al_kharid_rooftop",
@@ -182,8 +182,8 @@
     "activities": [
       "seers_rooftop"
     ],
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "draynor_bank",
+    "nearestBankDistance": 1307
   },
   "pollnivneach_rooftop": {
     "id": "pollnivneach_rooftop",
@@ -196,8 +196,8 @@
     "activities": [
       "pollnivneach_rooftop"
     ],
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "lumbridge_bank",
+    "nearestBankDistance": 730
   },
   "rellekka_rooftop": {
     "id": "rellekka_rooftop",
@@ -224,8 +224,8 @@
     "activities": [
       "ardougne_rooftop"
     ],
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "draynor_bank",
+    "nearestBankDistance": 1822
   },
   "test_trees": {
     "id": "test_trees",
@@ -471,8 +471,8 @@
       "y": 2137
     },
     "questId": "cooks_assistant",
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "lumbridge_bank",
+    "nearestBankDistance": 585
   },
   "demon_slayer_quest": {
     "id": "demon_slayer_quest",
@@ -531,8 +531,8 @@
       "y": 1330
     },
     "questId": "shield_of_arrav",
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "grand_exchange",
+    "nearestBankDistance": 181
   },
   "ernest_the_chicken_quest": {
     "id": "ernest_the_chicken_quest",
@@ -543,8 +543,8 @@
       "y": 1659
     },
     "questId": "ernest_the_chicken",
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "draynor_bank",
+    "nearestBankDistance": 186
   },
   "vampyre_slayer_quest": {
     "id": "vampyre_slayer_quest",
@@ -579,8 +579,8 @@
       "y": 1994
     },
     "questId": "prince_ali_rescue",
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "lumbridge_bank",
+    "nearestBankDistance": 301
   },
   "dorics_quest": {
     "id": "dorics_quest",
@@ -591,8 +591,8 @@
       "y": 1418
     },
     "questId": "dorics",
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "west_varrock_bank",
+    "nearestBankDistance": 526
   },
   "black_knights_fortress_quest": {
     "id": "black_knights_fortress_quest",
@@ -603,8 +603,8 @@
       "y": 1644
     },
     "questId": "black_knights_fortress",
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "draynor_bank",
+    "nearestBankDistance": 459
   },
   "witchs_potion_quest": {
     "id": "witchs_potion_quest",
@@ -615,8 +615,8 @@
       "y": 1908
     },
     "questId": "witchs_potion",
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "draynor_bank",
+    "nearestBankDistance": 366
   },
   "the_knights_sword_quest": {
     "id": "the_knights_sword_quest",
@@ -627,8 +627,8 @@
       "y": 1637
     },
     "questId": "the_knights_sword",
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "draynor_bank",
+    "nearestBankDistance": 456
   },
   "goblin_diplomacy_quest": {
     "id": "goblin_diplomacy_quest",
@@ -639,8 +639,8 @@
       "y": 1294
     },
     "questId": "goblin_diplomacy",
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "west_varrock_bank",
+    "nearestBankDistance": 636
   },
   "pirates_treasure_quest": {
     "id": "pirates_treasure_quest",
@@ -723,7 +723,7 @@
       "y": 1448
     },
     "questId": "below_ice_mountain",
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "west_varrock_bank",
+    "nearestBankDistance": 387
   }
 }
