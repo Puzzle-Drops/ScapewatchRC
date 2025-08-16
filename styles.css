@@ -738,7 +738,7 @@ body {
     border-top: 2px solid #f39c12;
     font-family: 'Courier New', monospace;
     font-size: 14px;
-    z-index: 1000;
+    z-index: 3000;
 }
 
 .dev-console-split {
