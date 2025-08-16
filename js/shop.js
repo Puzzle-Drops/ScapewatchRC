@@ -16,47 +16,20 @@ class ShopSystem {
         ];
         
         this.isOpen = false;
-        this.initializeModal();
+        this.setupCloseButton();
     }
 
-    // Initialize the shop modal structure
-    initializeModal() {
-        // Create modal if it doesn't exist
-        let modal = document.getElementById('shop-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'shop-modal';
-            modal.className = 'modal';
-            modal.style.display = 'none';
-            
-            const content = document.createElement('div');
-            content.className = 'modal-content';
-            
-            // Add close button (X)
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'modal-close-x';
-            closeBtn.textContent = '×';
-            closeBtn.addEventListener('click', () => this.close());
-            
-            const title = document.createElement('h2');
-            title.textContent = 'Shop';
-            
-            const shopItems = document.createElement('div');
-            shopItems.id = 'shop-items';
-            shopItems.className = 'shop-items';
-            
-            content.appendChild(closeBtn);
-            content.appendChild(title);
-            content.appendChild(shopItems);
-            modal.appendChild(content);
-            
-            // Add to scaled container
-            const scaledContainer = document.getElementById('scaled-container');
-            if (scaledContainer) {
-                scaledContainer.appendChild(modal);
-            } else {
-                document.body.appendChild(modal);
-            }
+    // Set up the X close button handler
+    setupCloseButton() {
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setupCloseButton());
+            return;
+        }
+        
+        const shopCloseX = document.getElementById('shop-close-x');
+        if (shopCloseX) {
+            shopCloseX.addEventListener('click', () => this.close());
         }
     }
 
