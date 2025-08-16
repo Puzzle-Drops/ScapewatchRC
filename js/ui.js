@@ -50,18 +50,21 @@ class UIManager {
                     return;
                 }
                 
-                // If minimized and clicking a different panel, restore first
+                // Handle bank and shop buttons (keep minimized state)
+                if (panel === 'bank') {
+                    this.openBank();
+                    return;
+                } else if (panel === 'shop') {
+                    this.openShop();
+                    return;
+                }
+                
+                // For regular panels, restore if minimized then switch
                 if (this.minimized) {
                     this.restore();
                 }
                 
-                if (panel === 'bank') {
-                    this.openBank();
-                } else if (panel === 'shop') {
-                    this.openShop();
-                } else {
-                    this.switchPanel(panel);
-                }
+                this.switchPanel(panel);
             });
         });
     }
