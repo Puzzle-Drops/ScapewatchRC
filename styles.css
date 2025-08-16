@@ -742,8 +742,8 @@ body {
 .modal-close-x,
 .skill-customization-close {
     position: absolute;
-    top: 2px;
-    right: 2px;
+    top: 8px;
+    right: 8px;
     background: #e74c3c;
     color: white;
     border: none;
