@@ -1,22 +1,28 @@
 class PlayerAnimation {
-    constructor() {
-        this.facing = 'south';
-        this.animationFrame = 0;
-        this.animationTimer = 0;
-        this.spriteSheet = null;
-        this.isWalking = false;
-        this.lastPosition = null;
-        
-        // Configuration
-        this.spriteSize = 48;
-        this.frameRate = 150; // ms per frame
-        this.directions = {
-            'south': 0,
-            'east': 1,
-            'north': 2,
-            'west': 3
-        };
-    }
+constructor() {
+    this.facing = 'south';
+    this.animationFrame = 0;
+    this.animationTimer = 0;
+    this.spriteSheet = null;
+    this.isWalking = false;
+    this.lastPosition = null;
+    this.previousFacing = 'south'; // Track previous direction for hysteresis
+    
+    // Configuration
+    this.spriteSize = 48;
+    this.frameRate = 150; // ms per frame
+    this.directions = {
+        'south': 0,
+        'east': 1,
+        'north': 2,
+        'west': 3
+    };
+    
+    // Hysteresis threshold - prevents flickering at diagonal angles
+    // When already facing horizontal, need 60% vertical to switch
+    // When already facing vertical, need 60% horizontal to switch
+    this.directionBias = 0.1; // 20% bias toward current direction
+}
     
     initialize() {
         this.spriteSheet = loadingManager.getImage('playerSprite');
@@ -37,16 +43,50 @@ class PlayerAnimation {
         const dx = target.x - player.position.x;
         const dy = target.y - player.position.y;
         
-        // Set facing based on dominant axis
-        if (Math.abs(dx) > Math.abs(dy)) {
-            this.facing = dx > 0 ? 'east' : 'west';
-        } else if (Math.abs(dy) > 0.1) {
-            this.facing = dy > 0 ? 'south' : 'north';
+        // Calculate the ratio of horizontal to vertical movement
+        const absDx = Math.abs(dx);
+        const absDy = Math.abs(dy);
+        const total = absDx + absDy;
+        
+        // Skip if barely moving
+        if (total < 0.1) {
+            return;
         }
+        
+        const horizontalRatio = absDx / total;
+        const verticalRatio = absDy / total;
+        
+        // Apply hysteresis based on current facing direction
+        let newFacing = this.facing;
+        
+        // If currently facing horizontal (east/west)
+        if (this.facing === 'east' || this.facing === 'west') {
+            // Only switch to vertical if vertical movement is significantly more (60%+)
+            if (verticalRatio > 0.5 + this.directionBias) {
+                newFacing = dy > 0 ? 'south' : 'north';
+            } else {
+                // Stay horizontal, just update east/west
+                newFacing = dx > 0 ? 'east' : 'west';
+            }
+        }
+        // If currently facing vertical (north/south)
+        else {
+            // Only switch to horizontal if horizontal movement is significantly more (60%+)
+            if (horizontalRatio > 0.5 + this.directionBias) {
+                newFacing = dx > 0 ? 'east' : 'west';
+            } else {
+                // Stay vertical, just update north/south
+                newFacing = dy > 0 ? 'south' : 'north';
+            }
+        }
+        
+        this.facing = newFacing;
+        this.previousFacing = newFacing;
     } else {
         // When idle, always face south
         this.isWalking = false;
         this.facing = 'south';
+        this.previousFacing = 'south';
     }
 }
     
