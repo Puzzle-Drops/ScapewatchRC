@@ -282,53 +282,59 @@ zoomCamera(newZoom) {
         this.drawPlayerCircle(x, y);
     }
 
-    // Activity indicator OR stun indicator OR banking indicator OR path prep indicator
-    // (These are drawn AFTER the sprite)
-    if (player.isBanking) {
-        // Show banking progress (golden circle that depletes counter-clockwise)
-        const bankingProgress = player.getBankingProgress();
-        if (bankingProgress > 0) {
-            this.ctx.beginPath();
-            // Start from top, go counter-clockwise based on remaining progress
-            this.ctx.arc(x, y, 2, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * bankingProgress));
-            this.ctx.strokeStyle = '#f39c12'; // Golden color for banking
-            this.ctx.lineWidth = 0.4;
-            this.ctx.stroke();
-        }
-    } else if (player.isPreparingPath) {
-        // Show path preparation progress (white circle that depletes counter-clockwise)
-        const pathPrepProgress = player.getPathPreparationProgress();
-        if (pathPrepProgress > 0) {
-            this.ctx.beginPath();
-            // Start from top, go counter-clockwise based on remaining progress
-            this.ctx.arc(x, y, 2, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * pathPrepProgress));
-            this.ctx.strokeStyle = '#ffffff'; // White color for path preparation
-            this.ctx.lineWidth = 0.4;
-            this.ctx.stroke();
-        }
-    } else if (player.isStunned) {
-        // Show stun progress (counter-clockwise from full)
-        const stunProgress = player.getStunProgress();
+    // Scale status rings based on zoom
+// At zoom 14 (default), ring radius is 2 and line width is 0.4
+const ringZoomScale = this.camera.zoom / 14;
+const ringRadius = Math.max(1, Math.min(4, 2 * ringZoomScale));
+const ringLineWidth = Math.max(0.2, Math.min(1, 0.4 * ringZoomScale));
+
+// Activity indicator OR stun indicator OR banking indicator OR path prep indicator
+// (These are drawn AFTER the sprite)
+if (player.isBanking) {
+    // Show banking progress (golden circle that depletes counter-clockwise)
+    const bankingProgress = player.getBankingProgress();
+    if (bankingProgress > 0) {
         this.ctx.beginPath();
-        this.ctx.arc(x, y, 2, -Math.PI / 2, -Math.PI / 2 - (Math.PI * 2 * stunProgress));
-        this.ctx.strokeStyle = '#e74c3c';
-        this.ctx.lineWidth = 0.4;
-        this.ctx.stroke();
-    } else if (player.currentActivity) {
-        // Get the skill for the current activity
-        let activityColor = '#f39c12'; // Default orange
-        
-        const activityData = loadingManager.getData('activities')[player.currentActivity];
-        if (activityData && activityData.skill) {
-            activityColor = this.getSkillColor(activityData.skill);
-        }
-        
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, 2, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * player.activityProgress));  // was 10, now 2
-        this.ctx.strokeStyle = activityColor;
-        this.ctx.lineWidth = 0.4;  // reduced from 2
+        // Start from top, go counter-clockwise based on remaining progress
+        this.ctx.arc(x, y, ringRadius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * bankingProgress));
+        this.ctx.strokeStyle = '#f39c12'; // Golden color for banking
+        this.ctx.lineWidth = ringLineWidth;
         this.ctx.stroke();
     }
+} else if (player.isPreparingPath) {
+    // Show path preparation progress (white circle that depletes counter-clockwise)
+    const pathPrepProgress = player.getPathPreparationProgress();
+    if (pathPrepProgress > 0) {
+        this.ctx.beginPath();
+        // Start from top, go counter-clockwise based on remaining progress
+        this.ctx.arc(x, y, ringRadius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * pathPrepProgress));
+        this.ctx.strokeStyle = '#ffffff'; // White color for path preparation
+        this.ctx.lineWidth = ringLineWidth;
+        this.ctx.stroke();
+    }
+} else if (player.isStunned) {
+    // Show stun progress (counter-clockwise from full)
+    const stunProgress = player.getStunProgress();
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, ringRadius, -Math.PI / 2, -Math.PI / 2 - (Math.PI * 2 * stunProgress));
+    this.ctx.strokeStyle = '#e74c3c';
+    this.ctx.lineWidth = ringLineWidth;
+    this.ctx.stroke();
+} else if (player.currentActivity) {
+    // Get the skill for the current activity
+    let activityColor = '#f39c12'; // Default orange
+    
+    const activityData = loadingManager.getData('activities')[player.currentActivity];
+    if (activityData && activityData.skill) {
+        activityColor = this.getSkillColor(activityData.skill);
+    }
+    
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, ringRadius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * player.activityProgress));
+    this.ctx.strokeStyle = activityColor;
+    this.ctx.lineWidth = ringLineWidth;
+    this.ctx.stroke();
+}
 }
 
 drawPlayerCircle(x, y) {
@@ -343,38 +349,45 @@ drawPlayerCircle(x, y) {
 }
 
     drawPlayerPath() {
-        if (!player.path || player.path.length === 0) return;
+    if (!player.path || player.path.length === 0) return;
 
-        // Draw the path from destination back to player (reversed)
-        this.ctx.beginPath();
-        
-        // Start from the final destination
-        const destination = player.path[player.path.length - 1];
-        this.ctx.moveTo(destination.x, destination.y);
-        
-        // Draw backwards through the path
-        for (let i = player.path.length - 2; i >= player.pathIndex; i--) {
-            this.ctx.lineTo(player.path[i].x, player.path[i].y);
-        }
-        
-        // End at player position
-        this.ctx.lineTo(player.position.x, player.position.y);
-        
-        this.ctx.strokeStyle = 'rgba(46, 204, 113, 0.5)';
-        this.ctx.lineWidth = 0.4;
-        this.ctx.setLineDash([1, 1]);
-        this.ctx.stroke();
-        this.ctx.setLineDash([]);
+    // Scale path visuals based on zoom
+    // At zoom 14 (default), line width is 0.4 and dot radius is 0.3
+    const zoomScale = this.camera.zoom / 14;
+    const lineWidth = Math.max(0.2, Math.min(2, 0.4 * zoomScale));
+    const dotRadius = Math.max(0.15, Math.min(1.5, 0.3 * zoomScale));
+    const dashSize = Math.max(0.5, Math.min(5, 1 * zoomScale));
 
-        // Draw waypoint markers (only for remaining waypoints)
-        this.ctx.fillStyle = 'rgba(46, 204, 113, 0.8)';
-        for (let i = player.pathIndex; i < player.path.length; i++) {
-            const point = player.path[i];
-            this.ctx.beginPath();
-            this.ctx.arc(point.x, point.y, 0.3, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
+    // Draw the path from destination back to player (reversed)
+    this.ctx.beginPath();
+    
+    // Start from the final destination
+    const destination = player.path[player.path.length - 1];
+    this.ctx.moveTo(destination.x, destination.y);
+    
+    // Draw backwards through the path
+    for (let i = player.path.length - 2; i >= player.pathIndex; i--) {
+        this.ctx.lineTo(player.path[i].x, player.path[i].y);
     }
+    
+    // End at player position
+    this.ctx.lineTo(player.position.x, player.position.y);
+    
+    this.ctx.strokeStyle = 'rgba(46, 204, 113, 0.5)';
+    this.ctx.lineWidth = lineWidth;
+    this.ctx.setLineDash([dashSize, dashSize]);
+    this.ctx.stroke();
+    this.ctx.setLineDash([]);
+
+    // Draw waypoint markers (only for remaining waypoints)
+    this.ctx.fillStyle = 'rgba(46, 204, 113, 0.8)';
+    for (let i = player.pathIndex; i < player.path.length; i++) {
+        const point = player.path[i];
+        this.ctx.beginPath();
+        this.ctx.arc(point.x, point.y, dotRadius, 0, Math.PI * 2);
+        this.ctx.fill();
+    }
+}
 
     drawFPS() {
         // Draw FPS counter in top-left corner
