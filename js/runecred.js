@@ -27,12 +27,17 @@ class RuneCreditManager {
         
         // Speed bonuses
         this.speedBonuses = {
-            pets: {}, // skillId -> true/false
-            shinyPets: {}, // skillId -> true/false
+            pets: {}, // skillId -> true/false (has at least one pet)
+            shinyPets: {}, // skillId -> true/false (has at least one shiny pet)
             skillCapes: {}, // skillId -> true/false
             trimmedCapes: {}, // skillId -> true/false
             maxCape: false
         };
+        
+        // Pet tracking - NEW
+        this.petCounts = {}; // skillId -> { regular: count, shiny: count }
+        this.totalPetsObtained = 0; // Total pets ever obtained
+        this.totalShinyPetsObtained = 0; // Total shiny pets ever obtained
         
         this.initialize();
     }
@@ -58,6 +63,9 @@ class RuneCreditManager {
                 this.speedBonuses.shinyPets[skillId] = false;
                 this.speedBonuses.skillCapes[skillId] = false;
                 this.speedBonuses.trimmedCapes[skillId] = false;
+                
+                // Initialize pet counts
+                this.petCounts[skillId] = { regular: 0, shiny: 0 };
             }
         }
         
@@ -113,6 +121,9 @@ class RuneCreditManager {
                 this.tasksPerSkill[task.skill] = (this.tasksPerSkill[task.skill] || 0) + 1;
                 console.log(`+1 ${this.getSkillCredName(task.skill)} (now ${this.skillCredits[task.skill]})`);
             }
+            
+            // Check for pet drop (1/1000 chance)
+            this.rollForPet(task.skill);
         }
         
         console.log(`+1 Rune Cred (now ${this.runeCred})`);
@@ -126,6 +137,88 @@ class RuneCreditManager {
         if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
             window.skillCustomizationUI.updateCredits();
         }
+    }
+    
+    // Roll for pet drop when completing a task
+    rollForPet(skillId) {
+        // 1/1000 chance for pet
+        const petRoll = Math.random();
+        if (petRoll < 1/1000) {
+            // We got a pet! Now check if it's shiny (1/10 chance)
+            const shinyRoll = Math.random();
+            const isShiny = shinyRoll < 1/10;
+            
+            // Get skill name for display
+            const skillsData = loadingManager.getData('skills');
+            const skillName = skillsData[skillId] ? skillsData[skillId].name : skillId;
+            
+            // Initialize pet counts if needed
+            if (!this.petCounts[skillId]) {
+                this.petCounts[skillId] = { regular: 0, shiny: 0 };
+            }
+            
+            if (isShiny) {
+                this.petCounts[skillId].shiny++;
+                this.totalShinyPetsObtained++;
+                this.totalPetsObtained++;
+                
+                // Set speed bonus flag if this is the first shiny pet for this skill
+                if (!this.speedBonuses.shinyPets[skillId]) {
+                    this.speedBonuses.shinyPets[skillId] = true;
+                    console.log(`🌟✨ SHINY PET DROP! ✨🌟 You received a SHINY ${skillName} pet! (+10% ${skillName} speed)`);
+                } else {
+                    console.log(`🌟✨ SHINY PET DROP! ✨🌟 You received another SHINY ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
+                }
+                
+                console.log(`Total ${skillName} pets: ${this.petCounts[skillId].regular} regular, ${this.petCounts[skillId].shiny} shiny`);
+                console.log(`Total pets across all skills: ${this.totalPetsObtained} (${this.totalShinyPetsObtained} shiny)`);
+            } else {
+                this.petCounts[skillId].regular++;
+                this.totalPetsObtained++;
+                
+                // Set speed bonus flag if this is the first pet for this skill (and no shiny)
+                if (!this.speedBonuses.pets[skillId] && !this.speedBonuses.shinyPets[skillId]) {
+                    this.speedBonuses.pets[skillId] = true;
+                    console.log(`🎉 PET DROP! 🎉 You received a ${skillName} pet! (+5% ${skillName} speed)`);
+                } else {
+                    console.log(`🎉 PET DROP! 🎉 You received another ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
+                }
+                
+                console.log(`Total ${skillName} pets: ${this.petCounts[skillId].regular} regular, ${this.petCounts[skillId].shiny} shiny`);
+                console.log(`Total pets across all skills: ${this.totalPetsObtained} (${this.totalShinyPetsObtained} shiny)`);
+            }
+            
+            // Save immediately
+            this.saveData();
+            
+            // Update UI if skill customization is open
+            if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
+                window.skillCustomizationUI.render();
+            }
+        }
+    }
+    
+    // Get pet statistics for a skill
+    getPetStats(skillId) {
+        if (!this.petCounts[skillId]) {
+            return { regular: 0, shiny: 0, total: 0 };
+        }
+        
+        const counts = this.petCounts[skillId];
+        return {
+            regular: counts.regular,
+            shiny: counts.shiny,
+            total: counts.regular + counts.shiny
+        };
+    }
+    
+    // Get global pet statistics
+    getGlobalPetStats() {
+        return {
+            total: this.totalPetsObtained,
+            shiny: this.totalShinyPetsObtained,
+            regular: this.totalPetsObtained - this.totalShinyPetsObtained
+        };
     }
     
     // Modify skill weight level
@@ -466,7 +559,11 @@ class RuneCreditManager {
             nodeModLevels: this.nodeModLevels,
             quantityModLevels: this.quantityModLevels,
             speedBonuses: this.speedBonuses,
-            maxModificationLevel: this.maxModificationLevel
+            maxModificationLevel: this.maxModificationLevel,
+            // Pet tracking data
+            petCounts: this.petCounts,
+            totalPetsObtained: this.totalPetsObtained,
+            totalShinyPetsObtained: this.totalShinyPetsObtained
         };
         
         try {
@@ -509,6 +606,11 @@ class RuneCreditManager {
                     maxCape: false
                 };
                 this.maxModificationLevel = data.maxModificationLevel || 10;
+                
+                // Load pet tracking data
+                this.petCounts = data.petCounts || {};
+                this.totalPetsObtained = data.totalPetsObtained || 0;
+                this.totalShinyPetsObtained = data.totalShinyPetsObtained || 0;
                 
                 console.log('Credits data loaded');
             }
