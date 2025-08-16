@@ -1152,7 +1152,7 @@ body {
 
 .task-level {
     font-weight: bold;
-    min-width: 45px;
+    min-width: 50px;
     text-align: center;
     display: inline-block;
 }
@@ -1168,7 +1168,7 @@ body {
 .task-chance {
     color: #f39c12;
     font-weight: bold;
-    min-width: 45px;
+    min-width: 50px;
     text-align: center;
     display: inline-block;
 }
