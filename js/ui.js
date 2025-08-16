@@ -5,6 +5,7 @@ class UIManager {
         this.completedTasksOpen = false;
         this.itemOrder = null;
         this.itemOrderMap = {};
+        this.minimized = false; // Track minimized state
         this.initializeUI();
     }
 
@@ -42,6 +43,17 @@ class UIManager {
         buttons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const panel = btn.dataset.panel;
+                
+                // Check if clicking the already active panel (to minimize/maximize)
+                if (btn.classList.contains('active') && panel !== 'bank' && panel !== 'shop') {
+                    this.toggleMinimize();
+                    return;
+                }
+                
+                // If minimized and clicking a different panel, restore first
+                if (this.minimized) {
+                    this.restore();
+                }
                 
                 if (panel === 'bank') {
                     this.openBank();
@@ -93,6 +105,65 @@ class UIManager {
         }
     }
 
+    // ==================== MINIMIZE/MAXIMIZE FUNCTIONALITY ====================
+
+    toggleMinimize() {
+        if (this.minimized) {
+            this.restore();
+        } else {
+            this.minimize();
+        }
+    }
+
+    minimize() {
+        this.minimized = true;
+        const uiPanel = document.querySelector('.ui-panel');
+        const panelContent = document.querySelector('.panel-content');
+        
+        if (uiPanel) {
+            uiPanel.classList.add('minimized');
+        }
+        
+        if (panelContent) {
+            panelContent.style.display = 'none';
+        }
+        
+        console.log('UI Panel minimized');
+    }
+
+    restore() {
+        this.minimized = false;
+        const uiPanel = document.querySelector('.ui-panel');
+        const panelContent = document.querySelector('.panel-content');
+        
+        if (uiPanel) {
+            uiPanel.classList.remove('minimized');
+        }
+        
+        if (panelContent) {
+            panelContent.style.display = 'block';
+        }
+        
+        // Refresh current panel content
+        this.refreshCurrentPanel();
+        
+        console.log('UI Panel restored');
+    }
+
+    refreshCurrentPanel() {
+        switch (this.currentPanel) {
+            case 'inventory':
+                this.updateInventory();
+                break;
+            case 'skills':
+                this.updateSkillsList();
+                break;
+            case 'tasks':
+                this.updateTasks();
+                break;
+        }
+    }
+
     // ==================== PANEL MANAGEMENT ====================
 
     switchPanel(panelName) {
@@ -134,7 +205,7 @@ class UIManager {
     // ==================== INVENTORY DISPLAY ====================
 
     updateInventory() {
-        if (this.currentPanel !== 'inventory') return;
+        if (this.currentPanel !== 'inventory' || this.minimized) return;
         
         const inventoryGrid = document.getElementById('inventory-grid');
         if (!inventoryGrid) return;
@@ -157,7 +228,7 @@ class UIManager {
     // ==================== SKILLS DISPLAY ====================
 
     updateSkillsList() {
-        if (this.currentPanel !== 'skills') return;
+        if (this.currentPanel !== 'skills' || this.minimized) return;
         
         const skillsList = document.getElementById('skills-list');
         if (!skillsList) return;
@@ -359,7 +430,7 @@ class UIManager {
     // ==================== TASKS DISPLAY ====================
 
     updateTasks() {
-        if (this.currentPanel !== 'tasks') return;
+        if (this.currentPanel !== 'tasks' || this.minimized) return;
         
         const tasksList = document.getElementById('tasks-list');
         if (!tasksList || !window.taskManager) return;
@@ -689,33 +760,33 @@ class UIManager {
     // ==================== ITEM DISPLAY HELPERS ====================
 
     createItemSlot(itemId, quantity, slotClass) {
-    const slotDiv = document.createElement('div');
-    slotDiv.className = slotClass;
-    
-    const itemData = loadingManager.getData('items')[itemId];
-    
-    const img = this.createItemImage(itemId, quantity);
-    
-    img.onerror = function() {
-        this.style.display = 'none';
-        const textDiv = document.createElement('div');
-        textDiv.style.fontSize = '12px';
-        textDiv.textContent = itemData.name.substring(0, 3);
-        slotDiv.appendChild(textDiv);
-    };
-    
-    slotDiv.appendChild(img);
-    
-    // Only show count if quantity is greater than 1
-    if (quantity > 1) {
-        const countDiv = this.createItemCount(itemId, quantity);
-        slotDiv.appendChild(countDiv);
+        const slotDiv = document.createElement('div');
+        slotDiv.className = slotClass;
+        
+        const itemData = loadingManager.getData('items')[itemId];
+        
+        const img = this.createItemImage(itemId, quantity);
+        
+        img.onerror = function() {
+            this.style.display = 'none';
+            const textDiv = document.createElement('div');
+            textDiv.style.fontSize = '12px';
+            textDiv.textContent = itemData.name.substring(0, 3);
+            slotDiv.appendChild(textDiv);
+        };
+        
+        slotDiv.appendChild(img);
+        
+        // Only show count if quantity is greater than 1
+        if (quantity > 1) {
+            const countDiv = this.createItemCount(itemId, quantity);
+            slotDiv.appendChild(countDiv);
+        }
+        
+        slotDiv.title = `${itemData.name} x${formatNumber(quantity)}`;
+        
+        return slotDiv;
     }
-    
-    slotDiv.title = `${itemData.name} x${formatNumber(quantity)}`;
-    
-    return slotDiv;
-}
 
     createItemImage(itemId, quantity) {
         const img = document.createElement('img');
