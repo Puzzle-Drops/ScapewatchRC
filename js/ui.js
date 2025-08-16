@@ -70,6 +70,16 @@ class UIManager {
     }
 
     setupModalButtons() {
+        // Bank X close button
+        const bankCloseX = document.getElementById('bank-close-x');
+        if (bankCloseX) {
+            bankCloseX.addEventListener('click', () => {
+                this.closeBank();
+            });
+        }
+        
+        // Shop X close button (handled by shop.js)
+        
         // View completed tasks button
         const viewCompletedBtn = document.getElementById('view-completed-tasks-btn');
         if (!viewCompletedBtn) {
@@ -693,47 +703,11 @@ class UIManager {
 
     openBank() {
         this.bankOpen = true;
-        let modal = document.getElementById('bank-modal');
-        
-        // Create modal if it doesn't exist
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'bank-modal';
-            modal.className = 'modal';
-            modal.style.display = 'none';
-            
-            const content = document.createElement('div');
-            content.className = 'modal-content';
-            
-            // Add close button (X)
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'modal-close-x';
-            closeBtn.textContent = '×';
-            closeBtn.addEventListener('click', () => this.closeBank());
-            
-            const title = document.createElement('h2');
-            title.textContent = 'Bank';
-            
-            const bankGrid = document.createElement('div');
-            bankGrid.id = 'bank-grid';
-            bankGrid.className = 'bank-grid';
-            
-            content.appendChild(closeBtn);
-            content.appendChild(title);
-            content.appendChild(bankGrid);
-            modal.appendChild(content);
-            
-            // Add to scaled container
-            const scaledContainer = document.getElementById('scaled-container');
-            if (scaledContainer) {
-                scaledContainer.appendChild(modal);
-            } else {
-                document.body.appendChild(modal);
-            }
+        const modal = document.getElementById('bank-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            this.updateBank();
         }
-        
-        modal.style.display = 'flex';
-        this.updateBank();
     }
 
     closeBank() {
