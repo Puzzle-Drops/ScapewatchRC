@@ -272,8 +272,12 @@ zoomCamera(newZoom) {
     // Use the actual player position for smooth movement
     const { x, y } = player.position;
 
+    // Scale sprite size based on zoom level (but keep it reasonable)
+    // At zoom 10, sprite is 3 pixels. Scale proportionally.
+    const spriteScale = Math.max(2, Math.min(6, 3 * (this.camera.zoom / 10)));
+
     // Try to draw sprite, fallback to circle if it fails
-    if (!window.playerAnimation || !playerAnimation.draw(this.ctx, x, y, 3)) {
+    if (!window.playerAnimation || !playerAnimation.draw(this.ctx, x, y, spriteScale)) {
         // Fallback to original circle drawing
         this.drawPlayerCircle(x, y);
     }
