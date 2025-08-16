@@ -18,6 +18,7 @@ async function init() {
     // Add assets to load
     loadingManager.addImage('worldMap', 'assets/map.png');
     loadingManager.addImage('collisionMap', 'assets/collision-map.png');
+    loadingManager.addImage('playerSprite', 'assets/player-sheet.png');
     
     // Add skill icons
     const skillIcons = [
@@ -81,6 +82,11 @@ async function startGame() {
     window.map = new MapRenderer();
     window.ui = new UIManager();
     window.ai = new AIManager();
+
+    // Initialize player animation
+    if (window.playerAnimation) {
+        playerAnimation.initialize();
+    }
 
     // Initialize task manager
     taskManager.initialize();
