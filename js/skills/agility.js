@@ -188,29 +188,41 @@ class AgilitySkill extends BaseSkill {
     }
     
     determineLapCount(activityId) {
-        // Get base lap counts from centralized data
-        const virtualItemId = `agility_laps_${activityId}`;
-        const skillData = this.getSkillDataForItem(virtualItemId);
-        
-        if (!skillData) {
-            // Fallback if not found
-            const min = 10, max = 20;
-            const baseCount = min + Math.random() * (max - min);
-            return Math.round(baseCount);
-        }
-        
-        const baseCount = skillData.minCount + Math.random() * (skillData.maxCount - skillData.minCount);
-        let count = Math.round(baseCount);
-        
-        // Apply RuneCred quantity modifier
-        if (window.runeCreditManager) {
-            const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
-            count = Math.round(count * modifier);
-            count = Math.max(2, count); // Minimum of 2 laps
-        }
-        
-        return count;
+    // Get base lap counts from centralized data
+    const virtualItemId = `agility_laps_${activityId}`;
+    const skillData = this.getSkillDataForItem(virtualItemId);
+    
+    let minCount, maxCount;
+    
+    if (!skillData) {
+        // Fallback if not found
+        minCount = 10;
+        maxCount = 20;
+    } else {
+        minCount = skillData.minCount;
+        maxCount = skillData.maxCount;
     }
+    
+    // Apply RuneCred quantity modifier to BOTH min and max
+    if (window.runeCreditManager) {
+        const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
+        minCount = Math.round(minCount * modifier);
+        maxCount = Math.round(maxCount * modifier);
+    }
+    
+    // Clamp both min and max to at least 1
+    minCount = Math.max(1, minCount);
+    maxCount = Math.max(1, maxCount);
+    
+    // Ensure max is at least as large as min
+    maxCount = Math.max(minCount, maxCount);
+    
+    // Now pick a random value between the modified min and max
+    const range = maxCount - minCount;
+    const count = minCount + Math.round(Math.random() * range);
+    
+    return count;
+}
     
     // Update task progress when lap completes
     updateAgilityTaskProgress() {
