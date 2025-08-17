@@ -257,29 +257,41 @@ class RunecraftingSkill extends BaseSkill {
     }
     
     determineTargetTrips(activityId) {
-        // Get trip counts from centralized data
-        const virtualItemId = `runecraft_trips_${activityId}`;
-        const skillData = this.getSkillDataForItem(virtualItemId);
-        
-        if (!skillData) {
-            // Fallback if not found
-            const min = 3, max = 8;
-            const baseCount = min + Math.random() * (max - min);
-            return Math.round(baseCount);
-        }
-        
-        const baseCount = skillData.minCount + Math.random() * (skillData.maxCount - skillData.minCount);
-        let count = Math.round(baseCount);
-        
-        // Apply RuneCred quantity modifier
-        if (window.runeCreditManager) {
-            const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
-            count = Math.round(count * modifier);
-            count = Math.max(1, count); // Minimum of 1 trip
-        }
-        
-        return count;
+    // Get trip counts from centralized data
+    const virtualItemId = `runecraft_trips_${activityId}`;
+    const skillData = this.getSkillDataForItem(virtualItemId);
+    
+    let minCount, maxCount;
+    
+    if (!skillData) {
+        // Fallback if not found
+        minCount = 3;
+        maxCount = 8;
+    } else {
+        minCount = skillData.minCount;
+        maxCount = skillData.maxCount;
     }
+    
+    // Apply RuneCred quantity modifier to BOTH min and max
+    if (window.runeCreditManager) {
+        const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
+        minCount = Math.round(minCount * modifier);
+        maxCount = Math.round(maxCount * modifier);
+    }
+    
+    // Clamp both min and max to at least 1
+    minCount = Math.max(1, minCount);
+    maxCount = Math.max(1, maxCount);
+    
+    // Ensure max is at least as large as min
+    maxCount = Math.max(minCount, maxCount);
+    
+    // Now pick a random value between the modified min and max
+    const range = maxCount - minCount;
+    const count = minCount + Math.round(Math.random() * range);
+    
+    return count;
+}
     
     updateRunecraftingTaskProgress() {
         if (!window.taskManager) return;
