@@ -300,30 +300,39 @@ class BaseSkill {
     
     // Determine target count for an item (now uses SKILL_DATA if available)
     determineTargetCount(itemId) {
-        let baseCount, count;
-        
-        // Check if we have skill data for this item
-        const skillData = this.getSkillDataForItem(itemId);
-        if (skillData) {
-            // Use the centralized data
-            const range = skillData.maxCount - skillData.minCount;
-            baseCount = skillData.minCount + Math.random() * range;
-            count = Math.round(baseCount / 5) * 5; // Round to nearest 5
-        } else {
-            // Fallback to default
-            baseCount = 50 + Math.floor(Math.random() * 100);
-            count = Math.round(baseCount / 5) * 5;
-        }
-        
-        // Apply RuneCred quantity modifier
-        if (window.runeCreditManager) {
-            const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
-            count = Math.round(count * modifier);
-            count = Math.max(5, count); // Minimum of 5
-        }
-        
-        return count;
+    let minCount, maxCount;
+    
+    // Check if we have skill data for this item
+    const skillData = this.getSkillDataForItem(itemId);
+    if (skillData) {
+        minCount = skillData.minCount;
+        maxCount = skillData.maxCount;
+    } else {
+        // Fallback to default
+        minCount = 50;
+        maxCount = 150;
     }
+    
+    // Apply RuneCred quantity modifier to BOTH min and max
+    if (window.runeCreditManager) {
+        const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
+        minCount = Math.round(minCount * modifier);
+        maxCount = Math.round(maxCount * modifier);
+    }
+    
+    // Clamp both min and max to at least 1
+    minCount = Math.max(1, minCount);
+    maxCount = Math.max(1, maxCount);
+    
+    // Ensure max is at least as large as min
+    maxCount = Math.max(minCount, maxCount);
+    
+    // Now pick a random value between the modified min and max
+    const range = maxCount - minCount;
+    const count = minCount + Math.round(Math.random() * range);
+    
+    return count;
+}
     
     // ==================== UI DISPLAY METHODS ====================
     
