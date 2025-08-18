@@ -99,11 +99,16 @@ async function startGame() {
     // Canvas sizing is handled by scalingSystem
     map.render();
 
-    // Set up pause control
-    document.getElementById('pause-toggle').addEventListener('click', () => {
-        gameState.paused = !gameState.paused;
-        document.getElementById('pause-toggle').textContent = gameState.paused ? 'Resume AI' : 'Pause AI';
-    });
+    // Set up pause control with icon toggle
+document.getElementById('pause-toggle').addEventListener('click', () => {
+    gameState.paused = !gameState.paused;
+    const pauseBtn = document.getElementById('pause-toggle');
+    const icon = pauseBtn.querySelector('.pause-icon');
+    if (icon) {
+        icon.textContent = gameState.paused ? '▶' : '⏸';
+        pauseBtn.title = gameState.paused ? 'Resume AI' : 'Pause AI';
+    }
+});
 
     // Set up ESC key handler for closing popups
     document.addEventListener('keydown', (e) => {
