@@ -38,36 +38,41 @@ class UIManager {
     }
 
     setupPanelButtons() {
-        const buttons = document.querySelectorAll('.panel-btn');
+    const buttons = document.querySelectorAll('.panel-btn');
+    
+    buttons.forEach(btn => {
+        // Skip the pause button - it has its own handler
+        if (btn.id === 'pause-toggle') {
+            return;
+        }
         
-        buttons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const panel = btn.dataset.panel;
-                
-                // Check if clicking the already active panel (to minimize/maximize)
-                if (btn.classList.contains('active') && panel !== 'bank' && panel !== 'shop') {
-                    this.toggleMinimize();
-                    return;
-                }
-                
-                // Handle bank and shop buttons (keep minimized state)
-                if (panel === 'bank') {
-                    this.openBank();
-                    return;
-                } else if (panel === 'shop') {
-                    this.openShop();
-                    return;
-                }
-                
-                // For regular panels, restore if minimized then switch
-                if (this.minimized) {
-                    this.restore();
-                }
-                
-                this.switchPanel(panel);
-            });
+        btn.addEventListener('click', (e) => {
+            const panel = btn.dataset.panel;
+            
+            // Check if clicking the already active panel (to minimize/maximize)
+            if (btn.classList.contains('active') && panel !== 'bank' && panel !== 'shop') {
+                this.toggleMinimize();
+                return;
+            }
+            
+            // Handle bank and shop buttons (keep minimized state)
+            if (panel === 'bank') {
+                this.openBank();
+                return;
+            } else if (panel === 'shop') {
+                this.openShop();
+                return;
+            }
+            
+            // For regular panels, restore if minimized then switch
+            if (this.minimized) {
+                this.restore();
+            }
+            
+            this.switchPanel(panel);
         });
-    }
+    });
+}
 
     setupModalButtons() {
         // Bank X close button
