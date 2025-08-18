@@ -25,16 +25,17 @@ class RuneCreditManager {
         // Track total credits spent per skill (for display)
         this.creditsSpentPerSkill = {}; // skillId -> amount spent
         
-        // Speed bonuses
+        // Speed bonuses - UPDATED STRUCTURE
         this.speedBonuses = {
             pets: {}, // skillId -> true/false (has at least one pet)
             shinyPets: {}, // skillId -> true/false (has at least one shiny pet)
             skillCapes: {}, // skillId -> true/false
-            trimmedCapes: {}, // skillId -> true/false
-            maxCape: false
+            trimmedCapes: {}, // skillId -> true/false (200M XP in that skill)
+            maxCape: false, // All skills 99
+            trimmedMaxCape: false // All skills 200M XP
         };
         
-        // Pet tracking - NEW
+        // Pet tracking - Track multiple pets
         this.petCounts = {}; // skillId -> { regular: count, shiny: count }
         this.totalPetsObtained = 0; // Total pets ever obtained
         this.totalShinyPetsObtained = 0; // Total shiny pets ever obtained
@@ -162,28 +163,20 @@ class RuneCreditManager {
                 this.totalShinyPetsObtained++;
                 this.totalPetsObtained++;
                 
-                // Set speed bonus flag if this is the first shiny pet for this skill
-                if (!this.speedBonuses.shinyPets[skillId]) {
-                    this.speedBonuses.shinyPets[skillId] = true;
-                    console.log(`🌟✨ SHINY PET DROP! ✨🌟 You received a SHINY ${skillName} pet! (+10% ${skillName} speed)`);
-                } else {
-                    console.log(`🌟✨ SHINY PET DROP! ✨🌟 You received another SHINY ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
-                }
+                // Set speed bonus flag
+                this.speedBonuses.shinyPets[skillId] = true;
                 
+                console.log(`🌟✨ SHINY PET DROP! ✨🌟 You received a SHINY ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
                 console.log(`Total ${skillName} pets: ${this.petCounts[skillId].regular} regular, ${this.petCounts[skillId].shiny} shiny`);
                 console.log(`Total pets across all skills: ${this.totalPetsObtained} (${this.totalShinyPetsObtained} shiny)`);
             } else {
                 this.petCounts[skillId].regular++;
                 this.totalPetsObtained++;
                 
-                // Set speed bonus flag if this is the first pet for this skill (and no shiny)
-                if (!this.speedBonuses.pets[skillId] && !this.speedBonuses.shinyPets[skillId]) {
-                    this.speedBonuses.pets[skillId] = true;
-                    console.log(`🎉 PET DROP! 🎉 You received a ${skillName} pet! (+5% ${skillName} speed)`);
-                } else {
-                    console.log(`🎉 PET DROP! 🎉 You received another ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
-                }
+                // Set speed bonus flag
+                this.speedBonuses.pets[skillId] = true;
                 
+                console.log(`🎉 PET DROP! 🎉 You received a ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
                 console.log(`Total ${skillName} pets: ${this.petCounts[skillId].regular} regular, ${this.petCounts[skillId].shiny} shiny`);
                 console.log(`Total pets across all skills: ${this.totalPetsObtained} (${this.totalShinyPetsObtained} shiny)`);
             }
@@ -219,6 +212,26 @@ class RuneCreditManager {
             shiny: this.totalShinyPetsObtained,
             regular: this.totalPetsObtained - this.totalShinyPetsObtained
         };
+    }
+    
+    // Check if player has a specific unlock
+    hasUnlock(skillId, unlockType) {
+        switch (unlockType) {
+            case 'pet':
+                return this.speedBonuses.pets[skillId] || false;
+            case 'shinyPet':
+                return this.speedBonuses.shinyPets[skillId] || false;
+            case 'skillCape':
+                return this.speedBonuses.skillCapes[skillId] || false;
+            case 'trimmedCape':
+                return this.speedBonuses.trimmedCapes[skillId] || false;
+            case 'maxCape':
+                return this.speedBonuses.maxCape || false;
+            case 'trimmedMaxCape':
+                return this.speedBonuses.trimmedMaxCape || false;
+            default:
+                return false;
+        }
     }
     
     // Modify skill weight level
@@ -479,59 +492,72 @@ class RuneCreditManager {
         return level > 0 ? Math.pow(1.5, level) : Math.pow(0.5, Math.abs(level));
     }
     
-    // Calculate total speed bonus for a skill
+    // Calculate total speed bonus for a skill - UPDATED WITH ALL 6 BONUSES
     getSkillSpeedBonus(skillId) {
         let bonus = 0;
         
-        // Pet bonuses (only one can be active)
+        // Pet bonuses (both can be active if you have both)
+        if (this.speedBonuses.pets[skillId]) {
+            bonus += 0.05; // 5% for regular pet
+        }
         if (this.speedBonuses.shinyPets[skillId]) {
-            bonus += 0.10; // 10% for shiny
-        } else if (this.speedBonuses.pets[skillId]) {
-            bonus += 0.05; // 5% for regular
+            bonus += 0.10; // 10% for shiny pet (stacks with regular)
         }
         
-        // Cape bonuses (only one can be active)
+        // Skill cape bonus
+        if (this.speedBonuses.skillCapes[skillId]) {
+            bonus += 0.05; // 5% for skill cape
+        }
+        
+        // Trimmed skill cape bonus (200M XP in that skill)
         if (this.speedBonuses.trimmedCapes[skillId]) {
-            bonus += 0.10; // 10% for trimmed
-        } else if (this.speedBonuses.skillCapes[skillId]) {
-            bonus += 0.05; // 5% for regular
+            bonus += 0.10; // 10% for trimmed cape
         }
         
-        // Max cape bonus (global)
+        // Max cape bonus (all skills 99)
         if (this.speedBonuses.maxCape) {
             bonus += 0.05; // 5% global
         }
         
-        // Cap at 25%
-        return Math.min(bonus, 0.25);
+        // Trimmed max cape bonus (all skills 200M XP)
+        if (this.speedBonuses.trimmedMaxCape) {
+            bonus += 0.10; // 10% global
+        }
+        
+        // Total possible: 5% + 10% + 5% + 10% + 5% + 10% = 45%
+        // No cap needed since max is reasonable
+        return bonus;
     }
     
-    // Update speed bonuses based on current levels
+    // Update speed bonuses based on current levels - UPDATED
     updateSpeedBonuses() {
         if (!window.skills) return;
+        
+        let allMaxed = true; // For regular max cape (all 99s)
+        let allTrimmed = true; // For trimmed max cape (all 200M XP)
         
         // Check for skill capes (99) and trimmed capes (200M XP)
         for (const [skillId, skill] of Object.entries(skills.skills)) {
             // Skill cape at 99
             if (skill.level >= 99) {
                 this.speedBonuses.skillCapes[skillId] = true;
+            } else {
+                allMaxed = false;
             }
             
             // Trimmed cape at 200M XP
             if (skill.xp >= 200000000) {
                 this.speedBonuses.trimmedCapes[skillId] = true;
+            } else {
+                allTrimmed = false;
             }
         }
         
-        // Check for max cape (all 99s)
-        let allMaxed = true;
-        for (const skill of Object.values(skills.skills)) {
-            if (skill.level < 99) {
-                allMaxed = false;
-                break;
-            }
-        }
+        // Update max cape status
         this.speedBonuses.maxCape = allMaxed;
+        
+        // Update trimmed max cape status
+        this.speedBonuses.trimmedMaxCape = allTrimmed;
         
         // Update Skill Cred
         this.updateSkillCred();
@@ -603,8 +629,15 @@ class RuneCreditManager {
                     shinyPets: {},
                     skillCapes: {},
                     trimmedCapes: {},
-                    maxCape: false
+                    maxCape: false,
+                    trimmedMaxCape: false
                 };
+                
+                // Ensure trimmedMaxCape exists (for backwards compatibility)
+                if (this.speedBonuses.trimmedMaxCape === undefined) {
+                    this.speedBonuses.trimmedMaxCape = false;
+                }
+                
                 this.maxModificationLevel = data.maxModificationLevel || 10;
                 
                 // Load pet tracking data
