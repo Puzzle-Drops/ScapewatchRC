@@ -184,6 +184,27 @@ body {
     border-bottom: 2px solid #f39c12;
 }
 
+/* Pause button specific styling */
+.panel-btn.pause-btn {
+    flex: 0 0 80px; /* Fixed width instead of flex: 1 */
+    border-left: 2px solid #444;
+}
+
+.panel-btn.pause-btn:hover {
+    background-color: #333;
+}
+
+.pause-icon {
+    font-size: 32px;
+    color: #f39c12;
+    display: inline-block;
+    line-height: 1;
+}
+
+.panel-btn.pause-btn:hover .pause-icon {
+    color: #e67e22;
+}
+
 .panel-btn img {
     width: 54px;
     height: 54px;
