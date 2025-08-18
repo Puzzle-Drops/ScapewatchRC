@@ -32,6 +32,31 @@ async function init() {
     for (const icon of skillIcons) {
         loadingManager.addImage(`skill_${icon}`, `assets/skills/${icon}.png`);
     }
+
+    // Add cape and pet images
+const skillsForAssets = [
+    'agility', 'attack', 'construction', 'cooking', 
+    'crafting', 'defence', 'farming', 'firemaking', 'fishing', 'fletching', 
+    'herblore', 'hitpoints', 'hunter', 'magic', 'mining', 'prayer', 
+    'ranged', 'runecraft', 'slayer', 'smithing', 
+    'strength', 'thieving', 'woodcutting'
+];
+
+// Load capes
+for (const skill of skillsForAssets) {
+    loadingManager.addImage(`cape_${skill}`, `assets/capes/${skill}_cape.png`);
+    loadingManager.addImage(`cape_${skill}_t`, `assets/capes/${skill}_cape(t).png`);
+}
+
+// Load max capes
+loadingManager.addImage('cape_max', 'assets/capes/max_cape.png');
+loadingManager.addImage('cape_max_t', 'assets/capes/max_cape(t).png');
+
+// Load pets
+for (const skill of skillsForAssets) {
+    loadingManager.addImage(`pet_${skill}`, `assets/pets/${skill}_pet.png`);
+    loadingManager.addImage(`pet_${skill}_s`, `assets/pets/${skill}_pet(s).png`);
+}
     
     loadingManager.addJSON('skills', 'data/skills.json');
     loadingManager.addJSON('items', 'data/items.json');
