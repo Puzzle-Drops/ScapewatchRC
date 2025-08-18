@@ -103,8 +103,8 @@ class SkillCustomizationUI {
         const header = this.createGlobalHeader();
         content.appendChild(header);
         
-        // Capes and Pets section (replaces speed bonuses)
-        const capesAndPets = this.createCapesAndPetsSection();
+        // Capes and Pets section - UPDATED
+        const capesAndPets = this.createGlobalCapesAndPetsSection();
         content.appendChild(capesAndPets);
         
         // Three-column skill weight layout
@@ -257,88 +257,151 @@ class SkillCustomizationUI {
         return total;
     }
     
-    createCapesAndPetsSection() {
+    // UPDATED - Create the 4-row capes and pets section for global view
+    createGlobalCapesAndPetsSection() {
         const container = document.createElement('div');
         container.className = 'capes-and-pets-section';
         
-        // Capes row
-        const capesRow = document.createElement('div');
-        capesRow.className = 'achievement-row';
+        // Get all skill IDs
+        const skillsData = loadingManager.getData('skills');
+        const skillIds = Object.keys(skillsData);
         
-        const capesLabel = document.createElement('div');
-        capesLabel.className = 'achievement-label';
-        capesLabel.textContent = 'Capes:';
+        // Row 1: Regular Capes
+        const capesRow = this.createAchievementRow('Capes:', skillIds, 'cape');
         
-        const capesContainer = document.createElement('div');
-        capesContainer.className = 'achievement-items';
+        // Row 2: Trimmed Capes
+        const trimmedRow = this.createAchievementRow('Trimmed:', skillIds, 'trimmedCape');
         
-        // Check each skill for cape (99)
-        for (const [skillId, skill] of Object.entries(skills.skills)) {
-            if (skill.level >= 99) {
-                const capeItem = this.createAchievementItem(skillId, 'cape');
-                capesContainer.appendChild(capeItem);
-            }
-        }
+        // Row 3: Regular Pets
+        const petsRow = this.createAchievementRow('Pets:', skillIds, 'pet');
         
-        if (capesContainer.children.length === 0) {
-            const noneText = document.createElement('span');
-            noneText.className = 'achievement-none';
-            noneText.textContent = 'No capes earned yet';
-            capesContainer.appendChild(noneText);
-        }
-        
-        capesRow.appendChild(capesLabel);
-        capesRow.appendChild(capesContainer);
-        
-        // Pets row
-        const petsRow = document.createElement('div');
-        petsRow.className = 'achievement-row';
-        
-        const petsLabel = document.createElement('div');
-        petsLabel.className = 'achievement-label';
-        petsLabel.textContent = 'Pets:';
-        
-        const petsContainer = document.createElement('div');
-        petsContainer.className = 'achievement-items';
-        
-        // Check for pets (if implemented in runeCreditManager)
-        for (const [skillId, hasPet] of Object.entries(runeCreditManager.speedBonuses.pets)) {
-            if (hasPet) {
-                const petItem = this.createAchievementItem(skillId, 'pet');
-                petsContainer.appendChild(petItem);
-            }
-        }
-        
-        if (petsContainer.children.length === 0) {
-            const noneText = document.createElement('span');
-            noneText.className = 'achievement-none';
-            noneText.textContent = 'No pets earned yet';
-            petsContainer.appendChild(noneText);
-        }
-        
-        petsRow.appendChild(petsLabel);
-        petsRow.appendChild(petsContainer);
+        // Row 4: Shiny Pets
+        const shinyRow = this.createAchievementRow('Shiny:', skillIds, 'shinyPet');
         
         container.appendChild(capesRow);
+        container.appendChild(trimmedRow);
         container.appendChild(petsRow);
+        container.appendChild(shinyRow);
         
         return container;
     }
     
-    createAchievementItem(skillId, type) {
-        const item = document.createElement('div');
-        item.className = `achievement-item achievement-${type}`;
+    // Helper to create an achievement row
+    createAchievementRow(label, skillIds, type) {
+        const row = document.createElement('div');
+        row.className = 'achievement-row';
         
-        const icon = loadingManager.getImage(`skill_${skillId}`);
-        if (icon) {
-            const img = document.createElement('img');
-            img.src = icon.src;
-            img.className = 'achievement-icon';
-            item.appendChild(img);
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'achievement-label';
+        labelDiv.textContent = label;
+        
+        const itemsContainer = document.createElement('div');
+        itemsContainer.className = 'achievement-items';
+        
+        // Add max cape for cape rows
+        if (type === 'cape' || type === 'trimmedCape') {
+            const maxCapeType = type === 'cape' ? 'maxCape' : 'trimmedMaxCape';
+            const maxCapeItem = this.createUnlockItem(null, maxCapeType, true); // true for global view
+            itemsContainer.appendChild(maxCapeItem);
         }
         
-        const skillData = loadingManager.getData('skills')[skillId];
-        item.title = `${skillData.name} ${type === 'cape' ? 'Cape' : 'Pet'}`;
+        // Add items for each skill
+        for (const skillId of skillIds) {
+            const item = this.createUnlockItem(skillId, type, true); // true for global view
+            itemsContainer.appendChild(item);
+        }
+        
+        row.appendChild(labelDiv);
+        row.appendChild(itemsContainer);
+        
+        return row;
+    }
+    
+    // Create a single unlock item (cape or pet) with locked/unlocked state
+    createUnlockItem(skillId, type, isGlobalView = false) {
+        const item = document.createElement('div');
+        item.className = 'unlock-item';
+        
+        // Determine if unlocked
+        const isUnlocked = runeCreditManager.hasUnlock(skillId, type);
+        
+        // Add locked/unlocked class
+        if (isUnlocked) {
+            item.classList.add('unlocked');
+        } else {
+            item.classList.add('locked');
+        }
+        
+        // Create image
+        const img = document.createElement('img');
+        
+        // Determine image path
+        let imagePath = '';
+        let tooltipText = '';
+        
+        if (type === 'maxCape') {
+            imagePath = 'assets/capes/max_cape.png';
+            tooltipText = 'Max Cape (All skills 99)';
+        } else if (type === 'trimmedMaxCape') {
+            imagePath = 'assets/capes/max_cape(t).png';
+            tooltipText = 'Trimmed Max Cape (All skills 200M XP)';
+        } else if (skillId) {
+            const skillData = loadingManager.getData('skills')[skillId];
+            const skillName = skillData ? skillData.name : skillId;
+            
+            switch (type) {
+                case 'cape':
+                    imagePath = `assets/capes/${skillId}_cape.png`;
+                    tooltipText = `${skillName} Cape`;
+                    break;
+                case 'trimmedCape':
+                    imagePath = `assets/capes/${skillId}_cape(t).png`;
+                    tooltipText = `${skillName} Trimmed Cape`;
+                    break;
+                case 'pet':
+                    imagePath = `assets/pets/${skillId}_pet.png`;
+                    tooltipText = `${skillName} Pet`;
+                    break;
+                case 'shinyPet':
+                    imagePath = `assets/pets/${skillId}_pet(s).png`;
+                    tooltipText = `${skillName} Pet (Shiny)`;
+                    break;
+            }
+        }
+        
+        img.src = imagePath;
+        img.className = 'unlock-image';
+        
+        // Handle image load error
+        img.onerror = function() {
+            // Fallback to skill icon or text
+            this.style.display = 'none';
+            const fallback = document.createElement('div');
+            fallback.className = 'unlock-fallback';
+            fallback.textContent = '?';
+            item.appendChild(fallback);
+        };
+        
+        item.appendChild(img);
+        
+        // Add quantity display for pets (if multiple)
+        if ((type === 'pet' || type === 'shinyPet') && skillId) {
+            const petStats = runeCreditManager.getPetStats(skillId);
+            const count = type === 'pet' ? petStats.regular : petStats.shiny;
+            
+            if (count > 1) {
+                const quantityDiv = document.createElement('div');
+                quantityDiv.className = 'pet-quantity';
+                quantityDiv.textContent = formatNumber(count);
+                item.appendChild(quantityDiv);
+            }
+        }
+        
+        // Add tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'unlock-tooltip';
+        tooltip.textContent = tooltipText;
+        item.appendChild(tooltip);
         
         return item;
     }
@@ -482,7 +545,7 @@ class SkillCustomizationUI {
         return row;
     }
     
-    // ==================== SKILL-SPECIFIC CUSTOMIZATION (EXISTING) ====================
+    // ==================== SKILL-SPECIFIC CUSTOMIZATION ====================
     
     renderSkillSpecificCustomization() {
         // This is all the existing code for individual skills
@@ -498,8 +561,8 @@ class SkillCustomizationUI {
         const header = this.createHeader(skill, skillData);
         content.appendChild(header);
         
-        // Speed bonuses
-        const speedBonuses = this.createSpeedBonuses();
+        // Speed bonuses - UPDATED to use images
+        const speedBonuses = this.createImageSpeedBonuses();
         content.appendChild(speedBonuses);
         
         // Main content area with tasks and nodes
@@ -747,7 +810,8 @@ class SkillCustomizationUI {
         return header;
     }
     
-    createSpeedBonuses() {
+    // UPDATED - Create image-based speed bonuses for individual skill view
+    createImageSpeedBonuses() {
         const container = document.createElement('div');
         container.className = 'speed-bonuses';
         
@@ -760,81 +824,121 @@ class SkillCustomizationUI {
         // Create the percentage span
         const percentSpan = document.createElement('span');
         percentSpan.className = 'bonus-percent';
-        percentSpan.textContent = `+${bonusPercent}%  `;
+        percentSpan.textContent = `+${bonusPercent}%`;
         
         // Create the text
         const textSpan = document.createElement('span');
-        textSpan.textContent = '  increased speed';
+        textSpan.textContent = ' increased speed';
         
-        // Create bonuses container
-        const bonusesDiv = document.createElement('div');
-        bonusesDiv.className = 'speed-bonus-list';
-        
-        // Pet bonus
-        const petBonus = this.createBonusItem('pet', 
-            runeCreditManager.speedBonuses.pets[this.currentSkillId],
-            runeCreditManager.speedBonuses.shinyPets[this.currentSkillId]);
-        bonusesDiv.appendChild(petBonus);
-        
-        // Cape bonus
-        const capeBonus = this.createBonusItem('cape',
-            runeCreditManager.speedBonuses.skillCapes[this.currentSkillId],
-            runeCreditManager.speedBonuses.trimmedCapes[this.currentSkillId]);
-        bonusesDiv.appendChild(capeBonus);
-        
-        // Max cape bonus
-        const maxCapeBonus = this.createBonusItem('maxcape',
-            runeCreditManager.speedBonuses.maxCape,
-            false);
-        bonusesDiv.appendChild(maxCapeBonus);
-        
-        // Assemble all on one line
         titleDiv.appendChild(percentSpan);
         titleDiv.appendChild(textSpan);
-        titleDiv.appendChild(bonusesDiv);
+        
+        // Create bonuses images container
+        const bonusesDiv = document.createElement('div');
+        bonusesDiv.className = 'speed-bonus-images';
+        
+        // Add all 6 bonus types as images
+        const bonusTypes = [
+            { type: 'pet', bonus: '+5%', tooltip: 'Pet' },
+            { type: 'shinyPet', bonus: '+10%', tooltip: 'Shiny Pet' },
+            { type: 'skillCape', bonus: '+5%', tooltip: 'Skill Cape' },
+            { type: 'trimmedCape', bonus: '+10%', tooltip: 'Trimmed Skill Cape' },
+            { type: 'maxCape', bonus: '+5%', tooltip: 'Max Cape' },
+            { type: 'trimmedMaxCape', bonus: '+10%', tooltip: 'Trimmed Max Cape' }
+        ];
+        
+        for (const bonusInfo of bonusTypes) {
+            const bonusItem = this.createSpeedBonusImage(bonusInfo);
+            bonusesDiv.appendChild(bonusItem);
+        }
         
         container.appendChild(titleDiv);
+        container.appendChild(bonusesDiv);
         
         return container;
     }
     
-    createBonusItem(type, hasRegular, hasUpgraded) {
+    // Create a single speed bonus image
+    createSpeedBonusImage(bonusInfo) {
         const item = document.createElement('div');
-        item.className = 'speed-bonus-item';
+        item.className = 'speed-bonus-image-item';
         
-        let text = '';
-        let active = false;
+        // Check if unlocked
+        const isUnlocked = runeCreditManager.hasUnlock(this.currentSkillId, bonusInfo.type);
         
-        if (type === 'pet') {
-            if (hasUpgraded) {
-                text = '+10% shiny pet';
-                active = true;
-            } else if (hasRegular) {
-                text = '+5% pet';
-                active = true;
-            } else {
-                text = '+5% pet';
-            }
-        } else if (type === 'cape') {
-            if (hasUpgraded) {
-                text = '+10% trimmed cape';
-                active = true;
-            } else if (hasRegular) {
-                text = '+5% skill cape';
-                active = true;
-            } else {
-                text = '+5% skill cape';
-            }
-        } else if (type === 'maxcape') {
-            text = '+5% max cape';
-            active = hasRegular;
+        if (isUnlocked) {
+            item.classList.add('unlocked');
+        } else {
+            item.classList.add('locked');
         }
         
-        if (active) {
-            item.classList.add('active');
+        // Create image
+        const img = document.createElement('img');
+        img.className = 'speed-bonus-img';
+        
+        // Determine image path based on type
+        let imagePath = '';
+        let fullTooltip = '';
+        
+        switch (bonusInfo.type) {
+            case 'pet':
+                imagePath = `assets/pets/${this.currentSkillId}_pet.png`;
+                fullTooltip = `${bonusInfo.tooltip} ${bonusInfo.bonus}`;
+                break;
+            case 'shinyPet':
+                imagePath = `assets/pets/${this.currentSkillId}_pet(s).png`;
+                fullTooltip = `${bonusInfo.tooltip} ${bonusInfo.bonus}`;
+                break;
+            case 'skillCape':
+                imagePath = `assets/capes/${this.currentSkillId}_cape.png`;
+                fullTooltip = `${bonusInfo.tooltip} ${bonusInfo.bonus}`;
+                break;
+            case 'trimmedCape':
+                imagePath = `assets/capes/${this.currentSkillId}_cape(t).png`;
+                fullTooltip = `${bonusInfo.tooltip} ${bonusInfo.bonus}`;
+                break;
+            case 'maxCape':
+                imagePath = 'assets/capes/max_cape.png';
+                fullTooltip = `${bonusInfo.tooltip} ${bonusInfo.bonus}`;
+                break;
+            case 'trimmedMaxCape':
+                imagePath = 'assets/capes/max_cape(t).png';
+                fullTooltip = `${bonusInfo.tooltip} ${bonusInfo.bonus}`;
+                break;
         }
         
-        item.textContent = text;
+        img.src = imagePath;
+        
+        // Handle image error
+        img.onerror = function() {
+            this.style.display = 'none';
+            const fallback = document.createElement('div');
+            fallback.className = 'speed-bonus-fallback';
+            fallback.textContent = bonusInfo.bonus;
+            item.appendChild(fallback);
+        };
+        
+        item.appendChild(img);
+        
+        // Add quantity for pets if multiple
+        if ((bonusInfo.type === 'pet' || bonusInfo.type === 'shinyPet')) {
+            const petStats = runeCreditManager.getPetStats(this.currentSkillId);
+            const count = bonusInfo.type === 'pet' ? petStats.regular : petStats.shiny;
+            
+            if (count > 1) {
+                const quantityDiv = document.createElement('div');
+                quantityDiv.className = 'pet-quantity';
+                quantityDiv.textContent = formatNumber(count);
+                item.appendChild(quantityDiv);
+            }
+        }
+        
+        // Add tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'speed-bonus-tooltip';
+        tooltip.textContent = fullTooltip;
+        item.appendChild(tooltip);
+        
         return item;
     }
     
