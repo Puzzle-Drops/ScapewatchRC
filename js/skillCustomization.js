@@ -811,52 +811,53 @@ class SkillCustomizationUI {
     }
     
     // UPDATED - Create image-based speed bonuses for individual skill view
-    createImageSpeedBonuses() {
-        const container = document.createElement('div');
-        container.className = 'speed-bonuses';
-        
-        const totalBonus = runeCreditManager.getSkillSpeedBonus(this.currentSkillId);
-        const bonusPercent = Math.round(totalBonus * 100);
-        
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'speed-bonus-title';
-        
-        // Create the percentage span
-        const percentSpan = document.createElement('span');
-        percentSpan.className = 'bonus-percent';
-        percentSpan.textContent = `+${bonusPercent}%`;
-        
-        // Create the text
-        const textSpan = document.createElement('span');
-        textSpan.textContent = ' increased speed';
-        
-        titleDiv.appendChild(percentSpan);
-        titleDiv.appendChild(textSpan);
-        
-        // Create bonuses images container
-        const bonusesDiv = document.createElement('div');
-        bonusesDiv.className = 'speed-bonus-images';
-        
-        // Add all 6 bonus types as images
-        const bonusTypes = [
-            { type: 'pet', bonus: '+5%', tooltip: 'Pet' },
-            { type: 'shinyPet', bonus: '+10%', tooltip: 'Shiny Pet' },
-            { type: 'skillCape', bonus: '+5%', tooltip: 'Skill Cape' },
-            { type: 'trimmedCape', bonus: '+10%', tooltip: 'Trimmed Skill Cape' },
-            { type: 'maxCape', bonus: '+5%', tooltip: 'Max Cape' },
-            { type: 'trimmedMaxCape', bonus: '+10%', tooltip: 'Trimmed Max Cape' }
-        ];
-        
-        for (const bonusInfo of bonusTypes) {
-            const bonusItem = this.createSpeedBonusImage(bonusInfo);
-            bonusesDiv.appendChild(bonusItem);
-        }
-        
-        container.appendChild(titleDiv);
-        container.appendChild(bonusesDiv);
-        
-        return container;
+createImageSpeedBonuses() {
+    const container = document.createElement('div');
+    container.className = 'speed-bonuses';
+    
+    const totalBonus = runeCreditManager.getSkillSpeedBonus(this.currentSkillId);
+    const bonusPercent = Math.round(totalBonus * 100);
+    
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'speed-bonus-title';
+    
+    // Create bonuses images container FIRST (before the text)
+    const bonusesDiv = document.createElement('div');
+    bonusesDiv.className = 'speed-bonus-images';
+    
+    // Add all 6 bonus types as images
+    const bonusTypes = [
+        { type: 'pet', bonus: '+5%', tooltip: 'Pet' },
+        { type: 'shinyPet', bonus: '+10%', tooltip: 'Shiny Pet' },
+        { type: 'skillCape', bonus: '+5%', tooltip: 'Skill Cape' },
+        { type: 'trimmedCape', bonus: '+10%', tooltip: 'Trimmed Skill Cape' },
+        { type: 'maxCape', bonus: '+5%', tooltip: 'Max Cape' },
+        { type: 'trimmedMaxCape', bonus: '+10%', tooltip: 'Trimmed Max Cape' }
+    ];
+    
+    for (const bonusInfo of bonusTypes) {
+        const bonusItem = this.createSpeedBonusImage(bonusInfo);
+        bonusesDiv.appendChild(bonusItem);
     }
+    
+    // Add images to the title div FIRST
+    titleDiv.appendChild(bonusesDiv);
+    
+    // THEN add the percentage and text
+    const percentSpan = document.createElement('span');
+    percentSpan.className = 'bonus-percent';
+    percentSpan.textContent = `+${bonusPercent}%`;
+    
+    const textSpan = document.createElement('span');
+    textSpan.textContent = ' increased speed';
+    
+    titleDiv.appendChild(percentSpan);
+    titleDiv.appendChild(textSpan);
+    
+    container.appendChild(titleDiv);
+    
+    return container;
+}
     
     // Create a single speed bonus image
     createSpeedBonusImage(bonusInfo) {
