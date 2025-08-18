@@ -45,23 +45,26 @@
                 <!-- Single UI Panel in bottom right -->
                 <div class="ui-panel">
                     <!-- Panel selector buttons -->
-                    <div class="panel-selector">
-                        <button class="panel-btn active" data-panel="inventory" title="Inventory">
-                            <img src="assets/ui/inventory.png" alt="Inv">
-                        </button>
-                        <button class="panel-btn" data-panel="skills" title="Skills">
-                            <img src="assets/ui/skills.png" alt="Skills">
-                        </button>
-                        <button class="panel-btn" data-panel="tasks" title="Tasks">
-                            <img src="assets/ui/tasks.png" alt="Tasks">
-                        </button>
-                        <button class="panel-btn" data-panel="bank" title="Bank">
-                            <img src="assets/ui/bank.png" alt="Bank">
-                        </button>
-                        <button class="panel-btn" data-panel="shop" title="Shop">
-                            <img src="assets/ui/shop.png" alt="Shop">
-                        </button>
-                    </div>
+<div class="panel-selector">
+    <button class="panel-btn active" data-panel="inventory" title="Inventory">
+        <img src="assets/ui/inventory.png" alt="Inv">
+    </button>
+    <button class="panel-btn" data-panel="skills" title="Skills">
+        <img src="assets/ui/skills.png" alt="Skills">
+    </button>
+    <button class="panel-btn" data-panel="tasks" title="Tasks">
+        <img src="assets/ui/tasks.png" alt="Tasks">
+    </button>
+    <button class="panel-btn" data-panel="bank" title="Bank">
+        <img src="assets/ui/bank.png" alt="Bank">
+    </button>
+    <button class="panel-btn" data-panel="shop" title="Shop">
+        <img src="assets/ui/shop.png" alt="Shop">
+    </button>
+    <button id="pause-toggle" class="panel-btn pause-btn" title="Pause AI">
+        <span class="pause-icon">⏸</span>
+    </button>
+</div>
                     
                     <!-- Panel content area -->
                     <div class="panel-content">
@@ -82,10 +85,6 @@
                         </div>
                     </div>
                     
-                    <!-- Pause button at bottom -->
-                    <div class="panel-controls">
-                        <button id="pause-toggle" class="control-btn">Pause AI</button>
-                    </div>
                 </div>
 
                 <!-- Bank Modal -->
