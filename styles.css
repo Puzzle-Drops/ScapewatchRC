@@ -1694,10 +1694,11 @@ body {
 /* ==================== SPEED BONUS IMAGES ==================== */
 
 .speed-bonus-images {
-    display: flex;
+    display: inline-flex;
     gap: 10px;
     align-items: center;
-    margin-left: 20px;
+    margin-right: 15px;
+    vertical-align: middle;
 }
 
 .speed-bonus-image-item {
@@ -1767,4 +1768,9 @@ body {
     display: flex;
     align-items: center;
     font-size: 30px;
+    flex-wrap: nowrap;
+}
+
+.speed-bonuses .bonus-percent {
+    margin-left: 5px;
 }
