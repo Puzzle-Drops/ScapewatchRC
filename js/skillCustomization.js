@@ -917,8 +917,15 @@ class SkillCustomizationUI {
         const percentage = hasLevel ? Math.round((weight / totalWeight) * 100) : 0;
         
         const modifier = runeCreditManager.getQuantityModifier(this.currentSkillId, task.itemId);
-        const minQty = Math.round(task.minCount * modifier);
-        const maxQty = Math.round(task.maxCount * modifier);
+let minQty = Math.round(task.minCount * modifier);
+let maxQty = Math.round(task.maxCount * modifier);
+
+// Clamp both to minimum of 1
+minQty = Math.max(1, minQty);
+maxQty = Math.max(1, maxQty);
+
+// Ensure max is at least as large as min
+maxQty = Math.max(minQty, maxQty);
         
         const itemData = loadingManager.getData('items')[task.itemId];
         const itemName = task.displayName || (itemData ? itemData.name : task.itemId);
