@@ -418,6 +418,41 @@ initializeSkillData() {
     getTaskVerb() {
         return 'Fletch';
     }
+
+    // Override to ensure multiples of 15
+    determineTargetCount(itemId) {
+        let minCount, maxCount;
+        
+        // Get from skill data
+        const skillData = this.getSkillDataForItem(itemId);
+        if (skillData) {
+            minCount = skillData.minCount;
+            maxCount = skillData.maxCount;
+        } else {
+            // Fallback
+            minCount = 150;
+            maxCount = 450;
+        }
+        
+        // Apply RuneCred quantity modifier
+        if (window.runeCreditManager) {
+            const modifier = runeCreditManager.getQuantityModifier(this.id, itemId);
+            minCount = Math.round(minCount * modifier);
+            maxCount = Math.round(maxCount * modifier);
+        }
+        
+        // Ensure multiples of 15
+        minCount = Math.max(15, Math.floor(minCount / 15) * 15);
+        maxCount = Math.max(15, Math.floor(maxCount / 15) * 15);
+        maxCount = Math.max(minCount, maxCount);
+        
+        // Pick a random value between min and max (in multiples of 15)
+        const range = (maxCount - minCount) / 15;
+        const multiplier = Math.floor(Math.random() * (range + 1));
+        const count = minCount + (multiplier * 15);
+        
+        return count;
+    }
     
     updateFletchingTaskProgress(outputId, quantity) {
         if (!window.taskManager) return;
