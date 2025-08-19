@@ -1330,6 +1330,35 @@ maxQty = Math.max(minQty, maxQty);
                         possibleTaskIds.set(recipe.rawItemId, canDoRecipe && canDoActivity);
                     }
                 }
+            } else if (this.currentSkillId === 'smithing') {
+                    // For smithing, map activities to their products
+                    if (activityId === 'smelting') {
+                        // Smelting produces bars
+                        const barTasks = ['bronze_bar', 'iron_bar', 'silver_bar', 'steel_bar', 
+                                         'gold_bar', 'mithril_bar', 'adamantite_bar', 'runite_bar'];
+                        for (const barId of barTasks) {
+                            // Check if player has level for this bar
+                            const taskData = this.SKILL_DATA ? 
+                                this.SKILL_DATA.find(d => d.itemId === barId) : null;
+                            const canDoBar = taskData ? currentLevel >= taskData.level : false;
+                            if (taskData) {
+                                possibleTaskIds.set(barId, canDoBar && canDoActivity);
+                            }
+                        }
+                    } else if (activityId === 'smithing') {
+                        // Smithing produces arrowtips
+                        const arrowtipTasks = ['bronze_arrowtips', 'iron_arrowtips', 'steel_arrowtips',
+                                              'mithril_arrowtips', 'adamant_arrowtips', 'rune_arrowtips'];
+                        for (const tipId of arrowtipTasks) {
+                            // Check if player has level for this arrowtip
+                            const taskData = this.SKILL_DATA ? 
+                                this.SKILL_DATA.find(d => d.itemId === tipId) : null;
+                            const canDoTip = taskData ? currentLevel >= taskData.level : false;
+                            if (taskData) {
+                                possibleTaskIds.set(tipId, canDoTip && canDoActivity);
+                            }
+                        }
+                    }
             } else {
                 // Standard gathering skills - get items from rewards
                 if (activity.rewards) {
@@ -1433,6 +1462,19 @@ maxQty = Math.max(minQty, maxQty);
                     canProduce = taskItemId === `agility_laps_${activityId}`;
                 } else if (this.currentSkillId === 'thieving') {
                     canProduce = taskItemId === `thieving_${activityId}`;
+                } else if (this.currentSkillId === 'smithing') {
+                    // Check if this activity can produce the task item
+                    if (activityId === 'smelting') {
+                        // Smelting produces bars
+                        const bars = ['bronze_bar', 'iron_bar', 'silver_bar', 'steel_bar',
+                                     'gold_bar', 'mithril_bar', 'adamantite_bar', 'runite_bar'];
+                        canProduce = bars.includes(taskItemId);
+                    } else if (activityId === 'smithing') {
+                        // Smithing produces arrowtips
+                        const arrowtips = ['bronze_arrowtips', 'iron_arrowtips', 'steel_arrowtips',
+                                          'mithril_arrowtips', 'adamant_arrowtips', 'rune_arrowtips'];
+                        canProduce = arrowtips.includes(taskItemId);
+                    }
                 } else if (this.currentSkillId === 'firemaking') {
                     if (activity.firemakingTable) {
                         canProduce = activity.firemakingTable.some(log => log.logId === taskItemId);
