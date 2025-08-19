@@ -33,6 +33,14 @@
         "stackable": false,
         "category": "resource"
     },
+    "blown_glass": {
+    "name": "Molten glass",
+    "stackable": false
+},
+"vial_of_water": {
+    "name": "Vial of water",
+    "stackable": false
+},
     "raw_meat": {
         "id": "raw_meat",
         "name": "Raw Meat",
@@ -288,6 +296,22 @@
         "stackable": false,
         "category": "resource"
     },
+    "plank": {
+    "name": "Plank",
+    "stackable": false
+},
+"oak_plank": {
+    "name": "Oak plank",
+    "stackable": false
+},
+"teak_plank": {
+    "name": "Teak plank",
+    "stackable": false
+},
+"mahogany_plank": {
+    "name": "Mahogany plank",
+    "stackable": false
+},
     "copper_ore": {
         "id": "copper_ore",
         "name": "Copper Ore",
