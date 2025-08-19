@@ -348,6 +348,96 @@
         "stackable": false,
         "category": "resource"
     },
+    "bronze_bar": {
+    "id": "bronze_bar",
+    "name": "Bronze bar",
+    "stackable": false,
+    "category": "resource"
+},
+"iron_bar": {
+    "id": "iron_bar",
+    "name": "Iron bar",
+    "stackable": false,
+    "category": "resource"
+},
+"silver_bar": {
+    "id": "silver_bar",
+    "name": "Silver bar",
+    "stackable": false,
+    "category": "resource"
+},
+"steel_bar": {
+    "id": "steel_bar",
+    "name": "Steel bar",
+    "stackable": false,
+    "category": "resource"
+},
+"gold_bar": {
+    "id": "gold_bar",
+    "name": "Gold bar",
+    "stackable": false,
+    "category": "resource"
+},
+"mithril_bar": {
+    "id": "mithril_bar",
+    "name": "Mithril bar",
+    "stackable": false,
+    "category": "resource"
+},
+"adamantite_bar": {
+    "id": "adamantite_bar",
+    "name": "Adamantite bar",
+    "stackable": false,
+    "category": "resource"
+},
+"runite_bar": {
+    "id": "runite_bar",
+    "name": "Runite bar",
+    "stackable": false,
+    "category": "resource"
+},
+"bronze_arrowtips": {
+    "id": "bronze_arrowtips",
+    "name": "Bronze arrowtips",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "resource"
+},
+"iron_arrowtips": {
+    "id": "iron_arrowtips",
+    "name": "Iron arrowtips",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "resource"
+},
+"steel_arrowtips": {
+    "id": "steel_arrowtips",
+    "name": "Steel arrowtips",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "resource"
+},
+"mithril_arrowtips": {
+    "id": "mithril_arrowtips",
+    "name": "Mithril arrowtips",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "resource"
+},
+"adamant_arrowtips": {
+    "id": "adamant_arrowtips",
+    "name": "Adamant arrowtips",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "resource"
+},
+"rune_arrowtips": {
+    "id": "rune_arrowtips",
+    "name": "Rune arrowtips",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "resource"
+},
     "uncut_sapphire": {
         "id": "uncut_sapphire",
         "name": "Uncut Sapphire",
@@ -369,6 +459,30 @@
     "uncut_diamond": {
         "id": "uncut_diamond",
         "name": "Uncut Diamond",
+        "stackable": false,
+        "category": "gem"
+    },
+"sapphire": {
+        "id": "sapphire",
+        "name": "Sapphire",
+        "stackable": false,
+        "category": "gem"
+    },
+    "emerald": {
+        "id": "emerald",
+        "name": "Emerald",
+        "stackable": false,
+        "category": "gem"
+    },
+    "ruby": {
+        "id": "ruby",
+        "name": "Ruby",
+        "stackable": false,
+        "category": "gem"
+    },
+    "diamond": {
+        "id": "diamond",
+        "name": "Diamond",
         "stackable": false,
         "category": "gem"
     },
