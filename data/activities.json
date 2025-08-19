@@ -1669,6 +1669,22 @@
                 }
             }
         ]
-    }
+    },
+    "smelting": {
+  "id": "smelting",
+  "name": "Smelting",
+  "skill": "smithing",
+  "requiredLevel": 1,
+  "baseDuration": 2400,
+  "xpPerAction": 0
+},
+"smithing": {
+  "id": "smithing",
+  "name": "Smithing",
+  "skill": "smithing",
+  "requiredLevel": 1,
+  "baseDuration": 2400,
+  "xpPerAction": 0
+}
     
 }
