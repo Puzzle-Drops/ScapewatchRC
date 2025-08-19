@@ -15,13 +15,13 @@ class FletchingSkill extends BaseSkill {
     }
     
     // ==================== CENTRALIZED SKILL DATA ====================
-    initializeSkillData() {
-        // Task data for UI and task generation
+initializeSkillData() {
+        // Task data for UI and task generation - ALL MULTIPLES OF 15
         this.SKILL_DATA = [
             // Headless arrows
             { itemId: 'headless_arrow', name: 'Headless arrows', minCount: 150, maxCount: 450, level: 1 },
             
-            // Arrow shafts from different logs
+            // Arrow shafts from different logs (quantities adjusted for output amounts)
             { itemId: 'arrow_shaft_from_logs', name: 'Arrow shafts (regular logs)', minCount: 150, maxCount: 450, level: 1 },
             { itemId: 'arrow_shaft_from_oak', name: 'Arrow shafts (oak)', minCount: 300, maxCount: 600, level: 15 },
             { itemId: 'arrow_shaft_from_willow', name: 'Arrow shafts (willow)', minCount: 450, maxCount: 900, level: 30 },
@@ -218,11 +218,9 @@ class FletchingSkill extends BaseSkill {
         // Determine target count
         let desiredCount = this.determineTargetCount(selectedProduct.outputId);
         
-        // For items that are made 15 at a time, adjust target to be divisible by 15
-        if (selectedProduct.recipe.output.quantity === 15) {
-            desiredCount = Math.floor(desiredCount / 15) * 15;
-            desiredCount = Math.max(15, desiredCount); // At least 1 action worth
-        }
+        // ALL fletching tasks should be multiples of 15
+        desiredCount = Math.floor(desiredCount / 15) * 15;
+        desiredCount = Math.max(15, desiredCount); // At least 1 action worth
         
         // Calculate how many crafts needed
         const outputPerCraft = selectedProduct.recipe.output.quantity;
@@ -427,20 +425,35 @@ class FletchingSkill extends BaseSkill {
         const currentTask = taskManager.getFirstIncompleteTask();
         
         if (currentTask && currentTask.isFletchingTask) {
-            // For arrow shafts, check if the task matches
+            // For arrow shafts, the task itemId is like "arrow_shaft_from_maple" 
+            // but the actual output is "arrow_shaft"
             if (currentTask.productType === 'shafts' && outputId === 'arrow_shaft') {
+                // This is an arrow shaft task and we produced arrow shafts
                 currentTask.itemsProduced = (currentTask.itemsProduced || 0) + quantity;
+                const progress = currentTask.itemsProduced / currentTask.targetCount;
+                
+                console.log(`Fletching progress (arrow shafts): ${currentTask.itemsProduced}/${currentTask.targetCount}`);
+                
+                taskManager.setTaskProgress(currentTask, progress);
+                
+                // Force UI update
+                if (window.ui) {
+                    window.ui.updateTasks();
+                }
             } else if (currentTask.itemId === outputId) {
+                // Regular fletching task (headless arrows or complete arrows)
                 currentTask.itemsProduced = (currentTask.itemsProduced || 0) + quantity;
-            } else {
-                return; // Not the right task
+                const progress = currentTask.itemsProduced / currentTask.targetCount;
+                
+                console.log(`Fletching progress: ${currentTask.itemsProduced}/${currentTask.targetCount}`);
+                
+                taskManager.setTaskProgress(currentTask, progress);
+                
+                // Force UI update
+                if (window.ui) {
+                    window.ui.updateTasks();
+                }
             }
-            
-            const progress = currentTask.itemsProduced / currentTask.targetCount;
-            
-            console.log(`Fletching progress: ${currentTask.itemsProduced}/${currentTask.targetCount}`);
-            
-            taskManager.setTaskProgress(currentTask, progress);
         }
     }
     
