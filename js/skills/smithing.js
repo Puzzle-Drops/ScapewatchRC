@@ -221,7 +221,8 @@ class SmithingSkill extends BaseSkill {
         
         // Get item names
         const itemData = loadingManager.getData('items')[selectedProduct.outputId];
-        const nodeData = nodes.getNode(selectedNode.nodeId);
+        const nodeData = window.nodes ? window.nodes.getNode(selectedNode.nodeId) : null;
+        const nodeName = nodeData ? nodeData.name : selectedNode.nodeId;
         
         const verb = selectedProduct.isSmelting ? 'Smelt' : 'Smith';
         
@@ -231,7 +232,7 @@ class SmithingSkill extends BaseSkill {
             targetCount: desiredCount,
             nodeId: selectedNode.nodeId,
             activityId: selectedNode.activityId,
-            description: `${verb} ${desiredCount} ${itemData.name} at ${nodeData.name}`,
+            description: `${verb} ${desiredCount} ${itemData.name} at ${nodeName}`,
             startingCount: 0,
             progress: 0,
             isSmithingTask: true,
@@ -351,7 +352,9 @@ class SmithingSkill extends BaseSkill {
     
     findNodesForActivity(activityType) {
         const matchingNodes = [];
-        const allNodes = nodes.getAllNodes();
+        if (!window.nodes) return matchingNodes;
+        
+        const allNodes = window.nodes.getAllNodes();
         
         for (const [nodeId, node] of Object.entries(allNodes)) {
             if (!node.activities) continue;
