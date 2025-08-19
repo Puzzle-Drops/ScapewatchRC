@@ -639,7 +639,7 @@ class SmithingSkill extends BaseSkill {
             const recipe = task.recipe;
             const craftsRemaining = Math.ceil((task.targetCount - (task.itemsProduced || 0)) / recipe.output.quantity);
             
-            // Calculate how many we can actually make
+            // Calculate how many we can actually make based on bank materials
             let maxCraftable = craftsRemaining;
             for (const input of recipe.inputs) {
                 const bankCount = bank.getItemCount(input.itemId);
@@ -652,20 +652,46 @@ class SmithingSkill extends BaseSkill {
                 return false;
             }
             
-            // Withdraw materials for as many as we can make (up to 28 slots)
-            const slotsNeeded = recipe.inputs.length;
-            const maxByInventory = Math.floor(28 / slotsNeeded);
-            const toMake = Math.min(maxCraftable, maxByInventory);
+            // Calculate optimal withdrawal based on recipe ratios and inventory space
+            const totalSlots = 28;
             
+            // Calculate total ratio units (e.g., for steel: 1 iron + 2 coal = 3 units)
+            let totalRatioUnits = 0;
+            for (const input of recipe.inputs) {
+                totalRatioUnits += input.quantity;
+            }
+            
+            // Calculate how many complete sets we can fit in inventory
+            const setsPerInventory = Math.floor(totalSlots / totalRatioUnits);
+            
+            // Limit to what we can actually make and what we need
+            const toMake = Math.min(maxCraftable, setsPerInventory);
+            
+            if (toMake === 0) {
+                console.log('Recipe requires too many items per craft for inventory');
+                return false;
+            }
+            
+            // Withdraw materials respecting the exact ratios
             for (const input of recipe.inputs) {
                 const needed = input.quantity * toMake;
                 const withdrawn = bank.withdrawUpTo(input.itemId, needed);
                 
                 if (withdrawn > 0) {
                     inventory.addItem(input.itemId, withdrawn);
-                    console.log(`Withdrew ${withdrawn} ${input.itemId} for smithing`);
+                    console.log(`Withdrew ${withdrawn} ${input.itemId} for ${toMake} crafts`);
                     withdrawnAny = true;
+                } else if (withdrawn < needed) {
+                    console.log(`Warning: Only withdrew ${withdrawn}/${needed} ${input.itemId}`);
                 }
+            }
+            
+            // Log the exact inventory setup for debugging
+            if (withdrawnAny) {
+                const invSummary = recipe.inputs.map(input => 
+                    `${inventory.getItemCount(input.itemId)} ${input.itemId}`
+                ).join(', ');
+                console.log(`Inventory setup for ${toMake} ${recipe.output.itemId}: ${invSummary}`);
             }
         }
         
