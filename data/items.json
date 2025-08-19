@@ -6,13 +6,13 @@
         "maxStack": 9999999999,
         "category": "currency"
     },
-"mark_of_grace": {
-    "id": "mark_of_grace",
-    "name": "Mark of grace",
-    "stackable": true,
-    "maxStack": 9999999999,
-    "category": "resource"
-},
+    "mark_of_grace": {
+        "id": "mark_of_grace",
+        "name": "Mark of grace",
+        "stackable": true,
+        "maxStack": 9999999999,
+        "category": "resource"
+    },
     "feather": {
         "id": "feather",
         "name": "Feather",
@@ -27,20 +27,24 @@
         "maxStack": 9999999999,
         "category": "resource"
     },
-"ashes": {
+    "ashes": {
         "id": "ashes",
         "name": "Ashes",
         "stackable": false,
         "category": "resource"
     },
-    "blown_glass": {
-    "name": "Molten glass",
-    "stackable": false
-},
-"vial_of_water": {
-    "name": "Vial of water",
-    "stackable": false
-},
+    "molten_glass": {
+        "id": "molten_glass",
+        "name": "Molten glass",
+        "stackable": false,
+        "category": "resource"
+    },
+    "vial_of_water": {
+        "id": "vial_of_water",
+        "name": "Vial of water",
+        "stackable": false,
+        "category": "resource"
+    },
     "raw_meat": {
         "id": "raw_meat",
         "name": "Raw Meat",
@@ -297,21 +301,29 @@
         "category": "resource"
     },
     "plank": {
-    "name": "Plank",
-    "stackable": false
-},
-"oak_plank": {
-    "name": "Oak plank",
-    "stackable": false
-},
-"teak_plank": {
-    "name": "Teak plank",
-    "stackable": false
-},
-"mahogany_plank": {
-    "name": "Mahogany plank",
-    "stackable": false
-},
+        "id": "plank",
+        "name": "Plank",
+        "stackable": false,
+        "category": "resource"
+    },
+    "oak_plank": {
+        "id": "oak_plank",
+        "name": "Oak plank",
+        "stackable": false,
+        "category": "resource"
+    },
+    "teak_plank": {
+        "id": "teak_plank",
+        "name": "Teak plank",
+        "stackable": false,
+        "category": "resource"
+    },
+    "mahogany_plank": {
+        "id": "mahogany_plank",
+        "name": "Mahogany plank",
+        "stackable": false,
+        "category": "resource"
+    },
     "copper_ore": {
         "id": "copper_ore",
         "name": "Copper Ore",
@@ -373,95 +385,95 @@
         "category": "resource"
     },
     "bronze_bar": {
-    "id": "bronze_bar",
-    "name": "Bronze bar",
-    "stackable": false,
-    "category": "resource"
-},
-"iron_bar": {
-    "id": "iron_bar",
-    "name": "Iron bar",
-    "stackable": false,
-    "category": "resource"
-},
-"silver_bar": {
-    "id": "silver_bar",
-    "name": "Silver bar",
-    "stackable": false,
-    "category": "resource"
-},
-"steel_bar": {
-    "id": "steel_bar",
-    "name": "Steel bar",
-    "stackable": false,
-    "category": "resource"
-},
-"gold_bar": {
-    "id": "gold_bar",
-    "name": "Gold bar",
-    "stackable": false,
-    "category": "resource"
-},
-"mithril_bar": {
-    "id": "mithril_bar",
-    "name": "Mithril bar",
-    "stackable": false,
-    "category": "resource"
-},
-"adamantite_bar": {
-    "id": "adamantite_bar",
-    "name": "Adamantite bar",
-    "stackable": false,
-    "category": "resource"
-},
-"runite_bar": {
-    "id": "runite_bar",
-    "name": "Runite bar",
-    "stackable": false,
-    "category": "resource"
-},
-"bronze_arrowtips": {
-    "id": "bronze_arrowtips",
-    "name": "Bronze arrowtips",
-    "stackable": true,
-    "maxStack": 9999999999,
-    "category": "resource"
-},
-"iron_arrowtips": {
-    "id": "iron_arrowtips",
-    "name": "Iron arrowtips",
-    "stackable": true,
-    "maxStack": 9999999999,
-    "category": "resource"
-},
-"steel_arrowtips": {
-    "id": "steel_arrowtips",
-    "name": "Steel arrowtips",
-    "stackable": true,
-    "maxStack": 9999999999,
-    "category": "resource"
-},
-"mithril_arrowtips": {
-    "id": "mithril_arrowtips",
-    "name": "Mithril arrowtips",
-    "stackable": true,
-    "maxStack": 9999999999,
-    "category": "resource"
-},
-"adamant_arrowtips": {
-    "id": "adamant_arrowtips",
-    "name": "Adamant arrowtips",
-    "stackable": true,
-    "maxStack": 9999999999,
-    "category": "resource"
-},
-"rune_arrowtips": {
-    "id": "rune_arrowtips",
-    "name": "Rune arrowtips",
-    "stackable": true,
-    "maxStack": 9999999999,
-    "category": "resource"
-},
+        "id": "bronze_bar",
+        "name": "Bronze bar",
+        "stackable": false,
+        "category": "resource"
+    },
+    "iron_bar": {
+        "id": "iron_bar",
+        "name": "Iron bar",
+        "stackable": false,
+        "category": "resource"
+    },
+    "silver_bar": {
+        "id": "silver_bar",
+        "name": "Silver bar",
+        "stackable": false,
+        "category": "resource"
+    },
+    "steel_bar": {
+        "id": "steel_bar",
+        "name": "Steel bar",
+        "stackable": false,
+        "category": "resource"
+    },
+    "gold_bar": {
+        "id": "gold_bar",
+        "name": "Gold bar",
+        "stackable": false,
+        "category": "resource"
+    },
+    "mithril_bar": {
+        "id": "mithril_bar",
+        "name": "Mithril bar",
+        "stackable": false,
+        "category": "resource"
+    },
+    "adamantite_bar": {
+        "id": "adamantite_bar",
+        "name": "Adamantite bar",
+        "stackable": false,
+        "category": "resource"
+    },
+    "runite_bar": {
+        "id": "runite_bar",
+        "name": "Runite bar",
+        "stackable": false,
+        "category": "resource"
+    },
+    "bronze_arrowtips": {
+        "id": "bronze_arrowtips",
+        "name": "Bronze arrowtips",
+        "stackable": true,
+        "maxStack": 9999999999,
+        "category": "resource"
+    },
+    "iron_arrowtips": {
+        "id": "iron_arrowtips",
+        "name": "Iron arrowtips",
+        "stackable": true,
+        "maxStack": 9999999999,
+        "category": "resource"
+    },
+    "steel_arrowtips": {
+        "id": "steel_arrowtips",
+        "name": "Steel arrowtips",
+        "stackable": true,
+        "maxStack": 9999999999,
+        "category": "resource"
+    },
+    "mithril_arrowtips": {
+        "id": "mithril_arrowtips",
+        "name": "Mithril arrowtips",
+        "stackable": true,
+        "maxStack": 9999999999,
+        "category": "resource"
+    },
+    "adamant_arrowtips": {
+        "id": "adamant_arrowtips",
+        "name": "Adamant arrowtips",
+        "stackable": true,
+        "maxStack": 9999999999,
+        "category": "resource"
+    },
+    "rune_arrowtips": {
+        "id": "rune_arrowtips",
+        "name": "Rune arrowtips",
+        "stackable": true,
+        "maxStack": 9999999999,
+        "category": "resource"
+    },
     "uncut_sapphire": {
         "id": "uncut_sapphire",
         "name": "Uncut Sapphire",
@@ -486,7 +498,7 @@
         "stackable": false,
         "category": "gem"
     },
-"sapphire": {
+    "sapphire": {
         "id": "sapphire",
         "name": "Sapphire",
         "stackable": false,
@@ -542,29 +554,25 @@
         "id": "potato",
         "name": "Potato",
         "stackable": false,
-        "maxStack": 9999999999,
-        "category": "seed"
+        "category": "resource"
     },
     "snape_grass": {
         "id": "snape_grass",
         "name": "Snape grass",
         "stackable": false,
-        "maxStack": 9999999999,
-        "category": "seed"
+        "category": "resource"
     },
     "limpwurt_root": {
         "id": "limpwurt_root",
         "name": "Limpwurt root",
         "stackable": false,
-        "maxStack": 9999999999,
-        "category": "seed"
+        "category": "resource"
     },
     "potato_cactus": {
         "id": "potato_cactus",
         "name": "Potato cactus",
         "stackable": false,
-        "maxStack": 9999999999,
-        "category": "seed"
+        "category": "resource"
     },
     "guam_seed": {
         "id": "guam_seed",
@@ -1030,8 +1038,4 @@
         "maxStack": 9999999999,
         "category": "ammo"
     }
-
-
-
-
 }
