@@ -15,7 +15,7 @@ class TestScenario {
         //this.setPlayerPosition();
 
         // Set skill levels (each on its own line for easy modification)
-        //this.setSkillLevels();
+        this.setSkillLevels();
         
         // Set pets for skills
         //this.setPets();
@@ -27,7 +27,7 @@ class TestScenario {
         //this.setCredits();
 
         // Add items to bank
-        //this.populateBank();
+        this.populateBank();
 
         // Add some items to inventory for testing
         //this.populateInventory();
