@@ -16,6 +16,15 @@ class TestScenario {
 
         // Set skill levels (each on its own line for easy modification)
         //this.setSkillLevels();
+        
+        // Set pets for skills
+        //this.setPets();
+        
+        // Set capes/speed bonuses
+        //this.setCapes();
+        
+        // Set currency/credits
+        //this.setCredits();
 
         // Add items to bank
         //this.populateBank();
@@ -83,6 +92,11 @@ class TestScenario {
         if (window.ui) {
             window.ui.updateSkillsList();
         }
+        
+        // Update speed bonuses based on new levels
+        if (window.runeCreditManager) {
+            runeCreditManager.updateSpeedBonuses();
+        }
     }
 
     setSkillLevel(skillId, level) {
@@ -95,6 +109,242 @@ class TestScenario {
             console.log(`Set ${skillId} to level ${level}`);
         }
     }
+    
+    // ==================== NEW PET MANAGEMENT ====================
+    
+    setPets() {
+        // Give pets to specific skills
+        // Each line can be easily commented/uncommented
+        this.givePet('woodcutting', 1, false);  // 1 regular woodcutting pet
+        this.givePet('woodcutting', 1, true);   // 1 shiny woodcutting pet
+        this.givePet('mining', 2, false);       // 2 regular mining pets
+        this.givePet('fishing', 1, false);      // 1 regular fishing pet
+        this.givePet('agility', 1, true);       // 1 shiny agility pet
+        
+        console.log('Pets configured');
+    }
+    
+    // Give a specific number of pets (regular or shiny) to a skill
+    givePet(skillId, count = 1, isShiny = false) {
+        if (!window.runeCreditManager) {
+            console.error('RuneCreditManager not initialized');
+            return;
+        }
+        
+        // Initialize pet counts if needed
+        if (!runeCreditManager.petCounts[skillId]) {
+            runeCreditManager.petCounts[skillId] = { regular: 0, shiny: 0 };
+        }
+        
+        if (isShiny) {
+            runeCreditManager.petCounts[skillId].shiny += count;
+            runeCreditManager.totalShinyPetsObtained += count;
+            runeCreditManager.totalPetsObtained += count;
+            runeCreditManager.speedBonuses.shinyPets[skillId] = true;
+            console.log(`Gave ${count} shiny ${skillId} pet(s)`);
+        } else {
+            runeCreditManager.petCounts[skillId].regular += count;
+            runeCreditManager.totalPetsObtained += count;
+            runeCreditManager.speedBonuses.pets[skillId] = true;
+            console.log(`Gave ${count} regular ${skillId} pet(s)`);
+        }
+        
+        // Save changes
+        runeCreditManager.saveData();
+    }
+    
+    // Give all skills a pet (regular and/or shiny)
+    giveAllPets(regular = true, shiny = false) {
+        const skillsData = loadingManager.getData('skills');
+        for (const skillId of Object.keys(skillsData)) {
+            if (regular) this.givePet(skillId, 1, false);
+            if (shiny) this.givePet(skillId, 1, true);
+        }
+        console.log(`Gave all skills pets (regular: ${regular}, shiny: ${shiny})`);
+    }
+    
+    // Clear all pets
+    clearAllPets() {
+        if (!window.runeCreditManager) return;
+        
+        const skillsData = loadingManager.getData('skills');
+        for (const skillId of Object.keys(skillsData)) {
+            runeCreditManager.petCounts[skillId] = { regular: 0, shiny: 0 };
+            runeCreditManager.speedBonuses.pets[skillId] = false;
+            runeCreditManager.speedBonuses.shinyPets[skillId] = false;
+        }
+        
+        runeCreditManager.totalPetsObtained = 0;
+        runeCreditManager.totalShinyPetsObtained = 0;
+        runeCreditManager.saveData();
+        
+        console.log('Cleared all pets');
+    }
+    
+    // ==================== NEW CAPE MANAGEMENT ====================
+    
+    setCapes() {
+        // Set specific capes/speed bonuses
+        // Each line can be easily commented/uncommented
+        this.giveSkillCape('woodcutting');
+        this.giveSkillCape('mining');
+        this.giveTrimmedCape('fishing');
+        // this.giveMaxCape();
+        // this.giveTrimmedMaxCape();
+        
+        console.log('Capes configured');
+    }
+    
+    // Give a skill cape (99+ in skill)
+    giveSkillCape(skillId) {
+        if (!window.runeCreditManager) return;
+        
+        // Set skill to 99 if not already
+        if (skills.getLevel(skillId) < 99) {
+            this.setSkillLevel(skillId, 99);
+        }
+        
+        runeCreditManager.speedBonuses.skillCapes[skillId] = true;
+        runeCreditManager.saveData();
+        console.log(`Gave ${skillId} skill cape`);
+    }
+    
+    // Give a trimmed skill cape (200M XP in skill)
+    giveTrimmedCape(skillId) {
+        if (!window.runeCreditManager) return;
+        
+        // Set skill to 200M XP
+        const skill = skills.skills[skillId];
+        if (skill) {
+            skill.xp = 200000000;
+            skill.level = 99;
+            skill.xpForNextLevel = 200000000;
+        }
+        
+        runeCreditManager.speedBonuses.skillCapes[skillId] = true;
+        runeCreditManager.speedBonuses.trimmedCapes[skillId] = true;
+        runeCreditManager.saveData();
+        console.log(`Gave ${skillId} trimmed cape (200M XP)`);
+    }
+    
+    // Give max cape (all skills 99)
+    giveMaxCape() {
+        this.maxAllSkills();
+        
+        if (window.runeCreditManager) {
+            runeCreditManager.speedBonuses.maxCape = true;
+            
+            // Also set all skill capes
+            const skillsData = loadingManager.getData('skills');
+            for (const skillId of Object.keys(skillsData)) {
+                runeCreditManager.speedBonuses.skillCapes[skillId] = true;
+            }
+            
+            runeCreditManager.saveData();
+        }
+        
+        console.log('Gave max cape (all skills 99)');
+    }
+    
+    // Give trimmed max cape (all skills 200M XP)
+    giveTrimmedMaxCape() {
+        const skillsData = loadingManager.getData('skills');
+        
+        for (const skillId of Object.keys(skillsData)) {
+            const skill = skills.skills[skillId];
+            if (skill) {
+                skill.xp = 200000000;
+                skill.level = 99;
+                skill.xpForNextLevel = 200000000;
+            }
+        }
+        
+        if (window.runeCreditManager) {
+            runeCreditManager.speedBonuses.maxCape = true;
+            runeCreditManager.speedBonuses.trimmedMaxCape = true;
+            
+            // Also set all skill capes and trimmed capes
+            for (const skillId of Object.keys(skillsData)) {
+                runeCreditManager.speedBonuses.skillCapes[skillId] = true;
+                runeCreditManager.speedBonuses.trimmedCapes[skillId] = true;
+            }
+            
+            runeCreditManager.saveData();
+        }
+        
+        console.log('Gave trimmed max cape (all skills 200M XP)');
+    }
+    
+    // ==================== NEW CREDIT MANAGEMENT ====================
+    
+    setCredits() {
+        // Set various credit types
+        // Each line can be easily commented/uncommented
+        this.setRuneCred(100);
+        this.setSkillCredSpent(50);  // How much Skill Cred has been spent
+        this.setSkillCredits('woodcutting', 50);
+        this.setSkillCredits('mining', 30);
+        this.setSkillCredits('fishing', 25);
+        
+        console.log('Credits configured');
+    }
+    
+    // Set Rune Cred amount
+    setRuneCred(amount) {
+        if (!window.runeCreditManager) return;
+        
+        runeCreditManager.runeCred = amount;
+        runeCreditManager.saveData();
+        console.log(`Set Rune Cred to ${amount}`);
+    }
+    
+    // Set how much Skill Cred has been spent (affects available Skill Cred)
+    setSkillCredSpent(amount) {
+        if (!window.runeCreditManager) return;
+        
+        runeCreditManager.skillCredSpent = amount;
+        runeCreditManager.saveData();
+        
+        const available = runeCreditManager.getAvailableSkillCred();
+        const total = runeCreditManager.skillCred;
+        console.log(`Set Skill Cred spent to ${amount} (${available}/${total} available)`);
+    }
+    
+    // Set skill-specific credits for a skill
+    setSkillCredits(skillId, amount) {
+        if (!window.runeCreditManager) return;
+        
+        runeCreditManager.skillCredits[skillId] = amount;
+        runeCreditManager.saveData();
+        console.log(`Set ${skillId} credits to ${amount}`);
+    }
+    
+    // Give credits to all skills
+    giveAllSkillCredits(amount) {
+        if (!window.runeCreditManager) return;
+        
+        const skillsData = loadingManager.getData('skills');
+        for (const skillId of Object.keys(skillsData)) {
+            runeCreditManager.skillCredits[skillId] = amount;
+        }
+        
+        runeCreditManager.saveData();
+        console.log(`Set all skill credits to ${amount}`);
+    }
+    
+    // Simulate completing tasks to earn credits
+    simulateTaskCompletions(count = 10, skillId = null) {
+        if (!window.runeCreditManager) return;
+        
+        for (let i = 0; i < count; i++) {
+            const task = skillId ? { skill: skillId } : {};
+            runeCreditManager.onTaskComplete(task);
+        }
+        
+        console.log(`Simulated ${count} task completions${skillId ? ` for ${skillId}` : ''}`);
+    }
+    
+    // ==================== EXISTING METHODS ====================
 
     populateBank() {
         const allItems = loadingManager.getData('items');
@@ -123,34 +373,34 @@ class TestScenario {
             taskManager.clearTasks();
             
             // Task 1: Runecraft 5 trips at test abyss crafting air runes (Current Task)
-const runecraftingTask1 = {
-    skill: 'runecraft',
-    itemId: 'runecraft_trips_craft_air_runes',
-    targetCount: 5,
-    nodeId: 'test_abyss',
-    activityId: 'craft_air_runes',
-    description: 'Runecraft 5 trips of air runes at The Abyss',
-    startingCount: 0,
-    progress: 0,
-    isRunecraftingTask: true,
-    tripsCompleted: 0,
-    runeType: 'air_rune'
-};
+            const runecraftingTask1 = {
+                skill: 'runecraft',
+                itemId: 'runecraft_trips_craft_air_runes',
+                targetCount: 5,
+                nodeId: 'test_abyss',
+                activityId: 'craft_air_runes',
+                description: 'Runecraft 5 trips of air runes at The Abyss',
+                startingCount: 0,
+                progress: 0,
+                isRunecraftingTask: true,
+                tripsCompleted: 0,
+                runeType: 'air_rune'
+            };
 
-// Task 2: Runecraft 5 trips at water altar crafting water runes (Next Task)
-const runecraftingTask2 = {
-    skill: 'runecraft',
-    itemId: 'runecraft_trips_craft_water_runes',
-    targetCount: 5,
-    nodeId: 'water_altar',
-    activityId: 'craft_water_runes',
-    description: 'Runecraft 5 trips of water runes at Water Altar',
-    startingCount: 0,
-    progress: 0,
-    isRunecraftingTask: true,
-    tripsCompleted: 0,
-    runeType: 'water_rune'
-};
+            // Task 2: Runecraft 5 trips at water altar crafting water runes (Next Task)
+            const runecraftingTask2 = {
+                skill: 'runecraft',
+                itemId: 'runecraft_trips_craft_water_runes',
+                targetCount: 5,
+                nodeId: 'water_altar',
+                activityId: 'craft_water_runes',
+                description: 'Runecraft 5 trips of water runes at Water Altar',
+                startingCount: 0,
+                progress: 0,
+                isRunecraftingTask: true,
+                tripsCompleted: 0,
+                runeType: 'water_rune'
+            };
             
             // Task 3: Pickpocket Rogue 50 times
             const thievingTask = {
@@ -260,7 +510,8 @@ const runecraftingTask2 = {
         return count;
     }
 
-    // Utility methods that can be called from dev console
+    // ==================== UTILITY METHODS ====================
+    
     giveAllItems(quantity = 100) {
         const allItems = loadingManager.getData('items');
         for (const itemId of Object.keys(allItems)) {
@@ -274,6 +525,11 @@ const runecraftingTask2 = {
             this.setSkillLevel(skillId, 99);
         }
         console.log('Set all skills to level 99');
+        
+        // Update speed bonuses
+        if (window.runeCreditManager) {
+            runeCreditManager.updateSpeedBonuses();
+        }
     }
 
     resetPlayer() {
@@ -327,6 +583,59 @@ const runecraftingTask2 = {
             }
             
             console.log('Completed current task:', taskManager.currentTask.description);
+        }
+    }
+    
+    // ==================== DEBUG HELPERS ====================
+    
+    // Show current RuneCred state
+    showCreditStatus() {
+        if (!window.runeCreditManager) {
+            console.log('RuneCreditManager not initialized');
+            return;
+        }
+        
+        console.log('=== CREDIT STATUS ===');
+        console.log(`Rune Cred: ${runeCreditManager.runeCred}`);
+        console.log(`Skill Cred: ${runeCreditManager.getAvailableSkillCred()}/${runeCreditManager.skillCred}`);
+        console.log(`Tasks Completed: ${runeCreditManager.totalTasksCompleted}`);
+        
+        // Show skill-specific credits
+        console.log('\n=== SKILL CREDITS ===');
+        const skillsData = loadingManager.getData('skills');
+        for (const skillId of Object.keys(skillsData)) {
+            const credits = runeCreditManager.getSkillCredits(skillId);
+            if (credits > 10) { // Only show if more than starting amount
+                console.log(`${skillId}: ${credits}`);
+            }
+        }
+        
+        // Show pets
+        const petStats = runeCreditManager.getGlobalPetStats();
+        if (petStats.total > 0) {
+            console.log(`\n=== PETS ===`);
+            console.log(`Total: ${petStats.total} (${petStats.regular} regular, ${petStats.shiny} shiny)`);
+        }
+        
+        // Show speed bonuses
+        console.log('\n=== SPEED BONUSES ===');
+        if (runeCreditManager.speedBonuses.maxCape) console.log('Max Cape: Active');
+        if (runeCreditManager.speedBonuses.trimmedMaxCape) console.log('Trimmed Max Cape: Active');
+    }
+    
+    // Enable credit persistence
+    enableCreditPersistence() {
+        if (window.runeCreditManager) {
+            runeCreditManager.togglePersistence(true);
+            console.log('Credit persistence enabled - data will be saved to localStorage');
+        }
+    }
+    
+    // Disable credit persistence
+    disableCreditPersistence() {
+        if (window.runeCreditManager) {
+            runeCreditManager.togglePersistence(false);
+            console.log('Credit persistence disabled - data will not be saved');
         }
     }
 }
