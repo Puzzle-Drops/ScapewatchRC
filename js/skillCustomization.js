@@ -287,29 +287,34 @@ class SkillCustomizationUI {
     }
     
     // Helper to create an achievement row
-    createAchievementRow(label, skillIds, type) {
-        const row = document.createElement('div');
-        row.className = 'achievement-row';
-        
-        const labelDiv = document.createElement('div');
-        labelDiv.className = 'achievement-label';
-        labelDiv.textContent = label;
-        
-        const itemsContainer = document.createElement('div');
-        itemsContainer.className = 'achievement-items';
-        
-        // Add max cape for cape rows
-        if (type === 'cape' || type === 'trimmedCape') {
-            const maxCapeType = type === 'cape' ? 'maxCape' : 'trimmedMaxCape';
-            const maxCapeItem = this.createUnlockItem(null, maxCapeType, true); // true for global view
-            itemsContainer.appendChild(maxCapeItem);
-        }
-        
-        // Add items for each skill
-        for (const skillId of skillIds) {
-            const item = this.createUnlockItem(skillId, type, true); // true for global view
-            itemsContainer.appendChild(item);
-        }
+createAchievementRow(label, skillIds, type) {
+    const row = document.createElement('div');
+    row.className = 'achievement-row';
+    
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'achievement-label';
+    labelDiv.textContent = label;
+    
+    const itemsContainer = document.createElement('div');
+    itemsContainer.className = 'achievement-items';
+    
+    // Add max cape for cape rows OR invisible placeholder for pet rows
+    if (type === 'cape' || type === 'trimmedCape') {
+        const maxCapeType = type === 'cape' ? 'maxCape' : 'trimmedMaxCape';
+        const maxCapeItem = this.createUnlockItem(null, maxCapeType, true); // true for global view
+        itemsContainer.appendChild(maxCapeItem);
+    } else if (type === 'pet' || type === 'shinyPet') {
+        // Add invisible placeholder to align with cape rows
+        const placeholder = document.createElement('div');
+        placeholder.className = 'unlock-item-placeholder';
+        itemsContainer.appendChild(placeholder);
+    }
+    
+    // Add items for each skill
+    for (const skillId of skillIds) {
+        const item = this.createUnlockItem(skillId, type, true); // true for global view
+        itemsContainer.appendChild(item);
+    }
         
         row.appendChild(labelDiv);
         row.appendChild(itemsContainer);
