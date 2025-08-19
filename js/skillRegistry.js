@@ -15,6 +15,7 @@ class SkillRegistry {
         this.register(new ThievingSkill());
         this.register(new RunecraftingSkill());
         this.register(new SmithingSkill());
+        this.register(new FletchingSkill());
         
         this.initialized = true;
         console.log('Skill registry initialized with', Object.keys(this.skills).length, 'skills');
