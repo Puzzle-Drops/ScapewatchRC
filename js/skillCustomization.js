@@ -1308,7 +1308,25 @@ maxQty = Math.max(minQty, maxQty);
             const canDoActivity = currentLevel >= activityRequiredLevel;
             
             // Map activity to task itemIds based on skill type
-            if (this.currentSkillId === 'runecraft') {
+            if (this.currentSkillId === 'fletching') {
+                // For fletching, ALL tasks work at ALL bank nodes
+                // Add all possible fletching tasks
+                possibleTaskIds.set('headless_arrow', canDoActivity);
+                possibleTaskIds.set('arrow_shaft_from_logs', canDoActivity);
+                possibleTaskIds.set('arrow_shaft_from_oak', canDoActivity);
+                possibleTaskIds.set('arrow_shaft_from_willow', canDoActivity);
+                possibleTaskIds.set('arrow_shaft_from_maple', canDoActivity);
+                possibleTaskIds.set('arrow_shaft_from_yew', canDoActivity);
+                possibleTaskIds.set('arrow_shaft_from_magic', canDoActivity);
+                possibleTaskIds.set('arrow_shaft_from_redwood', canDoActivity);
+                possibleTaskIds.set('bronze_arrow', canDoActivity);
+                possibleTaskIds.set('iron_arrow', canDoActivity);
+                possibleTaskIds.set('steel_arrow', canDoActivity);
+                possibleTaskIds.set('mithril_arrow', canDoActivity);
+                possibleTaskIds.set('adamant_arrow', canDoActivity);
+                possibleTaskIds.set('rune_arrow', canDoActivity);
+                possibleTaskIds.set('amethyst_arrow', canDoActivity);
+            } else if (this.currentSkillId === 'runecraft') {
                 possibleTaskIds.set(`runecraft_trips_${activityId}`, canDoActivity);
             } else if (this.currentSkillId === 'agility') {
                 possibleTaskIds.set(`agility_laps_${activityId}`, canDoActivity);
@@ -1456,7 +1474,12 @@ maxQty = Math.max(minQty, maxQty);
                 // Check if this activity can produce the task item
                 let canProduce = false;
                 
-                if (this.currentSkillId === 'runecraft') {
+                if (this.currentSkillId === 'fletching') {
+                    // For fletching, ALL tasks can be done at ALL bank nodes
+                    if (node.type === 'bank') {
+                        canProduce = true;
+                    }
+                } else if (this.currentSkillId === 'runecraft') {
                     canProduce = taskItemId === `runecraft_trips_${activityId}`;
                 } else if (this.currentSkillId === 'agility') {
                     canProduce = taskItemId === `agility_laps_${activityId}`;
@@ -1586,6 +1609,19 @@ maxQty = Math.max(minQty, maxQty);
     
     getPossibleNodes() {
         const possibleNodes = new Set();
+        
+        // Special case for fletching - all bank nodes
+        if (this.currentSkillId === 'fletching') {
+            const allNodes = nodes.getAllNodes();
+            for (const [nodeId, node] of Object.entries(allNodes)) {
+                if (node.type === 'bank') {
+                    possibleNodes.add(nodeId);
+                }
+            }
+            return Array.from(possibleNodes);
+        }
+        
+        // Regular skill handling
         const activities = loadingManager.getData('activities');
         
         for (const [activityId, activity] of Object.entries(activities)) {
