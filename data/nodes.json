@@ -315,7 +315,9 @@
       "y": 1903
     },
     "activities": [
-      "fletching"
+      "fletching",
+      "blowing_glass",
+      "cutting_gems"
     ],
     "nearestBank": "lumbridge_bank",
     "nearestBankDistance": 0
@@ -386,7 +388,9 @@
       "y": 1833
     },
     "activities": [
-      "fletching"
+      "fletching",
+      "blowing_glass",
+      "cutting_gems"
     ],
     "nearestBank": "draynor_bank",
     "nearestBankDistance": 0
@@ -414,7 +418,9 @@
       "y": 1480
     },
     "activities": [
-      "fletching"
+      "fletching",
+      "blowing_glass",
+      "cutting_gems"
     ],
     "nearestBank": "east_varrock_bank",
     "nearestBankDistance": 0
@@ -428,7 +434,9 @@
       "y": 1439
     },
     "activities": [
-      "fletching"
+      "fletching",
+      "blowing_glass",
+      "cutting_gems"
     ],
     "nearestBank": "west_varrock_bank",
     "nearestBankDistance": 0
@@ -442,7 +450,9 @@
       "y": 1340
     },
     "activities": [
-      "fletching"
+      "fletching",
+      "blowing_glass",
+      "cutting_gems"
     ],
     "nearestBank": "grand_exchange",
     "nearestBankDistance": 0
