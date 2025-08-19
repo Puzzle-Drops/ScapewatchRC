@@ -1685,6 +1685,14 @@
   "requiredLevel": 1,
   "baseDuration": 2400,
   "xpPerAction": 0
+},
+"fletching": {
+    "id": "fletching",
+    "name": "Fletching",
+    "skill": "fletching",
+    "requiredLevel": 1,
+    "baseDuration": 1200,
+    "xpPerAction": 0
 }
     
 }
