@@ -1,4 +1,13 @@
 {
+  "varrock_sawmill": {
+    "id": "varrock_sawmill",
+    "name": "Varrock Sawmill",
+    "type": "skill",
+    "activities": ["plank_making"],
+    "position": { "x": 4556, "y": 1337 },
+    "nearestBank": "varrock_west_bank",
+    "nearestBankDistance": 150
+},
   "water_altar": {
     "id": "water_altar",
     "name": "Water Altar",
