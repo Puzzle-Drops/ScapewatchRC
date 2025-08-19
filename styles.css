@@ -1659,13 +1659,12 @@ body {
 
 .pet-quantity {
     position: absolute;
-    top: -2px;
-    left: -2px;
-    font-size: 18px;
+    top: -8px;
+    left: -8px;
+    font-size: 20px;
     color: #FFD700;
     font-weight: bold;
     text-shadow: 1px 1px 2px #000;
-    background: rgba(0, 0, 0, 0.6);
     padding: 0 3px;
     border-radius: 2px;
 }
