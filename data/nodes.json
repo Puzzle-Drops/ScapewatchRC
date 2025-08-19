@@ -462,6 +462,34 @@
     "nearestBank": "west_varrock_bank",
     "nearestBankDistance": 154
   },
+  "varrock_west_anvil": {
+  "id": "varrock_west_anvil",
+  "name": "Varrock West Anvil",
+  "type": "skill",
+  "position": {
+    "x": 4329,
+    "y": 1468
+  },
+  "activities": [
+    "smithing"
+  ],
+  "nearestBank": "west_varrock_bank",
+  "nearestBankDistance": 29
+},
+"lumbridge_furnace": {
+  "id": "lumbridge_furnace",
+  "name": "Lumbridge Furnace",
+  "type": "skill",
+  "position": {
+    "x": 4406,
+    "y": 1806
+  },
+  "activities": [
+    "smelting"
+  ],
+  "nearestBank": "lumbridge_bank",
+  "nearestBankDistance": 110
+},
   "cooks_assistant_quest": {
     "id": "cook_quest",
     "name": "Cook's Assistant",
