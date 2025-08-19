@@ -1693,6 +1693,27 @@
     "requiredLevel": 1,
     "baseDuration": 1200,
     "xpPerAction": 0
+},
+"blowing_glass": {
+    "id": "blowing_glass",
+    "name": "Blowing Glass",
+    "skill": "crafting",
+    "requiredLevel": 1,
+    "baseDuration": 600
+},
+"cutting_gems": {
+    "id": "cutting_gems", 
+    "name": "Cutting Gems",
+    "skill": "crafting",
+    "requiredLevel": 20,
+    "baseDuration": 1200
+},
+"plank_making": {
+    "id": "plank_making",
+    "name": "Making Planks",
+    "skill": "crafting",
+    "requiredLevel": 10,
+    "baseDuration": 600
 }
     
 }
