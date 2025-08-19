@@ -36,14 +36,12 @@ class DevConsole {
 
     initializeCommands() {
         this.commands = {
-            // Help
+            // === HELP & CONSOLE ===
             help: {
                 description: 'Show available commands',
                 usage: 'help [command]',
                 fn: (args) => this.cmdHelp(args)
             },
-            
-            // Console management
             clear: {
                 description: 'Clear command output',
                 usage: 'clear',
@@ -60,7 +58,7 @@ class DevConsole {
                 fn: () => this.cmdClearAll()
             },
             
-            // Player commands
+            // === PLAYER COMMANDS ===
             tp: {
                 description: 'Teleport to coordinates or node',
                 usage: 'tp <x> <y> or tp <nodeId>',
@@ -77,7 +75,7 @@ class DevConsole {
                 fn: () => this.cmdResetPlayer()
             },
             
-            // Speed controls
+            // === SPEED CONTROLS ===
             playerspeed: {
                 description: 'Set player movement speed',
                 usage: 'playerspeed [speed] (default: 3 tiles/sec)',
@@ -85,7 +83,7 @@ class DevConsole {
             },
             actionspeed: {
                 description: 'Set action duration multiplier',
-                usage: 'actionspeed [multiplier] (0.01 = 100x faster, 0.1 = 10x faster, 2 = 2x slower)',
+                usage: 'actionspeed [multiplier] (0.01 = 100x faster)',
                 fn: (args) => this.cmdActionSpeed(args)
             },
             testmode: {
@@ -103,13 +101,8 @@ class DevConsole {
                 usage: 'resetspeeds',
                 fn: () => this.cmdResetSpeeds()
             },
-            r: {
-                description: 'Reset all speeds to default (shortcut)',
-                usage: 'r',
-                fn: () => this.cmdResetSpeeds()
-            },
             
-            // Skill commands
+            // === SKILLS ===
             setlevel: {
                 description: 'Set skill level',
                 usage: 'setlevel <skill> <level>',
@@ -125,8 +118,18 @@ class DevConsole {
                 usage: 'maxskills',
                 fn: () => this.cmdMaxSkills()
             },
+            maxallxp: {
+                description: 'Set all skills to 200M XP',
+                usage: 'maxallxp',
+                fn: () => this.cmdMaxAllXp()
+            },
+            skillstats: {
+                description: 'Show skill statistics',
+                usage: 'skillstats [skill]',
+                fn: (args) => this.cmdSkillStats(args)
+            },
             
-            // Inventory commands
+            // === INVENTORY & BANK ===
             give: {
                 description: 'Add items to inventory',
                 usage: 'give <itemId> [quantity]',
@@ -137,29 +140,42 @@ class DevConsole {
                 usage: 'clearinv',
                 fn: () => this.cmdClearInv()
             },
-            
-            // Bank commands
             bank: {
                 description: 'Add items to bank',
                 usage: 'bank <itemId> [quantity]',
                 fn: (args) => this.cmdBank(args)
+            },
+            clearbank: {
+                description: 'Clear bank',
+                usage: 'clearbank',
+                fn: () => this.cmdClearBank()
             },
             giveall: {
                 description: 'Add all items to bank',
                 usage: 'giveall [quantity]',
                 fn: (args) => this.cmdGiveAll(args)
             },
+            bankstats: {
+                description: 'Show bank statistics',
+                usage: 'bankstats',
+                fn: () => this.cmdBankStats()
+            },
             
-            // Task commands
+            // === TASKS ===
             tasks: {
                 description: 'List all current tasks',
                 usage: 'tasks',
                 fn: () => this.cmdListTasks()
             },
             completetask: {
-                description: 'Instantly complete a task',
-                usage: 'completetask <index>',
-                fn: (args) => this.cmdCompleteTask(args)
+                description: 'Complete current task instantly',
+                usage: 'completetask',
+                fn: () => this.cmdCompleteCurrentTask()
+            },
+            completetasks: {
+                description: 'Complete multiple tasks',
+                usage: 'completetasks <count>',
+                fn: (args) => this.cmdCompleteTasks(args)
             },
             rerolltask: {
                 description: 'Reroll a specific task',
@@ -171,13 +187,111 @@ class DevConsole {
                 usage: 'cleartasks',
                 fn: () => this.cmdClearTasks()
             },
-            generatetasks: {
-                description: 'Generate new batch of tasks',
-                usage: 'generatetasks',
-                fn: () => this.cmdGenerateTasks()
+            taskstats: {
+                description: 'Show task completion statistics',
+                usage: 'taskstats',
+                fn: () => this.cmdTaskStats()
             },
             
-            // AI commands
+            // === RUNECRED SYSTEM ===
+            rc: {
+                description: 'Show or set RuneCred amount',
+                usage: 'rc [amount]',
+                fn: (args) => this.cmdRuneCred(args)
+            },
+            addrc: {
+                description: 'Add RuneCred',
+                usage: 'addrc <amount>',
+                fn: (args) => this.cmdAddRuneCred(args)
+            },
+            skillcred: {
+                description: 'Show or set Skill Cred',
+                usage: 'skillcred [spent]',
+                fn: (args) => this.cmdSkillCred(args)
+            },
+            skillcredits: {
+                description: 'Show or set skill-specific credits',
+                usage: 'skillcredits <skill> [amount]',
+                fn: (args) => this.cmdSkillCredits(args)
+            },
+            rcstatus: {
+                description: 'Show complete RuneCred status',
+                usage: 'rcstatus [skill]',
+                fn: (args) => this.cmdRuneCreditStatus(args)
+            },
+            rcpersist: {
+                description: 'Toggle RuneCred persistence',
+                usage: 'rcpersist [on/off]',
+                fn: (args) => this.cmdRuneCreditPersistence(args)
+            },
+            rcreset: {
+                description: 'Reset all RuneCred data',
+                usage: 'rcreset',
+                fn: () => this.cmdResetRuneCred()
+            },
+            setweight: {
+                description: 'Set skill weight directly',
+                usage: 'setweight <skill> <level> (-10 to 10)',
+                fn: (args) => this.cmdSetWeight(args)
+            },
+            
+            // === PETS ===
+            pet: {
+                description: 'Grant pet for a skill',
+                usage: 'pet <skill> [shiny] [count]',
+                fn: (args) => this.cmdPet(args)
+            },
+            removepet: {
+                description: 'Remove all pets for a skill',
+                usage: 'removepet <skill>',
+                fn: (args) => this.cmdRemovePet(args)
+            },
+            allpets: {
+                description: 'Grant all pets',
+                usage: 'allpets [shiny]',
+                fn: (args) => this.cmdAllPets(args)
+            },
+            petstats: {
+                description: 'Show pet statistics',
+                usage: 'petstats [skill]',
+                fn: (args) => this.cmdPetStats(args)
+            },
+            
+            // === CAPES ===
+            cape: {
+                description: 'Grant skill cape',
+                usage: 'cape <skill> [trimmed]',
+                fn: (args) => this.cmdCape(args)
+            },
+            allcapes: {
+                description: 'Grant all skill capes',
+                usage: 'allcapes [trimmed]',
+                fn: (args) => this.cmdAllCapes(args)
+            },
+            maxcape: {
+                description: 'Toggle max cape',
+                usage: 'maxcape [on/off]',
+                fn: (args) => this.cmdMaxCape(args)
+            },
+            capestats: {
+                description: 'Show cape ownership',
+                usage: 'capestats',
+                fn: () => this.cmdCapeStats()
+            },
+            
+            // === SPEED BONUSES ===
+            speedbonuses: {
+                description: 'Show all speed bonuses',
+                usage: 'speedbonuses',
+                fn: () => this.cmdSpeedBonuses()
+            },
+            resetbonuses: {
+                description: 'Reset all speed bonuses',
+                usage: 'resetbonuses',
+                fn: () => this.cmdResetBonuses()
+            },
+            
+            // === AI CONTROL ===
             pauseai: {
                 description: 'Toggle AI pause',
                 usage: 'pauseai',
@@ -188,8 +302,18 @@ class DevConsole {
                 usage: 'aistatus',
                 fn: () => this.cmdAIStatus()
             },
+            aistart: {
+                description: 'Start AI if paused',
+                usage: 'aistart',
+                fn: () => this.cmdAIStart()
+            },
+            aistop: {
+                description: 'Stop AI',
+                usage: 'aistop',
+                fn: () => this.cmdAIStop()
+            },
             
-            // Activity commands
+            // === ACTIVITY CONTROL ===
             startactivity: {
                 description: 'Start an activity',
                 usage: 'startactivity <activityId>',
@@ -201,7 +325,7 @@ class DevConsole {
                 fn: () => this.cmdStopActivity()
             },
             
-            // Debug commands
+            // === DEBUG TOOLS ===
             nodes: {
                 description: 'List all nodes or search',
                 usage: 'nodes [search]',
@@ -228,83 +352,26 @@ class DevConsole {
                 fn: () => this.cmdNodeText()
             },
             
-            // ==================== NEW RUNECRED COMMANDS ====================
-            rc: {
-                description: 'Show or set RuneCred amount',
-                usage: 'rc [amount]',
-                fn: (args) => this.cmdRuneCred(args)
+            // === PRESETS ===
+            preset: {
+                description: 'Load a testing preset',
+                usage: 'preset <name> (fishing, mining, runecraft, agility, all99)',
+                fn: (args) => this.cmdPreset(args)
             },
-            addrc: {
-                description: 'Add RuneCred',
-                usage: 'addrc <amount>',
-                fn: (args) => this.cmdAddRuneCred(args)
+            save: {
+                description: 'Save current state',
+                usage: 'save <name>',
+                fn: (args) => this.cmdSaveState(args)
             },
-            rcstatus: {
-                description: 'Show RuneCred status and weights',
-                usage: 'rcstatus [skill]',
-                fn: (args) => this.cmdRuneCreditStatus(args)
+            load: {
+                description: 'Load saved state',
+                usage: 'load <name>',
+                fn: (args) => this.cmdLoadState(args)
             },
-            rcpersist: {
-                description: 'Toggle RuneCred persistence',
-                usage: 'rcpersist [on/off]',
-                fn: (args) => this.cmdRuneCreditPersistence(args)
-            },
-            rcreset: {
-                description: 'Reset all RuneCred data',
-                usage: 'rcreset',
-                fn: () => this.cmdResetRuneCred()
-            },
-            setweight: {
-                description: 'Set skill weight level',
-                usage: 'setweight <skill> <level> (-10 to 10)',
-                fn: (args) => this.cmdSetWeight(args)
-            },
-            completetasks: {
-                description: 'Complete multiple tasks instantly',
-                usage: 'completetasks <count>',
-                fn: (args) => this.cmdCompleteTasks(args)
-            },
-            
-            // ==================== PET & CAPE COMMANDS ====================
-            pet: {
-                description: 'Grant pet for a skill',
-                usage: 'pet <skill> [shiny]',
-                fn: (args) => this.cmdPet(args)
-            },
-            removepet: {
-                description: 'Remove pet for a skill',
-                usage: 'removepet <skill>',
-                fn: (args) => this.cmdRemovePet(args)
-            },
-            allpets: {
-                description: 'Grant all pets',
-                usage: 'allpets [shiny]',
-                fn: (args) => this.cmdAllPets(args)
-            },
-            cape: {
-                description: 'Grant skill cape',
-                usage: 'cape <skill> [trimmed]',
-                fn: (args) => this.cmdCape(args)
-            },
-            allcapes: {
-                description: 'Grant all skill capes',
-                usage: 'allcapes [trimmed]',
-                fn: (args) => this.cmdAllCapes(args)
-            },
-            maxcape: {
-                description: 'Toggle max cape',
-                usage: 'maxcape [on/off]',
-                fn: (args) => this.cmdMaxCape(args)
-            },
-            speedbonuses: {
-                description: 'Show all speed bonuses',
-                usage: 'speedbonuses',
-                fn: () => this.cmdSpeedBonuses()
-            },
-            resetbonuses: {
-                description: 'Reset all speed bonuses',
-                usage: 'resetbonuses',
-                fn: () => this.cmdResetBonuses()
+            liststates: {
+                description: 'List saved states',
+                usage: 'liststates',
+                fn: () => this.cmdListStates()
             }
         };
     }
@@ -560,6 +627,9 @@ class DevConsole {
             } else if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 this.navigateHistory(1);
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                this.autocomplete();
             }
         });
     }
@@ -644,6 +714,21 @@ class DevConsole {
         }
     }
 
+    autocomplete() {
+        const currentValue = this.inputField.value.toLowerCase();
+        if (!currentValue) return;
+        
+        const matches = Object.keys(this.commands).filter(cmd => 
+            cmd.startsWith(currentValue)
+        );
+        
+        if (matches.length === 1) {
+            this.inputField.value = matches[0] + ' ';
+        } else if (matches.length > 1) {
+            this.log('Possible commands: ' + matches.join(', '), 'info');
+        }
+    }
+
     // ==================== HELPER METHODS ====================
 
     requireSystem(systemName, windowProperty) {
@@ -694,6 +779,7 @@ class DevConsole {
         const skill = skills.skills[skillId.toLowerCase()];
         if (!skill) {
             this.log(`Unknown skill: ${skillId}`, 'error');
+            this.log('Valid skills: ' + Object.keys(skills.skills).join(', '), 'info');
             return null;
         }
         return skillId.toLowerCase();
@@ -747,7 +833,145 @@ class DevConsole {
         return matches;
     }
 
-    // ==================== SPEED CONTROL COMMANDS ====================
+    // ==================== HELP COMMAND ====================
+
+    cmdHelp(args) {
+        if (args.length > 0) {
+            const cmd = args[0].toLowerCase();
+            if (this.commands[cmd]) {
+                this.log(`${cmd}: ${this.commands[cmd].description}`, 'info');
+                this.log(`Usage: ${this.commands[cmd].usage}`, 'info');
+            } else {
+                this.log(`Unknown command: ${cmd}`, 'error');
+            }
+        } else {
+            this.log('=== AVAILABLE COMMANDS ===', 'info');
+            
+            // Group commands by category
+            const categories = {
+                'Console': ['help', 'clear', 'clearconsole', 'clearall'],
+                'Player': ['tp', 'pos', 'resetplayer'],
+                'Speed': ['playerspeed', 'actionspeed', 'testmode', 't', 'resetspeeds'],
+                'Skills': ['setlevel', 'addxp', 'maxskills', 'maxallxp', 'skillstats'],
+                'Inventory': ['give', 'clearinv', 'bank', 'clearbank', 'giveall', 'bankstats'],
+                'Tasks': ['tasks', 'completetask', 'completetasks', 'rerolltask', 'cleartasks', 'taskstats'],
+                'RuneCred': ['rc', 'addrc', 'skillcred', 'skillcredits', 'rcstatus', 'rcpersist', 'rcreset', 'setweight'],
+                'Pets': ['pet', 'removepet', 'allpets', 'petstats'],
+                'Capes': ['cape', 'allcapes', 'maxcape', 'capestats'],
+                'Speed Bonuses': ['speedbonuses', 'resetbonuses'],
+                'AI': ['pauseai', 'aistatus', 'aistart', 'aistop'],
+                'Activity': ['startactivity', 'stopactivity'],
+                'Debug': ['nodes', 'items', 'activities', 'collision', 'nodetext'],
+                'Presets': ['preset', 'save', 'load', 'liststates']
+            };
+            
+            for (const [category, cmds] of Object.entries(categories)) {
+                this.log(``, 'info');
+                this.log(`--- ${category} ---`, 'info');
+                for (const cmdName of cmds) {
+                    if (this.commands[cmdName]) {
+                        this.log(`  ${cmdName} - ${this.commands[cmdName].description}`, 'info');
+                    }
+                }
+            }
+            
+            this.log(``, 'info');
+            this.log('Type "help <command>" for detailed usage', 'info');
+        }
+    }
+
+    // ==================== CONSOLE COMMANDS ====================
+
+    cmdClearCommands() {
+        this.outputDiv.innerHTML = '';
+        this.log('Command output cleared', 'success');
+    }
+
+    cmdClearConsole() {
+        this.consoleOutputDiv.innerHTML = '';
+        this.consoleOutput = [];
+        this.log('Console output cleared', 'success');
+    }
+
+    cmdClearAll() {
+        this.outputDiv.innerHTML = '';
+        this.consoleOutputDiv.innerHTML = '';
+        this.consoleOutput = [];
+        this.log('All output cleared', 'success');
+    }
+
+    // ==================== PLAYER COMMANDS ====================
+
+    cmdTeleport(args) {
+        if (!this.requireSystem('Player', 'player')) return;
+        
+        if (args.length === 2) {
+            // Teleport to coordinates
+            const x = this.parseIntArg(args[0], 'X coordinate');
+            const y = this.parseIntArg(args[1], 'Y coordinate');
+            if (x === null || y === null) return;
+            
+            player.position.x = x;
+            player.position.y = y;
+            player.path = [];
+            player.targetPosition = null;
+            player.targetNode = null;
+            player.currentNode = null;
+            player.stopActivity();
+            
+            this.log(`Teleported to ${x}, ${y}`, 'success');
+        } else if (args.length === 1) {
+            // Teleport to node
+            const nodeId = args[0];
+            const node = nodes.getNode(nodeId);
+            
+            if (!node) {
+                this.log(`Node not found: ${nodeId}`, 'error');
+                return;
+            }
+            
+            player.position.x = node.position.x + 0.5;
+            player.position.y = node.position.y + 0.5;
+            player.path = [];
+            player.targetPosition = null;
+            player.targetNode = null;
+            player.currentNode = nodeId;
+            player.stopActivity();
+            
+            this.log(`Teleported to ${node.name} (${nodeId})`, 'success');
+        } else {
+            this.log('Usage: tp <x> <y> or tp <nodeId>', 'error');
+        }
+    }
+
+    cmdPosition() {
+        if (!this.requireSystem('Player', 'player')) return;
+        
+        this.log(`Position: ${Math.round(player.position.x)}, ${Math.round(player.position.y)}`, 'info');
+        if (player.currentNode) {
+            const node = nodes.getNode(player.currentNode);
+            this.log(`Current node: ${player.currentNode} (${node ? node.name : 'unknown'})`, 'info');
+        } else {
+            this.log(`Current node: none`, 'info');
+        }
+    }
+
+    cmdResetPlayer() {
+        if (!this.requireSystem('Player', 'player')) return;
+        
+        player.position.x = 4395;
+        player.position.y = 1882;
+        player.currentNode = 'lumbridge_bank';
+        player.stopActivity();
+        player.path = [];
+        player.pathIndex = 0;
+        player.targetPosition = null;
+        player.targetNode = null;
+        
+        this.log('Player reset to starting position', 'success');
+    }
+
+    // ==================== SPEED COMMANDS ====================
 
     cmdPlayerSpeed(args) {
         if (args.length === 0) {
@@ -865,125 +1089,7 @@ class DevConsole {
         this.log('All speeds reset to default', 'success');
     }
 
-    // ==================== COMMAND IMPLEMENTATIONS ====================
-
-    cmdHelp(args) {
-        if (args.length > 0) {
-            const cmd = args[0].toLowerCase();
-            if (this.commands[cmd]) {
-                this.log(`${cmd}: ${this.commands[cmd].description}`, 'info');
-                this.log(`Usage: ${this.commands[cmd].usage}`, 'info');
-            } else {
-                this.log(`Unknown command: ${cmd}`, 'error');
-            }
-        } else {
-            this.log('Available commands:', 'info');
-            
-            // Group commands by category
-            const categories = {
-                'Console': ['help', 'clear', 'clearconsole', 'clearall'],
-                'Player': ['tp', 'pos', 'resetplayer'],
-                'Speed': ['playerspeed', 'actionspeed', 'testmode', 't', 'resetspeeds', 'r'],
-                'Skills': ['setlevel', 'addxp', 'maxskills'],
-                'Inventory': ['give', 'clearinv'],
-                'Bank': ['bank', 'giveall'],
-                'Tasks': ['tasks', 'completetask', 'rerolltask', 'cleartasks', 'generatetasks', 'completetasks'],
-                'RuneCred': ['rc', 'addrc', 'rcstatus', 'rcpersist', 'rcreset', 'setweight'],
-                'Pets & Capes': ['pet', 'removepet', 'allpets', 'cape', 'allcapes', 'maxcape', 'speedbonuses', 'resetbonuses'],
-                'AI': ['pauseai', 'aistatus'],
-                'Activity': ['startactivity', 'stopactivity'],
-                'Debug': ['nodes', 'items', 'activities', 'collision', 'nodetext']
-            };
-            
-            for (const [category, cmds] of Object.entries(categories)) {
-                this.log(`--- ${category} ---`, 'info');
-                for (const cmdName of cmds) {
-                    if (this.commands[cmdName]) {
-                        this.log(`  ${cmdName} - ${this.commands[cmdName].description}`, 'info');
-                    }
-                }
-            }
-        }
-    }
-
-    cmdClearCommands() {
-        this.outputDiv.innerHTML = '';
-        this.log('Command output cleared', 'success');
-    }
-
-    cmdClearConsole() {
-        this.consoleOutputDiv.innerHTML = '';
-        this.consoleOutput = [];
-        this.log('Console output cleared', 'success');
-    }
-
-    cmdClearAll() {
-        this.outputDiv.innerHTML = '';
-        this.consoleOutputDiv.innerHTML = '';
-        this.consoleOutput = [];
-        this.log('All output cleared', 'success');
-    }
-
-    cmdTeleport(args) {
-        if (!this.requireSystem('Player', 'player')) return;
-        
-        if (args.length === 2) {
-            // Teleport to coordinates
-            const x = this.parseIntArg(args[0], 'X coordinate');
-            const y = this.parseIntArg(args[1], 'Y coordinate');
-            if (x === null || y === null) return;
-            
-            player.position.x = x;
-            player.position.y = y;
-            player.path = [];
-            player.targetPosition = null;
-            player.targetNode = null;
-            player.currentNode = null;
-            player.stopActivity();
-            
-            this.log(`Teleported to ${x}, ${y}`, 'success');
-        } else if (args.length === 1) {
-            // Teleport to node
-            const nodeId = args[0];
-            const node = nodes.getNode(nodeId);
-            
-            if (!node) {
-                this.log(`Node not found: ${nodeId}`, 'error');
-                return;
-            }
-            
-            player.position.x = node.position.x + 0.5;
-            player.position.y = node.position.y + 0.5;
-            player.path = [];
-            player.targetPosition = null;
-            player.targetNode = null;
-            player.currentNode = nodeId;
-            player.stopActivity();
-            
-            this.log(`Teleported to ${node.name} (${nodeId})`, 'success');
-        } else {
-            this.log('Usage: tp <x> <y> or tp <nodeId>', 'error');
-        }
-    }
-
-    cmdPosition() {
-        if (!this.requireSystem('Player', 'player')) return;
-        
-        this.log(`Position: ${Math.round(player.position.x)}, ${Math.round(player.position.y)}`, 'info');
-        if (player.currentNode) {
-            const node = nodes.getNode(player.currentNode);
-            this.log(`Current node: ${player.currentNode} (${node ? node.name : 'unknown'})`, 'info');
-        } else {
-            this.log(`Current node: none`, 'info');
-        }
-    }
-
-    cmdResetPlayer() {
-        if (!this.requireSystem('Test scenario', 'testScenario')) return;
-        
-        testScenario.resetPlayer();
-        this.log('Player reset to starting position', 'success');
-    }
+    // ==================== SKILL COMMANDS ====================
 
     cmdSetLevel(args) {
         if (args.length !== 2) {
@@ -997,17 +1103,12 @@ class DevConsole {
         const level = this.parseIntArg(args[1], 'Level', 1, 99);
         if (level === null) return;
         
-        if (window.testScenario) {
-            testScenario.setSkillLevel(skillId, level);
-        } else {
-            // Direct method if testScenario not available
-            const targetXp = window.getXpForLevel(level);
-            const skill = skills.skills[skillId];
-            if (skill) {
-                skill.xp = targetXp;
-                skill.level = level;
-                skill.xpForNextLevel = window.getXpForLevel(level + 1);
-            }
+        const targetXp = getXpForLevel(level);
+        const skill = skills.skills[skillId];
+        if (skill) {
+            skill.xp = targetXp;
+            skill.level = level;
+            skill.xpForNextLevel = getXpForLevel(level + 1);
         }
         
         // Update speed bonuses after changing levels
@@ -1031,7 +1132,7 @@ class DevConsole {
         const amount = this.parseIntArg(args[1], 'Amount', 0);
         if (amount === null) return;
         
-        skills.addXp(skillId, amount);
+        const actualGained = skills.addXp(skillId, amount);
         
         // Update speed bonuses after adding XP
         if (window.runeCreditManager) {
@@ -1039,13 +1140,21 @@ class DevConsole {
         }
         
         if (window.ui) ui.updateSkillsList();
-        this.log(`Added ${window.formatNumber(amount)} XP to ${skillId}`, 'success');
+        this.log(`Added ${formatNumber(actualGained)} XP to ${skillId}`, 'success');
+        
+        const skill = skills.skills[skillId];
+        this.log(`${skillId} is now level ${skill.level} with ${formatNumber(Math.floor(skill.xp))} XP`, 'info');
     }
 
     cmdMaxSkills() {
-        if (!this.requireSystem('Test scenario', 'testScenario')) return;
+        if (!this.requireSystem('Skills', 'skills')) return;
         
-        testScenario.maxAllSkills();
+        for (const skillId of Object.keys(skills.skills)) {
+            const skill = skills.skills[skillId];
+            skill.xp = getXpForLevel(99);
+            skill.level = 99;
+            skill.xpForNextLevel = getXpForLevel(100);
+        }
         
         // Update speed bonuses after maxing skills
         if (window.runeCreditManager) {
@@ -1053,8 +1162,76 @@ class DevConsole {
         }
         
         if (window.ui) ui.updateSkillsList();
-        this.log('All skills set to 99', 'success');
+        this.log('All skills set to level 99', 'success');
     }
+
+    cmdMaxAllXp() {
+        if (!this.requireSystem('Skills', 'skills')) return;
+        
+        for (const skillId of Object.keys(skills.skills)) {
+            const skill = skills.skills[skillId];
+            skill.xp = 200000000;
+            skill.level = 99;
+            skill.xpForNextLevel = 200000000;
+        }
+        
+        // Update speed bonuses
+        if (window.runeCreditManager) {
+            runeCreditManager.updateSpeedBonuses();
+        }
+        
+        if (window.ui) ui.updateSkillsList();
+        this.log('All skills set to 200M XP', 'success');
+    }
+
+    cmdSkillStats(args) {
+        if (!this.requireSystem('Skills', 'skills')) return;
+        
+        if (args.length > 0) {
+            const skillId = this.validateSkill(args[0]);
+            if (!skillId) return;
+            
+            const skill = skills.skills[skillId];
+            this.log(`=== ${skill.name.toUpperCase()} STATS ===`, 'info');
+            this.log(`Level: ${skill.level}`, 'info');
+            this.log(`XP: ${formatNumber(Math.floor(skill.xp))}`, 'info');
+            
+            if (skill.level < 99) {
+                const nextLevel = getXpForLevel(skill.level + 1);
+                const xpToNext = nextLevel - skill.xp;
+                this.log(`XP to next level: ${formatNumber(Math.floor(xpToNext))}`, 'info');
+            }
+            
+            // Show speed bonuses
+            if (window.runeCreditManager) {
+                const speedBonus = runeCreditManager.getSkillSpeedBonus(skillId);
+                if (speedBonus > 0) {
+                    this.log(`Speed bonus: +${Math.round(speedBonus * 100)}%`, 'info');
+                }
+            }
+        } else {
+            // Show overall stats
+            this.log('=== SKILL STATISTICS ===', 'info');
+            this.log(`Total Level: ${skills.getTotalLevel()}`, 'info');
+            this.log(`Combat Level: ${skills.getCombatLevel()}`, 'info');
+            
+            let totalXp = 0;
+            let maxedSkills = 0;
+            let maxXpSkills = 0;
+            
+            for (const skill of Object.values(skills.skills)) {
+                totalXp += Math.floor(skill.xp);
+                if (skill.level >= 99) maxedSkills++;
+                if (skill.xp >= 200000000) maxXpSkills++;
+            }
+            
+            this.log(`Total XP: ${formatNumber(totalXp)}`, 'info');
+            this.log(`Skills at 99: ${maxedSkills}/${Object.keys(skills.skills).length}`, 'info');
+            this.log(`Skills at 200M XP: ${maxXpSkills}/${Object.keys(skills.skills).length}`, 'info');
+        }
+    }
+
+    // ==================== INVENTORY & BANK COMMANDS ====================
 
     cmdGive(args) {
         if (!this.requireSystem('Inventory', 'inventory')) return;
@@ -1073,6 +1250,10 @@ class DevConsole {
         const items = loadingManager.getData('items');
         const added = inventory.addItem(itemId, quantity);
         this.log(`Added ${added} ${items[itemId].name} to inventory`, 'success');
+        
+        if (added < quantity) {
+            this.log(`Only ${added} of ${quantity} added (inventory full)`, 'warn');
+        }
     }
 
     cmdClearInv() {
@@ -1101,14 +1282,49 @@ class DevConsole {
         this.log(`Added ${quantity} ${items[itemId].name} to bank`, 'success');
     }
 
+    cmdClearBank() {
+        if (!this.requireSystem('Bank', 'bank')) return;
+        
+        bank.items = {};
+        if (window.ui) ui.updateBank();
+        this.log('Bank cleared', 'success');
+    }
+
     cmdGiveAll(args) {
-        if (!this.requireSystem('Test scenario', 'testScenario')) return;
+        if (!this.requireSystem('Bank', 'bank')) return;
         
         const quantity = args.length > 0 ? this.parseIntArg(args[0], 'Quantity', 1) : 100;
         if (quantity === null) return;
         
-        testScenario.giveAllItems(quantity);
-        this.log(`Added ${quantity} of each item to bank`, 'success');
+        const items = loadingManager.getData('items');
+        let count = 0;
+        
+        for (const itemId of Object.keys(items)) {
+            bank.deposit(itemId, quantity);
+            count++;
+        }
+        
+        this.log(`Added ${quantity} of each item to bank (${count} items)`, 'success');
+    }
+
+    cmdBankStats() {
+        if (!this.requireSystem('Bank', 'bank')) return;
+        
+        this.log('=== BANK STATISTICS ===', 'info');
+        this.log(`Unique items: ${bank.getUniqueItems()}`, 'info');
+        this.log(`Total items: ${formatNumber(bank.getTotalItems())}`, 'info');
+        
+        // Show top 5 items by quantity
+        const items = Object.entries(bank.items).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        if (items.length > 0) {
+            this.log('', 'info');
+            this.log('Top items by quantity:', 'info');
+            const itemsData = loadingManager.getData('items');
+            for (const [itemId, quantity] of items) {
+                const itemName = itemsData[itemId]?.name || itemId;
+                this.log(`  ${itemName}: ${formatNumber(quantity)}`, 'info');
+            }
+        }
     }
 
     // ==================== TASK COMMANDS ====================
@@ -1125,78 +1341,48 @@ class DevConsole {
         
         this.log('=== CURRENT TASKS ===', 'info');
         
-        // Check which task is current (first incomplete)
-        const currentTask = taskManager.getFirstIncompleteTask();
-        
-        tasks.forEach((task, index) => {
-            const isComplete = task.progress >= 1;
-            const isCurrent = task === currentTask;
-            
-            let status = '';
-            if (isCurrent) status = ' [ACTIVE]';
-            else if (isComplete) status = ' [COMPLETE]';
-            
-            let progressText = '';
-            if (task.isCookingTask) {
-                // Cooking task - show raw food consumed
-                const consumed = task.rawFoodConsumed || 0;
-                progressText = `${consumed}/${task.targetCount}`;
-            } else {
-                // Gathering task - show items collected
-                const current = Math.floor(task.progress * task.targetCount);
-                progressText = `${current}/${task.targetCount}`;
-            }
-            
+        // Current task
+        if (taskManager.currentTask) {
+            const task = taskManager.currentTask;
+            const progressText = `${Math.floor(task.progress * task.targetCount)}/${task.targetCount}`;
             const percentage = Math.floor(task.progress * 100);
             
-            this.log(
-                `#${index + 1}: ${task.description} - ${progressText} (${percentage}%)${status}`,
-                isComplete ? 'success' : (isCurrent ? 'command' : 'info')
-            );
-        });
+            this.log(`CURRENT: ${task.description} - ${progressText} (${percentage}%)`, 
+                task.progress >= 1 ? 'success' : 'command');
+        }
         
-        // Show AI status if available
+        // Next task
+        if (taskManager.nextTask) {
+            this.log(`NEXT: ${taskManager.nextTask.description}`, 'info');
+        }
+        
+        // Regular tasks
+        if (taskManager.tasks.length > 0) {
+            this.log('', 'info');
+            this.log('Rerollable tasks:', 'info');
+            taskManager.tasks.forEach((task, index) => {
+                this.log(`  #${index + 1}: ${task.description}`, 'info');
+            });
+        }
+        
+        // Show AI status
         if (window.ai && window.ai.currentTask) {
             this.log('', 'info');
             this.log(`AI working on: ${window.ai.currentTask.description}`, 'info');
         }
     }
 
-    cmdCompleteTask(args) {
+    cmdCompleteCurrentTask() {
         if (!this.requireSystem('Task Manager', 'taskManager')) return;
         
-        if (args.length !== 1) {
-            this.log('Usage: completetask <index>', 'error');
-            this.log('Example: completetask 1 (completes first task)', 'info');
+        if (!taskManager.currentTask) {
+            this.log('No current task to complete', 'error');
             return;
         }
         
-        const index = this.parseIntArg(args[0], 'Task index', 1, taskManager.tasks.length);
-        if (index === null) return;
+        const task = taskManager.currentTask;
         
-        const taskIndex = index - 1; // Convert to 0-based index
-        const task = taskManager.tasks[taskIndex];
-        
-        if (!task) {
-            this.log(`Task #${index} not found`, 'error');
-            return;
-        }
-        
-        // For gathering tasks, add items to bank to complete
-        if (!task.isCookingTask) {
-            const currentCount = taskManager.getCurrentItemCount(task.itemId);
-            const needed = task.targetCount - currentCount + (task.startingCount || 0);
-            
-            if (needed > 0) {
-                bank.deposit(task.itemId, needed);
-                this.log(`Added ${needed} ${task.itemId} to bank`, 'info');
-            }
-        } else {
-            // For cooking tasks, just mark as complete
-            task.rawFoodConsumed = task.targetCount;
-        }
-        
-        // Mark task as complete
+        // Set progress to complete
         taskManager.setTaskProgress(task, 1);
         
         this.log(`Completed task: ${task.description}`, 'success');
@@ -1221,20 +1407,20 @@ class DevConsole {
         let completed = 0;
         
         for (let i = 0; i < count; i++) {
-            // Complete the current task
-            const currentTask = taskManager.getFirstIncompleteTask();
-            if (!currentTask) {
-                this.log('No more tasks to complete', 'info');
+            if (!taskManager.currentTask) {
                 break;
             }
             
-            // Mark as complete
-            taskManager.setTaskProgress(currentTask, 1);
+            // Complete current task
+            taskManager.setTaskProgress(taskManager.currentTask, 1);
             completed++;
         }
         
         this.log(`Completed ${completed} tasks`, 'success');
-        this.log(`Total RuneCred: ${runeCreditManager.runecred}`, 'info');
+        
+        if (window.runeCreditManager) {
+            this.log(`Total RuneCred: ${runeCreditManager.runecred}`, 'info');
+        }
         
         // Update UI
         if (window.ui) {
@@ -1246,15 +1432,14 @@ class DevConsole {
         if (!this.requireSystem('Task Manager', 'taskManager')) return;
         
         if (args.length !== 1) {
-            this.log('Usage: rerolltask <index>', 'error');
-            this.log('Example: rerolltask 1 (rerolls first task)', 'info');
+            this.log('Usage: rerolltask <index> (1-5)', 'error');
             return;
         }
         
         const index = this.parseIntArg(args[0], 'Task index', 1, taskManager.tasks.length);
         if (index === null) return;
         
-        const taskIndex = index - 1; // Convert to 0-based index
+        const taskIndex = index - 1;
         const oldTask = taskManager.tasks[taskIndex];
         
         if (!oldTask) {
@@ -1277,16 +1462,40 @@ class DevConsole {
         taskManager.clearTasks();
         this.log('All tasks cleared', 'success');
         
-        // Generate new tasks
         taskManager.generateNewTasks();
         this.log('Generated new batch of tasks', 'success');
     }
 
-    cmdGenerateTasks() {
+    cmdTaskStats() {
         if (!this.requireSystem('Task Manager', 'taskManager')) return;
         
-        taskManager.generateNewTasks();
-        this.log('Generated new batch of tasks', 'success');
+        this.log('=== TASK STATISTICS ===', 'info');
+        
+        const completed = taskManager.getCompletedTasks();
+        this.log(`Tasks completed: ${completed.length}`, 'info');
+        
+        if (completed.length > 0) {
+            // Count by skill
+            const bySkill = {};
+            for (const task of completed) {
+                if (!bySkill[task.skill]) bySkill[task.skill] = 0;
+                bySkill[task.skill]++;
+            }
+            
+            this.log('', 'info');
+            this.log('Completed by skill:', 'info');
+            for (const [skill, count] of Object.entries(bySkill)) {
+                this.log(`  ${skill}: ${count}`, 'info');
+            }
+            
+            // Show last 5 completed
+            this.log('', 'info');
+            this.log('Recently completed:', 'info');
+            const recent = completed.slice(-5).reverse();
+            for (const task of recent) {
+                this.log(`  - ${task.description}`, 'info');
+            }
+        }
     }
 
     // ==================== RUNECRED COMMANDS ====================
@@ -1296,8 +1505,6 @@ class DevConsole {
         
         if (args.length === 0) {
             this.log(`Current RuneCred: ${runeCreditManager.runecred}`, 'info');
-            this.log(`Total tasks completed: ${runeCreditManager.totalTasksCompleted}`, 'info');
-            this.log(`Milestones reached: ${runeCreditManager.lastMilestone}`, 'info');
             return;
         }
         
@@ -1307,11 +1514,6 @@ class DevConsole {
         runeCreditManager.runecred = amount;
         runeCreditManager.saveData();
         this.log(`Set RuneCred to ${amount}`, 'success');
-        
-        // Update UI if overlay is open
-        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
-            window.skillCustomizationUI.updateRuneCred();
-        }
     }
 
     cmdAddRuneCred(args) {
@@ -1328,11 +1530,55 @@ class DevConsole {
         runeCreditManager.runecred += amount;
         runeCreditManager.saveData();
         this.log(`Added ${amount} RuneCred (total: ${runeCreditManager.runecred})`, 'success');
+    }
+
+    cmdSkillCred(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
         
-        // Update UI if overlay is open
-        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
-            window.skillCustomizationUI.updateRuneCred();
+        if (args.length === 0) {
+            const available = runeCreditManager.getAvailableSkillCred();
+            const total = runeCreditManager.skillCred;
+            this.log(`Skill Cred: ${available}/${total} (${runeCreditManager.skillCredSpent} spent)`, 'info');
+            return;
         }
+        
+        const spent = this.parseIntArg(args[0], 'Spent amount', 0, 10000);
+        if (spent === null) return;
+        
+        runeCreditManager.skillCredSpent = spent;
+        runeCreditManager.saveData();
+        
+        const available = runeCreditManager.getAvailableSkillCred();
+        const total = runeCreditManager.skillCred;
+        this.log(`Set Skill Cred spent to ${spent} (${available}/${total} available)`, 'success');
+    }
+
+    cmdSkillCredits(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length < 1) {
+            this.log('Usage: skillcredits <skill> [amount]', 'error');
+            return;
+        }
+        
+        const skillId = this.validateSkill(args[0]);
+        if (!skillId) return;
+        
+        if (args.length === 1) {
+            const credits = runeCreditManager.getSkillCredits(skillId);
+            const name = runeCreditManager.getSkillCredName(skillId);
+            this.log(`${name}: ${credits}`, 'info');
+            return;
+        }
+        
+        const amount = this.parseIntArg(args[1], 'Amount', 0, 10000);
+        if (amount === null) return;
+        
+        runeCreditManager.skillCredits[skillId] = amount;
+        runeCreditManager.saveData();
+        
+        const name = runeCreditManager.getSkillCredName(skillId);
+        this.log(`Set ${name} to ${amount}`, 'success');
     }
 
     cmdRuneCreditStatus(args) {
@@ -1342,10 +1588,25 @@ class DevConsole {
             // Show overall status
             this.log('=== RUNECRED STATUS ===', 'info');
             this.log(`RuneCred: ${runeCreditManager.runecred}`, 'info');
+            
+            const availableSkillCred = runeCreditManager.getAvailableSkillCred();
+            const totalSkillCred = runeCreditManager.skillCred;
+            this.log(`Skill Cred: ${availableSkillCred}/${totalSkillCred}`, 'info');
+            
             this.log(`Tasks completed: ${runeCreditManager.totalTasksCompleted}`, 'info');
             this.log(`Persistence: ${runeCreditManager.enablePersistence ? 'ENABLED' : 'DISABLED'}`, 'info');
             
-            // Show skills with modified weights
+            // Show skills with credits
+            this.log('', 'info');
+            this.log('Skill-specific credits:', 'info');
+            for (const [skillId, credits] of Object.entries(runeCreditManager.skillCredits)) {
+                if (credits > 10) { // Only show if more than starting amount
+                    const name = runeCreditManager.getSkillCredName(skillId);
+                    this.log(`  ${name}: ${credits}`, 'info');
+                }
+            }
+            
+            // Show modified weights
             const modifiedSkills = Object.entries(runeCreditManager.skillModLevels)
                 .filter(([_, level]) => level !== 0);
             
@@ -1364,44 +1625,19 @@ class DevConsole {
             
             this.log(`=== ${skillId.toUpperCase()} RUNECRED STATUS ===`, 'info');
             
+            // Skill credits
+            const credits = runeCreditManager.getSkillCredits(skillId);
+            const credName = runeCreditManager.getSkillCredName(skillId);
+            this.log(`${credName}: ${credits}`, 'info');
+            
             // Skill weight
             const skillLevel = runeCreditManager.skillModLevels[skillId] || 0;
             const skillWeight = runeCreditManager.getSkillWeight(skillId);
             this.log(`Skill weight: Level ${skillLevel} (${skillWeight.toFixed(2)}x)`, 'info');
             
-            // RC spent on this skill
-            const rcSpent = runeCreditManager.rcSpentPerSkill[skillId] || 0;
-            this.log(`RC spent: ${rcSpent}`, 'info');
-            
             // Speed bonus
             const speedBonus = runeCreditManager.getSkillSpeedBonus(skillId);
             this.log(`Speed bonus: +${Math.round(speedBonus * 100)}%`, 'info');
-            
-            // Show modified tasks
-            const modifiedTasks = Object.entries(runeCreditManager.taskModLevels[skillId] || {})
-                .filter(([_, level]) => level !== 0);
-            
-            if (modifiedTasks.length > 0) {
-                this.log('', 'info');
-                this.log('Modified task weights:', 'info');
-                for (const [itemId, level] of modifiedTasks) {
-                    const weight = runeCreditManager.getTaskWeight(skillId, itemId);
-                    this.log(`  ${itemId}: Level ${level} (${weight.toFixed(2)}x)`, 'info');
-                }
-            }
-            
-            // Show modified nodes
-            const modifiedNodes = Object.entries(runeCreditManager.nodeModLevels[skillId] || {})
-                .filter(([_, level]) => level !== 0);
-            
-            if (modifiedNodes.length > 0) {
-                this.log('', 'info');
-                this.log('Modified node weights:', 'info');
-                for (const [nodeId, level] of modifiedNodes) {
-                    const weight = runeCreditManager.getNodeWeight(skillId, nodeId);
-                    this.log(`  ${nodeId}: Level ${level} (${weight.toFixed(2)}x)`, 'info');
-                }
-            }
         }
     }
 
@@ -1423,47 +1659,25 @@ class DevConsole {
     cmdResetRuneCred() {
         if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
         
-        // Reset all RuneCred data
-        runeCreditManager.runecred = 500;
+        // Reset all data
+        runeCreditManager.runecred = 5;
+        runeCreditManager.skillCredSpent = 0;
         runeCreditManager.totalTasksCompleted = 0;
-        runeCreditManager.lastMilestone = 0;
         
-        // Reset all modifications
-        for (const skillId of Object.keys(runeCreditManager.skillModLevels)) {
+        // Reset all skills to starting credits
+        for (const skillId of Object.keys(runeCreditManager.skillCredits)) {
+            runeCreditManager.skillCredits[skillId] = 10;
             runeCreditManager.skillModLevels[skillId] = 0;
             runeCreditManager.taskModLevels[skillId] = {};
             runeCreditManager.nodeModLevels[skillId] = {};
             runeCreditManager.quantityModLevels[skillId] = {};
-            runeCreditManager.rcSpentPerSkill[skillId] = 0;
-            
-            // Reset RC pools
-            runeCreditManager.rcPools.skills[skillId] = 0;
-            runeCreditManager.rcPools.tasks[skillId] = {};
-            runeCreditManager.rcPools.nodes[skillId] = {};
-            runeCreditManager.rcPools.quantities[skillId] = {};
         }
         
-        // Reset speed bonuses (but keep actual skill levels)
-        for (const skillId of Object.keys(runeCreditManager.speedBonuses.pets)) {
-            runeCreditManager.speedBonuses.pets[skillId] = false;
-            runeCreditManager.speedBonuses.shinyPets[skillId] = false;
-            runeCreditManager.speedBonuses.skillCapes[skillId] = false;
-            runeCreditManager.speedBonuses.trimmedCapes[skillId] = false;
-        }
-        runeCreditManager.speedBonuses.maxCape = false;
-        
-        // Update based on current levels
-        runeCreditManager.updateSpeedBonuses();
-        
-        // Save if persistence is enabled
+        // Update and save
+        runeCreditManager.updateSkillCred();
         runeCreditManager.saveData();
         
-        this.log('All RuneCred data reset', 'success');
-        
-        // Update UI if overlay is open
-        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
-            window.skillCustomizationUI.render();
-        }
+        this.log('All RuneCred data reset to defaults', 'success');
     }
 
     cmdSetWeight(args) {
@@ -1480,49 +1694,21 @@ class DevConsole {
         const level = this.parseIntArg(args[1], 'Level', -10, 10);
         if (level === null) return;
         
-        // Calculate cost/refund
-        const currentLevel = runeCreditManager.skillModLevels[skillId] || 0;
-        const baseCost = 25;
-        
-        // Reset to 0 first (refund current)
-        if (currentLevel !== 0) {
-            const refund = baseCost * Math.abs(currentLevel) * (Math.abs(currentLevel) + 1) / 2;
-            runeCreditManager.runecred += refund;
-            runeCreditManager.rcPools.skills[skillId] = 0;
-            runeCreditManager.rcSpentPerSkill[skillId] = 0;
-        }
-        
-        // Set to new level (charge for new)
-        if (level !== 0) {
-            const cost = baseCost * Math.abs(level) * (Math.abs(level) + 1) / 2;
-            if (runeCreditManager.runecred < cost) {
-                this.log(`Not enough RuneCred! Need ${cost}, have ${runeCreditManager.runecred}`, 'error');
-                return;
-            }
-            runeCreditManager.runecred -= cost;
-            runeCreditManager.rcPools.skills[skillId] = cost;
-            runeCreditManager.rcSpentPerSkill[skillId] = cost;
-        }
-        
+        // Set directly without cost
         runeCreditManager.skillModLevels[skillId] = level;
         const weight = runeCreditManager.getSkillWeight(skillId);
         
         runeCreditManager.saveData();
         this.log(`Set ${skillId} weight to level ${level} (${weight.toFixed(2)}x)`, 'success');
-        
-        // Update UI if overlay is open
-        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
-            window.skillCustomizationUI.render();
-        }
     }
 
-    // ==================== PET & CAPE COMMANDS ====================
+    // ==================== PET COMMANDS ====================
 
     cmdPet(args) {
         if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
         
         if (args.length < 1) {
-            this.log('Usage: pet <skill> [shiny]', 'error');
+            this.log('Usage: pet <skill> [shiny] [count]', 'error');
             return;
         }
         
@@ -1530,15 +1716,26 @@ class DevConsole {
         if (!skillId) return;
         
         const isShiny = args[1] && args[1].toLowerCase() === 'shiny';
+        const countArg = isShiny ? args[2] : args[1];
+        const count = countArg ? this.parseIntArg(countArg, 'Count', 1, 100) : 1;
+        if (count === null) return;
+        
+        // Initialize if needed
+        if (!runeCreditManager.petCounts[skillId]) {
+            runeCreditManager.petCounts[skillId] = { regular: 0, shiny: 0 };
+        }
         
         if (isShiny) {
+            runeCreditManager.petCounts[skillId].shiny += count;
+            runeCreditManager.totalShinyPetsObtained += count;
+            runeCreditManager.totalPetsObtained += count;
             runeCreditManager.speedBonuses.shinyPets[skillId] = true;
-            runeCreditManager.speedBonuses.pets[skillId] = false; // Shiny overrides regular
-            this.log(`Granted shiny pet for ${skillId} (+10% speed)`, 'success');
+            this.log(`Granted ${count} shiny ${skillId} pet(s) (+10% speed)`, 'success');
         } else {
+            runeCreditManager.petCounts[skillId].regular += count;
+            runeCreditManager.totalPetsObtained += count;
             runeCreditManager.speedBonuses.pets[skillId] = true;
-            runeCreditManager.speedBonuses.shinyPets[skillId] = false; // Regular overrides shiny
-            this.log(`Granted pet for ${skillId} (+5% speed)`, 'success');
+            this.log(`Granted ${count} ${skillId} pet(s) (+5% speed)`, 'success');
         }
         
         runeCreditManager.saveData();
@@ -1555,11 +1752,19 @@ class DevConsole {
         const skillId = this.validateSkill(args[0]);
         if (!skillId) return;
         
+        // Reset pet counts
+        if (runeCreditManager.petCounts[skillId]) {
+            const counts = runeCreditManager.petCounts[skillId];
+            runeCreditManager.totalPetsObtained -= (counts.regular + counts.shiny);
+            runeCreditManager.totalShinyPetsObtained -= counts.shiny;
+            runeCreditManager.petCounts[skillId] = { regular: 0, shiny: 0 };
+        }
+        
         runeCreditManager.speedBonuses.pets[skillId] = false;
         runeCreditManager.speedBonuses.shinyPets[skillId] = false;
         
         runeCreditManager.saveData();
-        this.log(`Removed pet for ${skillId}`, 'success');
+        this.log(`Removed all pets for ${skillId}`, 'success');
     }
 
     cmdAllPets(args) {
@@ -1568,18 +1773,76 @@ class DevConsole {
         const isShiny = args[0] && args[0].toLowerCase() === 'shiny';
         
         for (const skillId of Object.keys(runeCreditManager.speedBonuses.pets)) {
+            // Initialize if needed
+            if (!runeCreditManager.petCounts[skillId]) {
+                runeCreditManager.petCounts[skillId] = { regular: 0, shiny: 0 };
+            }
+            
             if (isShiny) {
+                runeCreditManager.petCounts[skillId].shiny = 1;
                 runeCreditManager.speedBonuses.shinyPets[skillId] = true;
                 runeCreditManager.speedBonuses.pets[skillId] = false;
             } else {
+                runeCreditManager.petCounts[skillId].regular = 1;
                 runeCreditManager.speedBonuses.pets[skillId] = true;
                 runeCreditManager.speedBonuses.shinyPets[skillId] = false;
             }
         }
         
+        // Recalculate totals
+        runeCreditManager.totalPetsObtained = 0;
+        runeCreditManager.totalShinyPetsObtained = 0;
+        for (const counts of Object.values(runeCreditManager.petCounts)) {
+            runeCreditManager.totalPetsObtained += counts.regular + counts.shiny;
+            runeCreditManager.totalShinyPetsObtained += counts.shiny;
+        }
+        
         runeCreditManager.saveData();
         this.log(`Granted all ${isShiny ? 'shiny ' : ''}pets`, 'success');
     }
+
+    cmdPetStats(args) {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        if (args.length > 0) {
+            const skillId = this.validateSkill(args[0]);
+            if (!skillId) return;
+            
+            const stats = runeCreditManager.getPetStats(skillId);
+            this.log(`=== ${skillId.toUpperCase()} PET STATS ===`, 'info');
+            this.log(`Regular pets: ${stats.regular}`, 'info');
+            this.log(`Shiny pets: ${stats.shiny}`, 'info');
+            this.log(`Total: ${stats.total}`, 'info');
+            
+            if (runeCreditManager.speedBonuses.shinyPets[skillId]) {
+                this.log('Speed bonus: +10% (shiny)', 'info');
+            } else if (runeCreditManager.speedBonuses.pets[skillId]) {
+                this.log('Speed bonus: +5% (regular)', 'info');
+            }
+        } else {
+            const stats = runeCreditManager.getGlobalPetStats();
+            this.log('=== GLOBAL PET STATS ===', 'info');
+            this.log(`Total pets obtained: ${stats.total}`, 'info');
+            this.log(`Regular pets: ${stats.regular}`, 'info');
+            this.log(`Shiny pets: ${stats.shiny}`, 'info');
+            
+            // List skills with pets
+            const skillsWithPets = [];
+            for (const [skillId, counts] of Object.entries(runeCreditManager.petCounts)) {
+                if (counts.regular > 0 || counts.shiny > 0) {
+                    skillsWithPets.push(`${skillId} (${counts.regular}R/${counts.shiny}S)`);
+                }
+            }
+            
+            if (skillsWithPets.length > 0) {
+                this.log('', 'info');
+                this.log('Skills with pets:', 'info');
+                this.log('  ' + skillsWithPets.join(', '), 'info');
+            }
+        }
+    }
+
+    // ==================== CAPE COMMANDS ====================
 
     cmdCape(args) {
         if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
@@ -1600,14 +1863,18 @@ class DevConsole {
             if (skill) {
                 skill.xp = 200000000;
                 skill.level = 99;
+                skill.xpForNextLevel = 200000000;
             }
             runeCreditManager.speedBonuses.trimmedCapes[skillId] = true;
-            runeCreditManager.speedBonuses.skillCapes[skillId] = true; // Also have regular
+            runeCreditManager.speedBonuses.skillCapes[skillId] = true;
             this.log(`Granted trimmed cape for ${skillId} (+10% speed)`, 'success');
         } else {
             // Set skill to 99 for regular cape
-            if (window.testScenario) {
-                testScenario.setSkillLevel(skillId, 99);
+            const skill = skills.skills[skillId];
+            if (skill) {
+                skill.xp = getXpForLevel(99);
+                skill.level = 99;
+                skill.xpForNextLevel = getXpForLevel(100);
             }
             runeCreditManager.speedBonuses.skillCapes[skillId] = true;
             this.log(`Granted skill cape for ${skillId} (+5% speed)`, 'success');
@@ -1631,11 +1898,15 @@ class DevConsole {
                 if (skill) {
                     skill.xp = 200000000;
                     skill.level = 99;
+                    skill.xpForNextLevel = 200000000;
                 }
             } else {
                 // Set to level 99
-                if (window.testScenario) {
-                    testScenario.setSkillLevel(skillId, 99);
+                const skill = skills.skills[skillId];
+                if (skill) {
+                    skill.xp = getXpForLevel(99);
+                    skill.level = 99;
+                    skill.xpForNextLevel = getXpForLevel(100);
                 }
             }
         }
@@ -1652,7 +1923,15 @@ class DevConsole {
         
         if (args.length === 0) {
             const hasMaxCape = runeCreditManager.speedBonuses.maxCape;
-            this.log(`Max cape: ${hasMaxCape ? 'OWNED' : 'NOT OWNED'}`, 'info');
+            const hasTrimmedMaxCape = runeCreditManager.speedBonuses.trimmedMaxCape;
+            
+            if (hasTrimmedMaxCape) {
+                this.log('Max cape: TRIMMED (+10% global speed)', 'info');
+            } else if (hasMaxCape) {
+                this.log('Max cape: OWNED (+5% global speed)', 'info');
+            } else {
+                this.log('Max cape: NOT OWNED', 'info');
+            }
             return;
         }
         
@@ -1666,54 +1945,130 @@ class DevConsole {
             this.log('Granted max cape (+5% global speed)', 'success');
         } else {
             runeCreditManager.speedBonuses.maxCape = false;
+            runeCreditManager.speedBonuses.trimmedMaxCape = false;
             this.log('Removed max cape', 'success');
         }
         
         runeCreditManager.saveData();
     }
 
+    cmdCapeStats() {
+        if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
+        
+        this.log('=== CAPE OWNERSHIP ===', 'info');
+        
+        let regularCapes = 0;
+        let trimmedCapes = 0;
+        
+        for (const skillId of Object.keys(skills.skills)) {
+            if (runeCreditManager.speedBonuses.trimmedCapes[skillId]) {
+                trimmedCapes++;
+            } else if (runeCreditManager.speedBonuses.skillCapes[skillId]) {
+                regularCapes++;
+            }
+        }
+        
+        this.log(`Regular skill capes: ${regularCapes}`, 'info');
+        this.log(`Trimmed skill capes: ${trimmedCapes}`, 'info');
+        
+        if (runeCreditManager.speedBonuses.trimmedMaxCape) {
+            this.log('Max cape: TRIMMED', 'info');
+        } else if (runeCreditManager.speedBonuses.maxCape) {
+            this.log('Max cape: REGULAR', 'info');
+        } else {
+            this.log('Max cape: NOT OWNED', 'info');
+        }
+        
+        // List skills with capes
+        const withCapes = [];
+        const withTrimmed = [];
+        
+        for (const skillId of Object.keys(skills.skills)) {
+            if (runeCreditManager.speedBonuses.trimmedCapes[skillId]) {
+                withTrimmed.push(skillId);
+            } else if (runeCreditManager.speedBonuses.skillCapes[skillId]) {
+                withCapes.push(skillId);
+            }
+        }
+        
+        if (withTrimmed.length > 0) {
+            this.log('', 'info');
+            this.log('Trimmed capes:', 'info');
+            this.log('  ' + withTrimmed.join(', '), 'info');
+        }
+        
+        if (withCapes.length > 0) {
+            this.log('', 'info');
+            this.log('Regular capes:', 'info');
+            this.log('  ' + withCapes.join(', '), 'info');
+        }
+    }
+
+    // ==================== SPEED BONUS COMMANDS ====================
+
     cmdSpeedBonuses() {
         if (!this.requireSystem('RuneCred Manager', 'runeCreditManager')) return;
         
         this.log('=== SPEED BONUSES ===', 'info');
         
-        // Show skills with bonuses
+        // Global bonuses
+        if (runeCreditManager.speedBonuses.trimmedMaxCape) {
+            this.log('Trimmed Max Cape: +10% global bonus', 'info');
+        } else if (runeCreditManager.speedBonuses.maxCape) {
+            this.log('Max Cape: +5% global bonus', 'info');
+        }
+        
+        // Per-skill bonuses
+        const skillBonuses = [];
+        
         for (const skillId of Object.keys(skills.skills)) {
             const bonuses = [];
+            let totalBonus = 0;
             
             if (runeCreditManager.speedBonuses.shinyPets[skillId]) {
                 bonuses.push('Shiny Pet (+10%)');
+                totalBonus += 0.10;
             } else if (runeCreditManager.speedBonuses.pets[skillId]) {
                 bonuses.push('Pet (+5%)');
+                totalBonus += 0.05;
             }
             
             if (runeCreditManager.speedBonuses.trimmedCapes[skillId]) {
                 bonuses.push('Trimmed Cape (+10%)');
+                totalBonus += 0.10;
             } else if (runeCreditManager.speedBonuses.skillCapes[skillId]) {
                 bonuses.push('Cape (+5%)');
+                totalBonus += 0.05;
             }
             
             if (bonuses.length > 0) {
-                const totalBonus = runeCreditManager.getSkillSpeedBonus(skillId);
-                this.log(`${skillId}: ${bonuses.join(', ')} = +${Math.round(totalBonus * 100)}%`, 'info');
+                skillBonuses.push({
+                    skill: skillId,
+                    bonuses: bonuses,
+                    total: totalBonus
+                });
             }
         }
         
-        if (runeCreditManager.speedBonuses.maxCape) {
-            this.log('Max Cape: +5% global bonus', 'info');
+        if (skillBonuses.length > 0) {
+            this.log('', 'info');
+            this.log('Per-skill bonuses:', 'info');
+            for (const info of skillBonuses) {
+                this.log(`  ${info.skill}: ${info.bonuses.join(', ')} = +${Math.round(info.total * 100)}%`, 'info');
+            }
         }
         
-        // Show skills without bonuses
-        const skillsWithoutBonuses = Object.keys(skills.skills).filter(skillId => {
+        // Skills without bonuses
+        const withoutBonuses = Object.keys(skills.skills).filter(skillId => {
             return !runeCreditManager.speedBonuses.pets[skillId] &&
                    !runeCreditManager.speedBonuses.shinyPets[skillId] &&
                    !runeCreditManager.speedBonuses.skillCapes[skillId] &&
                    !runeCreditManager.speedBonuses.trimmedCapes[skillId];
         });
         
-        if (skillsWithoutBonuses.length > 0) {
+        if (withoutBonuses.length > 0) {
             this.log('', 'info');
-            this.log('Skills without bonuses: ' + skillsWithoutBonuses.join(', '), 'info');
+            this.log('Skills without bonuses: ' + withoutBonuses.join(', '), 'info');
         }
     }
 
@@ -1726,14 +2081,22 @@ class DevConsole {
             runeCreditManager.speedBonuses.shinyPets[skillId] = false;
             runeCreditManager.speedBonuses.skillCapes[skillId] = false;
             runeCreditManager.speedBonuses.trimmedCapes[skillId] = false;
+            
+            // Reset pet counts
+            runeCreditManager.petCounts[skillId] = { regular: 0, shiny: 0 };
         }
         runeCreditManager.speedBonuses.maxCape = false;
+        runeCreditManager.speedBonuses.trimmedMaxCape = false;
+        
+        // Reset pet totals
+        runeCreditManager.totalPetsObtained = 0;
+        runeCreditManager.totalShinyPetsObtained = 0;
         
         // Update based on current skill levels
         runeCreditManager.updateSpeedBonuses();
         runeCreditManager.saveData();
         
-        this.log('All speed bonuses reset (bonuses from actual skill levels restored)', 'success');
+        this.log('All speed bonuses reset', 'success');
     }
 
     // ==================== AI COMMANDS ====================
@@ -1744,9 +2107,43 @@ class DevConsole {
         gameState.paused = !gameState.paused;
         const pauseBtn = document.getElementById('pause-toggle');
         if (pauseBtn) {
-            pauseBtn.textContent = gameState.paused ? 'Resume AI' : 'Pause AI';
+            const icon = pauseBtn.querySelector('.pause-icon');
+            if (icon) {
+                icon.textContent = gameState.paused ? '▶' : '⏸';
+                pauseBtn.title = gameState.paused ? 'Resume AI' : 'Pause AI';
+            }
         }
         this.log(`AI ${gameState.paused ? 'paused' : 'resumed'}`, 'success');
+    }
+
+    cmdAIStart() {
+        if (!this.requireSystem('Game', 'gameState')) return;
+        
+        gameState.paused = false;
+        const pauseBtn = document.getElementById('pause-toggle');
+        if (pauseBtn) {
+            const icon = pauseBtn.querySelector('.pause-icon');
+            if (icon) {
+                icon.textContent = '⏸';
+                pauseBtn.title = 'Pause AI';
+            }
+        }
+        this.log('AI started', 'success');
+    }
+
+    cmdAIStop() {
+        if (!this.requireSystem('Game', 'gameState')) return;
+        
+        gameState.paused = true;
+        const pauseBtn = document.getElementById('pause-toggle');
+        if (pauseBtn) {
+            const icon = pauseBtn.querySelector('.pause-icon');
+            if (icon) {
+                icon.textContent = '▶';
+                pauseBtn.title = 'Resume AI';
+            }
+        }
+        this.log('AI stopped', 'success');
     }
 
     cmdAIStatus() {
@@ -1766,7 +2163,7 @@ class DevConsole {
             this.log(`Node: ${ai.currentTask.nodeId}`, 'info');
             this.log(`Activity: ${ai.currentTask.activityId}`, 'info');
         } else {
-            this.log('Current Task: None (selecting...)', 'info');
+            this.log('Current Task: None', 'info');
         }
         
         // Player status
@@ -1784,17 +2181,22 @@ class DevConsole {
                 this.log(`Activity: ${player.currentActivity}`, 'info');
                 const progress = Math.floor(player.activityProgress * 100);
                 this.log(`Progress: ${progress}%`, 'info');
+            } else if (player.isBanking) {
+                this.log('Status: Banking', 'info');
             } else {
                 this.log('Status: Idle', 'info');
             }
             
             this.log(`Current Node: ${player.currentNode || 'none'}`, 'info');
+            this.log(`Inventory: ${inventory.getUsedSlots()}/${inventory.maxSlots} slots`, 'info');
         }
         
         // Decision cooldown
         this.log('', 'info');
         this.log(`Decision Cooldown: ${Math.floor(ai.decisionCooldown)}ms`, 'info');
     }
+
+    // ==================== ACTIVITY COMMANDS ====================
 
     cmdStartActivity(args) {
         if (!this.requireSystem('Player', 'player')) return;
@@ -1815,9 +2217,17 @@ class DevConsole {
     cmdStopActivity() {
         if (!this.requireSystem('Player', 'player')) return;
         
-        player.stopActivity();
-        this.log('Activity stopped', 'success');
+        if (player.currentActivity) {
+            const activities = loadingManager.getData('activities');
+            const activityName = activities[player.currentActivity]?.name || player.currentActivity;
+            player.stopActivity();
+            this.log(`Stopped activity: ${activityName}`, 'success');
+        } else {
+            this.log('No activity in progress', 'info');
+        }
     }
+
+    // ==================== DEBUG COMMANDS ====================
 
     cmdNodes(args) {
         const search = args.length > 0 ? args.join(' ').toLowerCase() : '';
@@ -1830,7 +2240,9 @@ class DevConsole {
         
         this.log(`Found ${matches.length} nodes:`, 'info');
         matches.slice(0, 20).forEach(([id, node]) => {
-            this.log(`  ${id}: ${node.name} (${node.position.x}, ${node.position.y})`, 'info');
+            let info = `  ${id}: ${node.name} (${Math.round(node.position.x)}, ${Math.round(node.position.y)})`;
+            if (node.type) info += ` [${node.type}]`;
+            this.log(info, 'info');
         });
         
         if (matches.length > 20) {
@@ -1849,7 +2261,9 @@ class DevConsole {
         
         this.log(`Found ${matches.length} items:`, 'info');
         matches.slice(0, 20).forEach(([id, item]) => {
-            this.log(`  ${id}: ${item.name}`, 'info');
+            let info = `  ${id}: ${item.name}`;
+            if (item.stackable) info += ' [stackable]';
+            this.log(info, 'info');
         });
         
         if (matches.length > 20) {
@@ -1888,6 +2302,235 @@ class DevConsole {
         
         map.toggleNodeText();
         this.log(`Node text ${map.showNodeText ? 'enabled' : 'disabled'}`, 'success');
+    }
+
+    // ==================== PRESET COMMANDS ====================
+
+    cmdPreset(args) {
+        if (args.length !== 1) {
+            this.log('Usage: preset <name>', 'error');
+            this.log('Available presets: fishing, mining, runecraft, agility, all99', 'info');
+            return;
+        }
+        
+        const preset = args[0].toLowerCase();
+        
+        switch (preset) {
+            case 'fishing':
+                this.loadFishingPreset();
+                break;
+            case 'mining':
+                this.loadMiningPreset();
+                break;
+            case 'runecraft':
+                this.loadRunecraftPreset();
+                break;
+            case 'agility':
+                this.loadAgilityPreset();
+                break;
+            case 'all99':
+                this.loadAll99Preset();
+                break;
+            default:
+                this.log(`Unknown preset: ${preset}`, 'error');
+                this.log('Available presets: fishing, mining, runecraft, agility, all99', 'info');
+        }
+    }
+
+    loadFishingPreset() {
+        this.log('Loading fishing preset...', 'info');
+        
+        // Set fishing level
+        this.cmdSetLevel(['fishing', '50']);
+        this.cmdSetLevel(['cooking', '50']);
+        
+        // Add fishing supplies
+        bank.deposit('fishing_bait', 10000);
+        bank.deposit('feather', 10000);
+        bank.deposit('raw_shrimps', 100);
+        bank.deposit('raw_anchovies', 100);
+        
+        // Teleport to fishing spot
+        this.cmdTeleport(['lumbridge_fishing']);
+        
+        this.log('Fishing preset loaded', 'success');
+    }
+
+    loadMiningPreset() {
+        this.log('Loading mining preset...', 'info');
+        
+        // Set mining level
+        this.cmdSetLevel(['mining', '50']);
+        this.cmdSetLevel(['smithing', '50']);
+        
+        // Add ores to bank
+        bank.deposit('copper_ore', 100);
+        bank.deposit('tin_ore', 100);
+        bank.deposit('iron_ore', 100);
+        
+        // Teleport to mining spot
+        this.cmdTeleport(['lumbridge_mine']);
+        
+        this.log('Mining preset loaded', 'success');
+    }
+
+    loadRunecraftPreset() {
+        this.log('Loading runecraft preset...', 'info');
+        
+        // Set runecraft level
+        this.cmdSetLevel(['runecraft', '50']);
+        
+        // Add runecraft supplies
+        bank.deposit('rune_essence', 10000);
+        bank.deposit('small_pouch', 1);
+        bank.deposit('medium_pouch', 1);
+        bank.deposit('large_pouch', 1);
+        bank.deposit('giant_pouch', 1);
+        
+        // Teleport to bank
+        this.cmdTeleport(['lumbridge_bank']);
+        
+        this.log('Runecraft preset loaded', 'success');
+    }
+
+    loadAgilityPreset() {
+        this.log('Loading agility preset...', 'info');
+        
+        // Set agility level
+        this.cmdSetLevel(['agility', '50']);
+        
+        // Teleport to agility course
+        this.cmdTeleport(['draynor_rooftop']);
+        
+        this.log('Agility preset loaded', 'success');
+    }
+
+    loadAll99Preset() {
+        this.log('Loading all 99 preset...', 'info');
+        
+        // Max all skills
+        this.cmdMaxSkills();
+        
+        // Add useful items
+        bank.deposit('coins', 10000000);
+        bank.deposit('fishing_bait', 10000);
+        bank.deposit('feather', 10000);
+        bank.deposit('rune_essence', 10000);
+        
+        // Grant max cape
+        this.cmdMaxCape(['on']);
+        
+        this.log('All 99 preset loaded', 'success');
+    }
+
+    cmdSaveState(args) {
+        if (args.length !== 1) {
+            this.log('Usage: save <name>', 'error');
+            return;
+        }
+        
+        const name = args[0];
+        const state = {
+            skills: {},
+            inventory: inventory.getAllItems(),
+            bank: bank.getAllItems(),
+            runecred: runeCreditManager.runecred,
+            position: { x: player.position.x, y: player.position.y },
+            currentNode: player.currentNode
+        };
+        
+        // Save skill levels
+        for (const [id, skill] of Object.entries(skills.skills)) {
+            state.skills[id] = {
+                level: skill.level,
+                xp: skill.xp
+            };
+        }
+        
+        localStorage.setItem(`devconsole_state_${name}`, JSON.stringify(state));
+        this.log(`State saved as "${name}"`, 'success');
+    }
+
+    cmdLoadState(args) {
+        if (args.length !== 1) {
+            this.log('Usage: load <name>', 'error');
+            return;
+        }
+        
+        const name = args[0];
+        const saved = localStorage.getItem(`devconsole_state_${name}`);
+        
+        if (!saved) {
+            this.log(`No saved state found with name "${name}"`, 'error');
+            return;
+        }
+        
+        const state = JSON.parse(saved);
+        
+        // Restore skills
+        for (const [id, data] of Object.entries(state.skills)) {
+            if (skills.skills[id]) {
+                skills.skills[id].level = data.level;
+                skills.skills[id].xp = data.xp;
+                skills.skills[id].xpForNextLevel = getXpForLevel(data.level + 1);
+            }
+        }
+        
+        // Restore inventory
+        inventory.clear();
+        for (const [itemId, quantity] of Object.entries(state.inventory)) {
+            inventory.addItem(itemId, quantity);
+        }
+        
+        // Restore bank
+        bank.items = {};
+        for (const [itemId, quantity] of Object.entries(state.bank)) {
+            bank.deposit(itemId, quantity);
+        }
+        
+        // Restore runecred
+        if (state.runecred) {
+            runeCreditManager.runecred = state.runecred;
+        }
+        
+        // Restore position
+        if (state.position) {
+            player.position.x = state.position.x;
+            player.position.y = state.position.y;
+        }
+        
+        if (state.currentNode) {
+            player.currentNode = state.currentNode;
+        }
+        
+        // Update UI
+        if (window.ui) {
+            ui.updateSkillsList();
+            ui.updateInventory();
+            ui.updateBank();
+        }
+        
+        this.log(`State "${name}" loaded`, 'success');
+    }
+
+    cmdListStates() {
+        const states = [];
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('devconsole_state_')) {
+                states.push(key.replace('devconsole_state_', ''));
+            }
+        }
+        
+        if (states.length === 0) {
+            this.log('No saved states found', 'info');
+        } else {
+            this.log('Saved states:', 'info');
+            for (const state of states) {
+                this.log(`  - ${state}`, 'info');
+            }
+        }
     }
 }
 
