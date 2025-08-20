@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scapewatch Bank Distance Calculator v3.1</title>
+    <title>Scapewatch Waypoint Generator v4.0</title>
     <style>
         * {
             margin: 0;
@@ -198,10 +198,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏦 Scapewatch Bank Distance Calculator v3.1 🏦</h1>
+        <h1>🛤️ Scapewatch Waypoint Generator v4.0 🛤️</h1>
         
         <div class="controls">
-            <button id="startBtn">Start Analysis</button>
+            <button id="startBtn">Generate Waypoints</button>
             <button id="exportBtn" disabled>Export to Clipboard</button>
             <button id="downloadBtn" disabled>Download JSON</button>
         </div>
@@ -216,36 +216,35 @@
 
         <div class="stats-row" id="liveStats" style="display: none;">
             <div class="stat-inline">Nodes: <span id="liveNodesProcessed">0</span>/<span id="liveTotalNodes">0</span></div>
-            <div class="stat-inline">Paths Tested: <span id="livePathsTested">0</span></div>
-            <div class="stat-inline">Banks Found: <span id="liveBanksFound">0</span></div>
-            <div class="stat-inline">No Path: <span id="liveNoPath">0</span></div>
+            <div class="stat-inline">Paths Generated: <span id="livePathsGenerated">0</span></div>
+            <div class="stat-inline">Total Waypoints: <span id="liveTotalWaypoints">0</span></div>
             <div class="stat-inline">Time: <span id="liveTime">0s</span></div>
         </div>
 
         <div class="console" id="console"></div>
 
         <div class="results" id="results">
-            <h2>Analysis Complete!</h2>
+            <h2>Waypoint Generation Complete!</h2>
             <div class="stats">
                 <div class="stat-item">
                     <div class="stat-label">Total Nodes</div>
                     <div class="stat-value" id="totalNodes">0</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Accessible Nodes</div>
-                    <div class="stat-value" id="accessibleNodes">0</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Inaccessible Nodes</div>
-                    <div class="stat-value" id="inaccessibleNodes">0</div>
-                </div>
-                <div class="stat-item">
                     <div class="stat-label">Banks Found</div>
                     <div class="stat-value" id="banksFound">0</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Updated Nodes</div>
-                    <div class="stat-value" id="updatedNodes">0</div>
+                    <div class="stat-label">Node→Bank Paths</div>
+                    <div class="stat-value" id="nodePaths">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Bank→Bank Paths</div>
+                    <div class="stat-value" id="bankPaths">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total Waypoints</div>
+                    <div class="stat-value" id="totalWaypoints">0</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">Processing Time</div>
@@ -308,7 +307,6 @@
                             
                             this.initialized = true;
                             logConsole(`Collision map loaded: ${this.width}x${this.height}`, 'success');
-                            logConsole('Player collision: Single point (1x1 pixel)', 'info');
                             resolve();
                         } catch (error) {
                             logConsole('Error processing collision map: ' + error.message, 'error');
@@ -600,14 +598,12 @@
         let collision = null;
         let pathfinding = null;
         let nodesData = null;
-        let originalNodesData = null;
         let startTime = null;
         let nodeAdjustments = {};
         let globalStats = {
-            pathsTested: 0,
+            pathsGenerated: 0,
             nodesProcessed: 0,
-            banksFound: 0,
-            noPath: 0
+            totalWaypoints: 0
         };
 
         function logConsole(message, type = 'normal') {
@@ -645,9 +641,8 @@
 
         function updateLiveStats() {
             document.getElementById('liveNodesProcessed').textContent = globalStats.nodesProcessed;
-            document.getElementById('livePathsTested').textContent = globalStats.pathsTested;
-            document.getElementById('liveBanksFound').textContent = globalStats.banksFound;
-            document.getElementById('liveNoPath').textContent = globalStats.noPath;
+            document.getElementById('livePathsGenerated').textContent = globalStats.pathsGenerated;
+            document.getElementById('liveTotalWaypoints').textContent = globalStats.totalWaypoints;
             
             const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
             document.getElementById('liveTime').textContent = `${elapsed}s`;
@@ -666,7 +661,6 @@
                 const text = await response.text();
                 const data = JSON.parse(text);
                 nodesData = data;
-                originalNodesData = JSON.parse(JSON.stringify(data));
                 
                 const nodeCount = Object.keys(data).length;
                 logConsole(`Successfully parsed ${nodeCount} nodes from nodes.json`, 'success');
@@ -678,24 +672,22 @@
             }
         }
 
-        async function analyzeNodes() {
+        async function generateWaypoints() {
             try {
                 startTime = Date.now();
                 const stats = {
                     total: 0,
-                    accessible: 0,
-                    inaccessible: 0,
                     banks: 0,
-                    updated: 0,
-                    noPath: 0
+                    nodePaths: 0,
+                    bankPaths: 0,
+                    totalWaypoints: 0
                 };
 
                 // Reset global stats
                 globalStats = {
-                    pathsTested: 0,
+                    pathsGenerated: 0,
                     nodesProcessed: 0,
-                    banksFound: 0,
-                    noPath: 0
+                    totalWaypoints: 0
                 };
 
                 if (!nodesData) {
@@ -709,8 +701,7 @@
                 document.getElementById('liveStats').style.display = 'flex';
                 document.getElementById('liveTotalNodes').textContent = stats.total;
                 
-                logConsole(`Starting analysis of ${stats.total} nodes...`, 'info');
-                logConsole('Using exact game pathfinding algorithm with line-of-sight and smoothing', 'info');
+                logConsole(`Starting waypoint generation for ${stats.total} nodes...`, 'info');
 
                 // Step 1: Check accessibility and find walkable positions
                 logConsole('', 'normal');
@@ -724,12 +715,11 @@
                 for (const [nodeId, node] of nodeEntries) {
                     checkCount++;
                     
-                    // Update every 5 nodes
                     if (checkCount % 5 === 0) {
-                        updateProgress(checkCount, nodeEntries.length, 
+                        updateProgress(checkCount, nodeEntries.length * 3, // multiply by 3 for 3 phases
                                      `Phase 1: Checking accessibility (${checkCount}/${nodeEntries.length})`);
                         updateProgressDetail(`Currently checking: ${nodeId}`);
-                        await asyncDelay(1); // Let browser update
+                        await asyncDelay(1);
                     }
                     
                     const x = Math.floor(node.position.x);
@@ -752,9 +742,7 @@
                         if (node.type === 'bank') {
                             accessibleBanks.push({ id: nodeId, node });
                             stats.banks++;
-                            logConsole(`✓ BANK: ${nodeId} is accessible at (${walkablePos.x}, ${walkablePos.y})`, 'success');
-                        } else {
-                            logConsole(`✓ ${nodeId} is accessible`, 'dim');
+                            logConsole(`✓ BANK: ${nodeId} is accessible`, 'success');
                         }
                     } else {
                         inaccessibleNodes.push({ id: nodeId, node });
@@ -762,59 +750,43 @@
                     }
                 }
 
-                stats.accessible = accessibleNodes.length;
-                stats.inaccessible = inaccessibleNodes.length;
+                logConsole(`Phase 1 Complete: Found ${accessibleBanks.length} banks`, 'success');
+                await asyncDelay(100);
 
+                // Step 2: Generate node to bank paths
                 logConsole('', 'normal');
-                logConsole(`Phase 1 Complete: ${accessibleBanks.length} banks, ${accessibleNodes.length} accessible nodes`, 'success');
-                
-                await asyncDelay(100); // Give browser a moment
-
-                // Step 2: Calculate nearest bank for each accessible node
-                logConsole('', 'normal');
-                logConsole('=== PHASE 2: CALCULATING NEAREST BANKS ===', 'highlight');
-                logConsole(`Testing paths from ${accessibleNodes.length} nodes to ${accessibleBanks.length} banks...`, 'info');
+                logConsole('=== PHASE 2: GENERATING NODE→BANK PATHS ===', 'highlight');
+                logConsole(`Generating paths from ${accessibleNodes.length} nodes to their nearest banks...`, 'info');
                 
                 let processedCount = 0;
                 for (const { id: nodeId, node } of accessibleNodes) {
                     processedCount++;
                     globalStats.nodesProcessed = processedCount;
                     
-                    // Update progress
-                    updateProgress(processedCount, accessibleNodes.length, 
-                                  `Phase 2: Finding nearest banks (${processedCount}/${accessibleNodes.length})`);
+                    const progressBase = nodeEntries.length;
+                    updateProgress(progressBase + processedCount, nodeEntries.length * 3,
+                                  `Phase 2: Generating node→bank paths (${processedCount}/${accessibleNodes.length})`);
                     
                     if (node.type === 'bank') {
+                        // Banks don't need paths to themselves
                         node.nearestBank = nodeId;
                         node.nearestBankDistance = 0;
-                        globalStats.banksFound++;
-                        logConsole(`[${processedCount}/${accessibleNodes.length}] ${nodeId} → self (bank)`, 'success');
-                        updateProgressDetail(`${nodeId}: Is a bank (using self)`);
+                        // No pathToBank needed for banks
+                        updateProgressDetail(`${nodeId}: Is a bank (no path needed)`);
                         updateLiveStats();
                         await asyncDelay(1);
                     } else {
-                        // Show what we're testing
-                        updateProgressDetail(`${nodeId}: Testing paths to ${accessibleBanks.length} banks...`);
+                        updateProgressDetail(`${nodeId}: Finding path to nearest bank...`);
                         
                         const nodePos = nodeAdjustments[nodeId];
                         let nearestBank = null;
                         let shortestDistance = Infinity;
-                        let testedBanks = [];
+                        let bestPath = null;
 
                         // Test each bank
-                        for (let bankIndex = 0; bankIndex < accessibleBanks.length; bankIndex++) {
-                            const { id: bankId, node: bankNode } = accessibleBanks[bankIndex];
-                            
-                            // Update detail every few banks
-                            if (bankIndex % 2 === 0) {
-                                updateProgressDetail(`${nodeId}: Testing bank ${bankIndex + 1}/${accessibleBanks.length} (${bankId})`);
-                                updateLiveStats();
-                                await asyncDelay(1); // Let browser update
-                            }
-                            
+                        for (const { id: bankId, node: bankNode } of accessibleBanks) {
                             const bankPos = nodeAdjustments[bankId];
                             
-                            globalStats.pathsTested++;
                             const path = pathfinding.findPath(
                                 nodePos.x, nodePos.y,
                                 bankPos.x, bankPos.y
@@ -822,79 +794,129 @@
 
                             if (path) {
                                 const distance = pathfinding.getPathDistance(path);
-                                testedBanks.push(`${bankId}(${Math.round(distance)})`);
                                 
                                 if (distance < shortestDistance) {
                                     shortestDistance = distance;
                                     nearestBank = bankId;
+                                    bestPath = path;
                                 }
-                            } else {
-                                testedBanks.push(`${bankId}(no path)`);
                             }
                         }
 
-                        if (nearestBank) {
-                            const oldBank = node.nearestBank;
-                            const oldDistance = node.nearestBankDistance;
-                            
+                        if (nearestBank && bestPath) {
                             node.nearestBank = nearestBank;
                             node.nearestBankDistance = Math.round(shortestDistance);
-                            globalStats.banksFound++;
+                            node.pathToBank = bestPath; // Store the waypoints!
                             
-                            if (oldBank !== nearestBank || oldDistance !== node.nearestBankDistance) {
-                                stats.updated++;
-                                logConsole(`[${processedCount}/${accessibleNodes.length}] ${nodeId} → ${nearestBank} (${Math.round(shortestDistance)}) [UPDATED]`, 'success');
-                            } else {
-                                logConsole(`[${processedCount}/${accessibleNodes.length}] ${nodeId} → ${nearestBank} (${Math.round(shortestDistance)})`, 'dim');
-                            }
+                            globalStats.pathsGenerated++;
+                            globalStats.totalWaypoints += bestPath.length;
+                            stats.nodePaths++;
+                            
+                            logConsole(`✓ ${nodeId} → ${nearestBank} (${Math.round(shortestDistance)} pixels, ${bestPath.length} waypoints)`, 'dim');
                         } else {
                             node.nearestBank = null;
                             node.nearestBankDistance = null;
-                            stats.noPath++;
-                            globalStats.noPath++;
-                            logConsole(`[${processedCount}/${accessibleNodes.length}] ${nodeId} → NO REACHABLE BANK! Tested: [${testedBanks.join(', ')}]`, 'error');
+                            node.pathToBank = null;
+                            logConsole(`✗ ${nodeId} → NO REACHABLE BANK!`, 'error');
                         }
                         
                         updateLiveStats();
+                        await asyncDelay(1);
                     }
                 }
 
-                // Step 3: Handle inaccessible nodes
+                logConsole(`Phase 2 Complete: Generated ${stats.nodePaths} node→bank paths`, 'success');
+                await asyncDelay(100);
+
+                // Step 3: Generate bank to bank paths
                 logConsole('', 'normal');
-                logConsole('=== PHASE 3: HANDLING INACCESSIBLE NODES ===', 'highlight');
+                logConsole('=== PHASE 3: GENERATING BANK→BANK PATHS ===', 'highlight');
+                logConsole(`Generating paths between ${accessibleBanks.length} banks...`, 'info');
+                
+                let bankProcessedCount = 0;
+                const totalBankPairs = accessibleBanks.length * (accessibleBanks.length - 1);
+                
+                for (const { id: bank1Id, node: bank1Node } of accessibleBanks) {
+                    // Initialize pathsToOtherBanks object
+                    if (!bank1Node.pathsToOtherBanks) {
+                        bank1Node.pathsToOtherBanks = {};
+                    }
+                    
+                    const bank1Pos = nodeAdjustments[bank1Id];
+                    
+                    for (const { id: bank2Id, node: bank2Node } of accessibleBanks) {
+                        if (bank1Id === bank2Id) continue; // Skip self
+                        
+                        bankProcessedCount++;
+                        const progressBase = nodeEntries.length * 2;
+                        updateProgress(progressBase + bankProcessedCount, nodeEntries.length * 3,
+                                      `Phase 3: Generating bank→bank paths (${bankProcessedCount}/${totalBankPairs})`);
+                        updateProgressDetail(`${bank1Id} → ${bank2Id}`);
+                        
+                        const bank2Pos = nodeAdjustments[bank2Id];
+                        
+                        const path = pathfinding.findPath(
+                            bank1Pos.x, bank1Pos.y,
+                            bank2Pos.x, bank2Pos.y
+                        );
+                        
+                        if (path) {
+                            bank1Node.pathsToOtherBanks[bank2Id] = path;
+                            
+                            globalStats.pathsGenerated++;
+                            globalStats.totalWaypoints += path.length;
+                            stats.bankPaths++;
+                            
+                            const distance = pathfinding.getPathDistance(path);
+                            logConsole(`✓ ${bank1Id} → ${bank2Id} (${Math.round(distance)} pixels, ${path.length} waypoints)`, 'dim');
+                        } else {
+                            logConsole(`✗ ${bank1Id} → ${bank2Id}: NO PATH FOUND!`, 'error');
+                        }
+                        
+                        updateLiveStats();
+                        await asyncDelay(1);
+                    }
+                }
+
+                logConsole(`Phase 3 Complete: Generated ${stats.bankPaths} bank→bank paths`, 'success');
+
+                // Step 4: Handle inaccessible nodes
+                logConsole('', 'normal');
+                logConsole('=== PHASE 4: HANDLING INACCESSIBLE NODES ===', 'highlight');
                 for (const { id: nodeId, node } of inaccessibleNodes) {
                     node.nearestBank = null;
                     node.nearestBankDistance = null;
+                    node.pathToBank = null;
                 }
                 logConsole(`Set ${inaccessibleNodes.length} inaccessible nodes to null`, 'info');
 
-                updateProgress(100, 100, 'Analysis complete!');
+                updateProgress(100, 100, 'Waypoint generation complete!');
                 updateProgressDetail('');
                 
                 const endTime = Date.now();
                 const processingTime = ((endTime - startTime) / 1000).toFixed(1);
 
+                // Calculate file size estimate
+                const jsonStr = JSON.stringify(nodesData);
+                const sizeKB = Math.round(jsonStr.length / 1024);
+
                 // Update final stats
+                stats.totalWaypoints = globalStats.totalWaypoints;
                 document.getElementById('totalNodes').textContent = stats.total;
-                document.getElementById('accessibleNodes').textContent = stats.accessible;
-                document.getElementById('inaccessibleNodes').textContent = stats.inaccessible;
                 document.getElementById('banksFound').textContent = stats.banks;
-                document.getElementById('updatedNodes').textContent = stats.updated;
+                document.getElementById('nodePaths').textContent = stats.nodePaths;
+                document.getElementById('bankPaths').textContent = stats.bankPaths;
+                document.getElementById('totalWaypoints').textContent = stats.totalWaypoints;
                 document.getElementById('processingTime').textContent = `${processingTime}s`;
 
                 updateLiveStats();
 
-                const hasChanges = JSON.stringify(nodesData) !== JSON.stringify(originalNodesData);
-                
                 logConsole('', 'normal');
-                logConsole('=== ANALYSIS COMPLETE ===', 'highlight');
-                logConsole(`Total paths tested: ${globalStats.pathsTested}`, 'info');
-                logConsole(`Updated ${stats.updated} nodes with new bank distances`, hasChanges ? 'success' : 'warning');
-                
-                if (stats.noPath > 0) {
-                    logConsole(`WARNING: ${stats.noPath} nodes could not find ANY reachable bank!`, 'error');
-                    logConsole('This may indicate a pathfinding issue or map changes.', 'error');
-                }
+                logConsole('=== WAYPOINT GENERATION COMPLETE ===', 'highlight');
+                logConsole(`Generated ${stats.nodePaths} node→bank paths`, 'info');
+                logConsole(`Generated ${stats.bankPaths} bank→bank paths`, 'info');
+                logConsole(`Total waypoints: ${stats.totalWaypoints}`, 'info');
+                logConsole(`Estimated file size: ${sizeKB} KB`, 'info');
 
                 // Show results
                 document.getElementById('results').style.display = 'block';
@@ -902,7 +924,7 @@
                 document.getElementById('downloadBtn').disabled = false;
                 
             } catch (error) {
-                logConsole(`ERROR in analyzeNodes: ${error.message}`, 'error');
+                logConsole(`ERROR in generateWaypoints: ${error.message}`, 'error');
                 logConsole(`Stack trace: ${error.stack}`, 'error');
                 throw error;
             }
@@ -933,24 +955,24 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'nodes_with_banks.json';
+                a.download = 'nodes_with_waypoints.json';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                logConsole('JSON downloaded as nodes_with_banks.json', 'success');
+                logConsole('JSON downloaded as nodes_with_waypoints.json', 'success');
             } catch (error) {
                 logConsole(`Download failed: ${error.message}`, 'error');
             }
         }
 
-        async function startAnalysis() {
+        async function startGeneration() {
             const startBtn = document.getElementById('startBtn');
             startBtn.disabled = true;
             
             try {
-                logConsole('Starting bank distance analysis v3.1...', 'highlight');
-                logConsole('Improvements: Better progress tracking, async processing, live statistics', 'info');
+                logConsole('Starting Waypoint Generator v4.0...', 'highlight');
+                logConsole('This tool generates waypoint paths and stores them directly in nodes.json', 'info');
                 
                 collision = new CollisionSystem();
                 await collision.initialize('https://puzzle-drops.github.io/ScapewatchRC/assets/collision-map.png');
@@ -961,8 +983,8 @@
                 logConsole('Loading nodes data...', 'info');
                 await loadNodesData();
                 
-                logConsole('Beginning node analysis...', 'info');
-                await analyzeNodes();
+                logConsole('Beginning waypoint generation...', 'info');
+                await generateWaypoints();
                 
             } catch (error) {
                 logConsole(`FATAL ERROR: ${error.message}`, 'error');
@@ -972,13 +994,17 @@
         }
 
         // Event listeners
-        document.getElementById('startBtn').addEventListener('click', startAnalysis);
+        document.getElementById('startBtn').addEventListener('click', startGeneration);
         document.getElementById('exportBtn').addEventListener('click', exportToClipboard);
         document.getElementById('downloadBtn').addEventListener('click', downloadJSON);
         
         // Initial log
-        logConsole('Bank Distance Calculator v3.1 ready', 'highlight');
-        logConsole('Click "Start Analysis" to begin', 'info');
+        logConsole('Waypoint Generator v4.0 ready', 'highlight');
+        logConsole('This tool will:', 'info');
+        logConsole('• Generate paths from each node to its nearest bank', 'info');
+        logConsole('• Generate paths between all banks', 'info');
+        logConsole('• Store waypoints directly in the nodes data', 'info');
+        logConsole('Click "Generate Waypoints" to begin', 'success');
     </script>
 </body>
 </html>
