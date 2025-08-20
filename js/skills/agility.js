@@ -40,8 +40,8 @@ class AgilitySkill extends BaseSkill {
             return null;
         }
         
-        // Use the pre-validated node from getAvailableCourses
-        const courseNode = selectedCourse.nodeId || this.findNodeForCourse(selectedCourse.activityId);
+        // Find a node for the selected course
+        const courseNode = this.findNodeForCourse(selectedCourse.activityId);
         if (!courseNode) {
             console.log(`No node found for agility course ${selectedCourse.activityId}`);
             return null;
@@ -78,17 +78,10 @@ class AgilitySkill extends BaseSkill {
             const requiredLevel = activity.requiredLevel || 1;
             if (currentLevel < requiredLevel) continue;
             
-            // Check if this course has a reachable node
-            const courseNode = this.findNodeForCourse(activityId);
-            if (!courseNode) {
-                console.log(`No reachable node for agility course ${activityId}, excluding from available courses`);
-                continue;
-            }
-            
+            // Simply add the course - all agility nodes are reachable
             courses.push({
                 activityId: activityId,
-                requiredLevel: requiredLevel,
-                nodeId: courseNode  // Store the valid node for later use
+                requiredLevel: requiredLevel
             });
         }
         
@@ -132,28 +125,7 @@ class AgilitySkill extends BaseSkill {
         
         for (const [nodeId, node] of Object.entries(allNodes)) {
             if (node.activities && node.activities.includes(activityId)) {
-                // Check if node is walkable
-                if (window.collision && window.collision.initialized) {
-                    if (!collision.isWalkable(Math.floor(node.position.x), Math.floor(node.position.y))) {
-                        console.log(`Agility node ${nodeId} is not walkable, skipping`);
-                        continue;
-                    }
-                }
-                
-                // Check if we can path to this node from current position
-                if (window.pathfinding && window.player) {
-                    const path = pathfinding.findPath(
-                        player.position.x, 
-                        player.position.y, 
-                        node.position.x, 
-                        node.position.y
-                    );
-                    if (!path) {
-                        console.log(`No path to agility node ${nodeId}, skipping`);
-                        continue;
-                    }
-                }
-                
+                // Simply add the node - no pathfinding needed
                 viableNodes.push(nodeId);
             }
         }
@@ -188,41 +160,41 @@ class AgilitySkill extends BaseSkill {
     }
     
     determineLapCount(activityId) {
-    // Get base lap counts from centralized data
-    const virtualItemId = `agility_laps_${activityId}`;
-    const skillData = this.getSkillDataForItem(virtualItemId);
-    
-    let minCount, maxCount;
-    
-    if (!skillData) {
-        // Fallback if not found
-        minCount = 10;
-        maxCount = 20;
-    } else {
-        minCount = skillData.minCount;
-        maxCount = skillData.maxCount;
+        // Get base lap counts from centralized data
+        const virtualItemId = `agility_laps_${activityId}`;
+        const skillData = this.getSkillDataForItem(virtualItemId);
+        
+        let minCount, maxCount;
+        
+        if (!skillData) {
+            // Fallback if not found
+            minCount = 10;
+            maxCount = 20;
+        } else {
+            minCount = skillData.minCount;
+            maxCount = skillData.maxCount;
+        }
+        
+        // Apply RuneCred quantity modifier to BOTH min and max
+        if (window.runeCreditManager) {
+            const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
+            minCount = Math.round(minCount * modifier);
+            maxCount = Math.round(maxCount * modifier);
+        }
+        
+        // Clamp both min and max to at least 1
+        minCount = Math.max(1, minCount);
+        maxCount = Math.max(1, maxCount);
+        
+        // Ensure max is at least as large as min
+        maxCount = Math.max(minCount, maxCount);
+        
+        // Now pick a random value between the modified min and max
+        const range = maxCount - minCount;
+        const count = minCount + Math.round(Math.random() * range);
+        
+        return count;
     }
-    
-    // Apply RuneCred quantity modifier to BOTH min and max
-    if (window.runeCreditManager) {
-        const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
-        minCount = Math.round(minCount * modifier);
-        maxCount = Math.round(maxCount * modifier);
-    }
-    
-    // Clamp both min and max to at least 1
-    minCount = Math.max(1, minCount);
-    maxCount = Math.max(1, maxCount);
-    
-    // Ensure max is at least as large as min
-    maxCount = Math.max(minCount, maxCount);
-    
-    // Now pick a random value between the modified min and max
-    const range = maxCount - minCount;
-    const count = minCount + Math.round(Math.random() * range);
-    
-    return count;
-}
     
     // Update task progress when lap completes
     updateAgilityTaskProgress() {
