@@ -579,64 +579,96 @@ class CraftingSkill extends BaseSkill {
         return false;
     }
     
-    handleBanking(task) {
-        // Deposit all first
-        bank.depositAll();
-        console.log('Deposited all items for crafting');
+handleBanking(task) {
+    // Deposit all first
+    bank.depositAll();
+    console.log('Deposited all items for crafting');
+    
+    // Mark that we've banked
+    const taskId = task ? `${task.itemId}_${task.targetCount}_${task.nodeId}` : null;
+    this.currentTaskId = taskId;
+    this.hasBankedForTask = true;
+    
+    let withdrawnAny = false;
+    
+    if (task && task.isCraftingTask) {
+        const recipe = task.recipe;
+        const craftsRemaining = Math.ceil((task.targetCount - (task.itemsProduced || 0)) / recipe.output.quantity);
         
-        // Mark that we've banked
-        const taskId = task ? `${task.itemId}_${task.targetCount}_${task.nodeId}` : null;
-        this.currentTaskId = taskId;
-        this.hasBankedForTask = true;
+        // Calculate how many we can actually make based on bank materials
+        let maxCraftable = craftsRemaining;
+        for (const input of recipe.inputs) {
+            const bankCount = bank.getItemCount(input.itemId);
+            const canMake = Math.floor(bankCount / input.quantity);
+            maxCraftable = Math.min(maxCraftable, canMake);
+        }
         
-        let withdrawnAny = false;
+        if (maxCraftable === 0) {
+            console.log('No materials in bank for crafting task');
+            return false;
+        }
         
-        if (task && task.isCraftingTask) {
-            const recipe = task.recipe;
-            const craftsRemaining = task.targetCount - (task.itemsProduced || 0);
+        // Special handling for plank making (has coins as an input)
+        const isPlankMaking = recipe.inputs.some(input => input.itemId === 'coins');
+        
+        if (isPlankMaking) {
+            // For plank making: withdraw all coins first (1 slot), then up to 27 logs
+            let toMake = Math.min(maxCraftable, 27); // Max 27 logs since coins take 1 slot
             
-            // Calculate how many we can actually make
-            let maxCraftable = craftsRemaining;
-            for (const input of recipe.inputs) {
-                const bankCount = bank.getItemCount(input.itemId);
-                const canMake = Math.floor(bankCount / input.quantity);
-                maxCraftable = Math.min(maxCraftable, canMake);
-            }
+            // Withdraw coins first (all needed coins in 1 stack)
+            const coinsInput = recipe.inputs.find(input => input.itemId === 'coins');
+            const logsInput = recipe.inputs.find(input => input.itemId !== 'coins');
             
-            if (maxCraftable === 0) {
-                console.log('No materials in bank for crafting task');
-                return false;
-            }
-            
-            // Withdraw materials for as many as we can fit
-            const inventorySlots = 28;
-            let slotsNeeded = recipe.inputs.length;
-            
-            // For plank making, we need logs and coins (both stackable)
-            // For glass/gems, we need 1 type of material
-            let toMake = Math.min(maxCraftable, Math.floor(inventorySlots / slotsNeeded));
-            
-            // Special handling for stackable items
-            const itemsData = loadingManager.getData('items');
-            let allStackable = true;
-            for (const input of recipe.inputs) {
-                if (!itemsData[input.itemId].stackable) {
-                    allStackable = false;
-                    break;
+            if (coinsInput) {
+                const coinsNeeded = coinsInput.quantity * toMake;
+                const coinsWithdrawn = bank.withdrawUpTo('coins', coinsNeeded);
+                
+                if (coinsWithdrawn > 0) {
+                    inventory.addItem('coins', coinsWithdrawn);
+                    console.log(`Withdrew ${coinsWithdrawn} coins for ${toMake} plank crafts`);
+                    withdrawnAny = true;
+                } else {
+                    console.log('Failed to withdraw coins for plank making');
+                    return false;
                 }
             }
             
-            if (allStackable) {
-                // If all inputs are stackable, we can make as many as we have materials for
-                toMake = maxCraftable;
+            // Withdraw logs (up to 27)
+            if (logsInput) {
+                const logsNeeded = logsInput.quantity * toMake; // Should be same as toMake since it's 1:1
+                const logsWithdrawn = bank.withdrawUpTo(logsInput.itemId, logsNeeded);
+                
+                if (logsWithdrawn > 0) {
+                    inventory.addItem(logsInput.itemId, logsWithdrawn);
+                    console.log(`Withdrew ${logsWithdrawn} ${logsInput.itemId} for plank making`);
+                    withdrawnAny = true;
+                } else {
+                    console.log(`Failed to withdraw ${logsInput.itemId} for plank making`);
+                    return false;
+                }
+            }
+        } else {
+            // Non-plank making recipes (glass blowing, gem cutting)
+            const itemsData = loadingManager.getData('items');
+            let toMake = maxCraftable;
+            
+            // For gem cutting and glass blowing, materials might not be stackable
+            if (recipe.inputs.length === 1) {
+                const input = recipe.inputs[0];
+                const itemData = itemsData[input.itemId];
+                
+                if (!itemData.stackable) {
+                    // Non-stackable single input - limit to 28 inventory slots
+                    toMake = Math.min(toMake, Math.floor(28 / input.quantity));
+                }
             }
             
             if (toMake === 0) {
-                console.log('Cannot fit recipe materials in inventory');
+                console.log('Cannot fit materials in inventory');
                 return false;
             }
             
-            // Withdraw materials
+            // Withdraw materials for non-plank recipes
             for (const input of recipe.inputs) {
                 const needed = input.quantity * toMake;
                 const withdrawn = bank.withdrawUpTo(input.itemId, needed);
@@ -648,9 +680,10 @@ class CraftingSkill extends BaseSkill {
                 }
             }
         }
-        
-        return withdrawnAny;
     }
+    
+    return withdrawnAny;
+}
     
     canContinueTask(task) {
         if (!task || !task.isCraftingTask) return true;
