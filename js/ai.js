@@ -688,26 +688,49 @@ class AIManager {
                 
                 // During banking animation, prepare for next action
                 if (this.currentTask && this.currentTask.progress < 1) {
-                    // Calculate path to task node during banking animation
+                    // Prepare waypoint path to task node during banking animation
                     const taskNode = nodes.getNode(this.currentTask.nodeId);
                     if (taskNode && player.currentNode !== this.currentTask.nodeId) {
-                        console.log('Calculating path to task node during banking...');
-                        // This doesn't actually move, just sets up the path
-                        if (window.pathfinding) {
-                            const path = pathfinding.findPath(
+                        console.log('Preparing waypoint path to task node during banking...');
+                        
+                        // Try to use waypoint paths
+                        let path = null;
+                        
+                        // We're at a bank, going to task node
+                        // Check if task node uses this same bank
+                        if (taskNode.nearestBank === player.currentNode) {
+                            // Same bank - use reversed pathToBank
+                            if (taskNode.pathToBank && taskNode.pathToBank.length > 0) {
+                                path = [...taskNode.pathToBank].reverse();
+                                console.log(`Using reversed pathToBank from ${player.currentNode} to ${this.currentTask.nodeId}`);
+                            }
+                        } else if (window.pathfinding) {
+                            // Different bank - use full waypoint path
+                            const waypointPath = pathfinding.buildWaypointPath(player.currentNode, this.currentTask.nodeId);
+                            if (waypointPath && waypointPath.length > 0) {
+                                path = waypointPath;
+                                console.log(`Using waypoint path from ${player.currentNode} to ${this.currentTask.nodeId}`);
+                            }
+                        }
+                        
+                        // Fallback to A* if no waypoint path available
+                        if (!path && window.pathfinding) {
+                            console.log('No waypoint path available, falling back to A* pathfinding');
+                            path = pathfinding.findPath(
                                 player.position.x,
                                 player.position.y,
                                 taskNode.position.x,
                                 taskNode.position.y
                             );
-                            if (path && path.length > 0) {
-                                player.path = path;
-                                player.pathIndex = 0;
-                                player.segmentProgress = 0;
-                                player.targetPosition = { ...taskNode.position };
-                                player.targetNode = this.currentTask.nodeId;
-                                console.log(`Path to ${this.currentTask.nodeId} prepared (${path.length} waypoints)`);
-                            }
+                        }
+                        
+                        if (path && path.length > 0) {
+                            player.path = path;
+                            player.pathIndex = 0;
+                            player.segmentProgress = 0;
+                            player.targetPosition = { ...taskNode.position };
+                            player.targetNode = this.currentTask.nodeId;
+                            console.log(`Path to ${this.currentTask.nodeId} prepared (${path.length} waypoints)`);
                         }
                     }
                 }
@@ -739,26 +762,49 @@ class AIManager {
         
         // During banking animation, prepare for next action
         if (this.currentTask && this.currentTask.progress < 1) {
-            // Calculate path to task node during banking animation
+            // Prepare waypoint path to task node during banking animation
             const taskNode = nodes.getNode(this.currentTask.nodeId);
             if (taskNode && player.currentNode !== this.currentTask.nodeId) {
-                console.log('Calculating path to task node during banking...');
-                // This doesn't actually move, just sets up the path
-                if (window.pathfinding) {
-                    const path = pathfinding.findPath(
+                console.log('Preparing waypoint path to task node during banking...');
+                
+                // Try to use waypoint paths
+                let path = null;
+                
+                // We're at a bank, going to task node
+                // Check if task node uses this same bank
+                if (taskNode.nearestBank === player.currentNode) {
+                    // Same bank - use reversed pathToBank
+                    if (taskNode.pathToBank && taskNode.pathToBank.length > 0) {
+                        path = [...taskNode.pathToBank].reverse();
+                        console.log(`Using reversed pathToBank from ${player.currentNode} to ${this.currentTask.nodeId}`);
+                    }
+                } else if (window.pathfinding) {
+                    // Different bank - use full waypoint path
+                    const waypointPath = pathfinding.buildWaypointPath(player.currentNode, this.currentTask.nodeId);
+                    if (waypointPath && waypointPath.length > 0) {
+                        path = waypointPath;
+                        console.log(`Using waypoint path from ${player.currentNode} to ${this.currentTask.nodeId}`);
+                    }
+                }
+                
+                // Fallback to A* if no waypoint path available
+                if (!path && window.pathfinding) {
+                    console.log('No waypoint path available, falling back to A* pathfinding');
+                    path = pathfinding.findPath(
                         player.position.x,
                         player.position.y,
                         taskNode.position.x,
                         taskNode.position.y
                     );
-                    if (path && path.length > 0) {
-                        player.path = path;
-                        player.pathIndex = 0;
-                        player.segmentProgress = 0;
-                        player.targetPosition = { ...taskNode.position };
-                        player.targetNode = this.currentTask.nodeId;
-                        console.log(`Path to ${this.currentTask.nodeId} prepared (${path.length} waypoints)`);
-                    }
+                }
+                
+                if (path && path.length > 0) {
+                    player.path = path;
+                    player.pathIndex = 0;
+                    player.segmentProgress = 0;
+                    player.targetPosition = { ...taskNode.position };
+                    player.targetNode = this.currentTask.nodeId;
+                    console.log(`Path to ${this.currentTask.nodeId} prepared (${path.length} waypoints)`);
                 }
             }
         }
@@ -799,26 +845,49 @@ class AIManager {
         
         // During banking animation, prepare for next action
         if (this.currentTask) {
-            // Calculate path to task node during banking animation
+            // Prepare waypoint path to task node during banking animation
             const taskNode = nodes.getNode(this.currentTask.nodeId);
             if (taskNode && player.currentNode !== this.currentTask.nodeId) {
-                console.log('Calculating path to task node during banking...');
-                // This doesn't actually move, just sets up the path
-                if (window.pathfinding) {
-                    const path = pathfinding.findPath(
+                console.log('Preparing waypoint path to task node during banking...');
+                
+                // Try to use waypoint paths
+                let path = null;
+                
+                // We're at a bank, going to task node
+                // Check if task node uses this same bank
+                if (taskNode.nearestBank === player.currentNode) {
+                    // Same bank - use reversed pathToBank
+                    if (taskNode.pathToBank && taskNode.pathToBank.length > 0) {
+                        path = [...taskNode.pathToBank].reverse();
+                        console.log(`Using reversed pathToBank from ${player.currentNode} to ${this.currentTask.nodeId}`);
+                    }
+                } else if (window.pathfinding) {
+                    // Different bank - use full waypoint path
+                    const waypointPath = pathfinding.buildWaypointPath(player.currentNode, this.currentTask.nodeId);
+                    if (waypointPath && waypointPath.length > 0) {
+                        path = waypointPath;
+                        console.log(`Using waypoint path from ${player.currentNode} to ${this.currentTask.nodeId}`);
+                    }
+                }
+                
+                // Fallback to A* if no waypoint path available
+                if (!path && window.pathfinding) {
+                    console.log('No waypoint path available, falling back to A* pathfinding');
+                    path = pathfinding.findPath(
                         player.position.x,
                         player.position.y,
                         taskNode.position.x,
                         taskNode.position.y
                     );
-                    if (path && path.length > 0) {
-                        player.path = path;
-                        player.pathIndex = 0;
-                        player.segmentProgress = 0;
-                        player.targetPosition = { ...taskNode.position };
-                        player.targetNode = this.currentTask.nodeId;
-                        console.log(`Path to ${this.currentTask.nodeId} prepared (${path.length} waypoints)`);
-                    }
+                }
+                
+                if (path && path.length > 0) {
+                    player.path = path;
+                    player.pathIndex = 0;
+                    player.segmentProgress = 0;
+                    player.targetPosition = { ...taskNode.position };
+                    player.targetNode = this.currentTask.nodeId;
+                    console.log(`Path to ${this.currentTask.nodeId} prepared (${path.length} waypoints)`);
                 }
             }
         }
