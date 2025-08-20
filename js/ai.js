@@ -234,7 +234,6 @@ class AIManager {
         // Check if task is valid
         if (!taskManager.isTaskPossible(task)) {
             console.log('Task is impossible, skipping it');
-            // Skip the impossible task
             if (window.taskManager) {
                 taskManager.skipCurrentTask();
             }
@@ -247,7 +246,6 @@ class AIManager {
         const skill = skillRegistry.getSkill(task.skill);
         if (skill && !skill.canContinueTask(task)) {
             console.log(`Skill ${task.skill} cannot continue task, skipping it`);
-            // Skip the impossible task
             if (window.taskManager) {
                 taskManager.skipCurrentTask();
             }
@@ -256,19 +254,20 @@ class AIManager {
             return;
         }
 
-        // Check if skill requires banking before starting the task
-        if (skill && skill.requiresBankingBeforeTask && !this.hasBankedForCurrentTask) {
-            console.log(`${task.skill} requires banking before starting task`);
+        // ==================== NEW: ALWAYS BANK FIRST ====================
+        // For ANY new task, go to bank first (unless we just came from bank)
+        if (!this.hasBankedForCurrentTask) {
+            console.log(`New task requires initial banking`);
             this.goToBank();
             return;
         }
+        // ==================== END NEW BANKING LOGIC ====================
 
-        // NEW: Check actual distance to node, not just currentNode property
+        // Check actual distance to node
         const node = nodes.getNode(task.nodeId);
         if (node) {
             const dist = window.distance(player.position.x, player.position.y, node.position.x, node.position.y);
-            if (dist <= 2) { // Within 2 tiles is close enough
-                // We're at the node, set currentNode if not already set
+            if (dist <= 2) {
                 if (player.currentNode !== task.nodeId) {
                     console.log(`Already at ${task.nodeId} position (distance: ${dist.toFixed(1)}), setting currentNode`);
                     player.currentNode = task.nodeId;
@@ -278,7 +277,6 @@ class AIManager {
 
         // Check if we're at the right node
         if (player.currentNode !== task.nodeId) {
-            // Double-check we're not already moving to this node
             if (player.targetNode === task.nodeId && player.isMoving()) {
                 console.log(`Already moving to ${task.nodeId}`);
                 return;
@@ -289,10 +287,10 @@ class AIManager {
             return;
         }
 
-        // Verify we're actually at the node (not just have it set incorrectly)
+        // Verify we're actually at the node
         if (node) {
             const dist = window.distance(player.position.x, player.position.y, node.position.x, node.position.y);
-            if (dist > 2) { // More than 2 tiles away
+            if (dist > 2) {
                 console.log(`currentNode says ${task.nodeId} but player is ${dist} tiles away, clearing and moving`);
                 player.currentNode = null;
                 player.moveTo(task.nodeId);
@@ -310,7 +308,6 @@ class AIManager {
                     console.log(`No materials in inventory for ${task.skill} task, need to bank`);
                 }
                 
-                // Check if we actually have materials in the bank
                 if (materials && bank.getItemCount(materials.itemId) === 0) {
                     console.log(`No ${materials.itemId} in bank either, task impossible, skipping`);
                     if (window.taskManager) {
@@ -333,10 +330,8 @@ class AIManager {
                 this.goToBankForItems(task.activityId);
                 return;
             } else {
-                // Check if we can buy the items
                 if (this.canBuyRequiredItems(task.activityId)) {
                     console.log(`Need to buy items for ${task.activityId}`);
-                    // For now, just skip the task since shopping isn't implemented
                     console.log('Shopping not yet implemented by AI, skipping task');
                     if (window.taskManager) {
                         taskManager.skipCurrentTask();
@@ -347,7 +342,6 @@ class AIManager {
                 }
                 
                 console.log(`Cannot perform ${task.activityId} - required items not available, skipping task`);
-                // Skip the impossible task
                 if (window.taskManager) {
                     taskManager.skipCurrentTask();
                 }
