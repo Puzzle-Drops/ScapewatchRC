@@ -238,13 +238,19 @@ class TaskManager {
 
     // Move next task to current, and first regular task to next
     promoteNextTask() {
-        this.currentTask = this.nextTask;
-        
-        // Initialize starting count for new current task if it's a gathering task
-        if (this.currentTask && !this.currentTask.isCookingTask && this.currentTask.startingCount === null) {
-            this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
-            console.log(`New current task "${this.currentTask.description}" starting count: ${this.currentTask.startingCount}`);
-        }
+    this.currentTask = this.nextTask;
+    
+    // Initialize starting count for new current task if it's a gathering task
+    if (this.currentTask && !this.currentTask.isCookingTask && this.currentTask.startingCount === null) {
+        this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
+        console.log(`New current task "${this.currentTask.description}" starting count: ${this.currentTask.startingCount}`);
+    }
+    
+    // Initialize itemsProduced for fletching tasks if not already set
+    if (this.currentTask && this.currentTask.isFletchingTask && this.currentTask.itemsProduced === undefined) {
+        this.currentTask.itemsProduced = 0;
+        console.log(`Initialized itemsProduced for fletching task: ${this.currentTask.description}`);
+    }
         
         // Move first regular task to next
         if (this.tasks.length > 0) {
