@@ -455,42 +455,46 @@ initializeSkillData() {
     }
     
     updateFletchingTaskProgress(outputId, quantity) {
-        if (!window.taskManager) return;
+    if (!window.taskManager) return;
+    
+    const currentTask = taskManager.getFirstIncompleteTask();
+    
+    if (currentTask && currentTask.isFletchingTask) {
+        // Check if this is an arrow shaft task by looking at the itemId pattern
+        const isArrowShaftTask = currentTask.itemId && currentTask.itemId.startsWith('arrow_shaft_from_');
         
-        const currentTask = taskManager.getFirstIncompleteTask();
-        
-        if (currentTask && currentTask.isFletchingTask) {
-            // For arrow shafts, the task itemId is like "arrow_shaft_from_maple" 
-            // but the actual output is "arrow_shaft"
-            if (currentTask.productType === 'shafts' && outputId === 'arrow_shaft') {
-                // This is an arrow shaft task and we produced arrow shafts
-                currentTask.itemsProduced = (currentTask.itemsProduced || 0) + quantity;
-                const progress = currentTask.itemsProduced / currentTask.targetCount;
-                
-                console.log(`Fletching progress (arrow shafts): ${currentTask.itemsProduced}/${currentTask.targetCount}`);
-                
-                taskManager.setTaskProgress(currentTask, progress);
-                
-                // Force UI update
-                if (window.ui) {
-                    window.ui.updateTasks();
-                }
-            } else if (currentTask.itemId === outputId) {
-                // Regular fletching task (headless arrows or complete arrows)
-                currentTask.itemsProduced = (currentTask.itemsProduced || 0) + quantity;
-                const progress = currentTask.itemsProduced / currentTask.targetCount;
-                
-                console.log(`Fletching progress: ${currentTask.itemsProduced}/${currentTask.targetCount}`);
-                
-                taskManager.setTaskProgress(currentTask, progress);
-                
-                // Force UI update
-                if (window.ui) {
-                    window.ui.updateTasks();
-                }
+        // For arrow shafts, the task itemId is like "arrow_shaft_from_maple" 
+        // but the actual output is "arrow_shaft"
+        if ((isArrowShaftTask || currentTask.productType === 'shafts') && outputId === 'arrow_shaft') {
+            // This is an arrow shaft task and we produced arrow shafts
+            currentTask.itemsProduced = (currentTask.itemsProduced || 0) + quantity;
+            const progress = currentTask.itemsProduced / currentTask.targetCount;
+            
+            console.log(`Fletching progress (arrow shafts): ${currentTask.itemsProduced}/${currentTask.targetCount}`);
+            console.log(`Task details: itemId=${currentTask.itemId}, productType=${currentTask.productType}, progress=${progress}`);
+            
+            taskManager.setTaskProgress(currentTask, progress);
+            
+            // Force UI update
+            if (window.ui) {
+                window.ui.updateTasks();
+            }
+        } else if (currentTask.itemId === outputId) {
+            // Regular fletching task (headless arrows or complete arrows)
+            currentTask.itemsProduced = (currentTask.itemsProduced || 0) + quantity;
+            const progress = currentTask.itemsProduced / currentTask.targetCount;
+            
+            console.log(`Fletching progress: ${currentTask.itemsProduced}/${currentTask.targetCount}`);
+            
+            taskManager.setTaskProgress(currentTask, progress);
+            
+            // Force UI update
+            if (window.ui) {
+                window.ui.updateTasks();
             }
         }
     }
+}
     
     // ==================== PROCESSING SKILL INTERFACE ====================
     
