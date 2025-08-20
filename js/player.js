@@ -2,7 +2,7 @@ class Player {
     constructor() {
         this.position = { x: 4395, y: 1882 };
         this.targetPosition = null;
-        this.currentNode = null;
+        this.currentNode = null; // Start at Lumbridge bank
         this.targetNode = null;
         this.currentActivity = null;
         this.activityProgress = 0;
@@ -36,6 +36,8 @@ class Player {
             this.updateSmoothMovement(deltaTime);
         } else if (!this.currentNode && !this.isMoving()) {
             this.checkCurrentNode();
+            // Add off-path detection
+            this.detectOffPath();
         }
 
         // Handle activity
@@ -323,6 +325,9 @@ class Player {
                               !this.isBanking &&
                               (!currentNodeData || currentNodeData.type !== 'bank');
         
+        // CRITICAL FIX: Store current node BEFORE clearing it
+        const departureNode = this.currentNode;
+        
         // Clear current node when starting to move away
         if (this.currentNode && this.currentNode !== targetNodeId) {
             console.log(`Leaving node ${this.currentNode} to move to ${targetNodeId}`);
@@ -332,14 +337,14 @@ class Player {
         let path = null;
         let pathSource = 'A*'; // Track where the path came from for logging
         
-        // TRY WAYPOINT PATHS FIRST
-        if (window.pathfinding && this.currentNode) {
-            // Try to get a waypoint path from current node to target
-            const waypointPath = pathfinding.buildWaypointPath(this.currentNode, targetNodeId);
+        // TRY WAYPOINT PATHS FIRST - using the stored departureNode
+        if (window.pathfinding && departureNode) {
+            // Try to get a waypoint path from departure node to target
+            const waypointPath = pathfinding.buildWaypointPath(departureNode, targetNodeId);
             if (waypointPath && waypointPath.length > 0) {
                 path = waypointPath;
                 pathSource = 'waypoints';
-                console.log(`Using pre-computed waypoint path to ${targetNodeId} (${path.length} waypoints)`);
+                console.log(`Using pre-computed waypoint path from ${departureNode} to ${targetNodeId} (${path.length} waypoints)`);
             }
         }
         
@@ -450,6 +455,65 @@ class Player {
         if (previousNode !== this.currentNode && this.currentActivity) {
             console.log(`Node changed, stopping activity`);
             this.stopActivity();
+        }
+    }
+
+    // Add this entire method right after checkCurrentNode() ends
+    detectOffPath() {
+        // If we're moving or have a current node, we're fine
+        if (this.currentNode || this.isMoving() || this.isBanking || this.isPreparingPath) {
+            return;
+        }
+        
+        // Check if we're close to any node
+        const tolerance = 2; // Within 2 pixels of a node
+        const allNodes = nodes.getAllNodes();
+        
+        for (const [nodeId, node] of Object.entries(allNodes)) {
+            const dist = distance(this.position.x, this.position.y, node.position.x, node.position.y);
+            if (dist <= tolerance) {
+                // We're at a node, just not tracked properly
+                this.currentNode = nodeId;
+                console.log(`Off-path recovery: Found we're at ${nodeId}`);
+                return;
+            }
+        }
+        
+        // We're truly off-path - teleport to Lumbridge bank
+        console.warn('Player is off-path! Teleporting to Lumbridge bank...');
+        this.teleportToLumbridge();
+    }
+    
+    teleportToLumbridge() {
+        const lumbridgeBank = nodes.getNode('lumbridge_bank');
+        if (!lumbridgeBank) {
+            console.error('CRITICAL: Lumbridge bank node not found!');
+            // Hardcoded fallback position
+            this.position = { x: 4395, y: 1882 };
+            this.currentNode = 'lumbridge_bank';
+            return;
+        }
+        
+        // Teleport to Lumbridge bank
+        this.position = { x: lumbridgeBank.position.x, y: lumbridgeBank.position.y };
+        this.currentNode = 'lumbridge_bank';
+        
+        // Clear any ongoing movement
+        this.path = [];
+        this.pathIndex = 0;
+        this.targetPosition = null;
+        this.targetNode = null;
+        this.segmentProgress = 0;
+        
+        // Stop any activity
+        this.stopActivity();
+        
+        console.log('Teleported to Lumbridge bank');
+        
+        // Notify AI to re-evaluate
+        if (window.ai) {
+            window.ai.currentTask = null;
+            window.ai.decisionCooldown = 0;
         }
     }
 
