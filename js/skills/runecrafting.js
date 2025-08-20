@@ -82,7 +82,7 @@ class RunecraftingSkill extends BaseSkill {
             return null;
         }
         
-        // Find node for this altar
+        // Find node for this altar (no pathfinding needed)
         const altarNode = this.findNodeForAltar(selectedAltar.activityId);
         if (!altarNode) {
             console.log(`No node found for altar ${selectedAltar.activityId}`);
@@ -138,14 +138,10 @@ class RunecraftingSkill extends BaseSkill {
             const requiredLevel = activity.requiredLevel || 1;
             if (currentLevel < requiredLevel) continue;
             
-            // Check if we have a node for this altar
-            const nodeId = this.findNodeForAltar(activityId);
-            if (!nodeId) continue;
-            
+            // Simply add the altar - all altar nodes are reachable
             altars.push({
                 activityId: activityId,
-                requiredLevel: requiredLevel,
-                nodeId: nodeId
+                requiredLevel: requiredLevel
             });
         }
         
@@ -189,26 +185,7 @@ class RunecraftingSkill extends BaseSkill {
         
         for (const [nodeId, node] of Object.entries(allNodes)) {
             if (node.activities && node.activities.includes(activityId)) {
-                // Check if node is walkable
-                if (window.collision && window.collision.initialized) {
-                    if (!collision.isWalkable(Math.floor(node.position.x), Math.floor(node.position.y))) {
-                        continue;
-                    }
-                }
-                
-                // Check if we can path to this node
-                if (window.pathfinding && window.player) {
-                    const path = pathfinding.findPath(
-                        player.position.x, 
-                        player.position.y, 
-                        node.position.x, 
-                        node.position.y
-                    );
-                    if (!path) {
-                        continue;
-                    }
-                }
-                
+                // Simply add the node - no pathfinding needed
                 viableNodes.push(nodeId);
             }
         }
@@ -257,41 +234,41 @@ class RunecraftingSkill extends BaseSkill {
     }
     
     determineTargetTrips(activityId) {
-    // Get trip counts from centralized data
-    const virtualItemId = `runecraft_trips_${activityId}`;
-    const skillData = this.getSkillDataForItem(virtualItemId);
-    
-    let minCount, maxCount;
-    
-    if (!skillData) {
-        // Fallback if not found
-        minCount = 3;
-        maxCount = 8;
-    } else {
-        minCount = skillData.minCount;
-        maxCount = skillData.maxCount;
+        // Get trip counts from centralized data
+        const virtualItemId = `runecraft_trips_${activityId}`;
+        const skillData = this.getSkillDataForItem(virtualItemId);
+        
+        let minCount, maxCount;
+        
+        if (!skillData) {
+            // Fallback if not found
+            minCount = 3;
+            maxCount = 8;
+        } else {
+            minCount = skillData.minCount;
+            maxCount = skillData.maxCount;
+        }
+        
+        // Apply RuneCred quantity modifier to BOTH min and max
+        if (window.runeCreditManager) {
+            const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
+            minCount = Math.round(minCount * modifier);
+            maxCount = Math.round(maxCount * modifier);
+        }
+        
+        // Clamp both min and max to at least 1
+        minCount = Math.max(1, minCount);
+        maxCount = Math.max(1, maxCount);
+        
+        // Ensure max is at least as large as min
+        maxCount = Math.max(minCount, maxCount);
+        
+        // Now pick a random value between the modified min and max
+        const range = maxCount - minCount;
+        const count = minCount + Math.round(Math.random() * range);
+        
+        return count;
     }
-    
-    // Apply RuneCred quantity modifier to BOTH min and max
-    if (window.runeCreditManager) {
-        const modifier = runeCreditManager.getQuantityModifier(this.id, virtualItemId);
-        minCount = Math.round(minCount * modifier);
-        maxCount = Math.round(maxCount * modifier);
-    }
-    
-    // Clamp both min and max to at least 1
-    minCount = Math.max(1, minCount);
-    maxCount = Math.max(1, maxCount);
-    
-    // Ensure max is at least as large as min
-    maxCount = Math.max(minCount, maxCount);
-    
-    // Now pick a random value between the modified min and max
-    const range = maxCount - minCount;
-    const count = minCount + Math.round(Math.random() * range);
-    
-    return count;
-}
     
     updateRunecraftingTaskProgress() {
         if (!window.taskManager) return;
