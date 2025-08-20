@@ -168,4 +168,79 @@ class PriorityQueue {
             item.element.x === element.x && item.element.y === element.y
         );
     }
+
+    // ==================== WAYPOINT PATH METHODS ====================
+    
+    // Get a pre-computed path from node to its bank
+    getNodeToBankPath(nodeId) {
+        const nodeData = window.nodes ? nodes.getNode(nodeId) : null;
+        if (!nodeData) return null;
+        
+        // Banks don't have pathToBank
+        if (nodeData.type === 'bank') return null;
+        
+        return nodeData.pathToBank || null;
+    }
+    
+    // Get a pre-computed path between two banks
+    getBankToBankPath(fromBankId, toBankId) {
+        if (fromBankId === toBankId) return null;
+        
+        const fromBank = window.nodes ? nodes.getNode(fromBankId) : null;
+        if (!fromBank || fromBank.type !== 'bank') return null;
+        
+        if (!fromBank.pathsToOtherBanks) return null;
+        
+        return fromBank.pathsToOtherBanks[toBankId] || null;
+    }
+    
+    // Build a complete waypoint path using hub-and-spoke routing
+    buildWaypointPath(fromNodeId, toNodeId) {
+        const fromNode = window.nodes ? nodes.getNode(fromNodeId) : null;
+        const toNode = window.nodes ? nodes.getNode(toNodeId) : null;
+        
+        if (!fromNode || !toNode) return null;
+        
+        // Get the banks for each node
+        const fromBank = fromNode.nearestBank;
+        const toBank = toNode.nearestBank;
+        
+        if (!fromBank || !toBank) return null;
+        
+        const fullPath = [];
+        
+        // Step 1: From start node to its bank (if not already at bank)
+        if (fromNode.type !== 'bank' && fromNode.pathToBank) {
+            // Add all waypoints from node to bank
+            fullPath.push(...fromNode.pathToBank);
+        }
+        
+        // Step 2: From first bank to second bank (if different banks)
+        if (fromBank !== toBank) {
+            const bankToBank = this.getBankToBankPath(fromBank, toBank);
+            if (bankToBank) {
+                // Remove first waypoint if we have waypoints from step 1 (avoid duplicate)
+                if (fullPath.length > 0) {
+                    fullPath.push(...bankToBank.slice(1));
+                } else {
+                    fullPath.push(...bankToBank);
+                }
+            }
+        }
+        
+        // Step 3: From second bank to destination node (if not a bank)
+        if (toNode.type !== 'bank' && toNode.pathToBank) {
+            // Reverse the path (since it's stored as node→bank, we need bank→node)
+            const reversedPath = [...toNode.pathToBank].reverse();
+            // Remove first waypoint to avoid duplicate
+            if (fullPath.length > 0) {
+                fullPath.push(...reversedPath.slice(1));
+            } else {
+                fullPath.push(...reversedPath);
+            }
+        }
+        
+        return fullPath.length > 0 ? fullPath : null;
+    }
+    
 }
