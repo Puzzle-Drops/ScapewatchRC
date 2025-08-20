@@ -142,32 +142,6 @@ class Pathfinding {
 
         return smoothed;
     }
-}
-
-// Priority queue implementation for A*
-class PriorityQueue {
-    constructor() {
-        this.elements = [];
-    }
-
-    enqueue(element, priority) {
-        this.elements.push({ element, priority });
-        this.elements.sort((a, b) => a.priority - b.priority);
-    }
-
-    dequeue() {
-        return this.elements.shift().element;
-    }
-
-    isEmpty() {
-        return this.elements.length === 0;
-    }
-
-    contains(element) {
-        return this.elements.some(item => 
-            item.element.x === element.x && item.element.y === element.y
-        );
-    }
 
     // ==================== WAYPOINT PATH METHODS ====================
     
@@ -242,5 +216,30 @@ class PriorityQueue {
         
         return fullPath.length > 0 ? fullPath : null;
     }
-    
+}
+
+// Priority queue implementation for A*
+class PriorityQueue {
+    constructor() {
+        this.elements = [];
+    }
+
+    enqueue(element, priority) {
+        this.elements.push({ element, priority });
+        this.elements.sort((a, b) => a.priority - b.priority);
+    }
+
+    dequeue() {
+        return this.elements.shift().element;
+    }
+
+    isEmpty() {
+        return this.elements.length === 0;
+    }
+
+    contains(element) {
+        return this.elements.some(item => 
+            item.element.x === element.x && item.element.y === element.y
+        );
+    }
 }
