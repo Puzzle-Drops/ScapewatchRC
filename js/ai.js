@@ -385,6 +385,34 @@ class AIManager {
         return;
     }
     
+    // OPTIMIZATION: If we're at a node with pathToBank, use it directly
+    if (currentNode && currentNode.pathToBank && currentNode.pathToBank.length > 0) {
+        console.log(`Using direct pathToBank from ${player.currentNode} to ${currentNode.nearestBank}`);
+        
+        // Set up the path directly
+        player.path = [...currentNode.pathToBank]; // Copy the array
+        player.pathIndex = 0;
+        player.segmentProgress = 0;
+        player.targetNode = currentNode.nearestBank;
+        
+        const bankNode = nodes.getNode(currentNode.nearestBank);
+        if (bankNode) {
+            player.targetPosition = { ...bankNode.position };
+        }
+        
+        // Clear current node since we're leaving
+        player.currentNode = null;
+        
+        // Stop any activity
+        player.stopActivity();
+        
+        // Start path preparation animation
+        player.startPathPreparation(600);
+        
+        console.log(`Direct path to ${currentNode.nearestBank} set (${player.path.length} waypoints)`);
+        return;
+    }
+    
     let targetBankId = null;
     let fallbackBankId = null;
     
