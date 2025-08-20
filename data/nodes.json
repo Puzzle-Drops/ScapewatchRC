@@ -168,8 +168,8 @@
     "activities": [
       "canifis_rooftop"
     ],
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "east_varrock_bank",
+    "nearestBankDistance": 574
   },
   "falador_rooftop": {
     "id": "falador_rooftop",
@@ -197,7 +197,7 @@
       "seers_rooftop"
     ],
     "nearestBank": "draynor_bank",
-    "nearestBankDistance": 1307
+    "nearestBankDistance": 1278
   },
   "pollnivneach_rooftop": {
     "id": "pollnivneach_rooftop",
@@ -224,8 +224,8 @@
     "activities": [
       "rellekka_rooftop"
     ],
-    "nearestBank": null,
-    "nearestBankDistance": null
+    "nearestBank": "grand_exchange",
+    "nearestBankDistance": 1526
   },
   "ardougne_rooftop": {
     "id": "ardougne_rooftop",
@@ -239,7 +239,7 @@
       "ardougne_rooftop"
     ],
     "nearestBank": "draynor_bank",
-    "nearestBankDistance": 1822
+    "nearestBankDistance": 1501
   },
   "test_trees": {
     "id": "test_trees",
