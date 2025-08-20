@@ -33,9 +33,9 @@
         "stackable": false,
         "category": "resource"
     },
-    "molten_glass": {
-        "id": "molten_glass",
-        "name": "Molten glass",
+    "blown_glass": {
+        "id": "blown_glass",
+        "name": "Blown glass",
         "stackable": false,
         "category": "resource"
     },
