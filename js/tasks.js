@@ -238,13 +238,36 @@ class TaskManager {
 
     // Move next task to current, and first regular task to next
     promoteNextTask() {
-    this.currentTask = this.nextTask;
-    
-    // Initialize starting count for new current task if it's a gathering task
-    if (this.currentTask && !this.currentTask.isCookingTask && this.currentTask.startingCount === null) {
-        this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
-        console.log(`New current task "${this.currentTask.description}" starting count: ${this.currentTask.startingCount}`);
-    }
+        // Store the previous task's bank for optimization
+        const previousBank = this.currentTask && window.nodes ? 
+            (nodes.getNode(this.currentTask.nodeId)?.nearestBank) : null;
+        
+        this.currentTask = this.nextTask;
+        
+        // Check if new task uses same bank as previous (for AI optimization)
+        if (this.currentTask && previousBank && window.ai) {
+            const newTaskBank = window.nodes ? 
+                nodes.getNode(this.currentTask.nodeId)?.nearestBank : null;
+            
+            if (newTaskBank === previousBank) {
+                console.log(`New task uses same bank (${previousBank}), AI can skip re-banking`);
+                // AI can check this to avoid unnecessary re-banking
+                if (window.ai) {
+                    window.ai.hasBankedForCurrentTask = true;
+                }
+            } else {
+                console.log(`New task uses different bank (${previousBank} → ${newTaskBank})`);
+                if (window.ai) {
+                    window.ai.hasBankedForCurrentTask = false;
+                }
+            }
+        }
+        
+        // Initialize starting count for new current task if it's a gathering task
+        if (this.currentTask && !this.currentTask.isCookingTask && this.currentTask.startingCount === null) {
+            this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
+            console.log(`New current task "${this.currentTask.description}" starting count: ${this.currentTask.startingCount}`);
+        }
         
         // Move first regular task to next
         if (this.tasks.length > 0) {
