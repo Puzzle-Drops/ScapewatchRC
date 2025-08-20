@@ -460,18 +460,18 @@ initializeSkillData() {
     const currentTask = taskManager.getFirstIncompleteTask();
     
     if (currentTask && currentTask.isFletchingTask) {
-        // Check if this is an arrow shaft task by looking at the itemId pattern
-        const isArrowShaftTask = currentTask.itemId && currentTask.itemId.startsWith('arrow_shaft_from_');
+        // Check if this is an arrow shaft task - use the itemId pattern as primary check
+        // Arrow shaft tasks have itemId like "arrow_shaft_from_maple" or "arrow_shaft_from_logs"
+        const isArrowShaftTask = currentTask.itemId.startsWith('arrow_shaft_from_');
         
         // For arrow shafts, the task itemId is like "arrow_shaft_from_maple" 
         // but the actual output is "arrow_shaft"
-        if ((isArrowShaftTask || currentTask.productType === 'shafts') && outputId === 'arrow_shaft') {
+        if (isArrowShaftTask && outputId === 'arrow_shaft') {
             // This is an arrow shaft task and we produced arrow shafts
             currentTask.itemsProduced = (currentTask.itemsProduced || 0) + quantity;
             const progress = currentTask.itemsProduced / currentTask.targetCount;
             
             console.log(`Fletching progress (arrow shafts): ${currentTask.itemsProduced}/${currentTask.targetCount}`);
-            console.log(`Task details: itemId=${currentTask.itemId}, productType=${currentTask.productType}, progress=${progress}`);
             
             taskManager.setTaskProgress(currentTask, progress);
             
