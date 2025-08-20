@@ -305,13 +305,12 @@ class Player {
             return;
         }
         
-        // NEW: Check if we're already at the target position (within tolerance)
+        // Check if we're already at the target position (within tolerance)
         const distToTarget = distance(this.position.x, this.position.y, node.position.x, node.position.y);
-        if (distToTarget <= 1) { // Within 1 tile tolerance
+        if (distToTarget <= 1) {
             console.log(`Already at position of node ${targetNodeId}, setting currentNode`);
             this.currentNode = targetNodeId;
             
-            // Notify AI to continue with the task
             if (window.ai) {
                 window.ai.decisionCooldown = 0;
             }
@@ -319,7 +318,6 @@ class Player {
         }
         
         // Check if we should show path preparation animation
-        // (not at a bank, not already preparing, and not already banking)
         const currentNodeData = this.currentNode ? nodes.getNode(this.currentNode) : null;
         const shouldPrepare = !this.isPreparingPath && 
                               !this.isBanking &&
@@ -331,67 +329,67 @@ class Player {
             this.currentNode = null;
         }
 
-        // Calculate the path
-        if (window.pathfinding) {
-            const path = pathfinding.findPath(
+        let path = null;
+        let pathSource = 'A*'; // Track where the path came from for logging
+        
+        // TRY WAYPOINT PATHS FIRST
+        if (window.pathfinding && this.currentNode) {
+            // Try to get a waypoint path from current node to target
+            const waypointPath = pathfinding.buildWaypointPath(this.currentNode, targetNodeId);
+            if (waypointPath && waypointPath.length > 0) {
+                path = waypointPath;
+                pathSource = 'waypoints';
+                console.log(`Using pre-computed waypoint path to ${targetNodeId} (${path.length} waypoints)`);
+            }
+        }
+        
+        // FALLBACK TO A* PATHFINDING
+        if (!path && window.pathfinding) {
+            const calculatedPath = pathfinding.findPath(
                 this.position.x,
                 this.position.y,
                 node.position.x,
                 node.position.y
             );
-
-            if (path && path.length > 0) {
-                if (path.length > 1 && 
-                    Math.abs(path[0].x - this.position.x) < 0.1 && 
-                    Math.abs(path[0].y - this.position.y) < 0.1) {
-                    path.shift();
-                }
-                
-                // Set up the path (just like banking does)
-                this.path = path;
-                this.pathIndex = 0;
-                this.segmentProgress = 0;
-                this.targetPosition = { ...node.position };
-                this.targetNode = targetNodeId;
-                this.stopActivity();
-                
-                // If we should prepare, start the animation
-                // Movement will be blocked by isPreparingPath check in update()
-                if (shouldPrepare) {
-                    this.startPathPreparation(600);
-                    console.log(`Path to ${targetNodeId} prepared with animation (${path.length} waypoints)`);
-                } else {
-                    console.log(`Found path to ${targetNodeId} with ${path.length} waypoints`);
-                }
-            } else {
-                console.error(`No path found to node ${targetNodeId}`);
-                // Fallback path
-                this.path = [{ x: node.position.x, y: node.position.y }];
-                this.pathIndex = 0;
-                this.segmentProgress = 0;
-                this.targetPosition = { ...node.position };
-                this.targetNode = targetNodeId;
-                this.stopActivity();
-                
-                if (shouldPrepare) {
-                    this.startPathPreparation(600);
-                }
-            }
-        } else {
-            // No pathfinding system fallback
-            this.path = [{ x: node.position.x, y: node.position.y }];
-            this.pathIndex = 0;
-            this.segmentProgress = 0;
-            this.targetPosition = { ...node.position };
-            this.targetNode = targetNodeId;
-            this.stopActivity();
             
-            if (shouldPrepare) {
-                this.startPathPreparation(600);
+            if (calculatedPath && calculatedPath.length > 0) {
+                path = calculatedPath;
+                pathSource = 'A* pathfinding';
+                console.log(`Using calculated A* path to ${targetNodeId} (${path.length} waypoints)`);
             }
         }
-    }
+        
+        // LAST RESORT: Direct path
+        if (!path) {
+            path = [{ x: node.position.x, y: node.position.y }];
+            pathSource = 'direct';
+            console.log(`Using direct path to ${targetNodeId} (no pathfinding)`);
+        }
 
+        // Remove first waypoint if it's our current position
+        if (path.length > 1 && 
+            Math.abs(path[0].x - this.position.x) < 0.1 && 
+            Math.abs(path[0].y - this.position.y) < 0.1) {
+            path.shift();
+        }
+        
+        // Set up the path
+        this.path = path;
+        this.pathIndex = 0;
+        this.segmentProgress = 0;
+        this.targetPosition = { ...node.position };
+        this.targetNode = targetNodeId;
+        this.stopActivity();
+        
+        // Start preparation animation if needed
+        if (shouldPrepare) {
+            this.startPathPreparation(600);
+            console.log(`Path to ${targetNodeId} prepared with animation (${path.length} waypoints via ${pathSource})`);
+        } else {
+            console.log(`Found path to ${targetNodeId} with ${path.length} waypoints via ${pathSource}`);
+        }
+    }
+    
     onReachedTarget() {
         if (this.targetNode) {
             this.currentNode = this.targetNode;
