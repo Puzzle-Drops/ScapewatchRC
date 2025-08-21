@@ -3296,7 +3296,7 @@
         "name": "Rimmington House",
         "type": "skill",
         "position": { "x": 3855, "y": 1870 },
-        "activities": ["build_tables"],
+        "activities": ["build_tables"]
     },
   "cooks_assistant_quest": {
     "id": "cook_quest",
