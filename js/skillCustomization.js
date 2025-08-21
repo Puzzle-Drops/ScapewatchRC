@@ -1124,9 +1124,53 @@ maxQty = Math.max(minQty, maxQty);
         // Get all possible nodes for this skill
         const possibleNodes = this.getPossibleNodes();
         
+        // Get sorted tasks to determine node ordering
+        const sortedTasks = this.getPossibleTasks();
+        sortedTasks.sort((a, b) => (a.requiredLevel || 1) - (b.requiredLevel || 1));
+        
+        // Create a map of nodeId -> earliest task index it can produce
+        // Each node appears ONLY ONCE, sorted by its earliest/lowest-level task
+        const nodeTaskIndex = new Map();
+        for (const nodeId of possibleNodes) {
+            // Find the earliest task this node can produce
+            let earliestTaskIndex = sortedTasks.length; // Default to end if no match
+            
+            for (let i = 0; i < sortedTasks.length; i++) {
+                const task = sortedTasks[i];
+                // Check if this node can produce this task's item
+                const compatibleNodes = this.getNodesForTask(task.itemId, skills.getLevel(this.currentSkillId));
+                if (compatibleNodes.includes(nodeId)) {
+                    earliestTaskIndex = i;
+                    break; // Found earliest task, stop looking - ensures node appears only once
+                }
+            }
+            
+            nodeTaskIndex.set(nodeId, earliestTaskIndex);
+        }
+        
+        // Sort nodes by task order, then by bank distance (nearest first)
+        // Each node appears exactly once in the list
+        possibleNodes.sort((a, b) => {
+            // First sort by which task they produce (earlier tasks first)
+            const taskIndexA = nodeTaskIndex.get(a) || 999;
+            const taskIndexB = nodeTaskIndex.get(b) || 999;
+            
+            if (taskIndexA !== taskIndexB) {
+                return taskIndexA - taskIndexB;
+            }
+            
+            // Same task group - sort by bank distance (nearest first)
+            const nodeA = nodes.getNode(a);
+            const nodeB = nodes.getNode(b);
+            const distA = nodeA?.nearestBankDistance || 0;
+            const distB = nodeB?.nearestBankDistance || 0;
+            return distA - distB; // Ascending - nearest first
+        });
+        
         // Get current player level
         const currentLevel = skills.getLevel(this.currentSkillId);
         
+        // Create each node row exactly once
         for (const nodeId of possibleNodes) {
             const nodeRow = this.createNodeRow(nodeId, currentLevel);
             nodesList.appendChild(nodeRow);
