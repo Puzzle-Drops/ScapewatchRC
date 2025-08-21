@@ -3292,20 +3292,49 @@
     ]
   },
 "rimmington_house": {
-        "id": "rimmington_house",
-        "name": "Rimmington House",
-        "type": "skill",
-        "position": { "x": 3855, "y": 1870 },
-        "activities": ["build_tables"]
-    },
-  "cooks_assistant_quest": {
-    "id": "cook_quest",
-    "name": "Cook's Assistant",
-    "type": "quest",
+    "id": "rimmington_house",
+    "name": "Rimmington House",
+    "type": "skill",
     "position": {
-      "x": 4734,
-      "y": 2137
+      "x": 3855,
+      "y": 1870
     },
+    "activities": [
+      "build_tables"
+    ],
+    "nearestBank": "draynor_bank",
+    "nearestBankDistance": 261,
+    "pathToBank": [
+      {
+        "x": 4319.5,
+        "y": 1990.5
+      },
+      {
+        "x": 4273.5,
+        "y": 1950.5
+      },
+      {
+        "x": 4147.5,
+        "y": 1837.5
+      },
+      {
+        "x": 4147.5,
+        "y": 1825.5
+      },
+      {
+        "x": 4142.5,
+        "y": 1824.5
+      },
+      {
+        "x": 4137.5,
+        "y": 1825.5
+      },
+      {
+        "x": 4134.5,
+        "y": 1833.5
+      }
+    ]
+  },
     "questId": "cooks_assistant",
     "nearestBank": "lumbridge_bank",
     "nearestBankDistance": 585,
