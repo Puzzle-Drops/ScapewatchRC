@@ -962,6 +962,9 @@ createImageSpeedBonuses() {
         // Get all possible tasks for this skill
         const possibleTasks = this.getPossibleTasks();
         
+        // Sort tasks by level requirement (ascending - level 1 first)
+        possibleTasks.sort((a, b) => (a.requiredLevel || 1) - (b.requiredLevel || 1));
+        
         // Get current player level
         const currentLevel = skills.getLevel(this.currentSkillId);
         
