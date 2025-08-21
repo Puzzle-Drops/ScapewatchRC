@@ -269,128 +269,75 @@ zoomCamera(newZoom) {
     }
 
     drawPlayer() {
-    const ctx = this.ctx;
-    
-    // Draw player as a simple circle at their world position
-    // The camera transform is already applied, so we just draw at world coordinates
-    const x = player.position.x;
-    const y = player.position.y;
-    
-    // Try to draw sprite animation first
-    const spriteDrawn = playerAnimation.draw(ctx, x, y, 4); // Scale of 4 pixels for the sprite
-    
-    // Fallback to colored circle if sprite fails
-    if (!spriteDrawn) {
+    // Use the actual player position for smooth movement
+    const { x, y } = player.position;
+
+    // Scale sprite size based on zoom level
+// At zoom 14 (default), sprite is 3 pixels - this is the MINIMUM size
+// When zooming in past 14, sprite gets bigger
+// When zooming out below 14, sprite stays at 3 (never gets smaller)
+const defaultSpriteSize = 3;
+const spriteScale = Math.max(defaultSpriteSize, Math.min(10, defaultSpriteSize * (this.camera.zoom / 14)));
+
+    // Try to draw sprite, fallback to circle if it fails
+    if (!window.playerAnimation || !playerAnimation.draw(this.ctx, x, y, spriteScale)) {
+        // Fallback to original circle drawing
         this.drawPlayerCircle(x, y);
     }
+
+    // Scale status rings based on zoom
+// At zoom 14 (default), ring radius is 2 and line width is 0.4
+const ringZoomScale = this.camera.zoom / 14;
+const ringRadius = Math.max(1, Math.min(4, 2 * ringZoomScale));
+const ringLineWidth = Math.max(0.2, Math.min(1, 0.4 * ringZoomScale));
+
+// Activity indicator OR stun indicator OR banking indicator OR path prep indicator
+// (These are drawn AFTER the sprite)
+if (player.isBanking) {
+    // Show banking progress (golden circle that depletes counter-clockwise)
+    const bankingProgress = player.getBankingProgress();
+    if (bankingProgress > 0) {
+        this.ctx.beginPath();
+        // Start from top, go counter-clockwise based on remaining progress
+        this.ctx.arc(x, y, ringRadius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * bankingProgress));
+        this.ctx.strokeStyle = '#f39c12'; // Golden color for banking
+        this.ctx.lineWidth = ringLineWidth;
+        this.ctx.stroke();
+    }
+} else if (player.isPreparingPath) {
+    // Show path preparation progress (white circle that depletes counter-clockwise)
+    const pathPrepProgress = player.getPathPreparationProgress();
+    if (pathPrepProgress > 0) {
+        this.ctx.beginPath();
+        // Start from top, go counter-clockwise based on remaining progress
+        this.ctx.arc(x, y, ringRadius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * pathPrepProgress));
+        this.ctx.strokeStyle = '#ffffff'; // White color for path preparation
+        this.ctx.lineWidth = ringLineWidth;
+        this.ctx.stroke();
+    }
+} else if (player.isStunned) {
+    // Show stun progress (counter-clockwise from full)
+    const stunProgress = player.getStunProgress();
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, ringRadius, -Math.PI / 2, -Math.PI / 2 - (Math.PI * 2 * stunProgress));
+    this.ctx.strokeStyle = '#e74c3c';
+    this.ctx.lineWidth = ringLineWidth;
+    this.ctx.stroke();
+} else if (player.currentActivity) {
+    // Get the skill for the current activity
+    let activityColor = '#f39c12'; // Default orange
     
-    // Draw activity progress bar
-    if (player.currentActivity) {
-        const progressWidth = 8; // Scaled down from 40
-        const progressHeight = 1.2; // Scaled down from 6
-        
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(
-            x - progressWidth / 2,
-            y - 4, // Above player
-            progressWidth,
-            progressHeight
-        );
-        
-        ctx.fillStyle = '#4CAF50';
-        ctx.fillRect(
-            x - progressWidth / 2,
-            y - 4,
-            progressWidth * player.activityProgress,
-            progressHeight
-        );
+    const activityData = loadingManager.getData('activities')[player.currentActivity];
+    if (activityData && activityData.skill) {
+        activityColor = this.getSkillColor(activityData.skill);
     }
     
-    // Draw stun animation (red circle)
-    if (player.isStunned) {
-        const progress = player.getStunProgress();
-        
-        if (progress < 1) {
-            ctx.strokeStyle = '#e74c3c';
-            ctx.lineWidth = 0.3;
-            ctx.beginPath();
-            ctx.arc(
-                x,
-                y - 2, // Above player
-                3, // Radius
-                -Math.PI / 2,
-                -Math.PI / 2 + (2 * Math.PI * progress),
-                false
-            );
-            ctx.stroke();
-        }
-    }
-    
-    // Draw banking animation (blue circle)
-    if (player.isBanking) {
-        const progress = player.getBankingProgress();
-        
-        if (progress > 0) {
-            ctx.strokeStyle = '#3498db';
-            ctx.lineWidth = 0.3;
-            ctx.beginPath();
-            ctx.arc(
-                x,
-                y - 2,
-                3,
-                -Math.PI / 2,
-                -Math.PI / 2 + (2 * Math.PI * (1 - progress)),
-                false
-            );
-            ctx.stroke();
-        }
-    }
-    
-    // Draw remote banking animation (golden depleting circle)
-    if (player.isRemoteBanking) {
-        const progress = player.getRemoteBankingProgress();
-        
-        if (progress > 0) {
-            ctx.strokeStyle = '#FFD700'; // Gold color
-            ctx.lineWidth = 0.3;
-            ctx.beginPath();
-            
-            // Draw depleting arc (clockwise from top)
-            const startAngle = -Math.PI / 2; // Start at top
-            const endAngle = startAngle + (2 * Math.PI * progress); // Deplete clockwise
-            
-            ctx.arc(
-                x,
-                y - 2, // Position above player
-                3, // Radius
-                startAngle,
-                endAngle,
-                false // Clockwise
-            );
-            
-            ctx.stroke();
-        }
-    }
-    
-    // Draw path preparation animation (white circle)
-    if (player.isPreparingPath) {
-        const progress = player.getPathPreparationProgress();
-        
-        if (progress > 0) {
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 0.3;
-            ctx.beginPath();
-            ctx.arc(
-                x,
-                y - 2,
-                3,
-                -Math.PI / 2,
-                -Math.PI / 2 + (2 * Math.PI * (1 - progress)),
-                false
-            );
-            ctx.stroke();
-        }
-    }
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, ringRadius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * player.activityProgress));
+    this.ctx.strokeStyle = activityColor;
+    this.ctx.lineWidth = ringLineWidth;
+    this.ctx.stroke();
+}
 }
 
 drawPlayerCircle(x, y) {
