@@ -17,6 +17,11 @@ class Player {
         this.isBanking = false;
         this.bankingEndTime = 0;
         this.bankingDuration = 600; // 0.6 seconds
+        // Remote banking animation (for construction)
+        this.isRemoteBanking = false;
+        this.remoteBankingEndTime = 0;
+        this.remoteBankingDuration = 5000; // 5 seconds
+        
         this.movementStartTime = 0;
         
         // Path preparation animation (white circle)
@@ -51,6 +56,17 @@ class Player {
             console.log('Banking animation complete');
             
             // Trigger AI to continue after banking
+            if (window.ai) {
+                window.ai.decisionCooldown = 0;
+            }
+        }
+
+        // Check if remote banking animation finished
+        if (this.isRemoteBanking && Date.now() >= this.remoteBankingEndTime) {
+            this.isRemoteBanking = false;
+            console.log('Remote banking animation complete');
+            
+            // Trigger AI to continue after remote banking
             if (window.ai) {
                 window.ai.decisionCooldown = 0;
             }
@@ -577,6 +593,21 @@ class Player {
         console.log('Started banking animation');
     }
 
+    startRemoteBanking(duration = 5000) {
+        this.isRemoteBanking = true;
+        this.remoteBankingDuration = duration;
+        this.remoteBankingEndTime = Date.now() + duration;
+        console.log('Started remote banking animation');
+    }
+
+    getRemoteBankingProgress() {
+        if (!this.isRemoteBanking) return 0;
+        
+        const elapsed = Date.now() - (this.remoteBankingEndTime - this.remoteBankingDuration);
+        // Return DEPLETING progress (1 to 0) instead of growing (0 to 1)
+        return Math.max(0, 1 - (elapsed / this.remoteBankingDuration));
+    }
+
     startPathPreparation(duration = 600) {
         this.isPreparingPath = true;
         this.pathPrepDuration = duration;
@@ -617,7 +648,7 @@ class Player {
     }
 
     isBusy() {
-        return this.isMoving() || this.isPerformingActivity() || this.isBanking || this.isPreparingPath;
+        return this.isMoving() || this.isPerformingActivity() || this.isBanking || this.isPreparingPath || this.isRemoteBanking;
     }
 
     setStunned(stunned, duration = 0) {
