@@ -269,135 +269,129 @@ zoomCamera(newZoom) {
     }
 
     drawPlayer() {
-        const ctx = this.ctx;
-        const scale = 48;
+    const ctx = this.ctx;
+    
+    // Draw player as a simple circle at their world position
+    // The camera transform is already applied, so we just draw at world coordinates
+    const x = player.position.x;
+    const y = player.position.y;
+    
+    // Try to draw sprite animation first
+    const spriteDrawn = playerAnimation.draw(ctx, x, y, 4); // Scale of 4 pixels for the sprite
+    
+    // Fallback to colored circle if sprite fails
+    if (!spriteDrawn) {
+        this.drawPlayerCircle(x, y);
+    }
+    
+    // Draw activity progress bar
+    if (player.currentActivity) {
+        const progressWidth = 8; // Scaled down from 40
+        const progressHeight = 1.2; // Scaled down from 6
         
-        // Calculate player position relative to viewport
-        const drawX = (player.position.x - this.viewport.x) * this.tileSize + this.tileSize / 2;
-        const drawY = (player.position.y - this.viewport.y) * this.tileSize + this.tileSize / 2;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(
+            x - progressWidth / 2,
+            y - 4, // Above player
+            progressWidth,
+            progressHeight
+        );
         
-        // Try to draw sprite animation first
-        const spriteDrawn = playerAnimation.draw(ctx, drawX, drawY, scale);
+        ctx.fillStyle = '#4CAF50';
+        ctx.fillRect(
+            x - progressWidth / 2,
+            y - 4,
+            progressWidth * player.activityProgress,
+            progressHeight
+        );
+    }
+    
+    // Draw stun animation (red circle)
+    if (player.isStunned) {
+        const progress = player.getStunProgress();
         
-        // Fallback to colored square if sprite fails
-        if (!spriteDrawn) {
-            ctx.fillStyle = '#4CAF50';
-            ctx.fillRect(
-                drawX - scale/2,
-                drawY - scale/2,
-                scale,
-                scale
+        if (progress < 1) {
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 0.3;
+            ctx.beginPath();
+            ctx.arc(
+                x,
+                y - 2, // Above player
+                3, // Radius
+                -Math.PI / 2,
+                -Math.PI / 2 + (2 * Math.PI * progress),
+                false
             );
-        }
-        
-        // Draw activity progress bar
-        if (player.currentActivity) {
-            const progressWidth = 40;
-            const progressHeight = 6;
-            
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            ctx.fillRect(
-                drawX - progressWidth / 2,
-                drawY - scale / 2 - 15,
-                progressWidth,
-                progressHeight
-            );
-            
-            ctx.fillStyle = '#4CAF50';
-            ctx.fillRect(
-                drawX - progressWidth / 2,
-                drawY - scale / 2 - 15,
-                progressWidth * player.activityProgress,
-                progressHeight
-            );
-        }
-        
-        // Draw stun animation (red circle)
-        if (player.isStunned) {
-            const progress = player.getStunProgress();
-            
-            if (progress < 1) {
-                ctx.strokeStyle = '#e74c3c';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(
-                    drawX,
-                    drawY - 8,
-                    16,
-                    -Math.PI / 2,
-                    -Math.PI / 2 + (2 * Math.PI * progress),
-                    false
-                );
-                ctx.stroke();
-            }
-        }
-        
-        // Draw banking animation (blue circle)
-        if (player.isBanking) {
-            const progress = player.getBankingProgress();
-            
-            if (progress > 0) {
-                ctx.strokeStyle = '#3498db';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(
-                    drawX,
-                    drawY - 8,
-                    16,
-                    -Math.PI / 2,
-                    -Math.PI / 2 + (2 * Math.PI * (1 - progress)),
-                    false
-                );
-                ctx.stroke();
-            }
-        }
-        
-        // Draw remote banking animation (golden depleting circle)
-        if (player.isRemoteBanking) {
-            const progress = player.getRemoteBankingProgress();
-            
-            if (progress > 0) {
-                ctx.strokeStyle = '#FFD700'; // Gold color
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                
-                // Draw depleting arc (clockwise from top)
-                const startAngle = -Math.PI / 2; // Start at top
-                const endAngle = startAngle + (2 * Math.PI * progress); // Deplete clockwise
-                
-                ctx.arc(
-                    drawX,
-                    drawY - 8, // Position above player
-                    16, // Radius
-                    startAngle,
-                    endAngle,
-                    false // Clockwise
-                );
-                
-                ctx.stroke();
-            }
-        }
-        
-        // Draw path preparation animation (white circle)
-        if (player.isPreparingPath) {
-            const progress = player.getPathPreparationProgress();
-            
-            if (progress > 0) {
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(
-                    drawX,
-                    drawY - 8,
-                    16,
-                    -Math.PI / 2,
-                    -Math.PI / 2 + (2 * Math.PI * (1 - progress)),
-                    false
-                );
-                ctx.stroke();
-            }
+            ctx.stroke();
         }
     }
+    
+    // Draw banking animation (blue circle)
+    if (player.isBanking) {
+        const progress = player.getBankingProgress();
+        
+        if (progress > 0) {
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 0.3;
+            ctx.beginPath();
+            ctx.arc(
+                x,
+                y - 2,
+                3,
+                -Math.PI / 2,
+                -Math.PI / 2 + (2 * Math.PI * (1 - progress)),
+                false
+            );
+            ctx.stroke();
+        }
+    }
+    
+    // Draw remote banking animation (golden depleting circle)
+    if (player.isRemoteBanking) {
+        const progress = player.getRemoteBankingProgress();
+        
+        if (progress > 0) {
+            ctx.strokeStyle = '#FFD700'; // Gold color
+            ctx.lineWidth = 0.3;
+            ctx.beginPath();
+            
+            // Draw depleting arc (clockwise from top)
+            const startAngle = -Math.PI / 2; // Start at top
+            const endAngle = startAngle + (2 * Math.PI * progress); // Deplete clockwise
+            
+            ctx.arc(
+                x,
+                y - 2, // Position above player
+                3, // Radius
+                startAngle,
+                endAngle,
+                false // Clockwise
+            );
+            
+            ctx.stroke();
+        }
+    }
+    
+    // Draw path preparation animation (white circle)
+    if (player.isPreparingPath) {
+        const progress = player.getPathPreparationProgress();
+        
+        if (progress > 0) {
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 0.3;
+            ctx.beginPath();
+            ctx.arc(
+                x,
+                y - 2,
+                3,
+                -Math.PI / 2,
+                -Math.PI / 2 + (2 * Math.PI * (1 - progress)),
+                false
+            );
+            ctx.stroke();
+        }
+    }
+}
 
 drawPlayerCircle(x, y) {
     // Fallback circle drawing (original code)
