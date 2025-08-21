@@ -1310,22 +1310,61 @@ maxQty = Math.max(minQty, maxQty);
             // Map activity to task itemIds based on skill type
             if (this.currentSkillId === 'fletching') {
                 // For fletching, ALL tasks work at ALL bank nodes
-                // Add all possible fletching tasks
-                possibleTaskIds.set('headless_arrow', canDoActivity);
-                possibleTaskIds.set('arrow_shaft_from_logs', canDoActivity);
-                possibleTaskIds.set('arrow_shaft_from_oak', canDoActivity);
-                possibleTaskIds.set('arrow_shaft_from_willow', canDoActivity);
-                possibleTaskIds.set('arrow_shaft_from_maple', canDoActivity);
-                possibleTaskIds.set('arrow_shaft_from_yew', canDoActivity);
-                possibleTaskIds.set('arrow_shaft_from_magic', canDoActivity);
-                possibleTaskIds.set('arrow_shaft_from_redwood', canDoActivity);
-                possibleTaskIds.set('bronze_arrow', canDoActivity);
-                possibleTaskIds.set('iron_arrow', canDoActivity);
-                possibleTaskIds.set('steel_arrow', canDoActivity);
-                possibleTaskIds.set('mithril_arrow', canDoActivity);
-                possibleTaskIds.set('adamant_arrow', canDoActivity);
-                possibleTaskIds.set('rune_arrow', canDoActivity);
-                possibleTaskIds.set('amethyst_arrow', canDoActivity);
+                // BUT each task has its own level requirement
+                const skill = window.skillRegistry ? skillRegistry.getSkill('fletching') : null;
+                if (skill && skill.SKILL_DATA) {
+                    for (const taskData of skill.SKILL_DATA) {
+                        // Check if player has level for THIS specific task
+                        const canDoTask = currentLevel >= taskData.level;
+                        possibleTaskIds.set(taskData.itemId, canDoTask);
+                    }
+                }
+            } else if (this.currentSkillId === 'crafting') {
+                // Map crafting activities to their products
+                const skill = window.skillRegistry ? skillRegistry.getSkill('crafting') : null;
+                if (skill && skill.SKILL_DATA) {
+                    if (activityId === 'blowing_glass') {
+                        // Glass blowing produces blown glass and vials
+                        possibleTaskIds.set('blown_glass', currentLevel >= 1);
+                        possibleTaskIds.set('vial_of_water', currentLevel >= 10);
+                    } else if (activityId === 'cutting_gems') {
+                        // Gem cutting produces cut gems
+                        possibleTaskIds.set('sapphire', currentLevel >= 20);
+                        possibleTaskIds.set('emerald', currentLevel >= 27);
+                        possibleTaskIds.set('ruby', currentLevel >= 34);
+                        possibleTaskIds.set('diamond', currentLevel >= 43);
+                    } else if (activityId === 'plank_making') {
+                        // Sawmill produces planks
+                        possibleTaskIds.set('plank', currentLevel >= 10);
+                        possibleTaskIds.set('oak_plank', currentLevel >= 15);
+                        possibleTaskIds.set('teak_plank', currentLevel >= 20);
+                        possibleTaskIds.set('mahogany_plank', currentLevel >= 40);
+                    }
+                }
+            } else if (this.currentSkillId === 'smithing') {
+                // Map smithing activities to their products
+                const skill = window.skillRegistry ? skillRegistry.getSkill('smithing') : null;
+                if (skill && skill.SKILL_DATA) {
+                    if (activityId === 'smelting') {
+                        // Smelting produces bars
+                        possibleTaskIds.set('bronze_bar', currentLevel >= 1);
+                        possibleTaskIds.set('iron_bar', currentLevel >= 15);
+                        possibleTaskIds.set('silver_bar', currentLevel >= 20);
+                        possibleTaskIds.set('steel_bar', currentLevel >= 30);
+                        possibleTaskIds.set('gold_bar', currentLevel >= 40);
+                        possibleTaskIds.set('mithril_bar', currentLevel >= 50);
+                        possibleTaskIds.set('adamantite_bar', currentLevel >= 70);
+                        possibleTaskIds.set('runite_bar', currentLevel >= 85);
+                    } else if (activityId === 'smithing') {
+                        // Smithing anvil produces arrowtips
+                        possibleTaskIds.set('bronze_arrowtips', currentLevel >= 5);
+                        possibleTaskIds.set('iron_arrowtips', currentLevel >= 20);
+                        possibleTaskIds.set('steel_arrowtips', currentLevel >= 35);
+                        possibleTaskIds.set('mithril_arrowtips', currentLevel >= 55);
+                        possibleTaskIds.set('adamant_arrowtips', currentLevel >= 75);
+                        possibleTaskIds.set('rune_arrowtips', currentLevel >= 90);
+                    }
+                }
             } else if (this.currentSkillId === 'runecraft') {
                 possibleTaskIds.set(`runecraft_trips_${activityId}`, canDoActivity);
             } else if (this.currentSkillId === 'agility') {
@@ -1478,6 +1517,30 @@ maxQty = Math.max(minQty, maxQty);
                     // For fletching, ALL tasks can be done at ALL bank nodes
                     if (node.type === 'bank') {
                         canProduce = true;
+                    }
+                } else if (this.currentSkillId === 'crafting') {
+                    // Map crafting products to their activities
+                    if (activityId === 'blowing_glass') {
+                        canProduce = (taskItemId === 'blown_glass' || taskItemId === 'vial_of_water');
+                    } else if (activityId === 'cutting_gems') {
+                        const gems = ['sapphire', 'emerald', 'ruby', 'diamond'];
+                        canProduce = gems.includes(taskItemId);
+                    } else if (activityId === 'plank_making') {
+                        const planks = ['plank', 'oak_plank', 'teak_plank', 'mahogany_plank'];
+                        canProduce = planks.includes(taskItemId);
+                    }
+                } else if (this.currentSkillId === 'smithing') {
+                    // Check if this activity can produce the task item
+                    if (activityId === 'smelting') {
+                        // Smelting produces bars
+                        const bars = ['bronze_bar', 'iron_bar', 'silver_bar', 'steel_bar',
+                                     'gold_bar', 'mithril_bar', 'adamantite_bar', 'runite_bar'];
+                        canProduce = bars.includes(taskItemId);
+                    } else if (activityId === 'smithing') {
+                        // Smithing produces arrowtips
+                        const arrowtips = ['bronze_arrowtips', 'iron_arrowtips', 'steel_arrowtips',
+                                          'mithril_arrowtips', 'adamant_arrowtips', 'rune_arrowtips'];
+                        canProduce = arrowtips.includes(taskItemId);
                     }
                 } else if (this.currentSkillId === 'runecraft') {
                     canProduce = taskItemId === `runecraft_trips_${activityId}`;
