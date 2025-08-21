@@ -106,26 +106,28 @@ constructor() {
     }
     
     draw(ctx, x, y, scale) {
-        if (!this.spriteSheet) return false;
-        
-        const row = this.directions[this.facing];
-        const col = this.animationFrame;
-        
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(
-            this.spriteSheet,
-            col * this.spriteSize,
-            row * this.spriteSize,
-            this.spriteSize,
-            this.spriteSize,
-            x - scale/2,
-            y - scale/2,
-            scale,
-            scale
-        );
-        
-        return true; // Successfully drew sprite
-    }
+    if (!this.spriteSheet) return false;
+    
+    const row = this.directions[this.facing];
+    const col = this.animationFrame;
+    
+    ctx.imageSmoothingEnabled = false;
+    
+    // Draw sprite centered at the position
+    ctx.drawImage(
+        this.spriteSheet,
+        col * this.spriteSize,
+        row * this.spriteSize,
+        this.spriteSize,
+        this.spriteSize,
+        x - scale/2,
+        y - scale/2,
+        scale,
+        scale
+    );
+    
+    return true; // Successfully drew sprite
+}
 }
 
 // Create global instance
