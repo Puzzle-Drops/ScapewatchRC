@@ -93,8 +93,16 @@ class ConstructionSkill extends BaseSkill {
             return null;
         }
         
-        // Find construction node (Rimmington House)
-        const constructionNode = 'rimmington_house'; // Will be added to nodes.json
+        // Find nodes with build_tables activity
+        const constructionNodes = this.findConstructionNodes();
+        
+        if (constructionNodes.length === 0) {
+            console.log('No construction locations available');
+            return null;
+        }
+        
+        // Select a node using weighted distribution
+        const selectedNode = this.selectWeightedNode(constructionNodes);
         
         // Determine target count (tables to build)
         const desiredCount = this.determineTargetCount(selectedTable.tableId);
@@ -106,14 +114,18 @@ class ConstructionSkill extends BaseSkill {
             return null;
         }
         
+        // Get node name for description
+        const nodeData = nodes.getNode(selectedNode.nodeId);
+        const nodeName = nodeData ? nodeData.name : selectedNode.nodeId;
+        
         // Create the construction task
         return {
             skill: this.id,
             itemId: selectedTable.tableId, // Track table type
             targetCount: targetCount,
-            nodeId: constructionNode,
+            nodeId: selectedNode.nodeId,
             activityId: 'build_tables',
-            description: `Construct ${targetCount} ${selectedTable.tableName.toLowerCase()} at the Rimmington House`,
+            description: `Construct ${targetCount} ${selectedTable.tableName.toLowerCase()} at ${nodeName}`,
             startingCount: 0,
             progress: 0,
             isConstructionTask: true,
@@ -123,6 +135,32 @@ class ConstructionSkill extends BaseSkill {
             planksPerTable: 5,
             totalPlanksNeeded: targetCount * 5
         };
+    }
+
+    findConstructionNodes() {
+        const constructionNodes = [];
+        const allNodes = nodes.getAllNodes();
+        
+        for (const [nodeId, node] of Object.entries(allNodes)) {
+            if (!node.activities) continue;
+            
+            // Check if this node has the build_tables activity
+            if (node.activities.includes('build_tables')) {
+                // Check if node is walkable
+                if (window.collision && window.collision.initialized) {
+                    if (!collision.isWalkable(Math.floor(node.position.x), Math.floor(node.position.y))) {
+                        continue;
+                    }
+                }
+                
+                constructionNodes.push({
+                    nodeId: nodeId,
+                    activityId: 'build_tables'
+                });
+            }
+        }
+        
+        return constructionNodes;
     }
     
     getAvailableTables() {
