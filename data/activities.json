@@ -1714,6 +1714,14 @@
     "skill": "crafting",
     "requiredLevel": 10,
     "baseDuration": 600
-}
+},
+"build_tables": {
+        "id": "build_tables",
+        "name": "Build Tables",
+        "skill": "construction",
+        "requiredLevel": 1,
+        "baseDuration": 3000,
+        "xpPerAction": 0
+    }
     
 }
