@@ -44,7 +44,7 @@ class FarmingSkill extends BaseSkill {
             'guam_seed':          { harvest: 'grimy_guam_leaf',    xp: 12.5,  level: 1  },
             'marrentill_seed':    { harvest: 'grimy_marrentill',   xp: 15,    level: 14 },
             'tarromin_seed':      { harvest: 'grimy_tarromin',     xp: 18,    level: 19 },
-            'limpwurt_seed':      { harvest: 'limpwurt_roots',     xp: 21.5,  level: 26 },
+            'limpwurt_seed':      { harvest: 'limpwurt_root',     xp: 21.5,  level: 26 },
             'harralander_seed':   { harvest: 'grimy_harralander',  xp: 24,    level: 26 },
             'ranarr_seed':        { harvest: 'grimy_ranarr_weed',  xp: 30.5,  level: 32 },
             'toadflax_seed':      { harvest: 'grimy_toadflax',     xp: 38.5,  level: 38 },
