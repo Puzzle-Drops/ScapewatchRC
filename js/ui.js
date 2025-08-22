@@ -2,7 +2,6 @@ class UIManager {
     constructor() {
         this.currentPanel = 'inventory';
         this.bankOpen = false;
-        this.completedTasksOpen = false;
         this.itemOrder = null;
         this.itemOrderMap = {};
         this.minimized = false; // Track minimized state
