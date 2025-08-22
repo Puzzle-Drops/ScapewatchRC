@@ -435,6 +435,21 @@ class FarmingSkill extends BaseSkill {
             return [];
         }
         
+        // Check if we have space for the harvest BEFORE processing
+        if (inventory.isFull()) {
+            // Inventory is full, need to bank
+            console.log('Inventory full, need to bank before continuing farming');
+            this.hasBankedForTask = false;
+            this.lastFarmingXp = 0;
+            
+            // Tell AI to re-evaluate
+            if (window.ai) {
+                window.ai.decisionCooldown = 0;
+            }
+            
+            return []; // Return no rewards since we can't fit them
+        }
+        
         // Always get harvest and base XP
         const rewards = [{ itemId: seedData.harvest, quantity: 1 }];
         let totalXp = seedData.xp;
