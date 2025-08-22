@@ -93,10 +93,10 @@ class SkillsManager {
         return Math.floor(base + Math.max(melee, range, mage));
     }
 
-    // Check if all skills have 200M XP (for trimmed max cape)
+    // Check if all skills have 50M XP (for trimmed max cape)
 hasAllMaxXp() {
     for (const skill of Object.values(this.skills)) {
-        if (skill.xp < 200000000) {
+        if (skill.xp < 50000000) {
             return false;
         }
     }
