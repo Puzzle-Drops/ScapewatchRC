@@ -351,6 +351,22 @@ class FarmingSkill extends BaseSkill {
     }
     
     beforeActivityStart(activityData) {
+        // Check if inventory is full FIRST
+        if (inventory.isFull()) {
+            console.log('Inventory full - need to bank before continuing farming');
+            this.clearPlantingState();
+            
+            // Clear banking flag so AI knows to bank
+            this.hasBankedForTask = false;
+            
+            // Tell AI to re-evaluate
+            if (window.ai) {
+                window.ai.decisionCooldown = 0;
+            }
+            
+            return false; // Can't start activity, will trigger AI to re-evaluate
+        }
+        
         // Check if already planting
         if (this.isPlanting) {
             const currentTime = Date.now();
