@@ -171,7 +171,8 @@ class TaskManager {
                 this.currentTask.isRunecraftingTask ||
                 this.currentTask.isConstructionTask ||
                 this.currentTask.isHerbloreTask ||
-                this.currentTask.isFletchingTask) {
+                this.currentTask.isFletchingTask ||
+                this.currentTask.isFarmingTask) {
                 // These tasks manage their own progress through their skills
                 // Just check if complete
                 if (this.currentTask.progress >= 1) {
