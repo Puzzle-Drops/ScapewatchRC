@@ -75,37 +75,16 @@ class UIManager {
 }
 
     setupModalButtons() {
-        // Bank X close button
-        const bankCloseX = document.getElementById('bank-close-x');
-        if (bankCloseX) {
-            bankCloseX.addEventListener('click', () => {
-                this.closeBank();
-            });
-        }
-        
-        // Shop X close button (handled by shop.js)
-        
-        // View completed tasks button
-        const viewCompletedBtn = document.getElementById('view-completed-tasks-btn');
-        if (!viewCompletedBtn) {
-            // Create the button if it doesn't exist (replacing generate tasks button)
-            const tasksPanel = document.getElementById('tasks-panel');
-            if (tasksPanel) {
-                const oldBtn = document.getElementById('generate-tasks-btn');
-                if (oldBtn) {
-                    oldBtn.id = 'view-completed-tasks-btn';
-                    oldBtn.textContent = 'View Completed Tasks';
-                    oldBtn.addEventListener('click', () => {
-                        this.openCompletedTasks();
-                    });
-                }
-            }
-        } else {
-            viewCompletedBtn.addEventListener('click', () => {
-                this.openCompletedTasks();
-            });
-        }
+    // Bank X close button
+    const bankCloseX = document.getElementById('bank-close-x');
+    if (bankCloseX) {
+        bankCloseX.addEventListener('click', () => {
+            this.closeBank();
+        });
     }
+    
+    // Shop X close button (handled by shop.js)
+}
 
     // ==================== MINIMIZE/MAXIMIZE FUNCTIONALITY ====================
 
@@ -588,118 +567,6 @@ class UIManager {
         if (task.progress >= 1) {
             taskDiv.classList.add('task-complete');
         }
-        
-        return taskDiv;
-    }
-
-    // ==================== COMPLETED TASKS MODAL ====================
-
-    openCompletedTasks() {
-        this.completedTasksOpen = true;
-        let modal = document.getElementById('completed-tasks-modal');
-        
-        // Create modal if it doesn't exist
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'completed-tasks-modal';
-            modal.className = 'modal';
-            modal.style.display = 'none';
-            
-            const content = document.createElement('div');
-            content.className = 'modal-content';
-            
-            // Add close button (X)
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'modal-close-x';
-            closeBtn.textContent = '×';
-            closeBtn.addEventListener('click', () => this.closeCompletedTasks());
-            
-            const title = document.createElement('h2');
-            title.textContent = 'Completed Tasks';
-            
-            const listContainer = document.createElement('div');
-            listContainer.id = 'completed-tasks-list';
-            listContainer.className = 'completed-tasks-list';
-            
-            content.appendChild(closeBtn);
-            content.appendChild(title);
-            content.appendChild(listContainer);
-            modal.appendChild(content);
-            
-            // Add to scaled container
-            const scaledContainer = document.getElementById('scaled-container');
-            if (scaledContainer) {
-                scaledContainer.appendChild(modal);
-            } else {
-                document.body.appendChild(modal);
-            }
-        }
-        
-        modal.style.display = 'flex';
-        this.updateCompletedTasksList();
-    }
-
-    closeCompletedTasks() {
-        this.completedTasksOpen = false;
-        const modal = document.getElementById('completed-tasks-modal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-    }
-
-    updateCompletedTasksList() {
-        const listContainer = document.getElementById('completed-tasks-list');
-        if (!listContainer || !window.taskManager) return;
-        
-        listContainer.innerHTML = '';
-        
-        const completedTasks = taskManager.getCompletedTasks();
-        
-        if (completedTasks.length === 0) {
-            const emptyDiv = document.createElement('div');
-            emptyDiv.className = 'completed-tasks-empty';
-            emptyDiv.textContent = 'No completed tasks yet';
-            listContainer.appendChild(emptyDiv);
-            return;
-        }
-        
-        // Show tasks in reverse order (most recent first)
-        completedTasks.slice().reverse().forEach((task, reverseIndex) => {
-            const actualIndex = completedTasks.length - reverseIndex;
-            const taskDiv = this.createCompletedTaskElement(task, actualIndex);
-            listContainer.appendChild(taskDiv);
-        });
-    }
-
-    createCompletedTaskElement(task, number) {
-        const taskDiv = document.createElement('div');
-        taskDiv.className = 'completed-task-item';
-        
-        // Number
-        const numberDiv = document.createElement('div');
-        numberDiv.className = 'completed-task-number';
-        numberDiv.textContent = `${number}.`;
-        
-        // Skill icon
-        const iconDiv = document.createElement('div');
-        iconDiv.className = 'completed-task-icon';
-        const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
-        if (skillIcon) {
-            const icon = document.createElement('img');
-            icon.src = skillIcon.src;
-            iconDiv.appendChild(icon);
-        } else {
-            iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
-        }
-        
-        // Description
-        const descDiv = document.createElement('div');
-        descDiv.className = 'completed-task-description';
-        descDiv.textContent = task.description;
-        
-        taskDiv.appendChild(numberDiv);
-        taskDiv.appendChild(iconDiv);
-        taskDiv.appendChild(descDiv);
         
         return taskDiv;
     }
