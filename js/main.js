@@ -136,39 +136,32 @@ document.getElementById('pause-toggle').addEventListener('click', () => {
 });
 
     // Set up ESC key handler for closing popups
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' || e.keyCode === 27) {
-            // Check and close popups in priority order (most recent/important first)
-            
-            // 1. Check Skill Customization overlay (highest priority as it's the most complex)
-            if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
-                window.skillCustomizationUI.close();
-                e.preventDefault();
-                return;
-            }
-            
-            // 2. Check Shop modal
-            if (window.shop && window.shop.isOpen) {
-                window.shop.close();
-                e.preventDefault();
-                return;
-            }
-            
-            // 3. Check Bank modal
-            if (window.ui && window.ui.bankOpen) {
-                window.ui.closeBank();
-                e.preventDefault();
-                return;
-            }
-            
-            // 4. Check Completed Tasks modal
-            if (window.ui && window.ui.completedTasksOpen) {
-                window.ui.closeCompletedTasks();
-                e.preventDefault();
-                return;
-            }
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+        // Check and close popups in priority order (most recent/important first)
+        
+        // 1. Check Skill Customization overlay (highest priority as it's the most complex)
+        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
+            window.skillCustomizationUI.close();
+            e.preventDefault();
+            return;
         }
-    });
+        
+        // 2. Check Shop modal
+        if (window.shop && window.shop.isOpen) {
+            window.shop.close();
+            e.preventDefault();
+            return;
+        }
+        
+        // 3. Check Bank modal
+        if (window.ui && window.ui.bankOpen) {
+            window.ui.closeBank();
+            e.preventDefault();
+            return;
+        }
+    }
+});
 
     // Start game loop
     gameState.running = true;
