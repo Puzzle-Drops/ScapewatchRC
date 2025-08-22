@@ -1565,7 +1565,9 @@
     "activities": [
       "fletching",
       "blowing_glass",
-      "cutting_gems"
+      "cutting_gems",
+      "cleaning_herbs",
+      "making_potions"
     ],
     "nearestBank": "lumbridge_bank",
     "nearestBankDistance": 0,
@@ -2164,7 +2166,9 @@
     "activities": [
       "fletching",
       "blowing_glass",
-      "cutting_gems"
+      "cutting_gems",
+      "cleaning_herbs",
+      "making_potions"
     ],
     "nearestBank": "draynor_bank",
     "nearestBankDistance": 0,
@@ -2442,7 +2446,9 @@
     "activities": [
       "fletching",
       "blowing_glass",
-      "cutting_gems"
+      "cutting_gems",
+      "cleaning_herbs",
+      "making_potions"
     ],
     "nearestBank": "east_varrock_bank",
     "nearestBankDistance": 0,
@@ -2720,7 +2726,9 @@
     "activities": [
       "fletching",
       "blowing_glass",
-      "cutting_gems"
+      "cutting_gems",
+      "cleaning_herbs",
+      "making_potions"
     ],
     "nearestBank": "west_varrock_bank",
     "nearestBankDistance": 0,
@@ -2934,7 +2942,9 @@
     "activities": [
       "fletching",
       "blowing_glass",
-      "cutting_gems"
+      "cutting_gems",
+      "cleaning_herbs",
+      "making_potions"
     ],
     "nearestBank": "grand_exchange",
     "nearestBankDistance": 0,
