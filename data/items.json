@@ -554,7 +554,8 @@
         "id": "potato",
         "name": "Potato",
         "stackable": false,
-        "category": "resource"
+        "category": "food",
+        "healAmount": 1
     },
     "snape_grass": {
         "id": "snape_grass",
