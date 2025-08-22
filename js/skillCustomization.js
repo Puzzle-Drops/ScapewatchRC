@@ -1447,6 +1447,19 @@ maxQty = Math.max(minQty, maxQty);
                         }
                     }
                 }
+            } else if (this.currentSkillId === 'farming') {
+    // Farming plant_seeds activity can plant any seed
+    if (activityId === 'plant_seeds') {
+        // Add ALL seed types as possible tasks
+        const farmingSkill = window.skillRegistry ? skillRegistry.getSkill('farming') : null;
+        if (farmingSkill && farmingSkill.SKILL_DATA) {
+            for (const seedData of farmingSkill.SKILL_DATA) {
+                // Check if player has level for this seed
+                const canDoSeed = currentLevel >= seedData.level;
+                possibleTaskIds.set(seedData.itemId, canDoSeed && canDoActivity);
+            }
+        }
+    }
             } else if (this.currentSkillId === 'smithing') {
                 // Map smithing activities to their products
                 const skill = window.skillRegistry ? skillRegistry.getSkill('smithing') : null;
@@ -1663,6 +1676,15 @@ maxQty = Math.max(minQty, maxQty);
                         const planks = ['plank', 'oak_plank', 'teak_plank', 'mahogany_plank'];
                         canProduce = planks.includes(taskItemId);
                     }
+                } else if (this.currentSkillId === 'farming') {
+    // Any seed can be planted at any farming node
+    if (activityId === 'plant_seeds') {
+        // Check if the taskItemId is a seed
+        const farmingSkill = window.skillRegistry ? skillRegistry.getSkill('farming') : null;
+        if (farmingSkill && farmingSkill.SKILL_DATA) {
+            canProduce = farmingSkill.SKILL_DATA.some(seed => seed.itemId === taskItemId);
+        }
+    }
                 } else if (this.currentSkillId === 'smithing') {
                     // Check if this activity can produce the task item
                     if (activityId === 'smelting') {
