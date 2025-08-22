@@ -314,21 +314,22 @@ class TaskManager {
             return;
         }
 
-        // Try to generate a new task from a random skill
-        let attempts = 0;
-        let newTask = null;
-        
-        while (attempts < 20 && !newTask) {
-            attempts++;
-            
-            // Pick a random skill (could be same or different)
-            const skill = availableSkills[Math.floor(Math.random() * availableSkills.length)];
-            newTask = skill.generateTask();
+        // Try to generate a new task from a weighted skill
+let attempts = 0;
+let newTask = null;
+
+while (attempts < 20 && !newTask) {
+    attempts++;
+    
+    // Pick a skill using weighted selection (same as initial generation)
+    const skill = window.runeCreditManager ? 
+        runeCreditManager.getWeightedSkill(availableSkills) :
+        availableSkills[Math.floor(Math.random() * availableSkills.length)];
+    newTask = skill.generateTask();
             
             // Make sure it's different from the old task
             if (newTask && newTask.itemId === oldTask.itemId && 
-                newTask.nodeId === oldTask.nodeId && 
-                newTask.targetCount === oldTask.targetCount) {
+                newTask.nodeId === oldTask.nodeId) {
                 newTask = null; // Try again
             }
         }
