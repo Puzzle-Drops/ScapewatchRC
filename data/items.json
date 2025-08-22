@@ -609,6 +609,13 @@
         "maxStack": 9999999999,
         "category": "seed"
     },
+    "toadflax_seed": {
+        "id": "toadflax_seed",
+        "name": "Toadflax seed",
+        "stackable": true,
+        "maxStack": 9999999999,
+        "category": "seed"
+    },
     "irit_seed": {
         "id": "irit_seed",
         "name": "Irit seed",
@@ -630,6 +637,13 @@
         "maxStack": 9999999999,
         "category": "seed"
     },
+    "snapdragon_seed": {
+        "id": "snapdragon_seed",
+        "name": "Snapdragon seed",
+        "stackable": true,
+        "maxStack": 9999999999,
+        "category": "seed"
+    },
     "cadantine_seed": {
         "id": "cadantine_seed",
         "name": "Cadantine seed",
@@ -647,20 +661,6 @@
     "dwarf_weed_seed": {
         "id": "dwarf_weed_seed",
         "name": "Dwarf weed seed",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "seed"
-    },
-    "snapdragon_seed": {
-        "id": "snapdragon_seed",
-        "name": "Snapdragon seed",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "seed"
-    },
-    "toadflax_seed": {
-        "id": "toadflax_seed",
-        "name": "Toadflax seed",
         "stackable": true,
         "maxStack": 9999999999,
         "category": "seed"
@@ -702,6 +702,12 @@
         "stackable": false,
         "category": "grimy"
     },
+    "grimy_toadflax": {
+        "id": "grimy_toadflax",
+        "name": "Grimy toadflax",
+        "stackable": false,
+        "category": "grimy"
+    },
     "grimy_irit_leaf": {
         "id": "grimy_irit_leaf",
         "name": "Grimy irit leaf",
@@ -720,6 +726,12 @@
         "stackable": false,
         "category": "grimy"
     },
+    "grimy_snapdragon": {
+        "id": "grimy_snapdragon",
+        "name": "Grimy snapdragon",
+        "stackable": false,
+        "category": "grimy"
+    },
     "grimy_cadantine": {
         "id": "grimy_cadantine",
         "name": "Grimy cadantine",
@@ -735,18 +747,6 @@
     "grimy_dwarf_weed": {
         "id": "grimy_dwarf_weed",
         "name": "Grimy dwarf weed",
-        "stackable": false,
-        "category": "grimy"
-    },
-    "grimy_snapdragon": {
-        "id": "grimy_snapdragon",
-        "name": "Grimy snapdragon",
-        "stackable": false,
-        "category": "grimy"
-    },
-    "grimy_toadflax": {
-        "id": "grimy_toadflax",
-        "name": "Grimy toadflax",
         "stackable": false,
         "category": "grimy"
     },
@@ -786,6 +786,12 @@
         "stackable": false,
         "category": "herb"
     },
+    "toadflax": {
+        "id": "toadflax",
+        "name": "Toadflax",
+        "stackable": false,
+        "category": "herb"
+    },
     "irit_leaf": {
         "id": "irit_leaf",
         "name": "Irit leaf",
@@ -801,6 +807,12 @@
     "kwuarm": {
         "id": "kwuarm",
         "name": "Kwuarm",
+        "stackable": false,
+        "category": "herb"
+    },
+    "snapdragon": {
+        "id": "snapdragon",
+        "name": "Snapdragon",
         "stackable": false,
         "category": "herb"
     },
@@ -822,23 +834,119 @@
         "stackable": false,
         "category": "herb"
     },
-    "snapdragon": {
-        "id": "snapdragon",
-        "name": "Snapdragon",
-        "stackable": false,
-        "category": "herb"
-    },
-    "toadflax": {
-        "id": "toadflax",
-        "name": "Toadflax",
-        "stackable": false,
-        "category": "herb"
-    },
     "torstol": {
         "id": "torstol",
         "name": "Torstol",
         "stackable": false,
         "category": "herb"
+    },
+    "attack_potion": {
+        "id": "attack_potion",
+        "name": "Attack potion",
+        "stackable": false,
+        "category": "potion"
+    },
+    "antipoison": {
+        "id": "antipoison",
+        "name": "Antipoison",
+        "stackable": false,
+        "category": "potion"
+    },
+    "strength_potion": {
+        "id": "strength_potion",
+        "name": "Strength potion",
+        "stackable": false,
+        "category": "potion"
+    },
+    "energy_potion": {
+        "id": "energy_potion",
+        "name": "Energy potion",
+        "stackable": false,
+        "category": "potion"
+    },
+    "defence_potion": {
+        "id": "defence_potion",
+        "name": "Defence potion",
+        "stackable": false,
+        "category": "potion"
+    },
+    "prayer_potion": {
+        "id": "prayer_potion",
+        "name": "Prayer potion",
+        "stackable": false,
+        "category": "potion"
+    },
+    "super_attack_potion": {
+        "id": "super_attack_potion",
+        "name": "Super attack potion",
+        "stackable": false,
+        "category": "potion"
+    },
+    "superantipoison": {
+        "id": "superantipoison",
+        "name": "Superantipoison",
+        "stackable": false,
+        "category": "potion"
+    },
+    "super_energy": {
+        "id": "super_energy",
+        "name": "Super energy",
+        "stackable": false,
+        "category": "potion"
+    },
+    "super_strength": {
+        "id": "super_strength",
+        "name": "Super strength",
+        "stackable": false,
+        "category": "potion"
+    },
+    "super_restore": {
+        "id": "super_restore",
+        "name": "Super restore",
+        "stackable": false,
+        "category": "potion"
+    },
+    "super_defence": {
+        "id": "super_defence",
+        "name": "Super defence",
+        "stackable": false,
+        "category": "potion"
+    },
+    "antifire_potion": {
+        "id": "antifire_potion",
+        "name": "Antifire potion",
+        "stackable": false,
+        "category": "potion"
+    },
+    "ranging_potion": {
+        "id": "ranging_potion",
+        "name": "Ranging potion",
+        "stackable": false,
+        "category": "potion"
+    },
+    "magic_potion": {
+        "id": "magic_potion",
+        "name": "Magic potion",
+        "stackable": false,
+        "category": "potion"
+    },
+    "stamina_potion": {
+        "id": "stamina_potion",
+        "name": "Stamina potion",
+        "stackable": false,
+        "category": "potion"
+    },
+    "saradomin_brew": {
+        "id": "saradomin_brew",
+        "name": "Saradomin brew",
+        "stackable": false,
+        "category": "potion"
+    },
+    "super_combat_potion": {
+        "id": "super_combat_potion",
+        "name": "Super combat potion",
+        "stackable": false,
+        "category": "potion"
     },
     "rune_essence": {
         "id": "rune_essence",
