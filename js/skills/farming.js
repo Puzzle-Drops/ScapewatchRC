@@ -322,19 +322,26 @@ class FarmingSkill extends BaseSkill {
     }
     
     hasSeedsForCurrentTask() {
-        if (!window.ai || !window.ai.currentTask || !window.ai.currentTask.isFarmingTask) {
-            return false;
-        }
-        
-        const task = window.ai.currentTask;
-        const hasSeeds = inventory.hasItem(task.itemId, 1);
-        
-        if (!hasSeeds) {
-            console.log(`No ${task.itemId} in inventory for farming task`);
-        }
-        
-        return hasSeeds;
+    if (!window.ai || !window.ai.currentTask || !window.ai.currentTask.isFarmingTask) {
+        return false;
     }
+    
+    const task = window.ai.currentTask;
+    
+    // Check if inventory is full FIRST
+    if (inventory.isFull()) {
+        console.log('Cannot continue farming - inventory full');
+        return false; // Can't continue if no space for harvest
+    }
+    
+    const hasSeeds = inventory.hasItem(task.itemId, 1);
+    
+    if (!hasSeeds) {
+        console.log(`No ${task.itemId} in inventory for farming task`);
+    }
+    
+    return hasSeeds;
+}
     
     // ==================== CORE BEHAVIOR ====================
     
