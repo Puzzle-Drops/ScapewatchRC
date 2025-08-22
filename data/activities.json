@@ -1738,6 +1738,14 @@
         "requiredLevel": 1,
         "baseDuration": 3000,
         "xpPerAction": 0
+    },
+    "plant_seeds": {
+        "id": "plant_seeds",
+        "name": "Plant Seeds",
+        "skill": "farming",
+        "requiredLevel": 1,
+        "baseDuration": 600,
+        "xpPerAction": 0
     }
     
 }
