@@ -3401,6 +3401,70 @@
       }
     ]
   },
+  "draynor_farm": {
+    "id": "draynor_farm",
+    "name": "Draynor Farm",
+    "type": "skill",
+    "position": {
+      "x": 4064,
+      "y": 1707
+    },
+    "activities": [
+      "plant_seeds"
+    ],
+    "nearestBank": "draynor_bank",
+    "nearestBankDistance": 354,
+    "pathToBank": [
+      {
+        "x": 3855.5,
+        "y": 1870.5
+      },
+      {
+        "x": 3922.5,
+        "y": 1867.5
+      },
+      {
+        "x": 3972.5,
+        "y": 1818.5
+      },
+      {
+        "x": 3995.5,
+        "y": 1807.5
+      },
+      {
+        "x": 4030.5,
+        "y": 1803.5
+      },
+      {
+        "x": 4040.5,
+        "y": 1797.5
+      },
+      {
+        "x": 4091.5,
+        "y": 1767.5
+      },
+      {
+        "x": 4116.5,
+        "y": 1801.5
+      },
+      {
+        "x": 4116.5,
+        "y": 1809.5
+      },
+      {
+        "x": 4130.5,
+        "y": 1824.5
+      },
+      {
+        "x": 4136.5,
+        "y": 1825.5
+      },
+      {
+        "x": 4134.5,
+        "y": 1833.5
+      }
+    ]
+  },
   "cooks_assistant_quest": {
     "id": "cook_quest",
     "name": "Cook's Assistant",
