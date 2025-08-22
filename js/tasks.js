@@ -169,7 +169,8 @@ class TaskManager {
                 this.currentTask.isAgilityTask ||
                 this.currentTask.isThievingTask ||
                 this.currentTask.isRunecraftingTask ||
-                this.currentTask.isConstructionTask) {
+                this.currentTask.isConstructionTask ||
+                this.currentTask.isHerbloreTask) {
                 // These tasks manage their own progress through their skills
                 // Just check if complete
                 if (this.currentTask.progress >= 1) {
