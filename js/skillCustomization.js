@@ -349,7 +349,7 @@ createAchievementRow(label, skillIds, type) {
             tooltipText = 'Max Cape (All skills 99)';
         } else if (type === 'trimmedMaxCape') {
             imagePath = 'assets/capes/max_cape(t).png';
-            tooltipText = 'Trimmed Max Cape (All skills 200M XP)';
+            tooltipText = 'Trimmed Max Cape (All skills 50M XP)';
         } else if (skillId) {
             const skillData = loadingManager.getData('skills')[skillId];
             const skillName = skillData ? skillData.name : skillId;
