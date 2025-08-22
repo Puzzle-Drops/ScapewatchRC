@@ -60,6 +60,25 @@ class ConstructionSkill extends BaseSkill {
             }
         };
     }
+
+    // ==================== UI DISPLAY METHODS ====================
+
+// Override to prevent base class from replacing our table names with plank names
+getAllPossibleTasksForUI() {
+    const tasks = [];
+    
+    for (const data of this.SKILL_DATA) {
+        tasks.push({
+            itemId: data.itemId,
+            displayName: data.name, // Use our SKILL_DATA names (e.g., "Teak tables")
+            minCount: data.minCount,
+            maxCount: data.maxCount,
+            requiredLevel: data.level
+        });
+    }
+    
+    return tasks;
+}
     
     // ==================== TASK GENERATION ====================
     
