@@ -157,14 +157,10 @@
       "firemaking"
     ],
     "nearestBank": "lumbridge_bank",
-    "nearestBankDistance": 63,
+    "nearestBankDistance": 61,
     "pathToBank": [
       {
         "x": 4325.5,
-        "y": 1872.5
-      },
-      {
-        "x": 4350.5,
         "y": 1882.5
       },
       {
