@@ -1715,6 +1715,22 @@
     "requiredLevel": 10,
     "baseDuration": 600
 },
+"cleaning_herbs": {
+    "id": "cleaning_herbs",
+    "name": "Clean Herbs",
+    "skill": "herblore",
+    "requiredLevel": 1,
+    "baseDuration": 200,
+    "xpPerAction": 0
+},
+"making_potions": {
+    "id": "making_potions",
+    "name": "Make Potions",
+    "skill": "herblore",
+    "requiredLevel": 1,
+    "baseDuration": 600,
+    "xpPerAction": 0
+},
 "build_tables": {
         "id": "build_tables",
         "name": "Build Tables",
