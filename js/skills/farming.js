@@ -517,6 +517,12 @@ class FarmingSkill extends BaseSkill {
         if (!task || task.skill !== 'farming') return false;
         if (!task.isFarmingTask) return false;
         
+        // Check if inventory is full (need to deposit harvest)
+        if (inventory.isFull()) {
+            console.log('Need banking: inventory full during farming');
+            return true;
+        }
+        
         // Check if we have seeds for our task
         if (!inventory.hasItem(task.itemId, 1)) {
             console.log(`Need banking: no ${task.itemId} in inventory for farming task`);
