@@ -1388,6 +1388,65 @@ maxQty = Math.max(minQty, maxQty);
                         possibleTaskIds.set('mahogany_plank', currentLevel >= 40);
                     }
                 }
+            } else if (this.currentSkillId === 'herblore') {
+                // Map herblore activities to their products
+                if (activityId === 'cleaning_herbs') {
+                    // Cleaning herbs activity can clean any grimy herb
+                    const grimyHerbs = [
+                        'grimy_guam_leaf', 'grimy_marrentill', 'grimy_tarromin', 
+                        'grimy_harralander', 'grimy_ranarr_weed', 'grimy_toadflax',
+                        'grimy_irit_leaf', 'grimy_avantoe', 'grimy_kwuarm',
+                        'grimy_snapdragon', 'grimy_cadantine', 'grimy_lantadyme',
+                        'grimy_dwarf_weed', 'grimy_torstol'
+                    ];
+                    for (const herb of grimyHerbs) {
+                        // Check if player has level for this specific herb
+                        const skill = window.skillRegistry ? skillRegistry.getSkill('herblore') : null;
+                        if (skill && skill.SKILL_DATA) {
+                            const taskData = skill.SKILL_DATA.find(d => d.itemId === herb);
+                            const canDoTask = taskData ? currentLevel >= taskData.level : false;
+                            if (taskData) {
+                                possibleTaskIds.set(herb, canDoTask && canDoActivity);
+                            }
+                        }
+                    }
+                } else if (activityId === 'making_potions') {
+                    // Making potions activity can make any potion
+                    const potions = [
+                        'attack_potion', 'antipoison', 'strength_potion', 'energy_potion',
+                        'defence_potion', 'prayer_potion', 'super_attack_potion', 'superantipoison',
+                        'super_energy', 'super_strength', 'super_restore', 'super_defence',
+                        'antifire_potion', 'ranging_potion', 'magic_potion', 'stamina_potion',
+                        'saradomin_brew', 'super_combat_potion'
+                    ];
+                    for (const potion of potions) {
+                        // Check if player has level for this specific potion
+                        const skill = window.skillRegistry ? skillRegistry.getSkill('herblore') : null;
+                        if (skill && skill.SKILL_DATA) {
+                            const taskData = skill.SKILL_DATA.find(d => d.itemId === potion);
+                            const canDoTask = taskData ? currentLevel >= taskData.level : false;
+                            if (taskData) {
+                                possibleTaskIds.set(potion, canDoTask && canDoActivity);
+                            }
+                        }
+                    }
+                }
+            } else if (this.currentSkillId === 'construction') {
+                // Construction build_tables activity can use any plank type
+                if (activityId === 'build_tables') {
+                    const planks = ['plank', 'oak_plank', 'teak_plank', 'mahogany_plank'];
+                    for (const plank of planks) {
+                        // Check if player has level for this specific plank
+                        const skill = window.skillRegistry ? skillRegistry.getSkill('construction') : null;
+                        if (skill && skill.SKILL_DATA) {
+                            const taskData = skill.SKILL_DATA.find(d => d.itemId === plank);
+                            const canDoTask = taskData ? currentLevel >= taskData.level : false;
+                            if (taskData) {
+                                possibleTaskIds.set(plank, canDoTask && canDoActivity);
+                            }
+                        }
+                    }
+                }
             } else if (this.currentSkillId === 'smithing') {
                 // Map smithing activities to their products
                 const skill = window.skillRegistry ? skillRegistry.getSkill('smithing') : null;
@@ -1573,6 +1632,34 @@ maxQty = Math.max(minQty, maxQty);
                         const gems = ['sapphire', 'emerald', 'ruby', 'diamond'];
                         canProduce = gems.includes(taskItemId);
                     } else if (activityId === 'plank_making') {
+                        const planks = ['plank', 'oak_plank', 'teak_plank', 'mahogany_plank'];
+                        canProduce = planks.includes(taskItemId);
+                    }
+                } else if (this.currentSkillId === 'herblore') {
+                    // Map herblore products to their activities
+                    const grimyHerbs = [
+                        'grimy_guam_leaf', 'grimy_marrentill', 'grimy_tarromin', 
+                        'grimy_harralander', 'grimy_ranarr_weed', 'grimy_toadflax',
+                        'grimy_irit_leaf', 'grimy_avantoe', 'grimy_kwuarm',
+                        'grimy_snapdragon', 'grimy_cadantine', 'grimy_lantadyme',
+                        'grimy_dwarf_weed', 'grimy_torstol'
+                    ];
+                    const potions = [
+                        'attack_potion', 'antipoison', 'strength_potion', 'energy_potion',
+                        'defence_potion', 'prayer_potion', 'super_attack_potion', 'superantipoison',
+                        'super_energy', 'super_strength', 'super_restore', 'super_defence',
+                        'antifire_potion', 'ranging_potion', 'magic_potion', 'stamina_potion',
+                        'saradomin_brew', 'super_combat_potion'
+                    ];
+                    
+                    if (activityId === 'cleaning_herbs') {
+                        canProduce = grimyHerbs.includes(taskItemId);
+                    } else if (activityId === 'making_potions') {
+                        canProduce = potions.includes(taskItemId);
+                    }
+                } else if (this.currentSkillId === 'construction') {
+                    // Construction can build with any plank type
+                    if (activityId === 'build_tables') {
                         const planks = ['plank', 'oak_plank', 'teak_plank', 'mahogany_plank'];
                         canProduce = planks.includes(taskItemId);
                     }
