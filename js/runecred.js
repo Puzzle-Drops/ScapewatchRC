@@ -536,7 +536,7 @@ class RuneCreditManager {
         let allMaxed = true; // For regular max cape (all 99s)
         let allTrimmed = true; // For trimmed max cape (all 200M XP)
         
-        // Check for skill capes (99) and trimmed capes (200M XP)
+        // Check for skill capes (99) and trimmed capes (50M XP)
         for (const [skillId, skill] of Object.entries(skills.skills)) {
             // Skill cape at 99
             if (skill.level >= 99) {
@@ -546,7 +546,7 @@ class RuneCreditManager {
             }
             
             // Trimmed cape at 200M XP
-            if (skill.xp >= 200000000) {
+            if (skill.xp >= 50000000) {
                 this.speedBonuses.trimmedCapes[skillId] = true;
             } else {
                 allTrimmed = false;
