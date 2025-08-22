@@ -391,29 +391,32 @@ initializeSkillData() {
     }
     
     findBankNodes() {
-        const bankNodes = [];
-        if (!window.nodes) return bankNodes;
+    const matchingNodes = [];
+    if (!window.nodes) return matchingNodes;
+    
+    const allNodes = window.nodes.getAllNodes();
+    
+    for (const [nodeId, node] of Object.entries(allNodes)) {
+        if (!node.activities) continue;
         
-        const allNodes = window.nodes.getAllNodes();
-        
-        for (const [nodeId, node] of Object.entries(allNodes)) {
-            if (node.type === 'bank') {
-                // Check if walkable
-                if (window.collision && window.collision.initialized) {
-                    if (!collision.isWalkable(Math.floor(node.position.x), Math.floor(node.position.y))) {
-                        continue;
-                    }
+        // Look for nodes that have the 'fletching' activity
+        if (node.activities.includes('fletching')) {
+            // Check if walkable
+            if (window.collision && window.collision.initialized) {
+                if (!collision.isWalkable(Math.floor(node.position.x), Math.floor(node.position.y))) {
+                    continue;
                 }
-                
-                bankNodes.push({
-                    nodeId: nodeId,
-                    activityId: 'fletching'
-                });
             }
+            
+            matchingNodes.push({
+                nodeId: nodeId,
+                activityId: 'fletching'
+            });
         }
-        
-        return bankNodes;
     }
+    
+    return matchingNodes;
+}
     
     getTaskVerb() {
         return 'Fletch';
