@@ -379,7 +379,7 @@ class HerbloreSkill extends BaseSkill {
     
     getDuration(baseDuration, level, activityData) {
         // Use duration based on activity type
-        let duration = this.currentActivityType === 'cleaning' ? 200 : 600;
+        let duration = this.currentActivityType === 'cleaning' ? 200 : 1200;
         
         // Apply speed bonus
         if (window.runeCreditManager) {
