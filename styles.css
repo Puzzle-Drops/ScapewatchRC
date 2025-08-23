@@ -654,8 +654,9 @@ body {
     padding: 30px;
     border-radius: 10px;
     max-width: 1000px;
-    width: 90%;
-    max-height: 80vh;
+    width: 1000px;
+    max-height: 1325px;
+    height: 1325px;
     overflow-y: auto;
 }
 
