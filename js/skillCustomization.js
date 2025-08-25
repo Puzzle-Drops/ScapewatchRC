@@ -1572,12 +1572,18 @@ class SkillCustomizationUI {
                     }
                 }
             } else if (this.currentSkillId === 'runecraft') {
-                possibleTaskIds.set(`runecraft_trips_${activityId}`, canDoActivity);
-            } else if (this.currentSkillId === 'agility') {
-                possibleTaskIds.set(`agility_laps_${activityId}`, canDoActivity);
-            } else if (this.currentSkillId === 'thieving') {
-                possibleTaskIds.set(`thieving_${activityId}`, canDoActivity);
-            } else if (this.currentSkillId === 'firemaking') {
+    possibleTaskIds.set(`runecraft_trips_${activityId}`, canDoActivity);
+} else if (this.currentSkillId === 'agility') {
+    possibleTaskIds.set(`agility_laps_${activityId}`, canDoActivity);
+} else if (this.currentSkillId === 'thieving') {
+    possibleTaskIds.set(`thieving_${activityId}`, canDoActivity);
+} else if (this.currentSkillId === 'hunter') {
+    // Map hunter activities to their virtual tracking items
+    const huntingItemId = this.getHunterTaskItemId(activityId);
+    if (huntingItemId) {
+        possibleTaskIds.set(huntingItemId, canDoActivity);
+    }
+} else if (this.currentSkillId === 'firemaking') {
                 if (activity.firemakingTable) {
                     for (const logData of activity.firemakingTable) {
                         // Check if player can do this specific log
@@ -1786,11 +1792,15 @@ class SkillCustomizationUI {
                         canProduce = arrowtips.includes(taskItemId);
                     }
                 } else if (this.currentSkillId === 'runecraft') {
-                    canProduce = taskItemId === `runecraft_trips_${activityId}`;
-                } else if (this.currentSkillId === 'agility') {
-                    canProduce = taskItemId === `agility_laps_${activityId}`;
-                } else if (this.currentSkillId === 'thieving') {
-                    canProduce = taskItemId === `thieving_${activityId}`;
+    canProduce = taskItemId === `runecraft_trips_${activityId}`;
+} else if (this.currentSkillId === 'agility') {
+    canProduce = taskItemId === `agility_laps_${activityId}`;
+} else if (this.currentSkillId === 'thieving') {
+    canProduce = taskItemId === `thieving_${activityId}`;
+} else if (this.currentSkillId === 'hunter') {
+    // Check if this activity produces the hunter task item
+    const huntingItemId = this.getHunterTaskItemId(activityId);
+    canProduce = taskItemId === huntingItemId;
                 } else if (this.currentSkillId === 'smithing') {
                     // Check if this activity can produce the task item
                     if (activityId === 'smelting') {
@@ -1894,19 +1904,27 @@ class SkillCustomizationUI {
     }
     
     getItemDisplayName(itemId) {
-        if (itemId.startsWith('agility_laps_')) {
-            return itemId.replace('agility_laps_', '').replace(/_/g, ' ') + ' laps';
-        }
-        if (itemId.startsWith('thieving_')) {
-            return itemId.replace('thieving_', '').replace(/_/g, ' ');
-        }
-        if (itemId.startsWith('runecraft_trips_')) {
-            return itemId.replace('runecraft_trips_', '').replace(/_/g, ' ');
-        }
-        
-        const itemData = loadingManager.getData('items')[itemId];
-        return itemData ? itemData.name : itemId.replace(/_/g, ' ');
+    if (itemId.startsWith('agility_laps_')) {
+        return itemId.replace('agility_laps_', '').replace(/_/g, ' ') + ' laps';
     }
+    if (itemId.startsWith('thieving_')) {
+        return itemId.replace('thieving_', '').replace(/_/g, ' ');
+    }
+    if (itemId.startsWith('runecraft_trips_')) {
+        return itemId.replace('runecraft_trips_', '').replace(/_/g, ' ');
+    }
+    if (itemId.startsWith('hunter_')) {
+        // Handle hunter virtual items
+        return itemId.replace('hunter_', '').replace(/_/g, ' ');
+    }
+    if (itemId === 'chinchompa') {
+        // Special case for chinchompa
+        return 'Chinchompas';
+    }
+    
+    const itemData = loadingManager.getData('items')[itemId];
+    return itemData ? itemData.name : itemId.replace(/_/g, ' ');
+}
     
     getItemCounts(itemId) {
         const defaultCounts = { min: 20, max: 50 };
@@ -1955,6 +1973,21 @@ class SkillCustomizationUI {
         }
         return count;
     }
+
+    // Helper method to map hunter activities to their virtual task items
+getHunterTaskItemId(activityId) {
+    const mapping = {
+        'hunt_birds': 'hunter_birds',
+        'hunt_butterflies': 'hunter_butterflies',
+        'hunt_kebbits': 'hunter_kebbits',
+        'hunt_chinchompas': 'chinchompa',
+        'hunt_moths': 'hunter_moths',
+        'hunt_salamanders': 'hunter_salamanders',
+        'hunt_herbiboars': 'hunter_herbiboars',
+        'hunt_birdhouse': 'hunter_birdhouse'
+    };
+    return mapping[activityId] || null;
+}
     
     updateCredits() {
         // Check if we're in global mode or skill-specific mode
