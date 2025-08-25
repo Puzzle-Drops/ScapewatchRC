@@ -154,6 +154,8 @@ class TaskManager {
             !this.currentTask.isCookingTask && 
             !this.currentTask.isFiremakingTask && 
             !this.currentTask.isAgilityTask && 
+            !this.currentTask.isThievingTask && 
+            !this.currentTask.isHuntingTask
             this.currentTask.itemId === itemId) {
             this.updateTaskProgress(this.currentTask);
         }
@@ -172,7 +174,8 @@ class TaskManager {
                 this.currentTask.isConstructionTask ||
                 this.currentTask.isHerbloreTask ||
                 this.currentTask.isFletchingTask ||
-                this.currentTask.isFarmingTask) {
+                this.currentTask.isFarmingTask ||
+                this.currentTask.isHuntingTask) {
                 // These tasks manage their own progress through their skills
                 // Just check if complete
                 if (this.currentTask.progress >= 1) {
