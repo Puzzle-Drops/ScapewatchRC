@@ -633,6 +633,7 @@ body {
     color: #FFD700;
     padding: 1px 3px;
     border-radius: 2px;
+    z-index: 10;
 }
 
 /* Bank Modal */
