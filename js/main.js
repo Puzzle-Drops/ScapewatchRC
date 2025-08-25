@@ -33,14 +33,16 @@ async function init() {
         loadingManager.addImage(`skill_${icon}`, `assets/skills/${icon}.png`);
     }
 
+    loadingManager.addImage('bank_note', 'assets/items/bank_note.png');
+
     // Add cape and pet images
-const skillsForAssets = [
-    'agility', 'attack', 'construction', 'cooking', 
-    'crafting', 'defence', 'farming', 'firemaking', 'fishing', 'fletching', 
-    'herblore', 'hitpoints', 'hunter', 'magic', 'mining', 'prayer', 
-    'ranged', 'runecraft', 'slayer', 'smithing', 
-    'strength', 'thieving', 'woodcutting'
-];
+    const skillsForAssets = [
+        'agility', 'attack', 'construction', 'cooking', 
+        'crafting', 'defence', 'farming', 'firemaking', 'fishing', 'fletching', 
+        'herblore', 'hitpoints', 'hunter', 'magic', 'mining', 'prayer', 
+        'ranged', 'runecraft', 'slayer', 'smithing', 
+        'strength', 'thieving', 'woodcutting'
+    ];
 
 // Load capes
 for (const skill of skillsForAssets) {
