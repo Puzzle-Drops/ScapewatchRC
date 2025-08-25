@@ -155,7 +155,7 @@ class TaskManager {
             !this.currentTask.isFiremakingTask && 
             !this.currentTask.isAgilityTask && 
             !this.currentTask.isThievingTask && 
-            !this.currentTask.isHuntingTask
+            !this.currentTask.isHuntingTask && 
             this.currentTask.itemId === itemId) {
             this.updateTaskProgress(this.currentTask);
         }
