@@ -7,14 +7,14 @@ class HunterSkill extends BaseSkill {
     // ==================== CENTRALIZED SKILL DATA ====================
     initializeSkillData() {
         this.SKILL_DATA = [
-            { itemId: 'hunter_birds',        name: 'Birds',        minCount: 30, maxCount: 60, level: 1  },
-            { itemId: 'hunter_butterflies',  name: 'Butterflies',  minCount: 30, maxCount: 60, level: 25 },
-            { itemId: 'hunter_kebbits',      name: 'Kebbits',      minCount: 30, maxCount: 60, level: 45 },
-            { itemId: 'chinchompa',          name: 'Chinchompas',  minCount: 15, maxCount: 30, level: 63 },
-            { itemId: 'hunter_moths',        name: 'Moths',        minCount: 30, maxCount: 60, level: 75 },
-            { itemId: 'hunter_salamanders',  name: 'Salamanders',  minCount: 30, maxCount: 60, level: 79 },
-            { itemId: 'hunter_herbiboars',   name: 'Herbiboars',   minCount: 10, maxCount: 20, level: 82 },
-            { itemId: 'hunter_birdhouse',    name: 'Birdhouses',   minCount: 15, maxCount: 30, level: 90 }
+            { itemId: 'hunter_birds',        name: 'Birds',        minCount: 20, maxCount: 40, level: 1  },
+            { itemId: 'hunter_butterflies',  name: 'Butterflies',  minCount: 20, maxCount: 40, level: 25 },
+            { itemId: 'hunter_kebbits',      name: 'Kebbits',      minCount: 20, maxCount: 40, level: 45 },
+            { itemId: 'chinchompa',          name: 'Chinchompas',  minCount: 20, maxCount: 40, level: 63 },
+            { itemId: 'hunter_moths',        name: 'Moths',        minCount: 20, maxCount: 40, level: 75 },
+            { itemId: 'hunter_salamanders',  name: 'Salamanders',  minCount: 20, maxCount: 40, level: 79 },
+            { itemId: 'hunter_herbiboars',   name: 'Herbiboars',   minCount: 5, maxCount: 10, level: 82 },
+            { itemId: 'hunter_birdhouse',    name: 'Birdhouses',   minCount: 2, maxCount: 4, level: 90 }
         ];
     }
     
