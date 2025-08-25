@@ -392,44 +392,8 @@ class ThievingSkill extends BaseSkill {
     rollSpecialTable(tableName) {
         // Handle special tables like master farmer seeds
         if (tableName === 'master_farmer_seeds') {
-            // 1/5 chance for special seeds, otherwise potato seed
-            if (Math.random() > 0.2) {
-                return { itemId: 'potato_seed', quantity: 1 };
-            }
-            
-            // Roll for special seeds
-            const seedTable = [
-                { itemId: 'snape_grass_seed', chance: 1/260 },
-                { itemId: 'limpwurt_seed', chance: 1/86.3 },
-                { itemId: 'potato_cactus_seed', chance: 1/2460 },
-                { itemId: 'guam_seed', chance: 1/63 },
-                { itemId: 'marrentill_seed', chance: 1/95.6 },
-                { itemId: 'tarromin_seed', chance: 1/140 },
-                { itemId: 'harralander_seed', chance: 1/206 },
-                { itemId: 'ranarr_seed', chance: 1/320 },
-                { itemId: 'toadflax_seed', chance: 1/443 },
-                { itemId: 'irit_seed', chance: 1/651 },
-                { itemId: 'avantoe_seed', chance: 1/947 },
-                { itemId: 'kwuarm_seed', chance: 1/1389 },
-                { itemId: 'snapdragon_seed', chance: 1/2400 },
-                { itemId: 'cadantine_seed', chance: 1/2976 },
-                { itemId: 'lantadyme_seed', chance: 1/4167 },
-                { itemId: 'dwarf_weed_seed', chance: 1/6944 },
-                { itemId: 'torstol_seed', chance: 1/12000 }
-            ];
-            
-            const roll = Math.random();
-            let cumulative = 0;
-            
-            for (const seed of seedTable) {
-                cumulative += seed.chance;
-                if (roll < cumulative) {
-                    return { itemId: seed.itemId, quantity: 1 };
-                }
-            }
-            
-            // Fallback to potato seed
-            return { itemId: 'potato_seed', quantity: 1 };
+            // Use the shared drop table for master farmer seeds
+            return sharedDropTables.rollMasterFarmerSeeds();
         }
         
         return null;
