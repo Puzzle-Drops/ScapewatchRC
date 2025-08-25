@@ -1700,6 +1700,39 @@ body {
     opacity: 1;
 }
 
+/* ==================== SKILL HEADER ROW ==================== */
+
+/* Special styling for the skill header row */
+.skill-header-row {
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #2c3e50;
+}
+
+/* Skill header icons - no locked/unlocked states */
+.skill-header-icon {
+    opacity: 1 !important;
+    filter: none !important;
+    border-color: transparent !important;
+    background: #2c3e50;
+    cursor: default;
+}
+
+.skill-header-icon:hover {
+    border-color: #7f8c8d !important;
+}
+
+/* Make sure header icons align with the items below */
+.skill-header-icon .unlock-image {
+    opacity: 1;
+    filter: none;
+}
+
+.skill-header-icon .unlock-fallback {
+    opacity: 1;
+    color: #ecf0f1;
+}
+
 /* ==================== SPEED BONUS IMAGES ==================== */
 
 .speed-bonus-images {
