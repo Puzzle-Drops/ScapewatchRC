@@ -347,17 +347,26 @@ class TestScenario {
     // ==================== EXISTING METHODS ====================
 
     populateBank() {
-        const allItems = loadingManager.getData('items');
-        
-        bank.deposit('coins', 9999000);
-        
-        // Add 1000 of each item to bank
-        for (const [itemId, itemData] of Object.entries(allItems)) {
-            bank.deposit(itemId, 1000);
+    const allItems = loadingManager.getData('items');
+    
+    bank.deposit('coins', 9999000);
+    
+    let count = 0;
+    let skipped = 0;
+    
+    // Add 1000 of each item to bank (except noted items)
+    for (const [itemId, itemData] of Object.entries(allItems)) {
+        // Skip noted items - they shouldn't be in the bank directly
+        if (itemData.category === 'note') {
+            skipped++;
+            continue;
         }
-        
-        console.log(`Added 1000 of each item to bank (${Object.keys(allItems).length} items)`);
+        bank.deposit(itemId, 1000);
+        count++;
     }
+    
+    console.log(`Added 1000 of each item to bank (${count} items, skipped ${skipped} noted items)`);
+}
 
     populateInventory() {
         // Add some common items to inventory for testing
@@ -513,12 +522,22 @@ class TestScenario {
     // ==================== UTILITY METHODS ====================
     
     giveAllItems(quantity = 100) {
-        const allItems = loadingManager.getData('items');
-        for (const itemId of Object.keys(allItems)) {
-            bank.deposit(itemId, quantity);
+    const allItems = loadingManager.getData('items');
+    let count = 0;
+    let skipped = 0;
+    
+    for (const [itemId, itemData] of Object.entries(allItems)) {
+        // Skip noted items
+        if (itemData.category === 'note') {
+            skipped++;
+            continue;
         }
-        console.log(`Added ${quantity} of each item to bank`);
+        bank.deposit(itemId, quantity);
+        count++;
     }
+    
+    console.log(`Added ${quantity} of each item to bank (${count} items, skipped ${skipped} noted items)`);
+}
 
     maxAllSkills() {
         for (const skillId of Object.keys(skills.skills)) {
