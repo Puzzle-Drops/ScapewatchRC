@@ -64,29 +64,29 @@ class TestScenario {
 
     setSkillLevels() {
         // Each skill on its own line for easy modification
-        this.setSkillLevel('attack', 50);
-        this.setSkillLevel('strength', 50);
-        this.setSkillLevel('defence', 50);
-        this.setSkillLevel('hitpoints', 50);
-        this.setSkillLevel('ranged', 50);
-        this.setSkillLevel('magic', 50);
-        this.setSkillLevel('prayer', 50);
-        this.setSkillLevel('woodcutting', 50);
-        this.setSkillLevel('mining', 50);
-        this.setSkillLevel('fishing', 50);
-        this.setSkillLevel('cooking', 50);
-        this.setSkillLevel('crafting', 50);
-        this.setSkillLevel('smithing', 50);
-        this.setSkillLevel('agility', 50);
-        this.setSkillLevel('thieving', 50);
-        this.setSkillLevel('runecraft', 50);
-        this.setSkillLevel('hunter', 50);
-        this.setSkillLevel('farming', 50);
-        this.setSkillLevel('slayer', 50);
-        this.setSkillLevel('herblore', 50);
-        this.setSkillLevel('fletching', 50);
-        this.setSkillLevel('construction', 50);
-        this.setSkillLevel('firemaking', 50);
+        this.setSkillLevel('attack', 90);
+        this.setSkillLevel('strength', 90);
+        this.setSkillLevel('defence', 90);
+        this.setSkillLevel('hitpoints', 90);
+        this.setSkillLevel('ranged', 90);
+        this.setSkillLevel('magic', 90);
+        this.setSkillLevel('prayer', 90);
+        this.setSkillLevel('woodcutting', 90);
+        this.setSkillLevel('mining', 90);
+        this.setSkillLevel('fishing', 90);
+        this.setSkillLevel('cooking', 90);
+        this.setSkillLevel('crafting', 90);
+        this.setSkillLevel('smithing', 90);
+        this.setSkillLevel('agility', 90);
+        this.setSkillLevel('thieving', 90);
+        this.setSkillLevel('runecraft', 90);
+        this.setSkillLevel('hunter', 90);
+        this.setSkillLevel('farming', 90);
+        this.setSkillLevel('slayer', 90);
+        this.setSkillLevel('herblore', 90);
+        this.setSkillLevel('fletching', 90);
+        this.setSkillLevel('construction', 90);
+        this.setSkillLevel('firemaking', 90);
 
         // Force UI update after setting all levels
         if (window.ui) {
@@ -381,113 +381,136 @@ class TestScenario {
         if (window.taskManager) {
             taskManager.clearTasks();
             
-            // Task 1: Runecraft 5 trips at test abyss crafting air runes (Current Task)
-            const runecraftingTask1 = {
-                skill: 'runecraft',
-                itemId: 'runecraft_trips_craft_air_runes',
-                targetCount: 5,
-                nodeId: 'test_abyss',
-                activityId: 'craft_air_runes',
-                description: 'Runecraft 5 trips of air runes at The Abyss',
+            // Task 1: Hunt Birds (Current Task)
+            const huntBirdsTask = {
+                skill: 'hunter',
+                itemId: 'hunter_birds',
+                targetCount: 20,
+                nodeId: 'test_hunter',
+                activityId: 'hunt_birds',
+                description: 'Hunt 20 birds at Test Hunter',
                 startingCount: 0,
                 progress: 0,
-                isRunecraftingTask: true,
-                tripsCompleted: 0,
-                runeType: 'air_rune'
+                isHuntingTask: true,
+                successfulCatches: 0
             };
 
-            // Task 2: Runecraft 5 trips at water altar crafting water runes (Next Task)
-            const runecraftingTask2 = {
-                skill: 'runecraft',
-                itemId: 'runecraft_trips_craft_water_runes',
-                targetCount: 5,
-                nodeId: 'water_altar',
-                activityId: 'craft_water_runes',
-                description: 'Runecraft 5 trips of water runes at Water Altar',
-                startingCount: 0,
-                progress: 0,
-                isRunecraftingTask: true,
-                tripsCompleted: 0,
-                runeType: 'water_rune'
-            };
-            
-            // Task 3: Pickpocket Rogue 50 times
-            const thievingTask = {
-                skill: 'thieving',
-                itemId: 'thieving_pickpocket_rogue',
-                targetCount: 50,
-                nodeId: 'test_thieving',
-                activityId: 'pickpocket_rogue',
-                description: 'Pickpocket Rogue 50 times at Test Thieving',
-                startingCount: 0,
-                progress: 0,
-                isThievingTask: true,
-                successfulThefts: 0
-            };
-            
-            // Task 4: Complete 10 laps at Draynor agility
-            const agilityTask = {
-                skill: 'agility',
-                itemId: 'agility_laps_draynor_rooftop',
-                targetCount: 10,
-                nodeId: 'draynor_rooftop',
-                activityId: 'draynor_rooftop',
-                description: '10 laps at Draynor Rooftop',
-                startingCount: 0,
-                progress: 0,
-                isAgilityTask: true,
-                lapsCompleted: 0
-            };
-            
-            // Task 5: Fish 30 shrimp
-            const fishingTask = {
-                skill: 'fishing',
-                itemId: 'raw_shrimps',
-                targetCount: 30,
-                nodeId: 'lumbridge_fishing',
-                activityId: 'small_fishing_net',
-                description: 'Catch 30 Raw shrimps at River Lum',
-                startingCount: null,
-                progress: 0,
-                isCookingTask: false
-            };
-            
-            // Task 6: Cook 25 shrimp
-            const cookingTask = {
-                skill: 'cooking',
-                itemId: 'raw_shrimps',
-                targetCount: 25,
-                nodeId: 'lumbridge_kitchen',
-                activityId: 'cook_food',
-                description: 'Cook 25 Raw shrimps at Lumbridge Kitchen',
-                startingCount: 0,
-                progress: 0,
-                isCookingTask: true,
-                cookedItemId: 'shrimps',
-                rawFoodConsumed: 0
-            };
-            
-            // Task 7: Woodcut 20 logs
-            const woodcuttingTask = {
-                skill: 'woodcutting',
-                itemId: 'logs',
+            // Task 2: Hunt Butterflies (Next Task)
+            const huntButterfliesTask = {
+                skill: 'hunter',
+                itemId: 'hunter_butterflies',
                 targetCount: 20,
-                nodeId: 'lumbridge_trees',
-                activityId: 'chop_tree',
-                description: 'Chop 20 Logs at Lumbridge Trees',
-                startingCount: null,
+                nodeId: 'test_hunter',
+                activityId: 'hunt_butterflies',
+                description: 'Hunt 20 butterflies at Test Hunter',
+                startingCount: 0,
                 progress: 0,
-                isCookingTask: false
+                isHuntingTask: true,
+                successfulCatches: 0
+            };
+            
+            // Task 3: Hunt Kebbits
+            const huntKebbitsTask = {
+                skill: 'hunter',
+                itemId: 'hunter_kebbits',
+                targetCount: 20,
+                nodeId: 'test_hunter',
+                activityId: 'hunt_kebbits',
+                description: 'Hunt 20 kebbits at Test Hunter',
+                startingCount: 0,
+                progress: 0,
+                isHuntingTask: true,
+                successfulCatches: 0
+            };
+            
+            // Task 4: Hunt Chinchompas
+            const huntChinchompasTask = {
+                skill: 'hunter',
+                itemId: 'chinchompa',
+                targetCount: 20,
+                nodeId: 'test_hunter',
+                activityId: 'hunt_chinchompas',
+                description: 'Hunt 20 chinchompas at Test Hunter',
+                startingCount: 0,
+                progress: 0,
+                isHuntingTask: true,
+                successfulCatches: 0
+            };
+            
+            // Task 5: Hunt Moths
+            const huntMothsTask = {
+                skill: 'hunter',
+                itemId: 'hunter_moths',
+                targetCount: 20,
+                nodeId: 'test_hunter',
+                activityId: 'hunt_moths',
+                description: 'Hunt 20 moths at Test Hunter',
+                startingCount: 0,
+                progress: 0,
+                isHuntingTask: true,
+                successfulCatches: 0
+            };
+            
+            // Task 6: Hunt Salamanders
+            const huntSalamandersTask = {
+                skill: 'hunter',
+                itemId: 'hunter_salamanders',
+                targetCount: 20,
+                nodeId: 'test_hunter',
+                activityId: 'hunt_salamanders',
+                description: 'Hunt 20 salamanders at Test Hunter',
+                startingCount: 0,
+                progress: 0,
+                isHuntingTask: true,
+                successfulCatches: 0
+            };
+            
+            // Task 7: Hunt Herbiboars
+            const huntHerbiboarsTask = {
+                skill: 'hunter',
+                itemId: 'hunter_herbiboars',
+                targetCount: 5,
+                nodeId: 'test_hunter',
+                activityId: 'hunt_herbiboars',
+                description: 'Hunt 5 herbiboars at Test Hunter',
+                startingCount: 0,
+                progress: 0,
+                isHuntingTask: true,
+                successfulCatches: 0
+            };
+            
+            // Note: We only have 7 task slots (current, next, and 5 regular)
+            // So we'll put birdhouse in the regular tasks
+            const huntBirdhouseTask = {
+                skill: 'hunter',
+                itemId: 'hunter_birdhouse',
+                targetCount: 2,
+                nodeId: 'test_hunter',
+                activityId: 'hunt_birdhouse',
+                description: 'Check 2 birdhouses at Test Hunter',
+                startingCount: 0,
+                progress: 0,
+                isHuntingTask: true,
+                successfulCatches: 0
             };
             
             // Set up the task structure
-            taskManager.currentTask = runecraftingTask1;
-            taskManager.nextTask = runecraftingTask2;
-            taskManager.tasks = [thievingTask, agilityTask, fishingTask, cookingTask, woodcuttingTask];
+            taskManager.currentTask = huntBirdsTask;
+            taskManager.nextTask = huntButterfliesTask;
+            taskManager.tasks = [
+                huntKebbitsTask, 
+                huntChinchompasTask, 
+                huntMothsTask, 
+                huntSalamandersTask, 
+                huntHerbiboarsTask
+            ];
             
-            console.log('Set up test tasks:');
-            console.log('Current:', runecraftingTask1.description);
-            console.log('Next:', runecraftingTask2.description);
+            // Note: If you want to include birdhouse, you could replace one of the tasks
+            // or wait for one to complete and it will generate naturally
+            
+            console.log('Set up hunter test tasks:');
+            console.log('Current:', huntBirdsTask.description);
+            console.log('Next:', huntButterfliesTask.description);
             taskManager.tasks.forEach((task, index) => {
                 console.log(`Task ${index + 1}:`, task.description);
             });
