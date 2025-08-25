@@ -60,23 +60,32 @@ class Bank {
     }
 
     depositAll() {
-        const inventory = window.inventory;
-        let deposited = 0;
+    const inventory = window.inventory;
+    let deposited = 0;
 
-        for (let i = 0; i < inventory.maxSlots; i++) {
-            const slot = inventory.slots[i];
-            if (slot) {
+    for (let i = 0; i < inventory.maxSlots; i++) {
+        const slot = inventory.slots[i];
+        if (slot) {
+            // Check if this is a noted item that needs conversion
+            const itemData = loadingManager.getData('items')[slot.itemId];
+            if (itemData && itemData.category === 'note' && itemData.convertsTo) {
+                // Convert noted item to regular item
+                this.deposit(itemData.convertsTo, slot.quantity);
+                console.log(`Converted ${slot.quantity} ${itemData.name} to ${itemData.convertsTo}`);
+            } else {
+                // Regular deposit
                 this.deposit(slot.itemId, slot.quantity);
-                deposited += slot.quantity;
             }
+            deposited += slot.quantity;
         }
-
-        inventory.clear();
-        
-        // Note: deposit() and clear() already notify UI, no need to do it again
-        
-        return deposited;
     }
+
+    inventory.clear();
+    
+    // Note: deposit() and clear() already notify UI, no need to do it again
+    
+    return deposited;
+}
 
     depositItem(itemId) {
         const inventory = window.inventory;
