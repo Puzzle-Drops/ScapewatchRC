@@ -173,6 +173,163 @@
     "runeType": "wrath_rune",
     "runeMultipliers": {}
 },
+"hunt_birds": {
+    "id": "hunt_birds",
+    "name": "Hunt Birds",
+    "targetName": "Birds",
+    "skill": "hunter",
+    "requiredLevel": 1,
+    "baseDuration": 30000,
+    "xpPerAction": 34,
+    "durationScaling": {
+        "minLevel": 1,
+        "maxLevel": 49,
+        "minDuration": 10000,
+        "maxDuration": 30000
+    },
+    "successChanceScaling": {
+        "minChance": 0.3945,
+        "maxChance": 1.0,
+        "minLevel": 1,
+        "maxLevel": 49
+    },
+    "seedTableChance": 0.1
+},
+"hunt_butterflies": {
+    "id": "hunt_butterflies",
+    "name": "Hunt Butterflies",
+    "targetName": "Butterflies",
+    "skill": "hunter",
+    "requiredLevel": 25,
+    "baseDuration": 20000,
+    "xpPerAction": 44,
+    "durationScaling": {
+        "minLevel": 25,
+        "maxLevel": 70,
+        "minDuration": 4800,
+        "maxDuration": 20000
+    },
+    "successChanceScaling": {
+        "minChance": 0.4,
+        "maxChance": 1.0,
+        "minLevel": 25,
+        "maxLevel": 70
+    }
+},
+"hunt_kebbits": {
+    "id": "hunt_kebbits",
+    "name": "Hunt Kebbits",
+    "targetName": "Kebbits",
+    "skill": "hunter",
+    "requiredLevel": 45,
+    "baseDuration": 30000,
+    "xpPerAction": 200,
+    "durationScaling": {
+        "minLevel": 45,
+        "maxLevel": 95,
+        "minDuration": 8000,
+        "maxDuration": 30000
+    },
+    "successChanceScaling": {
+        "minChance": 0.4,
+        "maxChance": 1.0,
+        "minLevel": 45,
+        "maxLevel": 95
+    }
+},
+"hunt_chinchompas": {
+    "id": "hunt_chinchompas",
+    "name": "Hunt Chinchompas",
+    "targetName": "Chinchompas",
+    "skill": "hunter",
+    "requiredLevel": 63,
+    "baseDuration": 30000,
+    "xpPerAction": 265,
+    "durationScaling": {
+        "minLevel": 63,
+        "maxLevel": 99,
+        "minDuration": 4800,
+        "maxDuration": 30000
+    },
+    "successChanceScaling": {
+        "minChance": 0.4,
+        "maxChance": 0.9,
+        "minLevel": 63,
+        "maxLevel": 99
+    }
+},
+"hunt_moths": {
+    "id": "hunt_moths",
+    "name": "Hunt Moths",
+    "targetName": "Moths",
+    "skill": "hunter",
+    "requiredLevel": 75,
+    "baseDuration": 20000,
+    "xpPerAction": 84,
+    "durationScaling": {
+        "minLevel": 75,
+        "maxLevel": 99,
+        "minDuration": 4800,
+        "maxDuration": 20000
+    },
+    "successChanceScaling": {
+        "minChance": 0.4,
+        "maxChance": 0.85,
+        "minLevel": 75,
+        "maxLevel": 99
+    }
+},
+"hunt_salamanders": {
+    "id": "hunt_salamanders",
+    "name": "Hunt Salamanders",
+    "targetName": "Salamanders",
+    "skill": "hunter",
+    "requiredLevel": 79,
+    "baseDuration": 30000,
+    "xpPerAction": 344,
+    "durationScaling": {
+        "minLevel": 79,
+        "maxLevel": 99,
+        "minDuration": 15000,
+        "maxDuration": 30000
+    },
+    "successChanceScaling": {
+        "minChance": 0.4,
+        "maxChance": 0.8,
+        "minLevel": 79,
+        "maxLevel": 99
+    }
+},
+"hunt_herbiboars": {
+    "id": "hunt_herbiboars",
+    "name": "Hunt Herbiboars",
+    "targetName": "Herbiboars",
+    "skill": "hunter",
+    "requiredLevel": 82,
+    "baseDuration": 80000,
+    "xpPerAction": 2000,
+    "durationScaling": {
+        "minLevel": 82,
+        "maxLevel": 99,
+        "minDuration": 50000,
+        "maxDuration": 80000
+    }
+},
+"hunt_birdhouse": {
+    "id": "hunt_birdhouse",
+    "name": "Check Birdhouse",
+    "targetName": "Birdhouse",
+    "skill": "hunter",
+    "requiredLevel": 90,
+    "baseDuration": 30000,
+    "xpPerAction": 1200,
+    "durationScaling": {
+        "minLevel": 90,
+        "maxLevel": 99,
+        "minDuration": 24000,
+        "maxDuration": 30000
+    }
+},
 "pickpocket_man": {
     "id": "pickpocket_man",
     "name": "Pickpocket Man/Woman",
