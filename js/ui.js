@@ -634,17 +634,21 @@ class UIManager {
         
         const itemData = loadingManager.getData('items')[itemId];
         
-        const img = this.createItemImage(itemId, quantity);
-        
-        img.onerror = function() {
-            this.style.display = 'none';
-            const textDiv = document.createElement('div');
-            textDiv.style.fontSize = '12px';
-            textDiv.textContent = itemData.name.substring(0, 3);
-            slotDiv.appendChild(textDiv);
-        };
-        
-        slotDiv.appendChild(img);
+        const imgElement = this.createItemImage(itemId, quantity);
+
+// Check if it's an img element or a container div
+if (imgElement.tagName === 'IMG') {
+    imgElement.onerror = function() {
+        this.style.display = 'none';
+        const textDiv = document.createElement('div');
+        textDiv.style.fontSize = '12px';
+        textDiv.textContent = itemData.name.substring(0, 3);
+        slotDiv.appendChild(textDiv);
+    };
+}
+// If it's a div container (bank note), error handling is already set up inside createItemImage
+
+slotDiv.appendChild(imgElement);
         
         // Only show count if quantity is greater than 1
         if (quantity > 1) {
@@ -658,21 +662,83 @@ class UIManager {
     }
 
     createItemImage(itemId, quantity) {
-        const img = document.createElement('img');
+    const itemData = loadingManager.getData('items')[itemId];
+    
+    // Check if this is a bank note
+    if (itemData && itemData.category === 'note' && itemData.convertsTo) {
+        // Create a container for the bank note
+        const container = document.createElement('div');
+        container.style.position = 'relative';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.justifyContent = 'center';
         
-        if (itemId === 'coins') {
-            const coinImage = this.getCoinImage(quantity);
-            img.src = `assets/items/${coinImage}.png`;
-        } else {
-            img.src = `assets/items/${itemId}.png`;
-        }
+        // Bank note background
+        const noteImg = document.createElement('img');
+        noteImg.src = 'assets/items/bank_note.png';
+        noteImg.style.position = 'absolute';
+        noteImg.style.width = '100%';
+        noteImg.style.height = '100%';
+        noteImg.style.objectFit = 'contain';
+        noteImg.style.zIndex = '1';
         
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'contain';
+        // Item image on top of the note
+        const itemImg = document.createElement('img');
+        itemImg.src = `assets/items/${itemData.convertsTo}.png`;
+        itemImg.style.position = 'relative';
+        itemImg.style.width = '60%';  // Smaller to fit within the note
+        itemImg.style.height = '60%';
+        itemImg.style.objectFit = 'contain';
+        itemImg.style.zIndex = '2';
         
-        return img;
+        // Handle image load errors for bank note
+        noteImg.onerror = function() {
+            // If bank note image fails, just show the item
+            container.innerHTML = '';
+            const fallbackImg = document.createElement('img');
+            fallbackImg.src = `assets/items/${itemData.convertsTo}.png`;
+            fallbackImg.style.width = '100%';
+            fallbackImg.style.height = '100%';
+            fallbackImg.style.objectFit = 'contain';
+            container.appendChild(fallbackImg);
+        };
+        
+        // Handle image load errors for item
+        itemImg.onerror = function() {
+            this.style.display = 'none';
+            const textDiv = document.createElement('div');
+            textDiv.style.fontSize = '10px';
+            textDiv.style.position = 'relative';
+            textDiv.style.zIndex = '2';
+            const convertedItemData = loadingManager.getData('items')[itemData.convertsTo];
+            textDiv.textContent = convertedItemData ? convertedItemData.name.substring(0, 3) : '?';
+            container.appendChild(textDiv);
+        };
+        
+        container.appendChild(noteImg);
+        container.appendChild(itemImg);
+        
+        return container;
     }
+    
+    // Regular item handling
+    const img = document.createElement('img');
+    
+    if (itemId === 'coins') {
+        const coinImage = this.getCoinImage(quantity);
+        img.src = `assets/items/${coinImage}.png`;
+    } else {
+        img.src = `assets/items/${itemId}.png`;
+    }
+    
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'contain';
+    
+    return img;
+}
 
     createItemCount(itemId, quantity) {
         const countDiv = document.createElement('div');
