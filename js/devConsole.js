@@ -1264,23 +1264,32 @@ class DevConsole {
     }
 
     cmdBank(args) {
-        if (!this.requireSystem('Bank', 'bank')) return;
-        
-        if (args.length < 1) {
-            this.log('Usage: bank <itemId> [quantity]', 'error');
-            return;
-        }
-        
-        const itemId = this.validateItem(args[0]);
-        if (!itemId) return;
-        
-        const quantity = args.length > 1 ? this.parseIntArg(args[1], 'Quantity', 1) : 1;
-        if (quantity === null) return;
-        
-        const items = loadingManager.getData('items');
-        bank.deposit(itemId, quantity);
-        this.log(`Added ${quantity} ${items[itemId].name} to bank`, 'success');
+    if (!this.requireSystem('Bank', 'bank')) return;
+    
+    if (args.length < 1) {
+        this.log('Usage: bank <itemId> [quantity]', 'error');
+        return;
     }
+    
+    const itemId = this.validateItem(args[0]);
+    if (!itemId) return;
+    
+    const quantity = args.length > 1 ? this.parseIntArg(args[1], 'Quantity', 1) : 1;
+    if (quantity === null) return;
+    
+    const items = loadingManager.getData('items');
+    const itemData = items[itemId];
+    
+    // Check if this is a noted item
+    if (itemData.category === 'note') {
+        this.log(`Cannot add noted items directly to bank. Notes must be deposited from inventory.`, 'error');
+        this.log(`Use "give ${itemId} ${quantity}" to add to inventory first`, 'info');
+        return;
+    }
+    
+    bank.deposit(itemId, quantity);
+    this.log(`Added ${quantity} ${itemData.name} to bank`, 'success');
+}
 
     cmdClearBank() {
         if (!this.requireSystem('Bank', 'bank')) return;
@@ -1291,21 +1300,30 @@ class DevConsole {
     }
 
     cmdGiveAll(args) {
-        if (!this.requireSystem('Bank', 'bank')) return;
-        
-        const quantity = args.length > 0 ? this.parseIntArg(args[0], 'Quantity', 1) : 100;
-        if (quantity === null) return;
-        
-        const items = loadingManager.getData('items');
-        let count = 0;
-        
-        for (const itemId of Object.keys(items)) {
-            bank.deposit(itemId, quantity);
-            count++;
+    if (!this.requireSystem('Bank', 'bank')) return;
+    
+    const quantity = args.length > 0 ? this.parseIntArg(args[0], 'Quantity', 1) : 100;
+    if (quantity === null) return;
+    
+    const items = loadingManager.getData('items');
+    let count = 0;
+    let skipped = 0;
+    
+    for (const [itemId, itemData] of Object.entries(items)) {
+        // Skip noted items
+        if (itemData.category === 'note') {
+            skipped++;
+            continue;
         }
-        
-        this.log(`Added ${quantity} of each item to bank (${count} items)`, 'success');
+        bank.deposit(itemId, quantity);
+        count++;
     }
+    
+    this.log(`Added ${quantity} of each item to bank (${count} items)`, 'success');
+    if (skipped > 0) {
+        this.log(`Skipped ${skipped} noted items`, 'info');
+    }
+}
 
     cmdBankStats() {
         if (!this.requireSystem('Bank', 'bank')) return;
