@@ -257,7 +257,7 @@ class SkillCustomizationUI {
         return total;
     }
     
-    // UPDATED - Create the 4-row capes and pets section for global view
+    // UPDATED - Create the 4-row capes and pets section for global view with header row
     createGlobalCapesAndPetsSection() {
         const container = document.createElement('div');
         container.className = 'capes-and-pets-section';
@@ -265,6 +265,9 @@ class SkillCustomizationUI {
         // Get all skill IDs
         const skillsData = loadingManager.getData('skills');
         const skillIds = Object.keys(skillsData);
+        
+        // NEW: Header row with skill icons
+        const headerRow = this.createSkillHeaderRow(skillIds);
         
         // Row 1: Regular Capes
         const capesRow = this.createAchievementRow('Capes:', skillIds, 'cape');
@@ -278,6 +281,8 @@ class SkillCustomizationUI {
         // Row 4: Shiny Pets
         const shinyRow = this.createAchievementRow('Shiny:', skillIds, 'shinyPet');
         
+        // Add header row first
+        container.appendChild(headerRow);
         container.appendChild(capesRow);
         container.appendChild(trimmedRow);
         container.appendChild(petsRow);
@@ -286,35 +291,117 @@ class SkillCustomizationUI {
         return container;
     }
     
+    // NEW METHOD - Create header row with skill icons
+    createSkillHeaderRow(skillIds) {
+        const row = document.createElement('div');
+        row.className = 'achievement-row skill-header-row';
+        
+        // Empty label div to match the structure of other rows
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'achievement-label';
+        // No text content - empty label
+        
+        const itemsContainer = document.createElement('div');
+        itemsContainer.className = 'achievement-items';
+        
+        // Add skills icon first (for max cape column)
+        const skillsIconItem = this.createSkillHeaderIcon('skills');
+        itemsContainer.appendChild(skillsIconItem);
+        
+        // Add individual skill icons
+        for (const skillId of skillIds) {
+            const iconItem = this.createSkillHeaderIcon(skillId);
+            itemsContainer.appendChild(iconItem);
+        }
+        
+        row.appendChild(labelDiv);
+        row.appendChild(itemsContainer);
+        
+        return row;
+    }
+    
+    // NEW METHOD - Create individual skill header icon
+    createSkillHeaderIcon(skillId) {
+        const item = document.createElement('div');
+        item.className = 'unlock-item skill-header-icon';
+        
+        // Create image
+        const img = document.createElement('img');
+        img.className = 'unlock-image';
+        
+        // Get skill icon
+        const icon = loadingManager.getImage(`skill_${skillId}`);
+        if (icon) {
+            img.src = icon.src;
+        } else {
+            // Fallback if icon doesn't load
+            img.style.display = 'none';
+            const fallback = document.createElement('div');
+            fallback.className = 'unlock-fallback';
+            const skillsData = loadingManager.getData('skills');
+            const skillName = skillsData[skillId] ? skillsData[skillId].name : skillId;
+            fallback.textContent = skillName.substring(0, 3).toUpperCase();
+            item.appendChild(fallback);
+        }
+        
+        img.onerror = function() {
+            this.style.display = 'none';
+            const fallback = document.createElement('div');
+            fallback.className = 'unlock-fallback';
+            const skillsData = loadingManager.getData('skills');
+            const skillName = skillsData[skillId] ? skillsData[skillId].name : skillId;
+            fallback.textContent = skillName.substring(0, 3).toUpperCase();
+            item.appendChild(fallback);
+        };
+        
+        item.appendChild(img);
+        
+        // Add tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'unlock-tooltip';
+        const skillsData = loadingManager.getData('skills');
+        
+        if (skillId === 'skills') {
+            tooltip.textContent = 'All Skills';
+        } else {
+            const skillName = skillsData[skillId] ? skillsData[skillId].name : skillId;
+            tooltip.textContent = skillName;
+        }
+        
+        item.appendChild(tooltip);
+        
+        return item;
+    }
+    
     // Helper to create an achievement row
-createAchievementRow(label, skillIds, type) {
-    const row = document.createElement('div');
-    row.className = 'achievement-row';
-    
-    const labelDiv = document.createElement('div');
-    labelDiv.className = 'achievement-label';
-    labelDiv.textContent = label;
-    
-    const itemsContainer = document.createElement('div');
-    itemsContainer.className = 'achievement-items';
-    
-    // Add max cape for cape rows OR invisible placeholder for pet rows
-    if (type === 'cape' || type === 'trimmedCape') {
-        const maxCapeType = type === 'cape' ? 'maxCape' : 'trimmedMaxCape';
-        const maxCapeItem = this.createUnlockItem(null, maxCapeType, true); // true for global view
-        itemsContainer.appendChild(maxCapeItem);
-    } else if (type === 'pet' || type === 'shinyPet') {
-        // Add invisible placeholder to align with cape rows
-        const placeholder = document.createElement('div');
-        placeholder.className = 'unlock-item-placeholder';
-        itemsContainer.appendChild(placeholder);
-    }
-    
-    // Add items for each skill
-    for (const skillId of skillIds) {
-        const item = this.createUnlockItem(skillId, type, true); // true for global view
-        itemsContainer.appendChild(item);
-    }
+    createAchievementRow(label, skillIds, type) {
+        const row = document.createElement('div');
+        row.className = 'achievement-row';
+        
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'achievement-label';
+        labelDiv.textContent = label;
+        
+        const itemsContainer = document.createElement('div');
+        itemsContainer.className = 'achievement-items';
+        
+        // Add max cape for cape rows OR invisible placeholder for pet rows
+        if (type === 'cape' || type === 'trimmedCape') {
+            const maxCapeType = type === 'cape' ? 'maxCape' : 'trimmedMaxCape';
+            const maxCapeItem = this.createUnlockItem(null, maxCapeType, true); // true for global view
+            itemsContainer.appendChild(maxCapeItem);
+        } else if (type === 'pet' || type === 'shinyPet') {
+            // Add invisible placeholder to align with cape rows
+            const placeholder = document.createElement('div');
+            placeholder.className = 'unlock-item-placeholder';
+            itemsContainer.appendChild(placeholder);
+        }
+        
+        // Add items for each skill
+        for (const skillId of skillIds) {
+            const item = this.createUnlockItem(skillId, type, true); // true for global view
+            itemsContainer.appendChild(item);
+        }
         
         row.appendChild(labelDiv);
         row.appendChild(itemsContainer);
@@ -461,48 +548,48 @@ createAchievementRow(label, skillIds, type) {
     }
     
     createSkillWeightRow(skillId, totalWeight, registeredSkills) {
-    const row = document.createElement('div');
-    row.className = 'skill-weight-row';
-    
-    // Skill info
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'skill-weight-info';
-    
-    // Percentage
-    const isRegistered = registeredSkills.has(skillId);
-    let percentage = 0;
-    if (isRegistered && totalWeight > 0) {
-        const weight = runeCreditManager.getSkillWeight(skillId);
-        percentage = Math.round((weight / totalWeight) * 100);
-    }
-    
-    const percentSpan = document.createElement('span');
-    percentSpan.className = 'skill-weight-percent';
-    percentSpan.textContent = isRegistered ? `${percentage}%` : '-';
-    infoDiv.appendChild(percentSpan);
-    
-    // Level
-    const currentLevel = skills.getLevel(skillId);
-    const levelSpan = document.createElement('span');
-    levelSpan.className = 'skill-weight-level';
-    levelSpan.textContent = `Lv ${currentLevel}`;
-    infoDiv.appendChild(levelSpan);
-    
-    // Icon
-    const icon = loadingManager.getImage(`skill_${skillId}`);
-    if (icon) {
-        const iconImg = document.createElement('img');
-        iconImg.src = icon.src;
-        iconImg.className = 'skill-weight-icon';
-        infoDiv.appendChild(iconImg);
-    }
-    
-    // Name
-    const skillData = loadingManager.getData('skills')[skillId];
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'skill-weight-name';
-    nameSpan.textContent = skillData.name;
-    infoDiv.appendChild(nameSpan);
+        const row = document.createElement('div');
+        row.className = 'skill-weight-row';
+        
+        // Skill info
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'skill-weight-info';
+        
+        // Percentage
+        const isRegistered = registeredSkills.has(skillId);
+        let percentage = 0;
+        if (isRegistered && totalWeight > 0) {
+            const weight = runeCreditManager.getSkillWeight(skillId);
+            percentage = Math.round((weight / totalWeight) * 100);
+        }
+        
+        const percentSpan = document.createElement('span');
+        percentSpan.className = 'skill-weight-percent';
+        percentSpan.textContent = isRegistered ? `${percentage}%` : '-';
+        infoDiv.appendChild(percentSpan);
+        
+        // Level
+        const currentLevel = skills.getLevel(skillId);
+        const levelSpan = document.createElement('span');
+        levelSpan.className = 'skill-weight-level';
+        levelSpan.textContent = `Lv ${currentLevel}`;
+        infoDiv.appendChild(levelSpan);
+        
+        // Icon
+        const icon = loadingManager.getImage(`skill_${skillId}`);
+        if (icon) {
+            const iconImg = document.createElement('img');
+            iconImg.src = icon.src;
+            iconImg.className = 'skill-weight-icon';
+            infoDiv.appendChild(iconImg);
+        }
+        
+        // Name
+        const skillData = loadingManager.getData('skills')[skillId];
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'skill-weight-name';
+        nameSpan.textContent = skillData.name;
+        infoDiv.appendChild(nameSpan);
         
         // Control buttons
         const controlsDiv = document.createElement('div');
@@ -655,62 +742,62 @@ createAchievementRow(label, skillIds, type) {
     }
     
     createCompletedTaskRow(task, globalIndex) {
-    const row = document.createElement('div');
-    row.className = 'completed-task-row';
-    
-    // Task number
-    const numberDiv = document.createElement('div');
-    numberDiv.className = 'completed-task-number';
-    numberDiv.textContent = `#${globalIndex}`;
-    
-    // Separator 1
-    const sep1 = document.createElement('div');
-    sep1.className = 'completed-task-separator';
-    sep1.textContent = '|';
-    
-    // Skill icon (NEW)
-    const iconDiv = document.createElement('div');
-    iconDiv.className = 'completed-task-skill-icon';
-    if (task.skill) {
-        const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
-        if (skillIcon) {
-            const icon = document.createElement('img');
-            icon.src = skillIcon.src;
-            iconDiv.appendChild(icon);
-        } else {
-            // Fallback text if icon doesn't load
-            iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
+        const row = document.createElement('div');
+        row.className = 'completed-task-row';
+        
+        // Task number
+        const numberDiv = document.createElement('div');
+        numberDiv.className = 'completed-task-number';
+        numberDiv.textContent = `#${globalIndex}`;
+        
+        // Separator 1
+        const sep1 = document.createElement('div');
+        sep1.className = 'completed-task-separator';
+        sep1.textContent = '|';
+        
+        // Skill icon (NEW)
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'completed-task-skill-icon';
+        if (task.skill) {
+            const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
+            if (skillIcon) {
+                const icon = document.createElement('img');
+                icon.src = skillIcon.src;
+                iconDiv.appendChild(icon);
+            } else {
+                // Fallback text if icon doesn't load
+                iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
+            }
         }
+        
+        // Task description (full, on one line)
+        const descDiv = document.createElement('div');
+        descDiv.className = 'completed-task-description';
+        descDiv.textContent = task.description;
+        
+        // Separator 2
+        const sep2 = document.createElement('div');
+        sep2.className = 'completed-task-separator';
+        sep2.textContent = '|';
+        
+        // Time ago
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'completed-task-time';
+        if (task.completedAt) {
+            timeDiv.textContent = this.getTimeAgo(task.completedAt);
+        } else {
+            timeDiv.textContent = '-';
+        }
+        
+        row.appendChild(numberDiv);
+        row.appendChild(sep1);
+        row.appendChild(iconDiv);  // Add icon before description
+        row.appendChild(descDiv);
+        row.appendChild(sep2);
+        row.appendChild(timeDiv);
+        
+        return row;
     }
-    
-    // Task description (full, on one line)
-    const descDiv = document.createElement('div');
-    descDiv.className = 'completed-task-description';
-    descDiv.textContent = task.description;
-    
-    // Separator 2
-    const sep2 = document.createElement('div');
-    sep2.className = 'completed-task-separator';
-    sep2.textContent = '|';
-    
-    // Time ago
-    const timeDiv = document.createElement('div');
-    timeDiv.className = 'completed-task-time';
-    if (task.completedAt) {
-        timeDiv.textContent = this.getTimeAgo(task.completedAt);
-    } else {
-        timeDiv.textContent = '-';
-    }
-    
-    row.appendChild(numberDiv);
-    row.appendChild(sep1);
-    row.appendChild(iconDiv);  // Add icon before description
-    row.appendChild(descDiv);
-    row.appendChild(sep2);
-    row.appendChild(timeDiv);
-    
-    return row;
-}
     
     getTimeAgo(timestamp) {
         const seconds = Math.floor((Date.now() - timestamp) / 1000);
@@ -816,53 +903,53 @@ createAchievementRow(label, skillIds, type) {
     }
     
     // UPDATED - Create image-based speed bonuses for individual skill view
-createImageSpeedBonuses() {
-    const container = document.createElement('div');
-    container.className = 'speed-bonuses';
-    
-    const totalBonus = runeCreditManager.getSkillSpeedBonus(this.currentSkillId);
-    const bonusPercent = Math.round(totalBonus * 100);
-    
-    const titleDiv = document.createElement('div');
-    titleDiv.className = 'speed-bonus-title';
-    
-    // Create bonuses images container FIRST (before the text)
-    const bonusesDiv = document.createElement('div');
-    bonusesDiv.className = 'speed-bonus-images';
-    
-    // Add all 6 bonus types as images
-    const bonusTypes = [
-        { type: 'pet', bonus: '+5%', tooltip: 'Pet' },
-        { type: 'shinyPet', bonus: '+10%', tooltip: 'Shiny Pet' },
-        { type: 'skillCape', bonus: '+5%', tooltip: 'Skill Cape' },
-        { type: 'trimmedCape', bonus: '+10%', tooltip: 'Trimmed Skill Cape' },
-        { type: 'maxCape', bonus: '+5%', tooltip: 'Max Cape' },
-        { type: 'trimmedMaxCape', bonus: '+10%', tooltip: 'Trimmed Max Cape' }
-    ];
-    
-    for (const bonusInfo of bonusTypes) {
-        const bonusItem = this.createSpeedBonusImage(bonusInfo);
-        bonusesDiv.appendChild(bonusItem);
+    createImageSpeedBonuses() {
+        const container = document.createElement('div');
+        container.className = 'speed-bonuses';
+        
+        const totalBonus = runeCreditManager.getSkillSpeedBonus(this.currentSkillId);
+        const bonusPercent = Math.round(totalBonus * 100);
+        
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'speed-bonus-title';
+        
+        // Create bonuses images container FIRST (before the text)
+        const bonusesDiv = document.createElement('div');
+        bonusesDiv.className = 'speed-bonus-images';
+        
+        // Add all 6 bonus types as images
+        const bonusTypes = [
+            { type: 'pet', bonus: '+5%', tooltip: 'Pet' },
+            { type: 'shinyPet', bonus: '+10%', tooltip: 'Shiny Pet' },
+            { type: 'skillCape', bonus: '+5%', tooltip: 'Skill Cape' },
+            { type: 'trimmedCape', bonus: '+10%', tooltip: 'Trimmed Skill Cape' },
+            { type: 'maxCape', bonus: '+5%', tooltip: 'Max Cape' },
+            { type: 'trimmedMaxCape', bonus: '+10%', tooltip: 'Trimmed Max Cape' }
+        ];
+        
+        for (const bonusInfo of bonusTypes) {
+            const bonusItem = this.createSpeedBonusImage(bonusInfo);
+            bonusesDiv.appendChild(bonusItem);
+        }
+        
+        // Add images to the title div FIRST
+        titleDiv.appendChild(bonusesDiv);
+        
+        // THEN add the percentage and text
+        const percentSpan = document.createElement('span');
+        percentSpan.className = 'bonus-percent';
+        percentSpan.textContent = `+${bonusPercent}%`;
+        
+        const textSpan = document.createElement('span');
+        textSpan.textContent = ' increased speed';
+        
+        titleDiv.appendChild(percentSpan);
+        titleDiv.appendChild(textSpan);
+        
+        container.appendChild(titleDiv);
+        
+        return container;
     }
-    
-    // Add images to the title div FIRST
-    titleDiv.appendChild(bonusesDiv);
-    
-    // THEN add the percentage and text
-    const percentSpan = document.createElement('span');
-    percentSpan.className = 'bonus-percent';
-    percentSpan.textContent = `+${bonusPercent}%`;
-    
-    const textSpan = document.createElement('span');
-    textSpan.textContent = ' increased speed';
-    
-    titleDiv.appendChild(percentSpan);
-    titleDiv.appendChild(textSpan);
-    
-    container.appendChild(titleDiv);
-    
-    return container;
-}
     
     // Create a single speed bonus image
     createSpeedBonusImage(bonusInfo) {
@@ -1030,15 +1117,15 @@ createImageSpeedBonuses() {
         const percentage = hasLevel ? Math.round((weight / totalWeight) * 100) : 0;
         
         const modifier = runeCreditManager.getQuantityModifier(this.currentSkillId, task.itemId);
-let minQty = Math.round(task.minCount * modifier);
-let maxQty = Math.round(task.maxCount * modifier);
-
-// Clamp both to minimum of 1
-minQty = Math.max(1, minQty);
-maxQty = Math.max(1, maxQty);
-
-// Ensure max is at least as large as min
-maxQty = Math.max(minQty, maxQty);
+        let minQty = Math.round(task.minCount * modifier);
+        let maxQty = Math.round(task.maxCount * modifier);
+        
+        // Clamp both to minimum of 1
+        minQty = Math.max(1, minQty);
+        maxQty = Math.max(1, maxQty);
+        
+        // Ensure max is at least as large as min
+        maxQty = Math.max(minQty, maxQty);
         
         const itemData = loadingManager.getData('items')[task.itemId];
         const itemName = task.displayName || (itemData ? itemData.name : task.itemId);
@@ -1448,18 +1535,18 @@ maxQty = Math.max(minQty, maxQty);
                     }
                 }
             } else if (this.currentSkillId === 'farming') {
-    // Farming plant_seeds activity can plant any seed
-    if (activityId === 'plant_seeds') {
-        // Add ALL seed types as possible tasks
-        const farmingSkill = window.skillRegistry ? skillRegistry.getSkill('farming') : null;
-        if (farmingSkill && farmingSkill.SKILL_DATA) {
-            for (const seedData of farmingSkill.SKILL_DATA) {
-                // Check if player has level for this seed
-                const canDoSeed = currentLevel >= seedData.level;
-                possibleTaskIds.set(seedData.itemId, canDoSeed && canDoActivity);
-            }
-        }
-    }
+                // Farming plant_seeds activity can plant any seed
+                if (activityId === 'plant_seeds') {
+                    // Add ALL seed types as possible tasks
+                    const farmingSkill = window.skillRegistry ? skillRegistry.getSkill('farming') : null;
+                    if (farmingSkill && farmingSkill.SKILL_DATA) {
+                        for (const seedData of farmingSkill.SKILL_DATA) {
+                            // Check if player has level for this seed
+                            const canDoSeed = currentLevel >= seedData.level;
+                            possibleTaskIds.set(seedData.itemId, canDoSeed && canDoActivity);
+                        }
+                    }
+                }
             } else if (this.currentSkillId === 'smithing') {
                 // Map smithing activities to their products
                 const skill = window.skillRegistry ? skillRegistry.getSkill('smithing') : null;
@@ -1677,14 +1764,14 @@ maxQty = Math.max(minQty, maxQty);
                         canProduce = planks.includes(taskItemId);
                     }
                 } else if (this.currentSkillId === 'farming') {
-    // Any seed can be planted at any farming node
-    if (activityId === 'plant_seeds') {
-        // Check if the taskItemId is a seed
-        const farmingSkill = window.skillRegistry ? skillRegistry.getSkill('farming') : null;
-        if (farmingSkill && farmingSkill.SKILL_DATA) {
-            canProduce = farmingSkill.SKILL_DATA.some(seed => seed.itemId === taskItemId);
-        }
-    }
+                    // Any seed can be planted at any farming node
+                    if (activityId === 'plant_seeds') {
+                        // Check if the taskItemId is a seed
+                        const farmingSkill = window.skillRegistry ? skillRegistry.getSkill('farming') : null;
+                        if (farmingSkill && farmingSkill.SKILL_DATA) {
+                            canProduce = farmingSkill.SKILL_DATA.some(seed => seed.itemId === taskItemId);
+                        }
+                    }
                 } else if (this.currentSkillId === 'smithing') {
                     // Check if this activity can produce the task item
                     if (activityId === 'smelting') {
