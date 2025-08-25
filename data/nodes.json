@@ -147,7 +147,7 @@
   },
   "test_hunter": {
     "id": "test_hunter",
-    "name": "Test Huner",
+    "name": "Test Hunter",
     "type": "skill",
     "position": {
       "x": 4325,
