@@ -154,7 +154,14 @@
       "y": 1882
     },
     "activities": [
-      "firemaking"
+      "hunt_birds",
+      "hunt_butterflies",
+      "hunt_kebbits",
+      "hunt_chinchompas",
+      "hunt_moths",
+      "hunt_salamanders",
+      "hunt_herbiboars",
+      "hunt_birdhouse"
     ],
     "nearestBank": "lumbridge_bank",
     "nearestBankDistance": 61,
