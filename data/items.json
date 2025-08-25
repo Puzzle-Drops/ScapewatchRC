@@ -949,6 +949,14 @@
         "stackable": false,
         "category": "potion"
     },
+    "rune_essence_note": {
+    "id": "rune_essence_note",
+    "name": "Rune essence (note)",
+    "stackable": true,
+    "maxStack": 2147483647,
+    "category": "note",
+    "convertsTo": "rune_essence"
+},
     "rune_essence": {
         "id": "rune_essence",
         "name": "Rune essence",
@@ -1146,5 +1154,12 @@
         "stackable": true,
         "maxStack": 9999999999,
         "category": "ammo"
-    }
+    },
+    "chinchompa": {
+    "id": "chinchompa",
+    "name": "Chinchompa",
+    "stackable": true,
+    "maxStack": 2147483647,
+    "category": "ammo"
+}
 }
