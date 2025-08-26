@@ -283,11 +283,8 @@ class TaskManager {
             this.nextTask = null;
         }
         
-        // Generate a new regular task to fill the gap
-        const newTasks = this.generateMultipleTasks(1);
-        if (newTasks.length > 0) {
-            this.tasks.push(newTasks[0]);
-        }
+        // Ensure we always have 5 tasks in the queue
+        this.ensureFullTaskQueue();
         
         // Update UI
         if (window.ui) {
@@ -299,6 +296,26 @@ class TaskManager {
             console.log('Current task changed, notifying AI to re-evaluate');
             window.ai.currentTask = null;
             window.ai.decisionCooldown = 0;
+        }
+    }
+
+    // Ensure we always have 5 tasks in the queue
+    ensureFullTaskQueue() {
+        const tasksNeeded = this.maxTasks - this.tasks.length;
+        
+        if (tasksNeeded <= 0) {
+            return; // Already have enough tasks
+        }
+        
+        console.log(`Task queue has ${this.tasks.length} tasks, generating ${tasksNeeded} more to reach ${this.maxTasks}`);
+        
+        const newTasks = this.generateMultipleTasks(tasksNeeded);
+        
+        if (newTasks.length > 0) {
+            this.tasks.push(...newTasks);
+            console.log(`Added ${newTasks.length} tasks to queue, now have ${this.tasks.length} tasks`);
+        } else {
+            console.warn(`Failed to generate ${tasksNeeded} tasks to fill queue`);
         }
     }
 
@@ -319,17 +336,17 @@ class TaskManager {
         }
 
         // Try to generate a new task from a weighted skill
-let attempts = 0;
-let newTask = null;
+        let attempts = 0;
+        let newTask = null;
 
-while (attempts < 20 && !newTask) {
-    attempts++;
-    
-    // Pick a skill using weighted selection (same as initial generation)
-    const skill = window.runeCreditManager ? 
-        runeCreditManager.getWeightedSkill(availableSkills) :
-        availableSkills[Math.floor(Math.random() * availableSkills.length)];
-    newTask = skill.generateTask();
+        while (attempts < 20 && !newTask) {
+            attempts++;
+            
+            // Pick a skill using weighted selection (same as initial generation)
+            const skill = window.runeCreditManager ? 
+                runeCreditManager.getWeightedSkill(availableSkills) :
+                availableSkills[Math.floor(Math.random() * availableSkills.length)];
+            newTask = skill.generateTask();
             
             // Make sure it's different from the old task
             if (newTask && newTask.itemId === oldTask.itemId && 
@@ -350,12 +367,17 @@ while (attempts < 20 && !newTask) {
             this.tasks[index] = newTask;
             console.log(`New task: ${newTask.description}`);
             
+            // Ensure we still have a full queue after reroll
+            this.ensureFullTaskQueue();
+            
             // Update UI
             if (window.ui) {
                 window.ui.updateTasks();
             }
         } else {
             console.error('Failed to generate replacement task');
+            // Try to maintain full queue even if reroll failed
+            this.ensureFullTaskQueue();
         }
     }
 
