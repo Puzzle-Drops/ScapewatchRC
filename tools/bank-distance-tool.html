@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scapewatch Waypoint Generator v4.1</title>
+    <title>Scapewatch Waypoint Generator v4.2</title>
     <style>
         * {
             margin: 0;
@@ -65,9 +65,6 @@
         }
 
         .selector-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 15px;
         }
 
@@ -75,12 +72,19 @@
             color: #f39c12;
             font-size: 16px;
             font-weight: bold;
+            margin-bottom: 10px;
         }
 
         .selector-controls {
             display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .selector-control-row {
+            display: flex;
             gap: 10px;
-            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .selector-controls button {
@@ -97,10 +101,33 @@
             text-align: center;
             margin: 5px 0;
             border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .type-separator-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .type-separator-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .type-separator-controls button {
+            padding: 3px 10px;
+            font-size: 11px;
+            background-color: #555;
+        }
+
+        .type-separator-controls button:hover {
+            background-color: #666;
         }
 
         .node-list {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             background-color: #1a1a1a;
             border: 2px solid #444;
@@ -139,6 +166,10 @@
 
         .node-type.bank {
             color: #2ecc71;
+        }
+
+        .node-type.multi-skill {
+            color: #9b59b6;
         }
 
         .selection-stats {
@@ -290,7 +321,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🛤️ Scapewatch Waypoint Generator v4.1 🛤️</h1>
+        <h1>🛤️ Scapewatch Waypoint Generator v4.2 🛤️</h1>
         
         <div class="controls">
             <button id="loadBtn">Load Nodes</button>
@@ -303,14 +334,22 @@
             <div class="selector-header">
                 <div class="selector-title">Select Nodes to Process</div>
                 <div class="selector-controls">
-                    <button id="selectAllBtn">Select All</button>
-                    <button id="deselectAllBtn">Deselect All</button>
-                    <button id="selectAllBanksBtn">Select All Banks</button>
-                    <button id="deselectAllBanksBtn">Deselect All Banks</button>
-                    <button id="selectAllSkillsBtn">Select All Skills</button>
-                    <button id="deselectAllSkillsBtn">Deselect All Skills</button>
-                    <button id="selectAllQuestsBtn">Select All Quests</button>
-                    <button id="deselectAllQuestsBtn">Deselect All Quests</button>
+                    <div class="selector-control-row">
+                        <button id="selectAllBtn">Select All</button>
+                        <button id="deselectAllBtn">Deselect All</button>
+                    </div>
+                    <div class="selector-control-row">
+                        <button id="selectAllBanksBtn">Select All Banks</button>
+                        <button id="deselectAllBanksBtn">Deselect All Banks</button>
+                    </div>
+                    <div class="selector-control-row">
+                        <button id="selectAllSkillsBtn">Select All Skills</button>
+                        <button id="deselectAllSkillsBtn">Deselect All Skills</button>
+                    </div>
+                    <div class="selector-control-row">
+                        <button id="selectAllQuestsBtn">Select All Quests</button>
+                        <button id="deselectAllQuestsBtn">Deselect All Quests</button>
+                    </div>
                 </div>
             </div>
             <div class="node-list" id="nodeList"></div>
@@ -709,6 +748,7 @@
         let collision = null;
         let pathfinding = null;
         let nodesData = null;
+        let activitiesData = null;
         let selectedNodes = new Set();
         let startTime = null;
         let nodeAdjustments = {};
@@ -760,85 +800,212 @@
             document.getElementById('liveTime').textContent = `${elapsed}s`;
         }
 
+        async function loadActivitiesData() {
+            const url = 'https://puzzle-drops.github.io/ScapewatchRC/data/activities.json';
+            logConsole('Fetching activities.json from: ' + url, 'dim');
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                const data = JSON.parse(text);
+                activitiesData = data;
+                
+                const activityCount = Object.keys(data).length;
+                logConsole(`Successfully parsed ${activityCount} activities from activities.json`, 'success');
+                
+                return data;
+            } catch (error) {
+                logConsole(`ERROR loading activities: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        function getNodeSkills(node) {
+            if (node.type === 'bank' || node.type === 'quest') {
+                return [];
+            }
+            
+            const skills = new Set();
+            if (node.activities && activitiesData) {
+                for (const activityId of node.activities) {
+                    const activity = activitiesData[activityId];
+                    if (activity && activity.skill) {
+                        skills.add(activity.skill);
+                    }
+                }
+            }
+            return Array.from(skills).sort();
+        }
+
+        function categorizeAndSortNodes(nodes) {
+            const categorized = {
+                banks: [],
+                multiSkill: [],
+                bySkill: {},
+                quests: []
+            };
+            
+            Object.entries(nodes).forEach(([nodeId, node]) => {
+                if (node.type === 'bank') {
+                    categorized.banks.push([nodeId, node]);
+                } else if (node.type === 'quest') {
+                    categorized.quests.push([nodeId, node]);
+                } else if (node.type === 'skill') {
+                    const skills = getNodeSkills(node);
+                    if (skills.length > 1) {
+                        categorized.multiSkill.push([nodeId, node]);
+                    } else if (skills.length === 1) {
+                        const skill = skills[0];
+                        if (!categorized.bySkill[skill]) {
+                            categorized.bySkill[skill] = [];
+                        }
+                        categorized.bySkill[skill].push([nodeId, node]);
+                    }
+                }
+            });
+            
+            // Sort each category alphabetically by nodeId
+            categorized.banks.sort((a, b) => a[0].localeCompare(b[0]));
+            categorized.multiSkill.sort((a, b) => a[0].localeCompare(b[0]));
+            categorized.quests.sort((a, b) => a[0].localeCompare(b[0]));
+            
+            // Sort skill nodes within each skill
+            Object.keys(categorized.bySkill).forEach(skill => {
+                categorized.bySkill[skill].sort((a, b) => a[0].localeCompare(b[0]));
+            });
+            
+            return categorized;
+        }
+
         function createNodeSelector() {
             const nodeList = document.getElementById('nodeList');
             nodeList.innerHTML = '';
             
-            // Sort nodes by type (bank -> skill -> quest) then alphabetically
-            const sortedNodes = Object.entries(nodesData).sort(([idA, nodeA], [idB, nodeB]) => {
-                // Type priority: bank = 0, skill = 1, quest = 2, others = 3
-                const typePriority = {
-                    'bank': 0,
-                    'skill': 1,
-                    'quest': 2
-                };
-                
-                const priorityA = typePriority[nodeA.type] !== undefined ? typePriority[nodeA.type] : 3;
-                const priorityB = typePriority[nodeB.type] !== undefined ? typePriority[nodeB.type] : 3;
-                
-                if (priorityA !== priorityB) {
-                    return priorityA - priorityB;
-                }
-                
-                // If same type, sort alphabetically
-                return idA.localeCompare(idB);
-            });
+            const categorized = categorizeAndSortNodes(nodesData);
             
-            let currentType = null;
-            
-            sortedNodes.forEach(([nodeId, node]) => {
-                // Add separator when node type changes
-                if (node.type !== currentType) {
-                    currentType = node.type;
-                    const separator = document.createElement('div');
-                    separator.className = 'type-separator';
-                    separator.textContent = `${currentType.toUpperCase()}S`;
-                    nodeList.appendChild(separator);
-                }
+            // Banks
+            if (categorized.banks.length > 0) {
+                const separator = document.createElement('div');
+                separator.className = 'type-separator';
+                separator.innerHTML = `
+                    <span class="type-separator-title">BANKS</span>
+                    <div class="type-separator-controls">
+                        <button onclick="selectAllInCategory('bank')">Select All</button>
+                        <button onclick="deselectAllInCategory('bank')">Deselect All</button>
+                    </div>
+                `;
+                nodeList.appendChild(separator);
                 
-                const nodeItem = document.createElement('div');
-                nodeItem.className = 'node-item';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'node-checkbox';
-                checkbox.id = `node-${nodeId}`;
-                checkbox.dataset.nodeType = node.type;
-                checkbox.checked = true;
-                selectedNodes.add(nodeId);
-                
-                const label = document.createElement('label');
-                label.className = 'node-label';
-                label.htmlFor = `node-${nodeId}`;
-                
-                const nodeName = document.createElement('span');
-                nodeName.textContent = nodeId;
-                
-                const nodeType = document.createElement('span');
-                nodeType.className = `node-type ${node.type === 'bank' ? 'bank' : ''}`;
-                nodeType.textContent = `[${node.type}]`;
-                
-                label.appendChild(nodeName);
-                label.appendChild(nodeType);
-                
-                nodeItem.appendChild(checkbox);
-                nodeItem.appendChild(label);
-                
-                checkbox.addEventListener('change', () => {
-                    if (checkbox.checked) {
-                        selectedNodes.add(nodeId);
-                    } else {
-                        selectedNodes.delete(nodeId);
-                    }
-                    updateSelectionStats();
+                categorized.banks.forEach(([nodeId, node]) => {
+                    createNodeItem(nodeList, nodeId, node, 'bank');
                 });
+            }
+            
+            // Multi-skill nodes
+            if (categorized.multiSkill.length > 0) {
+                const separator = document.createElement('div');
+                separator.className = 'type-separator';
+                separator.innerHTML = `
+                    <span class="type-separator-title">MULTI-SKILL</span>
+                    <div class="type-separator-controls">
+                        <button onclick="selectAllInCategory('multi-skill')">Select All</button>
+                        <button onclick="deselectAllInCategory('multi-skill')">Deselect All</button>
+                    </div>
+                `;
+                nodeList.appendChild(separator);
                 
-                nodeList.appendChild(nodeItem);
+                categorized.multiSkill.forEach(([nodeId, node]) => {
+                    const skills = getNodeSkills(node).join(', ');
+                    createNodeItem(nodeList, nodeId, node, 'multi-skill', skills);
+                });
+            }
+            
+            // Single skill nodes (sorted by skill name)
+            const sortedSkills = Object.keys(categorized.bySkill).sort();
+            sortedSkills.forEach(skill => {
+                const separator = document.createElement('div');
+                separator.className = 'type-separator';
+                const displaySkill = skill.charAt(0).toUpperCase() + skill.slice(1);
+                separator.innerHTML = `
+                    <span class="type-separator-title">${displaySkill.toUpperCase()}</span>
+                    <div class="type-separator-controls">
+                        <button onclick="selectAllInCategory('skill-${skill}')">Select All</button>
+                        <button onclick="deselectAllInCategory('skill-${skill}')">Deselect All</button>
+                    </div>
+                `;
+                nodeList.appendChild(separator);
+                
+                categorized.bySkill[skill].forEach(([nodeId, node]) => {
+                    createNodeItem(nodeList, nodeId, node, `skill-${skill}`, skill);
+                });
             });
+            
+            // Quests
+            if (categorized.quests.length > 0) {
+                const separator = document.createElement('div');
+                separator.className = 'type-separator';
+                separator.innerHTML = `
+                    <span class="type-separator-title">QUESTS</span>
+                    <div class="type-separator-controls">
+                        <button onclick="selectAllInCategory('quest')">Select All</button>
+                        <button onclick="deselectAllInCategory('quest')">Deselect All</button>
+                    </div>
+                `;
+                nodeList.appendChild(separator);
+                
+                categorized.quests.forEach(([nodeId, node]) => {
+                    createNodeItem(nodeList, nodeId, node, 'quest');
+                });
+            }
             
             updateSelectionStats();
             document.getElementById('nodeSelector').style.display = 'block';
             document.getElementById('generateBtn').disabled = false;
+        }
+
+        function createNodeItem(container, nodeId, node, category, skillInfo = '') {
+            const nodeItem = document.createElement('div');
+            nodeItem.className = 'node-item';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'node-checkbox';
+            checkbox.id = `node-${nodeId}`;
+            checkbox.dataset.category = category;
+            checkbox.checked = true;
+            selectedNodes.add(nodeId);
+            
+            const label = document.createElement('label');
+            label.className = 'node-label';
+            label.htmlFor = `node-${nodeId}`;
+            
+            const nodeName = document.createElement('span');
+            nodeName.textContent = nodeId;
+            
+            const nodeType = document.createElement('span');
+            nodeType.className = `node-type ${category === 'bank' ? 'bank' : category === 'multi-skill' ? 'multi-skill' : ''}`;
+            nodeType.textContent = skillInfo ? `[${skillInfo}]` : `[${node.type}]`;
+            
+            label.appendChild(nodeName);
+            label.appendChild(nodeType);
+            
+            nodeItem.appendChild(checkbox);
+            nodeItem.appendChild(label);
+            
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    selectedNodes.add(nodeId);
+                } else {
+                    selectedNodes.delete(nodeId);
+                }
+                updateSelectionStats();
+            });
+            
+            container.appendChild(nodeItem);
         }
 
         function updateSelectionStats() {
@@ -885,6 +1052,26 @@
             });
             updateSelectionStats();
         }
+
+        window.selectAllInCategory = function(category) {
+            const checkboxes = document.querySelectorAll(`.node-checkbox[data-category="${category}"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                const nodeId = checkbox.id.replace('node-', '');
+                selectedNodes.add(nodeId);
+            });
+            updateSelectionStats();
+        };
+
+        window.deselectAllInCategory = function(category) {
+            const checkboxes = document.querySelectorAll(`.node-checkbox[data-category="${category}"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const nodeId = checkbox.id.replace('node-', '');
+                selectedNodes.delete(nodeId);
+            });
+            updateSelectionStats();
+        };
 
         async function loadNodesData() {
             const url = 'https://puzzle-drops.github.io/ScapewatchRC/data/nodes.json';
@@ -1190,6 +1377,36 @@
             }
         }
 
+        function sortNodesData(data) {
+            const categorized = categorizeAndSortNodes(data);
+            const sortedData = {};
+            
+            // Add banks first
+            categorized.banks.forEach(([nodeId, node]) => {
+                sortedData[nodeId] = node;
+            });
+            
+            // Add multi-skill nodes
+            categorized.multiSkill.forEach(([nodeId, node]) => {
+                sortedData[nodeId] = node;
+            });
+            
+            // Add single-skill nodes by skill (alphabetically)
+            const sortedSkills = Object.keys(categorized.bySkill).sort();
+            sortedSkills.forEach(skill => {
+                categorized.bySkill[skill].forEach(([nodeId, node]) => {
+                    sortedData[nodeId] = node;
+                });
+            });
+            
+            // Add quests last
+            categorized.quests.forEach(([nodeId, node]) => {
+                sortedData[nodeId] = node;
+            });
+            
+            return sortedData;
+        }
+
         function formatCompactJSON(data) {
             // Custom JSON formatter that puts arrays and objects on single lines
             const indent = '  ';
@@ -1309,46 +1526,21 @@
             }
         }
 
-        function sortNodesData(data) {
-            // Sort nodes by type (bank -> skill -> quest) then alphabetically
-            const sortedEntries = Object.entries(data).sort(([idA, nodeA], [idB, nodeB]) => {
-                const typePriority = {
-                    'bank': 0,
-                    'skill': 1,
-                    'quest': 2
-                };
-                
-                const priorityA = typePriority[nodeA.type] !== undefined ? typePriority[nodeA.type] : 3;
-                const priorityB = typePriority[nodeB.type] !== undefined ? typePriority[nodeB.type] : 3;
-                
-                if (priorityA !== priorityB) {
-                    return priorityA - priorityB;
-                }
-                
-                return idA.localeCompare(idB);
-            });
-            
-            // Rebuild object in sorted order
-            const sortedData = {};
-            sortedEntries.forEach(([key, value]) => {
-                sortedData[key] = value;
-            });
-            
-            return sortedData;
-        }
-
         async function loadNodes() {
             const loadBtn = document.getElementById('loadBtn');
             loadBtn.disabled = true;
             
             try {
-                logConsole('Starting Waypoint Generator v4.1...', 'highlight');
+                logConsole('Starting Waypoint Generator v4.2...', 'highlight');
                 
                 collision = new CollisionSystem();
                 await collision.initialize('https://puzzle-drops.github.io/ScapewatchRC/assets/collision-map.png');
                 
                 pathfinding = new Pathfinding(collision);
                 logConsole('Pathfinding system initialized', 'success');
+                
+                logConsole('Loading activities data...', 'info');
+                await loadActivitiesData();
                 
                 logConsole('Loading nodes data...', 'info');
                 await loadNodesData();
@@ -1394,20 +1586,35 @@
         document.getElementById('deselectAllBtn').addEventListener('click', deselectAll);
         document.getElementById('selectAllBanksBtn').addEventListener('click', () => selectAllByType('bank'));
         document.getElementById('deselectAllBanksBtn').addEventListener('click', () => deselectAllByType('bank'));
-        document.getElementById('selectAllSkillsBtn').addEventListener('click', () => selectAllByType('skill'));
-        document.getElementById('deselectAllSkillsBtn').addEventListener('click', () => deselectAllByType('skill'));
+        document.getElementById('selectAllSkillsBtn').addEventListener('click', () => {
+            document.querySelectorAll('.node-checkbox[data-category^="skill-"]').forEach(checkbox => {
+                checkbox.checked = true;
+                const nodeId = checkbox.id.replace('node-', '');
+                selectedNodes.add(nodeId);
+            });
+            updateSelectionStats();
+        });
+        document.getElementById('deselectAllSkillsBtn').addEventListener('click', () => {
+            document.querySelectorAll('.node-checkbox[data-category^="skill-"]').forEach(checkbox => {
+                checkbox.checked = false;
+                const nodeId = checkbox.id.replace('node-', '');
+                selectedNodes.delete(nodeId);
+            });
+            updateSelectionStats();
+        });
         document.getElementById('selectAllQuestsBtn').addEventListener('click', () => selectAllByType('quest'));
         document.getElementById('deselectAllQuestsBtn').addEventListener('click', () => deselectAllByType('quest'));
         document.getElementById('exportBtn').addEventListener('click', exportToClipboard);
         document.getElementById('downloadBtn').addEventListener('click', downloadJSON);
         
         // Initial log
-        logConsole('Waypoint Generator v4.1 ready', 'highlight');
+        logConsole('Waypoint Generator v4.2 ready', 'highlight');
         logConsole('This tool will:', 'info');
-        logConsole('• Let you select which nodes to process', 'info');
+        logConsole('• Load activities data to categorize nodes by skill', 'info');
+        logConsole('• Let you select nodes organized by type and skill', 'info');
         logConsole('• Generate paths from selected nodes to nearest banks', 'info');
         logConsole('• Generate paths between selected banks', 'info');
-        logConsole('• Store waypoints directly in the nodes data', 'info');
+        logConsole('• Export nodes sorted by: Banks → Multi-skill → Skills (A-Z) → Quests', 'info');
         logConsole('Click "Load Nodes" to begin', 'success');
     </script>
 </body>
