@@ -350,6 +350,32 @@
             font-size: 24px;
             color: #f39c12;
         }
+
+        /* Brush size slider */
+        .brush-size-control {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #3a3a3a;
+            border-radius: 4px;
+        }
+
+        .brush-size-control label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #f39c12;
+        }
+
+        .brush-size-slider {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .brush-size-display {
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
@@ -391,6 +417,9 @@
                 <button class="tool-btn" id="areaTool" onclick="selectTool('area')">
                     ▦ Area Select
                 </button>
+                <button class="tool-btn" id="paintbrushTool" onclick="selectTool('paintbrush')">
+                    🖌️ Paintbrush
+                </button>
             </div>
             
             <div id="paintBucketOptions" style="display: none; margin-top: 10px; padding: 10px; background-color: #3a3a3a; border-radius: 4px;">
@@ -413,13 +442,62 @@
                 </button>
             </div>
             
+            <div id="paintbrushOptions" style="display: none; margin-top: 10px;">
+                <div class="brush-size-control">
+                    <label>Brush Size:</label>
+                    <input type="range" class="brush-size-slider" id="brushSizeSlider" min="1" max="50" value="3" oninput="updateBrushSize(this.value)">
+                    <div class="brush-size-display" id="brushSizeDisplay">Size: 3px</div>
+                </div>
+                <div style="padding: 10px; background-color: #3a3a3a; border-radius: 4px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 13px; color: #f39c12;">Paint Mode:</label>
+                    <label style="display: block; margin-bottom: 5px;">
+                        <input type="radio" name="paintMode" value="transparent" checked> 
+                        Transparent (Delete)
+                    </label>
+                    <label style="display: block; margin-bottom: 5px;">
+                        <input type="radio" name="paintMode" value="protected"> 
+                        Protected Color
+                    </label>
+                    <label style="display: block; margin-bottom: 5px;">
+                        <input type="radio" name="paintMode" value="custom"> 
+                        Custom: <span id="customPaintColorDisplay" style="display: inline-block; width: 20px; height: 20px; border: 1px solid #666; vertical-align: middle; margin-left: 5px; background-color: rgb(204,204,204);"></span>
+                        <span id="customPaintColorText" style="margin-left: 5px; font-size: 11px; color: #aaa;">RGB(204,204,204)</span>
+                    </label>
+                    <button onmouseover="this.style.backgroundColor='#555'" onmouseout="this.style.backgroundColor='#444'" onclick="startEyedropForCustomPaint()" style="margin-top: 8px; padding: 6px 10px; background-color: #444; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%;">
+                        💧 Pick Custom Color
+                    </button>
+                </div>
+            </div>
+            
+            <div id="selectOptions" style="display: none; margin-top: 10px; padding: 10px; background-color: #3a3a3a; border-radius: 4px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 13px; color: #f39c12;">Selection Fill Mode:</label>
+                <label style="display: block; margin-bottom: 5px;">
+                    <input type="radio" name="selectFillMode" value="transparent" checked> 
+                    Transparent (Delete)
+                </label>
+                <label style="display: block; margin-bottom: 5px;">
+                    <input type="radio" name="selectFillMode" value="protected"> 
+                    Protected Color
+                </label>
+                <label style="display: block; margin-bottom: 5px;">
+                    <input type="radio" name="selectFillMode" value="custom"> 
+                    Custom: <span id="customSelectColorDisplay" style="display: inline-block; width: 20px; height: 20px; border: 1px solid #666; vertical-align: middle; margin-left: 5px; background-color: rgb(204,204,204);"></span>
+                    <span id="customSelectColorText" style="margin-left: 5px; font-size: 11px; color: #aaa;">RGB(204,204,204)</span>
+                </label>
+                <button onmouseover="this.style.backgroundColor='#555'" onmouseout="this.style.backgroundColor='#444'" onclick="startEyedropForCustomSelect()" style="margin-top: 8px; padding: 6px 10px; background-color: #444; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%;">
+                    💧 Pick Custom Color
+                </button>
+                <button class="btn" onclick="fillSelection()" style="margin-top: 10px;">Fill Selection</button>
+            </div>
+            
             <div class="help-text">
                 <strong>Eraser:</strong> Right-click to delete pixels<br>
                 <strong>Protector:</strong> Right-click to convert to protected color<br>
                 <strong>Fill:</strong> Left-click to flood fill same-color area<br>
                 <strong>Select:</strong> Left-drag to select, DEL to delete<br>
                 <strong>Eyedropper:</strong> Click to add protected color<br>
-                <strong>Area:</strong> Select area for bulk operations
+                <strong>Area:</strong> Select area for bulk operations<br>
+                <strong>Paintbrush:</strong> Left-drag to paint
             </div>
         </div>
 
@@ -532,8 +610,14 @@
         let pixelsDeleted = 0;
         let showGrid = false;
         let customFillColor = '204,204,204';
+        let customPaintColor = '204,204,204';
+        let customSelectColor = '204,204,204';
         let isPickingCustomColor = false;
         let previousTool = null;
+        let brushSize = 3;
+        let isPainting = false;
+        let lastPaintPos = null;
+        let pickingColorFor = null;
         
         // Default protected colors
         const DEFAULT_PROTECTED_COLORS = [
@@ -805,6 +889,105 @@
             return true;
         }
         
+        // Paint pixel with brush
+        function paintPixel(x, y, paintMode) {
+            if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) {
+                return false;
+            }
+            
+            const index = (y * canvas.width + x) * 4;
+            const data = currentImageData.data;
+            
+            if (paintMode === 'transparent') {
+                // Delete pixel
+                if (data[index + 3] > 0) {
+                    data[index + 3] = 0;
+                    pixelsDeleted++;
+                    return true;
+                }
+            } else if (paintMode === 'protected') {
+                // Use protected color
+                let protectColor;
+                if (protectedColors.size > 0) {
+                    protectColor = protectedColors.values().next().value;
+                } else {
+                    protectColor = DEFAULT_PROTECTED_COLORS[0];
+                }
+                const [r, g, b] = protectColor.split(',').map(Number);
+                data[index] = r;
+                data[index + 1] = g;
+                data[index + 2] = b;
+                data[index + 3] = 255;
+                return true;
+            } else if (paintMode === 'custom') {
+                // Use custom color
+                const [r, g, b] = customPaintColor.split(',').map(Number);
+                data[index] = r;
+                data[index + 1] = g;
+                data[index + 2] = b;
+                data[index + 3] = 255;
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // Paint with brush at position
+        function paintBrush(x, y) {
+            const paintMode = document.querySelector('input[name="paintMode"]:checked').value;
+            const radius = Math.floor(brushSize / 2);
+            let painted = false;
+            
+            for (let dx = -radius; dx <= radius; dx++) {
+                for (let dy = -radius; dy <= radius; dy++) {
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist <= radius) {
+                        if (paintPixel(x + dx, y + dy, paintMode)) {
+                            painted = true;
+                        }
+                    }
+                }
+            }
+            
+            return painted;
+        }
+        
+        // Draw line between two points (for smooth painting)
+        function paintLine(x0, y0, x1, y1) {
+            const dx = Math.abs(x1 - x0);
+            const dy = Math.abs(y1 - y0);
+            const sx = x0 < x1 ? 1 : -1;
+            const sy = y0 < y1 ? 1 : -1;
+            let err = dx - dy;
+            let painted = false;
+            
+            while (true) {
+                if (paintBrush(x0, y0)) {
+                    painted = true;
+                }
+                
+                if (x0 === x1 && y0 === y1) break;
+                
+                const e2 = 2 * err;
+                if (e2 > -dy) {
+                    err -= dy;
+                    x0 += sx;
+                }
+                if (e2 < dx) {
+                    err += dx;
+                    y0 += sy;
+                }
+            }
+            
+            return painted;
+        }
+        
+        // Update brush size
+        function updateBrushSize(size) {
+            brushSize = parseInt(size);
+            document.getElementById('brushSizeDisplay').textContent = `Size: ${brushSize}px`;
+        }
+        
         // Flood fill function
         function floodFill(startX, startY, fillMode) {
             if (startX < 0 || startY < 0 || startX >= canvas.width || startY >= canvas.height) {
@@ -880,9 +1063,28 @@
         // Start eyedropper for custom color
         function startEyedropForCustom() {
             isPickingCustomColor = true;
+            pickingColorFor = 'fill';
             previousTool = currentTool;
             selectTool('eyedropper');
             showToast('Click a pixel to pick custom fill color');
+        }
+        
+        // Start eyedropper for custom paint color
+        function startEyedropForCustomPaint() {
+            isPickingCustomColor = true;
+            pickingColorFor = 'paint';
+            previousTool = currentTool;
+            selectTool('eyedropper');
+            showToast('Click a pixel to pick custom paint color');
+        }
+        
+        // Start eyedropper for custom select color
+        function startEyedropForCustomSelect() {
+            isPickingCustomColor = true;
+            pickingColorFor = 'select';
+            previousTool = currentTool;
+            selectTool('eyedropper');
+            showToast('Click a pixel to pick custom select color');
         }
         
         // Set custom fill color
@@ -895,12 +1097,82 @@
             document.querySelector('input[name="fillMode"][value="custom"]').checked = true;
         }
         
+        // Set custom paint color
+        function setCustomPaintColor(r, g, b) {
+            customPaintColor = `${r},${g},${b}`;
+            document.getElementById('customPaintColorDisplay').style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+            document.getElementById('customPaintColorText').textContent = `RGB(${r}, ${g}, ${b})`;
+            
+            // Select the custom radio button
+            document.querySelector('input[name="paintMode"][value="custom"]').checked = true;
+        }
+        
+        // Set custom select color
+        function setCustomSelectColor(r, g, b) {
+            customSelectColor = `${r},${g},${b}`;
+            document.getElementById('customSelectColorDisplay').style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+            document.getElementById('customSelectColorText').textContent = `RGB(${r}, ${g}, ${b})`;
+            
+            // Select the custom radio button
+            document.querySelector('input[name="selectFillMode"][value="custom"]').checked = true;
+        }
+        
+        // Fill selection
+        function fillSelection() {
+            if (selectedPixels.size === 0) {
+                showToast('No pixels selected!', 'error');
+                return;
+            }
+            
+            const fillMode = document.querySelector('input[name="selectFillMode"]:checked').value;
+            let filled = 0;
+            
+            selectedPixels.forEach(key => {
+                const [x, y] = key.split(',').map(Number);
+                
+                if (fillMode === 'transparent') {
+                    if (deletePixel(x, y)) {
+                        filled++;
+                    }
+                } else if (fillMode === 'protected') {
+                    let protectColor = protectedColors.size > 0 ? 
+                        protectedColors.values().next().value : 
+                        DEFAULT_PROTECTED_COLORS[0];
+                    const [r, g, b] = protectColor.split(',').map(Number);
+                    const index = (y * canvas.width + x) * 4;
+                    const data = currentImageData.data;
+                    data[index] = r;
+                    data[index + 1] = g;
+                    data[index + 2] = b;
+                    data[index + 3] = 255;
+                    filled++;
+                } else if (fillMode === 'custom') {
+                    const [r, g, b] = customSelectColor.split(',').map(Number);
+                    const index = (y * canvas.width + x) * 4;
+                    const data = currentImageData.data;
+                    data[index] = r;
+                    data[index + 1] = g;
+                    data[index + 2] = b;
+                    data[index + 3] = 255;
+                    filled++;
+                }
+            });
+            
+            if (filled > 0) {
+                saveState();
+                clearSelection();
+                render();
+                showToast(`Filled ${filled} pixels!`);
+            }
+        }
+        
         // Select tool
         function selectTool(tool) {
             // Cancel custom color picking if switching away
             if (isPickingCustomColor && tool !== 'eyedropper') {
                 isPickingCustomColor = false;
                 previousTool = null;
+                pickingColorFor = null;
             }
             
             currentTool = tool;
@@ -911,12 +1183,21 @@
             });
             document.getElementById(tool + 'Tool').classList.add('active');
             
-            // Show/hide paint bucket options
+            // Show/hide options panels
             const paintOptions = document.getElementById('paintBucketOptions');
+            const brushOptions = document.getElementById('paintbrushOptions');
+            const selectOptions = document.getElementById('selectOptions');
+            
+            paintOptions.style.display = 'none';
+            brushOptions.style.display = 'none';
+            selectOptions.style.display = 'none';
+            
             if (tool === 'paintBucket') {
                 paintOptions.style.display = 'block';
-            } else {
-                paintOptions.style.display = 'none';
+            } else if (tool === 'paintbrush') {
+                brushOptions.style.display = 'block';
+            } else if (tool === 'select' || tool === 'area') {
+                selectOptions.style.display = 'block';
             }
             
             // Update cursor
@@ -1263,11 +1544,22 @@
                     const color = getPixelColor(pos.x, pos.y);
                     if (color && color.a > 0) {
                         if (isPickingCustomColor) {
-                            // Set custom fill color
-                            setCustomFillColor(color.r, color.g, color.b);
+                            // Set custom color based on which tool requested it
+                            if (pickingColorFor === 'fill') {
+                                setCustomFillColor(color.r, color.g, color.b);
+                                selectTool('paintBucket');
+                                showToast(`Custom fill color set to RGB(${color.r}, ${color.g}, ${color.b})`);
+                            } else if (pickingColorFor === 'paint') {
+                                setCustomPaintColor(color.r, color.g, color.b);
+                                selectTool('paintbrush');
+                                showToast(`Custom paint color set to RGB(${color.r}, ${color.g}, ${color.b})`);
+                            } else if (pickingColorFor === 'select') {
+                                setCustomSelectColor(color.r, color.g, color.b);
+                                selectTool(previousTool || 'select');
+                                showToast(`Custom select color set to RGB(${color.r}, ${color.g}, ${color.b})`);
+                            }
                             isPickingCustomColor = false;
-                            selectTool(previousTool || 'paintBucket');
-                            showToast(`Custom fill color set to RGB(${color.r}, ${color.g}, ${color.b})`);
+                            pickingColorFor = null;
                         } else {
                             // Add to protected colors
                             addProtectedColor(color.r, color.g, color.b);
@@ -1277,6 +1569,7 @@
                         if (isPickingCustomColor) {
                             isPickingCustomColor = false;
                             selectTool(previousTool || 'paintBucket');
+                            pickingColorFor = null;
                         }
                     }
                 } else if (currentTool === 'paintBucket') {
@@ -1292,6 +1585,13 @@
                         showToast(`Filled ${filled} pixels!`);
                     } else {
                         showToast('No pixels to fill!');
+                    }
+                } else if (currentTool === 'paintbrush') {
+                    // Start painting
+                    isPainting = true;
+                    lastPaintPos = pos;
+                    if (paintBrush(pos.x, pos.y)) {
+                        render();
                     }
                 }
             } else if (e.button === 1) { // Middle click
@@ -1336,8 +1636,22 @@
                 } else if (fillMode === 'custom') {
                     extraInfo = `<br>Fill color: RGB(${customFillColor})`;
                 }
+            } else if (currentTool === 'paintbrush') {
+                const paintMode = document.querySelector('input[name="paintMode"]:checked')?.value || 'transparent';
+                extraInfo = `<br>Brush size: ${brushSize}px`;
+                if (paintMode === 'transparent') {
+                    extraInfo += '<br>Paint mode: Transparent (Delete)';
+                } else if (paintMode === 'protected') {
+                    let protectColor = protectedColors.size > 0 ? 
+                        protectedColors.values().next().value : 
+                        DEFAULT_PROTECTED_COLORS[0];
+                    const [r, g, b] = protectColor.split(',').map(Number);
+                    extraInfo += `<br>Paint color: RGB(${r}, ${g}, ${b})`;
+                } else if (paintMode === 'custom') {
+                    extraInfo += `<br>Paint color: RGB(${customPaintColor})`;
+                }
             } else if (currentTool === 'eyedropper' && isPickingCustomColor) {
-                extraInfo = '<br>Picking custom fill color...';
+                extraInfo = '<br>Picking custom ' + (pickingColorFor || '') + ' color...';
             }
             
             cursorInfo.innerHTML = `Position: x: ${pos.x}, y: ${pos.y}<br>Color: ${colorText}${extraInfo}`;
@@ -1364,6 +1678,14 @@
                 // Update selection
                 selectionEnd = pos;
                 updateSelection();
+            } else if (isPainting && currentTool === 'paintbrush') {
+                // Continue painting
+                if (lastPaintPos) {
+                    if (paintLine(lastPaintPos.x, lastPaintPos.y, pos.x, pos.y)) {
+                        render();
+                    }
+                }
+                lastPaintPos = pos;
             }
         });
         
@@ -1373,8 +1695,22 @@
                 updateSelection();
             }
             
+            if (isPainting) {
+                isPainting = false;
+                lastPaintPos = null;
+                saveState();
+            }
+            
             isDragging = false;
             canvas.style.cursor = 'crosshair';
+        });
+        
+        canvas.addEventListener('mouseleave', (e) => {
+            if (isPainting) {
+                isPainting = false;
+                lastPaintPos = null;
+                saveState();
+            }
         });
         
         // Update selection
@@ -1434,6 +1770,7 @@
                 if (isPickingCustomColor) {
                     isPickingCustomColor = false;
                     selectTool(previousTool || 'paintBucket');
+                    pickingColorFor = null;
                     showToast('Custom color picking cancelled');
                 } else {
                     clearSelection();
