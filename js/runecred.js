@@ -300,7 +300,7 @@ class RuneCreditManager {
     getSkillWeight(skillId) {
         const level = this.skillModLevels[skillId] || 0;
         if (level === 0) return 1.0;
-        return level > 0 ? Math.pow(1.5, level) : Math.pow(0.5, Math.abs(level));
+        return level > 0 ? Math.pow(1.25, level) : Math.pow(0.8, Math.abs(level));
     }
     
     // Modify task weight level
@@ -473,7 +473,7 @@ class RuneCreditManager {
         if (!this.taskModLevels[skillId]) return 1.0;
         const level = this.taskModLevels[skillId][itemId] || 0;
         if (level === 0) return 1.0;
-        return level > 0 ? Math.pow(1.5, level) : Math.pow(0.5, Math.abs(level));
+        return level > 0 ? Math.pow(1.25, level) : Math.pow(0.8, Math.abs(level));
     }
     
     // Get node weight for a skill
@@ -481,7 +481,7 @@ class RuneCreditManager {
         if (!this.nodeModLevels[skillId]) return 1.0;
         const level = this.nodeModLevels[skillId][nodeId] || 0;
         if (level === 0) return 1.0;
-        return level > 0 ? Math.pow(1.5, level) : Math.pow(0.5, Math.abs(level));
+        return level > 0 ? Math.pow(1.25, level) : Math.pow(0.8, Math.abs(level));
     }
     
     // Get quantity modifier for a task
@@ -489,7 +489,7 @@ class RuneCreditManager {
         if (!this.quantityModLevels[skillId]) return 1.0;
         const level = this.quantityModLevels[skillId][itemId] || 0;
         if (level === 0) return 1.0;
-        return level > 0 ? Math.pow(1.5, level) : Math.pow(0.5, Math.abs(level));
+        return level > 0 ? Math.pow(1.25, level) : Math.pow(0.8, Math.abs(level));
     }
     
     // Calculate total speed bonus for a skill - UPDATED WITH ALL 6 BONUSES
