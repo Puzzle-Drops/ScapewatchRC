@@ -600,6 +600,17 @@ class SkillCustomizationUI {
             // Get current modification level
             const modLevel = runeCreditManager.skillModLevels[skillId] || 0;
             
+            // Create wrapper for emoji and buttons
+            const weightGroupWrapper = document.createElement('div');
+            weightGroupWrapper.className = 'control-group-wrapper';
+            
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji';
+            weightEmoji.textContent = '🎲';
+            
+            const weightGroup = document.createElement('div');
+            weightGroup.className = 'control-group';
+            
             // Weight controls - PASS true FOR useSkillCred IN GLOBAL MODE
             const weightUp = this.createControlButton('+', () => {
                 if (runeCreditManager.modifySkillWeight(skillId, true, true)) { // true for useSkillCred
@@ -615,17 +626,37 @@ class SkillCustomizationUI {
                 }
             }, modLevel, 'weight', false, skillId, null);
             
-            controlsDiv.appendChild(weightUp);
-            controlsDiv.appendChild(weightDown);
+            weightGroup.appendChild(weightUp);
+            weightGroup.appendChild(weightDown);
+            
+            weightGroupWrapper.appendChild(weightEmoji);
+            weightGroupWrapper.appendChild(weightGroup);
+            
+            controlsDiv.appendChild(weightGroupWrapper);
         } else {
-            // Add disabled placeholder buttons for unregistered skills
+            // Add disabled placeholder buttons with emoji for unregistered skills
+            const weightGroupWrapper = document.createElement('div');
+            weightGroupWrapper.className = 'control-group-wrapper';
+            
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji disabled';
+            weightEmoji.textContent = '🎲';
+            
+            const weightGroup = document.createElement('div');
+            weightGroup.className = 'control-group';
+            
             for (let i = 0; i < 2; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'control-button disabled';
                 btn.disabled = true;
                 btn.textContent = i === 0 ? '+' : '-';
-                controlsDiv.appendChild(btn);
+                weightGroup.appendChild(btn);
             }
+            
+            weightGroupWrapper.appendChild(weightEmoji);
+            weightGroupWrapper.appendChild(weightGroup);
+            
+            controlsDiv.appendChild(weightGroupWrapper);
             
             // Grey out unregistered skills
             row.classList.add('unavailable');
@@ -1053,11 +1084,9 @@ class SkillCustomizationUI {
             <div class="task-header-info">Tasks (amount)</div>
             <div class="task-header-controls">
                 <div class="task-header-weight">
-                    <span class="header-icon">🎲</span>
                     <span class="header-label">Weight</span>
                 </div>
                 <div class="task-header-quantity">
-                    <span class="header-icon">📦</span>
                     <span class="header-label">Quantity</span>
                 </div>
             </div>
@@ -1158,7 +1187,14 @@ class SkillCustomizationUI {
         const qtyLevel = runeCreditManager.quantityModLevels[this.currentSkillId]?.[task.itemId] || 0;
         
         if (hasLevel) {
-            // Weight control group
+            // Weight control group with emoji
+            const weightGroupWrapper = document.createElement('div');
+            weightGroupWrapper.className = 'control-group-wrapper';
+            
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji';
+            weightEmoji.textContent = '🎲';
+            
             const weightGroup = document.createElement('div');
             weightGroup.className = 'control-group weight-group';
             
@@ -1177,7 +1213,17 @@ class SkillCustomizationUI {
             weightGroup.appendChild(weightUp);
             weightGroup.appendChild(weightDown);
             
-            // Quantity control group
+            weightGroupWrapper.appendChild(weightEmoji);
+            weightGroupWrapper.appendChild(weightGroup);
+            
+            // Quantity control group with emoji
+            const qtyGroupWrapper = document.createElement('div');
+            qtyGroupWrapper.className = 'control-group-wrapper';
+            
+            const qtyEmoji = document.createElement('span');
+            qtyEmoji.className = 'control-emoji';
+            qtyEmoji.textContent = '📦';
+            
             const qtyGroup = document.createElement('div');
             qtyGroup.className = 'control-group quantity-group';
             
@@ -1196,10 +1242,20 @@ class SkillCustomizationUI {
             qtyGroup.appendChild(qtyUp);
             qtyGroup.appendChild(qtyDown);
             
-            controlsDiv.appendChild(weightGroup);
-            controlsDiv.appendChild(qtyGroup);
+            qtyGroupWrapper.appendChild(qtyEmoji);
+            qtyGroupWrapper.appendChild(qtyGroup);
+            
+            controlsDiv.appendChild(weightGroupWrapper);
+            controlsDiv.appendChild(qtyGroupWrapper);
         } else {
-            // Add disabled placeholder buttons with proper grouping
+            // Add disabled placeholder buttons with proper grouping and emojis
+            const weightGroupWrapper = document.createElement('div');
+            weightGroupWrapper.className = 'control-group-wrapper';
+            
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji disabled';
+            weightEmoji.textContent = '🎲';
+            
             const weightGroup = document.createElement('div');
             weightGroup.className = 'control-group weight-group';
             for (let i = 0; i < 2; i++) {
@@ -1209,6 +1265,16 @@ class SkillCustomizationUI {
                 btn.textContent = i === 0 ? '+' : '-';
                 weightGroup.appendChild(btn);
             }
+            
+            weightGroupWrapper.appendChild(weightEmoji);
+            weightGroupWrapper.appendChild(weightGroup);
+            
+            const qtyGroupWrapper = document.createElement('div');
+            qtyGroupWrapper.className = 'control-group-wrapper';
+            
+            const qtyEmoji = document.createElement('span');
+            qtyEmoji.className = 'control-emoji disabled';
+            qtyEmoji.textContent = '📦';
             
             const qtyGroup = document.createElement('div');
             qtyGroup.className = 'control-group quantity-group';
@@ -1220,8 +1286,11 @@ class SkillCustomizationUI {
                 qtyGroup.appendChild(btn);
             }
             
-            controlsDiv.appendChild(weightGroup);
-            controlsDiv.appendChild(qtyGroup);
+            qtyGroupWrapper.appendChild(qtyEmoji);
+            qtyGroupWrapper.appendChild(qtyGroup);
+            
+            controlsDiv.appendChild(weightGroupWrapper);
+            controlsDiv.appendChild(qtyGroupWrapper);
         }
         
         row.appendChild(infoDiv);
@@ -1245,9 +1314,8 @@ class SkillCustomizationUI {
         const headerRow = document.createElement('div');
         headerRow.className = 'node-header-row';
         headerRow.innerHTML = `
-            <div class="node-header-info">Locations</div>
+            <div class="node-header-info">Locations (Nearest Bank)</div>
             <div class="node-header-controls">
-                <span class="header-icon">🎲</span>
                 <span class="header-label">Weight</span>
             </div>
         `;
@@ -1383,6 +1451,16 @@ class SkillCustomizationUI {
         
         // Only enable controls if node has usable activities
         if (hasUsableActivities) {
+            const weightGroupWrapper = document.createElement('div');
+            weightGroupWrapper.className = 'control-group-wrapper';
+            
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji';
+            weightEmoji.textContent = '🎲';
+            
+            const weightGroup = document.createElement('div');
+            weightGroup.className = 'control-group';
+            
             const weightUp = this.createControlButton('+', () => {
                 if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, true)) {
                     this.render();
@@ -1395,17 +1473,37 @@ class SkillCustomizationUI {
                 }
             }, nodeLevel);
             
-            controlsDiv.appendChild(weightUp);
-            controlsDiv.appendChild(weightDown);
+            weightGroup.appendChild(weightUp);
+            weightGroup.appendChild(weightDown);
+            
+            weightGroupWrapper.appendChild(weightEmoji);
+            weightGroupWrapper.appendChild(weightGroup);
+            
+            controlsDiv.appendChild(weightGroupWrapper);
         } else {
-            // Add disabled placeholder buttons
+            // Add disabled placeholder buttons with emoji
+            const weightGroupWrapper = document.createElement('div');
+            weightGroupWrapper.className = 'control-group-wrapper';
+            
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji disabled';
+            weightEmoji.textContent = '🎲';
+            
+            const weightGroup = document.createElement('div');
+            weightGroup.className = 'control-group';
+            
             for (let i = 0; i < 2; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'control-button disabled';
                 btn.disabled = true;
                 btn.textContent = i === 0 ? '+' : '-';
-                controlsDiv.appendChild(btn);
+                weightGroup.appendChild(btn);
             }
+            
+            weightGroupWrapper.appendChild(weightEmoji);
+            weightGroupWrapper.appendChild(weightGroup);
+            
+            controlsDiv.appendChild(weightGroupWrapper);
         }
         
         row.appendChild(infoDiv);
