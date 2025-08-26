@@ -1817,3 +1817,169 @@ body {
 .speed-bonuses .bonus-percent {
     margin-left: 5px;
 }
+
+/* Add these styles to your CSS file for the skill customization updates */
+
+/* Header rows for tasks and nodes */
+.task-header-row, .node-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.task-header-info, .node-header-info {
+    flex: 1;
+    color: #f39c12;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.task-header-controls {
+    display: flex;
+    gap: 40px; /* Space between Weight and Quantity columns */
+    align-items: center;
+}
+
+.node-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.task-header-weight, .task-header-quantity {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 80px; /* Ensure consistent column width */
+}
+
+.header-icon {
+    font-size: 16px;
+    filter: grayscale(20%); /* Slightly mute the emoji colors */
+}
+
+.header-label {
+    font-size: 11px;
+    color: #bdc3c7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Control button grouping */
+.control-group {
+    display: flex;
+    gap: 2px;
+}
+
+.weight-group {
+    margin-right: 30px; /* Space between weight and quantity groups */
+}
+
+.task-controls, .node-controls {
+    display: flex;
+    align-items: center;
+}
+
+/* Control button tooltips */
+.control-button {
+    position: relative;
+}
+
+.control-button-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: rgba(20, 20, 20, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 10px 12px;
+    white-space: nowrap;
+    z-index: 10000;
+    display: none;
+    pointer-events: none;
+    min-width: 220px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    font-size: 12px;
+}
+
+.control-button:hover .control-button-tooltip {
+    display: block;
+    animation: tooltipFadeIn 0.2s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-8px);
+    }
+}
+
+.tooltip-header {
+    color: #f39c12;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+
+.tooltip-effect {
+    color: #95a5a6;
+    margin-bottom: 5px;
+}
+
+.tooltip-cost {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.tooltip-refund {
+    color: #2ecc71;
+    font-weight: 600;
+}
+
+.tooltip-disabled {
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* Tooltip arrow pointing down */
+.control-button-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Update task row styling to align with new headers */
+.task-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+}
+
+.task-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Ensure consistent spacing for percentage display */
+.task-chance {
+    min-width: 35px;
+    text-align: right;
+}
