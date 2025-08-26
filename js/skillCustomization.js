@@ -606,14 +606,14 @@ class SkillCustomizationUI {
                     this.render();
                     this.updateCredits();
                 }
-            }, modLevel);
+            }, modLevel, 'weight', true, skillId, null);
             
             const weightDown = this.createControlButton('-', () => {
                 if (runeCreditManager.modifySkillWeight(skillId, false, true)) { // true for useSkillCred
                     this.render();
                     this.updateCredits();
                 }
-            }, modLevel);
+            }, modLevel, 'weight', false, skillId, null);
             
             controlsDiv.appendChild(weightUp);
             controlsDiv.appendChild(weightDown);
@@ -1046,6 +1046,24 @@ class SkillCustomizationUI {
         const tasksList = document.createElement('div');
         tasksList.className = 'tasks-list';
         
+        // Add header row for tasks
+        const headerRow = document.createElement('div');
+        headerRow.className = 'task-header-row';
+        headerRow.innerHTML = `
+            <div class="task-header-info">Tasks (amount)</div>
+            <div class="task-header-controls">
+                <div class="task-header-weight">
+                    <span class="header-icon">🎲</span>
+                    <span class="header-label">Weight</span>
+                </div>
+                <div class="task-header-quantity">
+                    <span class="header-icon">📦</span>
+                    <span class="header-label">Quantity</span>
+                </div>
+            </div>
+        `;
+        tasksList.appendChild(headerRow);
+        
         // Get all possible tasks for this skill
         const possibleTasks = this.getPossibleTasks();
         
@@ -1088,23 +1106,18 @@ class SkillCustomizationUI {
         }
         
         // Add hover events for highlighting nodes
-        // IMPORTANT: These work the same for both available and unavailable tasks
         row.addEventListener('mouseenter', () => {
-            // Add hover outline class based on availability
             if (hasLevel) {
                 row.classList.add('hover-outline-green');
             } else {
                 row.classList.add('hover-outline-red');
             }
-            // Highlight nodes - pass availability status
             this.highlightNodesForTask(task.itemId, hasLevel);
         });
         
         row.addEventListener('mouseleave', () => {
-            // Remove both possible hover outline classes
             row.classList.remove('hover-outline-green');
             row.classList.remove('hover-outline-red');
-            // Clear node highlights
             this.clearNodeHighlights();
         });
         
@@ -1113,27 +1126,20 @@ class SkillCustomizationUI {
         infoDiv.className = 'task-info';
         
         const weight = runeCreditManager.getTaskWeight(this.currentSkillId, task.itemId);
-        // Only show percentage if player can get this task
         const percentage = hasLevel ? Math.round((weight / totalWeight) * 100) : 0;
         
         const modifier = runeCreditManager.getQuantityModifier(this.currentSkillId, task.itemId);
         let minQty = Math.round(task.minCount * modifier);
         let maxQty = Math.round(task.maxCount * modifier);
         
-        // Clamp both to minimum of 1
         minQty = Math.max(1, minQty);
         maxQty = Math.max(1, maxQty);
-        
-        // Ensure max is at least as large as min
         maxQty = Math.max(minQty, maxQty);
         
         const itemData = loadingManager.getData('items')[task.itemId];
         const itemName = task.displayName || (itemData ? itemData.name : task.itemId);
         
-        // Get level requirement
         const levelReq = task.requiredLevel || 1;
-        
-        // Create level span with appropriate color
         const levelClass = hasLevel ? 'task-level-has' : 'task-level-needs';
         
         infoDiv.innerHTML = `
@@ -1143,7 +1149,7 @@ class SkillCustomizationUI {
             <span class="task-quantity">(${minQty}-${maxQty})</span>
         `;
         
-        // Control buttons
+        // Control buttons with proper grouping
         const controlsDiv = document.createElement('div');
         controlsDiv.className = 'task-controls';
         
@@ -1151,47 +1157,71 @@ class SkillCustomizationUI {
         const weightLevel = runeCreditManager.taskModLevels[this.currentSkillId]?.[task.itemId] || 0;
         const qtyLevel = runeCreditManager.quantityModLevels[this.currentSkillId]?.[task.itemId] || 0;
         
-        // Only enable controls if player has the level
         if (hasLevel) {
-            // Weight controls - DON'T pass useSkillCred (use skill-specific credits)
+            // Weight control group
+            const weightGroup = document.createElement('div');
+            weightGroup.className = 'control-group weight-group';
+            
             const weightUp = this.createControlButton('+', () => {
                 if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, true)) {
                     this.render();
                 }
-            }, weightLevel);
+            }, weightLevel, 'weight', true, this.currentSkillId, task.itemId);
             
             const weightDown = this.createControlButton('-', () => {
                 if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, false)) {
                     this.render();
                 }
-            }, weightLevel);
+            }, weightLevel, 'weight', false, this.currentSkillId, task.itemId);
             
-            // Quantity controls
+            weightGroup.appendChild(weightUp);
+            weightGroup.appendChild(weightDown);
+            
+            // Quantity control group
+            const qtyGroup = document.createElement('div');
+            qtyGroup.className = 'control-group quantity-group';
+            
             const qtyUp = this.createControlButton('+', () => {
                 if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, true)) {
                     this.render();
                 }
-            }, qtyLevel);
+            }, qtyLevel, 'quantity', true, this.currentSkillId, task.itemId);
             
             const qtyDown = this.createControlButton('-', () => {
                 if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, false)) {
                     this.render();
                 }
-            }, qtyLevel);
+            }, qtyLevel, 'quantity', false, this.currentSkillId, task.itemId);
             
-            controlsDiv.appendChild(weightUp);
-            controlsDiv.appendChild(weightDown);
-            controlsDiv.appendChild(qtyUp);
-            controlsDiv.appendChild(qtyDown);
+            qtyGroup.appendChild(qtyUp);
+            qtyGroup.appendChild(qtyDown);
+            
+            controlsDiv.appendChild(weightGroup);
+            controlsDiv.appendChild(qtyGroup);
         } else {
-            // Add disabled placeholder buttons
-            for (let i = 0; i < 4; i++) {
+            // Add disabled placeholder buttons with proper grouping
+            const weightGroup = document.createElement('div');
+            weightGroup.className = 'control-group weight-group';
+            for (let i = 0; i < 2; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'control-button disabled';
                 btn.disabled = true;
-                btn.textContent = i % 2 === 0 ? '+' : '-';
-                controlsDiv.appendChild(btn);
+                btn.textContent = i === 0 ? '+' : '-';
+                weightGroup.appendChild(btn);
             }
+            
+            const qtyGroup = document.createElement('div');
+            qtyGroup.className = 'control-group quantity-group';
+            for (let i = 0; i < 2; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'control-button disabled';
+                btn.disabled = true;
+                btn.textContent = i === 0 ? '+' : '-';
+                qtyGroup.appendChild(btn);
+            }
+            
+            controlsDiv.appendChild(weightGroup);
+            controlsDiv.appendChild(qtyGroup);
         }
         
         row.appendChild(infoDiv);
@@ -1211,6 +1241,18 @@ class SkillCustomizationUI {
         const nodesList = document.createElement('div');
         nodesList.className = 'nodes-list';
         
+        // Add header row for nodes
+        const headerRow = document.createElement('div');
+        headerRow.className = 'node-header-row';
+        headerRow.innerHTML = `
+            <div class="node-header-info">Locations</div>
+            <div class="node-header-controls">
+                <span class="header-icon">🎲</span>
+                <span class="header-label">Weight</span>
+            </div>
+        `;
+        nodesList.appendChild(headerRow);
+        
         // Get all possible nodes for this skill
         const possibleNodes = this.getPossibleNodes();
         
@@ -1219,29 +1261,24 @@ class SkillCustomizationUI {
         sortedTasks.sort((a, b) => (a.requiredLevel || 1) - (b.requiredLevel || 1));
         
         // Create a map of nodeId -> earliest task index it can produce
-        // Each node appears ONLY ONCE, sorted by its earliest/lowest-level task
         const nodeTaskIndex = new Map();
         for (const nodeId of possibleNodes) {
-            // Find the earliest task this node can produce
-            let earliestTaskIndex = sortedTasks.length; // Default to end if no match
+            let earliestTaskIndex = sortedTasks.length;
             
             for (let i = 0; i < sortedTasks.length; i++) {
                 const task = sortedTasks[i];
-                // Check if this node can produce this task's item
                 const compatibleNodes = this.getNodesForTask(task.itemId, skills.getLevel(this.currentSkillId));
                 if (compatibleNodes.includes(nodeId)) {
                     earliestTaskIndex = i;
-                    break; // Found earliest task, stop looking - ensures node appears only once
+                    break;
                 }
             }
             
             nodeTaskIndex.set(nodeId, earliestTaskIndex);
         }
         
-        // Sort nodes by task order, then by bank distance (nearest first)
-        // Each node appears exactly once in the list
+        // Sort nodes by task order, then by bank distance
         possibleNodes.sort((a, b) => {
-            // First sort by which task they produce (earlier tasks first)
             const taskIndexA = nodeTaskIndex.get(a) || 999;
             const taskIndexB = nodeTaskIndex.get(b) || 999;
             
@@ -1249,18 +1286,17 @@ class SkillCustomizationUI {
                 return taskIndexA - taskIndexB;
             }
             
-            // Same task group - sort by bank distance (nearest first)
             const nodeA = nodes.getNode(a);
             const nodeB = nodes.getNode(b);
             const distA = nodeA?.nearestBankDistance || 0;
             const distB = nodeB?.nearestBankDistance || 0;
-            return distA - distB; // Ascending - nearest first
+            return distA - distB;
         });
         
         // Get current player level
         const currentLevel = skills.getLevel(this.currentSkillId);
         
-        // Create each node row exactly once
+        // Create each node row
         for (const nodeId of possibleNodes) {
             const nodeRow = this.createNodeRow(nodeId, currentLevel);
             nodesList.appendChild(nodeRow);
@@ -1398,7 +1434,7 @@ class SkillCustomizationUI {
         return false;
     }
     
-    createControlButton(text, onClick, modLevel) {
+    createControlButton(text, onClick, modLevel, type = 'weight', isIncrease = true, skillId = null, itemId = null) {
         const btn = document.createElement('button');
         btn.className = 'control-button';
         btn.textContent = text;
@@ -1414,8 +1450,113 @@ class SkillCustomizationUI {
             }
         }
         
+        // Add tooltip
+        const tooltip = this.createButtonTooltip(type, isIncrease, modLevel, skillId, itemId);
+        if (tooltip) {
+            btn.appendChild(tooltip);
+        }
+        
         btn.addEventListener('click', onClick);
         return btn;
+    }
+    
+    // Add this new method for creating tooltips
+    createButtonTooltip(type, isIncrease, currentLevel, skillId, itemId) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'control-button-tooltip';
+        
+        const newLevel = isIncrease ? currentLevel + 1 : currentLevel - 1;
+        const maxLevel = runeCreditManager.maxModificationLevel;
+        
+        // Check if at max/min
+        if ((isIncrease && currentLevel >= maxLevel) || (!isIncrease && currentLevel <= -maxLevel)) {
+            tooltip.innerHTML = `<span class="tooltip-disabled">Max level reached (±${maxLevel})</span>`;
+            return tooltip;
+        }
+        
+        // Calculate cost or refund
+        const baseCost = type === 'weight' ? 5 : 5; // Both use 5 for tasks
+        const isGlobalSkill = itemId === null; // Global skill uses 25 base cost
+        const actualBaseCost = isGlobalSkill ? 25 : baseCost;
+        
+        const movingAwayFromZero = Math.abs(newLevel) > Math.abs(currentLevel);
+        let costOrRefund = 0;
+        
+        if (movingAwayFromZero) {
+            costOrRefund = actualBaseCost * Math.pow(2, Math.abs(newLevel) - 1);
+        } else {
+            costOrRefund = actualBaseCost * Math.pow(2, Math.abs(currentLevel) - 1);
+        }
+        
+        // Get current and new multipliers
+        const currentMultiplier = this.getMultiplier(type, currentLevel);
+        const newMultiplier = this.getMultiplier(type, newLevel);
+        
+        // Build tooltip content
+        let content = '';
+        
+        if (type === 'weight') {
+            if (isIncrease) {
+                content = `
+                    <div class="tooltip-header">Increase Weight (${currentLevel} → ${newLevel})</div>
+                    <div class="tooltip-effect">Effect: ${newMultiplier.toFixed(2)}x ${currentLevel >= 0 ? 'more' : 'less'} likely</div>
+                    ${movingAwayFromZero ? 
+                        `<div class="tooltip-cost">Cost: ${costOrRefund} ${this.getCreditName(skillId, isGlobalSkill)}</div>` :
+                        `<div class="tooltip-refund">Refund: ${costOrRefund} ${this.getCreditName(skillId, isGlobalSkill)}</div>`
+                    }
+                `;
+            } else {
+                content = `
+                    <div class="tooltip-header">Decrease Weight (${currentLevel} → ${newLevel})</div>
+                    <div class="tooltip-effect">Effect: ${newMultiplier.toFixed(2)}x ${newLevel > 0 ? 'more' : newLevel < 0 ? 'less' : ''} likely</div>
+                    ${movingAwayFromZero ? 
+                        `<div class="tooltip-cost">Cost: ${costOrRefund} ${this.getCreditName(skillId, isGlobalSkill)}</div>` :
+                        `<div class="tooltip-refund">Refund: ${costOrRefund} ${this.getCreditName(skillId, isGlobalSkill)}</div>`
+                    }
+                `;
+            }
+        } else if (type === 'quantity') {
+            if (isIncrease) {
+                content = `
+                    <div class="tooltip-header">Increase Amount (${currentLevel} → ${newLevel})</div>
+                    <div class="tooltip-effect">Effect: ${newMultiplier.toFixed(2)}x items per task</div>
+                    ${movingAwayFromZero ? 
+                        `<div class="tooltip-cost">Cost: ${costOrRefund} ${this.getCreditName(skillId, false)}</div>` :
+                        `<div class="tooltip-refund">Refund: ${costOrRefund} ${this.getCreditName(skillId, false)}</div>`
+                    }
+                `;
+            } else {
+                content = `
+                    <div class="tooltip-header">Decrease Amount (${currentLevel} → ${newLevel})</div>
+                    <div class="tooltip-effect">Effect: ${newMultiplier.toFixed(2)}x items per task</div>
+                    ${movingAwayFromZero ? 
+                        `<div class="tooltip-cost">Cost: ${costOrRefund} ${this.getCreditName(skillId, false)}</div>` :
+                        `<div class="tooltip-refund">Refund: ${costOrRefund} ${this.getCreditName(skillId, false)}</div>`
+                    }
+                `;
+            }
+        }
+        
+        tooltip.innerHTML = content;
+        return tooltip;
+    }
+    
+    // Helper method to get multiplier value
+    getMultiplier(type, level) {
+        if (level === 0) return 1.0;
+        // Use 1.25 as the base multiplier
+        return level > 0 ? Math.pow(1.25, level) : Math.pow(0.8, Math.abs(level)); // 0.8 = 1/1.25
+    }
+    
+    // Helper method to get credit name
+    getCreditName(skillId, isGlobalSkill) {
+        if (isGlobalSkill) {
+            return 'Skill Cred';
+        }
+        if (skillId) {
+            return runeCreditManager.getSkillCredName(skillId);
+        }
+        return 'Credits';
     }
     
     highlightTasksForNode(nodeId, currentLevel) {
