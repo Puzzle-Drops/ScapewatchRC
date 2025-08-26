@@ -251,8 +251,8 @@ class RuneCreditManager {
         const movingAwayFromZero = Math.abs(newLevel) > Math.abs(currentLevel);
         
         if (movingAwayFromZero) {
-            // Moving away from 0 - charge based on new level's absolute value
-            const cost = baseCost * Math.abs(newLevel);
+            // Moving away from 0 - charge based on exponential cost
+            const cost = baseCost * Math.pow(2, Math.abs(newLevel) - 1);
             
             if (useSkillCred) {
                 // Use Skill Cred for global customization
@@ -276,8 +276,8 @@ class RuneCreditManager {
                 this.creditsSpentPerSkill[skillId] = (this.creditsSpentPerSkill[skillId] || 0) + cost;
             }
         } else {
-            // Moving toward 0 - refund based on current level's absolute value
-            const refund = baseCost * Math.abs(currentLevel);
+            // Moving toward 0 - refund based on exponential cost
+            const refund = baseCost * Math.pow(2, Math.abs(currentLevel) - 1);
             
             // Update level
             this.skillModLevels[skillId] = newLevel;
@@ -321,8 +321,8 @@ class RuneCreditManager {
         const movingAwayFromZero = Math.abs(newLevel) > Math.abs(currentLevel);
         
         if (movingAwayFromZero) {
-            // Moving away from 0 - charge based on new level's absolute value
-            const cost = baseCost * Math.abs(newLevel);
+            // Moving away from 0 - charge based on exponential cost
+            const cost = baseCost * Math.pow(2, Math.abs(newLevel) - 1);
             
             // Check if we have enough skill-specific credits
             if (this.skillCredits[skillId] < cost) return false;
@@ -334,8 +334,8 @@ class RuneCreditManager {
             this.skillCredits[skillId] -= cost;
             this.creditsSpentPerSkill[skillId] = (this.creditsSpentPerSkill[skillId] || 0) + cost;
         } else {
-            // Moving toward 0 - refund based on current level's absolute value
-            const refund = baseCost * Math.abs(currentLevel);
+            // Moving toward 0 - refund based on exponential cost
+            const refund = baseCost * Math.pow(2, Math.abs(currentLevel) - 1);
             
             // Update level
             this.taskModLevels[skillId][itemId] = newLevel;
@@ -367,8 +367,8 @@ class RuneCreditManager {
         const movingAwayFromZero = Math.abs(newLevel) > Math.abs(currentLevel);
         
         if (movingAwayFromZero) {
-            // Moving away from 0 - charge based on new level's absolute value
-            const cost = baseCost * Math.abs(newLevel);
+            // Moving away from 0 - charge based on exponential cost
+            const cost = baseCost * Math.pow(2, Math.abs(newLevel) - 1);
             
             // Check if we have enough skill-specific credits
             if (this.skillCredits[skillId] < cost) return false;
@@ -380,8 +380,8 @@ class RuneCreditManager {
             this.skillCredits[skillId] -= cost;
             this.creditsSpentPerSkill[skillId] = (this.creditsSpentPerSkill[skillId] || 0) + cost;
         } else {
-            // Moving toward 0 - refund based on current level's absolute value
-            const refund = baseCost * Math.abs(currentLevel);
+            // Moving toward 0 - refund based on exponential cost
+            const refund = baseCost * Math.pow(2, Math.abs(currentLevel) - 1);
             
             // Update level
             this.nodeModLevels[skillId][nodeId] = newLevel;
@@ -413,8 +413,8 @@ class RuneCreditManager {
         const movingAwayFromZero = Math.abs(newLevel) > Math.abs(currentLevel);
         
         if (movingAwayFromZero) {
-            // Moving away from 0 - charge based on new level's absolute value
-            const cost = baseCost * Math.abs(newLevel);
+            // Moving away from 0 - charge based on exponential cost
+            const cost = baseCost * Math.pow(2, Math.abs(newLevel) - 1);
             
             // Check if we have enough skill-specific credits
             if (this.skillCredits[skillId] < cost) return false;
@@ -426,8 +426,8 @@ class RuneCreditManager {
             this.skillCredits[skillId] -= cost;
             this.creditsSpentPerSkill[skillId] = (this.creditsSpentPerSkill[skillId] || 0) + cost;
         } else {
-            // Moving toward 0 - refund based on current level's absolute value
-            const refund = baseCost * Math.abs(currentLevel);
+            // Moving toward 0 - refund based on exponential cost
+            const refund = baseCost * Math.pow(2, Math.abs(currentLevel) - 1);
             
             // Update level
             this.quantityModLevels[skillId][itemId] = newLevel;
