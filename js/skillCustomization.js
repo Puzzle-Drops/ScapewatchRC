@@ -1421,15 +1421,24 @@ class SkillCustomizationUI {
             infoDiv.appendChild(nameSpan);
         }
         
-        // Control buttons
+        // Control buttons with inline dice emoji
         const controlsDiv = document.createElement('div');
         controlsDiv.className = 'node-controls';
+        controlsDiv.style.display = 'flex';
+        controlsDiv.style.alignItems = 'center';
         
         // Get current modification level
         const nodeLevel = runeCreditManager.nodeModLevels[this.currentSkillId]?.[nodeId] || 0;
         
         // Only enable controls if node has usable activities
         if (hasUsableActivities) {
+            // Add weight emoji before the buttons
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji';
+            weightEmoji.textContent = '🎲';
+            weightEmoji.style.marginRight = '5px';
+            controlsDiv.appendChild(weightEmoji);
+            
             const weightUp = this.createControlButton('+', () => {
                 if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, true)) {
                     this.render();
@@ -1445,6 +1454,14 @@ class SkillCustomizationUI {
             controlsDiv.appendChild(weightUp);
             controlsDiv.appendChild(weightDown);
         } else {
+            // Add disabled dice emoji
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji';
+            weightEmoji.textContent = '🎲';
+            weightEmoji.style.marginRight = '5px';
+            weightEmoji.style.opacity = '0.3';
+            controlsDiv.appendChild(weightEmoji);
+            
             // Add disabled placeholder buttons
             for (let i = 0; i < 2; i++) {
                 const btn = document.createElement('button');
