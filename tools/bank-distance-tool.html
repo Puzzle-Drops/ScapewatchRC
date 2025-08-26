@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scapewatch Waypoint Generator v4.0</title>
+    <title>Scapewatch Waypoint Generator v4.1</title>
     <style>
         * {
             margin: 0;
@@ -54,6 +54,98 @@
         button:disabled {
             background-color: #555;
             cursor: not-allowed;
+        }
+
+        .node-selector {
+            display: none;
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .selector-title {
+            color: #f39c12;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .selector-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .selector-controls button {
+            padding: 5px 15px;
+            font-size: 12px;
+        }
+
+        .type-separator {
+            width: 100%;
+            padding: 8px;
+            background-color: #333;
+            color: #f39c12;
+            font-weight: bold;
+            text-align: center;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+
+        .node-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #1a1a1a;
+            border: 2px solid #444;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .node-item {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            margin-bottom: 2px;
+            background-color: #222;
+            border-radius: 3px;
+        }
+
+        .node-item:hover {
+            background-color: #333;
+        }
+
+        .node-checkbox {
+            margin-right: 10px;
+        }
+
+        .node-label {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .node-type {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .node-type.bank {
+            color: #2ecc71;
+        }
+
+        .selection-stats {
+            margin-top: 10px;
+            text-align: center;
+            color: #aaa;
+            font-size: 14px;
         }
 
         .progress-container {
@@ -198,12 +290,31 @@
 </head>
 <body>
     <div class="container">
-        <h1>🛤️ Scapewatch Waypoint Generator v4.0 🛤️</h1>
+        <h1>🛤️ Scapewatch Waypoint Generator v4.1 🛤️</h1>
         
         <div class="controls">
-            <button id="startBtn">Generate Waypoints</button>
+            <button id="loadBtn">Load Nodes</button>
+            <button id="generateBtn" disabled>Generate Waypoints for Selected</button>
             <button id="exportBtn" disabled>Export to Clipboard</button>
             <button id="downloadBtn" disabled>Download JSON</button>
+        </div>
+
+        <div class="node-selector" id="nodeSelector">
+            <div class="selector-header">
+                <div class="selector-title">Select Nodes to Process</div>
+                <div class="selector-controls">
+                    <button id="selectAllBtn">Select All</button>
+                    <button id="deselectAllBtn">Deselect All</button>
+                    <button id="selectAllBanksBtn">Select All Banks</button>
+                    <button id="deselectAllBanksBtn">Deselect All Banks</button>
+                    <button id="selectAllSkillsBtn">Select All Skills</button>
+                    <button id="deselectAllSkillsBtn">Deselect All Skills</button>
+                    <button id="selectAllQuestsBtn">Select All Quests</button>
+                    <button id="deselectAllQuestsBtn">Deselect All Quests</button>
+                </div>
+            </div>
+            <div class="node-list" id="nodeList"></div>
+            <div class="selection-stats" id="selectionStats">0 nodes selected</div>
         </div>
 
         <div class="progress-container">
@@ -598,6 +709,7 @@
         let collision = null;
         let pathfinding = null;
         let nodesData = null;
+        let selectedNodes = new Set();
         let startTime = null;
         let nodeAdjustments = {};
         let globalStats = {
@@ -648,6 +760,132 @@
             document.getElementById('liveTime').textContent = `${elapsed}s`;
         }
 
+        function createNodeSelector() {
+            const nodeList = document.getElementById('nodeList');
+            nodeList.innerHTML = '';
+            
+            // Sort nodes by type (bank -> skill -> quest) then alphabetically
+            const sortedNodes = Object.entries(nodesData).sort(([idA, nodeA], [idB, nodeB]) => {
+                // Type priority: bank = 0, skill = 1, quest = 2, others = 3
+                const typePriority = {
+                    'bank': 0,
+                    'skill': 1,
+                    'quest': 2
+                };
+                
+                const priorityA = typePriority[nodeA.type] !== undefined ? typePriority[nodeA.type] : 3;
+                const priorityB = typePriority[nodeB.type] !== undefined ? typePriority[nodeB.type] : 3;
+                
+                if (priorityA !== priorityB) {
+                    return priorityA - priorityB;
+                }
+                
+                // If same type, sort alphabetically
+                return idA.localeCompare(idB);
+            });
+            
+            let currentType = null;
+            
+            sortedNodes.forEach(([nodeId, node]) => {
+                // Add separator when node type changes
+                if (node.type !== currentType) {
+                    currentType = node.type;
+                    const separator = document.createElement('div');
+                    separator.className = 'type-separator';
+                    separator.textContent = `${currentType.toUpperCase()}S`;
+                    nodeList.appendChild(separator);
+                }
+                
+                const nodeItem = document.createElement('div');
+                nodeItem.className = 'node-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'node-checkbox';
+                checkbox.id = `node-${nodeId}`;
+                checkbox.dataset.nodeType = node.type;
+                checkbox.checked = true;
+                selectedNodes.add(nodeId);
+                
+                const label = document.createElement('label');
+                label.className = 'node-label';
+                label.htmlFor = `node-${nodeId}`;
+                
+                const nodeName = document.createElement('span');
+                nodeName.textContent = nodeId;
+                
+                const nodeType = document.createElement('span');
+                nodeType.className = `node-type ${node.type === 'bank' ? 'bank' : ''}`;
+                nodeType.textContent = `[${node.type}]`;
+                
+                label.appendChild(nodeName);
+                label.appendChild(nodeType);
+                
+                nodeItem.appendChild(checkbox);
+                nodeItem.appendChild(label);
+                
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        selectedNodes.add(nodeId);
+                    } else {
+                        selectedNodes.delete(nodeId);
+                    }
+                    updateSelectionStats();
+                });
+                
+                nodeList.appendChild(nodeItem);
+            });
+            
+            updateSelectionStats();
+            document.getElementById('nodeSelector').style.display = 'block';
+            document.getElementById('generateBtn').disabled = false;
+        }
+
+        function updateSelectionStats() {
+            const stats = document.getElementById('selectionStats');
+            const totalNodes = Object.keys(nodesData).length;
+            stats.textContent = `${selectedNodes.size} of ${totalNodes} nodes selected`;
+        }
+
+        function selectAll() {
+            const checkboxes = document.querySelectorAll('.node-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                const nodeId = checkbox.id.replace('node-', '');
+                selectedNodes.add(nodeId);
+            });
+            updateSelectionStats();
+        }
+
+        function deselectAll() {
+            const checkboxes = document.querySelectorAll('.node-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            selectedNodes.clear();
+            updateSelectionStats();
+        }
+
+        function selectAllByType(type) {
+            const checkboxes = document.querySelectorAll(`.node-checkbox[data-node-type="${type}"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                const nodeId = checkbox.id.replace('node-', '');
+                selectedNodes.add(nodeId);
+            });
+            updateSelectionStats();
+        }
+
+        function deselectAllByType(type) {
+            const checkboxes = document.querySelectorAll(`.node-checkbox[data-node-type="${type}"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const nodeId = checkbox.id.replace('node-', '');
+                selectedNodes.delete(nodeId);
+            });
+            updateSelectionStats();
+        }
+
         async function loadNodesData() {
             const url = 'https://puzzle-drops.github.io/ScapewatchRC/data/nodes.json';
             logConsole('Fetching nodes.json from: ' + url, 'dim');
@@ -694,14 +932,15 @@
                     throw new Error('No nodes data loaded!');
                 }
 
-                const nodeEntries = Object.entries(nodesData);
-                stats.total = nodeEntries.length;
+                // Filter nodes based on selection
+                const selectedNodeEntries = Object.entries(nodesData).filter(([nodeId]) => selectedNodes.has(nodeId));
+                stats.total = selectedNodeEntries.length;
                 
                 // Show live stats
                 document.getElementById('liveStats').style.display = 'flex';
                 document.getElementById('liveTotalNodes').textContent = stats.total;
                 
-                logConsole(`Starting waypoint generation for ${stats.total} nodes...`, 'info');
+                logConsole(`Starting waypoint generation for ${stats.total} selected nodes...`, 'info');
 
                 // Step 1: Check accessibility and find walkable positions
                 logConsole('', 'normal');
@@ -712,12 +951,12 @@
                 nodeAdjustments = {};
 
                 let checkCount = 0;
-                for (const [nodeId, node] of nodeEntries) {
+                for (const [nodeId, node] of selectedNodeEntries) {
                     checkCount++;
                     
                     if (checkCount % 5 === 0) {
-                        updateProgress(checkCount, nodeEntries.length * 3, // multiply by 3 for 3 phases
-                                     `Phase 1: Checking accessibility (${checkCount}/${nodeEntries.length})`);
+                        updateProgress(checkCount, selectedNodeEntries.length * 3, // multiply by 3 for 3 phases
+                                     `Phase 1: Checking accessibility (${checkCount}/${selectedNodeEntries.length})`);
                         updateProgressDetail(`Currently checking: ${nodeId}`);
                         await asyncDelay(1);
                     }
@@ -750,7 +989,28 @@
                     }
                 }
 
-                logConsole(`Phase 1 Complete: Found ${accessibleBanks.length} banks`, 'success');
+                // Include ALL banks (even if not selected) for path calculations
+                const allBanks = [];
+                Object.entries(nodesData).forEach(([nodeId, node]) => {
+                    if (node.type === 'bank') {
+                        const x = Math.floor(node.position.x);
+                        const y = Math.floor(node.position.y);
+                        const walkablePos = findNearestWalkablePosition(collision, x, y, 3);
+                        
+                        if (!walkablePos.failed) {
+                            if (!nodeAdjustments[nodeId]) {
+                                nodeAdjustments[nodeId] = {
+                                    x: walkablePos.x,
+                                    y: walkablePos.y,
+                                    adjusted: walkablePos.adjusted
+                                };
+                            }
+                            allBanks.push({ id: nodeId, node });
+                        }
+                    }
+                });
+
+                logConsole(`Phase 1 Complete: Found ${accessibleBanks.length} selected banks, ${allBanks.length} total banks`, 'success');
                 await asyncDelay(100);
 
                 // Step 2: Generate node to bank paths
@@ -763,8 +1023,8 @@
                     processedCount++;
                     globalStats.nodesProcessed = processedCount;
                     
-                    const progressBase = nodeEntries.length;
-                    updateProgress(progressBase + processedCount, nodeEntries.length * 3,
+                    const progressBase = selectedNodeEntries.length;
+                    updateProgress(progressBase + processedCount, selectedNodeEntries.length * 3,
                                   `Phase 2: Generating node→bank paths (${processedCount}/${accessibleNodes.length})`);
                     
                     if (node.type === 'bank') {
@@ -783,8 +1043,8 @@
                         let shortestDistance = Infinity;
                         let bestPath = null;
 
-                        // Test each bank
-                        for (const { id: bankId, node: bankNode } of accessibleBanks) {
+                        // Test each bank (use all banks, not just selected)
+                        for (const { id: bankId, node: bankNode } of allBanks) {
                             const bankPos = nodeAdjustments[bankId];
                             
                             const path = pathfinding.findPath(
@@ -828,10 +1088,10 @@
                 logConsole(`Phase 2 Complete: Generated ${stats.nodePaths} node→bank paths`, 'success');
                 await asyncDelay(100);
 
-                // Step 3: Generate bank to bank paths
+                // Step 3: Generate bank to bank paths (only for selected banks)
                 logConsole('', 'normal');
                 logConsole('=== PHASE 3: GENERATING BANK→BANK PATHS ===', 'highlight');
-                logConsole(`Generating paths between ${accessibleBanks.length} banks...`, 'info');
+                logConsole(`Generating paths between ${accessibleBanks.length} selected banks...`, 'info');
                 
                 let bankProcessedCount = 0;
                 const totalBankPairs = accessibleBanks.length * (accessibleBanks.length - 1);
@@ -848,8 +1108,8 @@
                         if (bank1Id === bank2Id) continue; // Skip self
                         
                         bankProcessedCount++;
-                        const progressBase = nodeEntries.length * 2;
-                        updateProgress(progressBase + bankProcessedCount, nodeEntries.length * 3,
+                        const progressBase = selectedNodeEntries.length * 2;
+                        updateProgress(progressBase + bankProcessedCount, selectedNodeEntries.length * 3,
                                       `Phase 3: Generating bank→bank paths (${bankProcessedCount}/${totalBankPairs})`);
                         updateProgressDetail(`${bank1Id} → ${bank2Id}`);
                         
@@ -930,16 +1190,98 @@
             }
         }
 
+        function formatCompactJSON(data) {
+            // Custom JSON formatter that puts arrays and objects on single lines
+            const indent = '  ';
+            
+            function stringifyValue(value, depth) {
+                if (value === null) return 'null';
+                if (typeof value === 'undefined') return 'undefined';
+                if (typeof value === 'string') return JSON.stringify(value);
+                if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+                
+                // For arrays and simple objects, put on one line
+                if (Array.isArray(value)) {
+                    return JSON.stringify(value);
+                }
+                
+                // For simple objects (position, etc), put on one line
+                if (typeof value === 'object') {
+                    const keys = Object.keys(value);
+                    // If it's a small object or specific properties we want on one line
+                    if (keys.length <= 5 || keys.includes('x') || keys.includes('y')) {
+                        return JSON.stringify(value);
+                    }
+                    
+                    // For pathsToOtherBanks, format each path on one line
+                    if (keys.every(k => Array.isArray(value[k]))) {
+                        let result = '{';
+                        const entries = Object.entries(value);
+                        entries.forEach(([key, val], index) => {
+                            result += '\n' + indent.repeat(depth + 1) + '"' + key + '": ' + JSON.stringify(val);
+                            if (index < entries.length - 1) result += ',';
+                        });
+                        if (entries.length > 0) {
+                            result += '\n' + indent.repeat(depth);
+                        }
+                        result += '}';
+                        return result;
+                    }
+                    
+                    // For node objects, format with proper indentation
+                    let result = '{';
+                    const entries = Object.entries(value);
+                    entries.forEach(([key, val], index) => {
+                        result += '\n' + indent.repeat(depth + 1) + '"' + key + '": ';
+                        
+                        // Format nested objects/arrays
+                        if (typeof val === 'object' && val !== null && !Array.isArray(val) && 
+                            !Object.keys(val).includes('x') && key !== 'pathsToOtherBanks') {
+                            result += stringifyValue(val, depth + 1);
+                        } else {
+                            result += stringifyValue(val, depth + 1);
+                        }
+                        
+                        if (index < entries.length - 1) result += ',';
+                    });
+                    if (entries.length > 0) {
+                        result += '\n' + indent.repeat(depth);
+                    }
+                    result += '}';
+                    return result;
+                }
+                
+                return JSON.stringify(value);
+            }
+            
+            // Start formatting the top-level object
+            let result = '{';
+            const entries = Object.entries(data);
+            entries.forEach(([nodeId, nodeData], index) => {
+                result += '\n' + indent + '"' + nodeId + '": ';
+                result += stringifyValue(nodeData, 1);
+                if (index < entries.length - 1) result += ',';
+            });
+            if (entries.length > 0) {
+                result += '\n';
+            }
+            result += '}';
+            
+            return result;
+        }
+
         async function exportToClipboard() {
             try {
-                const jsonStr = JSON.stringify(nodesData, null, 2);
+                const sortedData = sortNodesData(nodesData);
+                const jsonStr = formatCompactJSON(sortedData);
                 await navigator.clipboard.writeText(jsonStr);
                 logConsole('JSON copied to clipboard!', 'success');
                 alert('JSON copied to clipboard!');
             } catch (error) {
                 logConsole(`Failed to copy to clipboard: ${error.message}`, 'error');
+                const sortedData = sortNodesData(nodesData);
                 const textArea = document.createElement('textarea');
-                textArea.value = JSON.stringify(nodesData, null, 2);
+                textArea.value = formatCompactJSON(sortedData);
                 document.body.appendChild(textArea);
                 textArea.select();
                 document.execCommand('copy');
@@ -950,7 +1292,8 @@
 
         function downloadJSON() {
             try {
-                const jsonStr = JSON.stringify(nodesData, null, 2);
+                const sortedData = sortNodesData(nodesData);
+                const jsonStr = formatCompactJSON(sortedData);
                 const blob = new Blob([jsonStr], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -966,13 +1309,40 @@
             }
         }
 
-        async function startGeneration() {
-            const startBtn = document.getElementById('startBtn');
-            startBtn.disabled = true;
+        function sortNodesData(data) {
+            // Sort nodes by type (bank -> skill -> quest) then alphabetically
+            const sortedEntries = Object.entries(data).sort(([idA, nodeA], [idB, nodeB]) => {
+                const typePriority = {
+                    'bank': 0,
+                    'skill': 1,
+                    'quest': 2
+                };
+                
+                const priorityA = typePriority[nodeA.type] !== undefined ? typePriority[nodeA.type] : 3;
+                const priorityB = typePriority[nodeB.type] !== undefined ? typePriority[nodeB.type] : 3;
+                
+                if (priorityA !== priorityB) {
+                    return priorityA - priorityB;
+                }
+                
+                return idA.localeCompare(idB);
+            });
+            
+            // Rebuild object in sorted order
+            const sortedData = {};
+            sortedEntries.forEach(([key, value]) => {
+                sortedData[key] = value;
+            });
+            
+            return sortedData;
+        }
+
+        async function loadNodes() {
+            const loadBtn = document.getElementById('loadBtn');
+            loadBtn.disabled = true;
             
             try {
-                logConsole('Starting Waypoint Generator v4.0...', 'highlight');
-                logConsole('This tool generates waypoint paths and stores them directly in nodes.json', 'info');
+                logConsole('Starting Waypoint Generator v4.1...', 'highlight');
                 
                 collision = new CollisionSystem();
                 await collision.initialize('https://puzzle-drops.github.io/ScapewatchRC/assets/collision-map.png');
@@ -983,28 +1353,62 @@
                 logConsole('Loading nodes data...', 'info');
                 await loadNodesData();
                 
-                logConsole('Beginning waypoint generation...', 'info');
+                logConsole('Creating node selection interface...', 'info');
+                createNodeSelector();
+                
+                logConsole('Ready! Select nodes and click "Generate Waypoints for Selected"', 'success');
+                
+            } catch (error) {
+                logConsole(`FATAL ERROR: ${error.message}`, 'error');
+                logConsole(`Stack trace: ${error.stack}`, 'error');
+                loadBtn.disabled = false;
+            }
+        }
+
+        async function startGeneration() {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            
+            if (selectedNodes.size === 0) {
+                logConsole('ERROR: No nodes selected!', 'error');
+                alert('Please select at least one node to process.');
+                generateBtn.disabled = false;
+                return;
+            }
+            
+            try {
+                logConsole(`Beginning waypoint generation for ${selectedNodes.size} selected nodes...`, 'info');
                 await generateWaypoints();
                 
             } catch (error) {
                 logConsole(`FATAL ERROR: ${error.message}`, 'error');
                 logConsole(`Stack trace: ${error.stack}`, 'error');
-                startBtn.disabled = false;
+                generateBtn.disabled = false;
             }
         }
 
         // Event listeners
-        document.getElementById('startBtn').addEventListener('click', startGeneration);
+        document.getElementById('loadBtn').addEventListener('click', loadNodes);
+        document.getElementById('generateBtn').addEventListener('click', startGeneration);
+        document.getElementById('selectAllBtn').addEventListener('click', selectAll);
+        document.getElementById('deselectAllBtn').addEventListener('click', deselectAll);
+        document.getElementById('selectAllBanksBtn').addEventListener('click', () => selectAllByType('bank'));
+        document.getElementById('deselectAllBanksBtn').addEventListener('click', () => deselectAllByType('bank'));
+        document.getElementById('selectAllSkillsBtn').addEventListener('click', () => selectAllByType('skill'));
+        document.getElementById('deselectAllSkillsBtn').addEventListener('click', () => deselectAllByType('skill'));
+        document.getElementById('selectAllQuestsBtn').addEventListener('click', () => selectAllByType('quest'));
+        document.getElementById('deselectAllQuestsBtn').addEventListener('click', () => deselectAllByType('quest'));
         document.getElementById('exportBtn').addEventListener('click', exportToClipboard);
         document.getElementById('downloadBtn').addEventListener('click', downloadJSON);
         
         // Initial log
-        logConsole('Waypoint Generator v4.0 ready', 'highlight');
+        logConsole('Waypoint Generator v4.1 ready', 'highlight');
         logConsole('This tool will:', 'info');
-        logConsole('• Generate paths from each node to its nearest bank', 'info');
-        logConsole('• Generate paths between all banks', 'info');
+        logConsole('• Let you select which nodes to process', 'info');
+        logConsole('• Generate paths from selected nodes to nearest banks', 'info');
+        logConsole('• Generate paths between selected banks', 'info');
         logConsole('• Store waypoints directly in the nodes data', 'info');
-        logConsole('Click "Generate Waypoints" to begin', 'success');
+        logConsole('Click "Load Nodes" to begin', 'success');
     </script>
 </body>
 </html>
