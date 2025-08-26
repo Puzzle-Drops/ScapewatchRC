@@ -600,6 +600,13 @@ class SkillCustomizationUI {
             // Get current modification level
             const modLevel = runeCreditManager.skillModLevels[skillId] || 0;
             
+            // Add weight emoji before the buttons
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji';
+            weightEmoji.textContent = '🎲';
+            weightEmoji.style.marginRight = '5px';
+            controlsDiv.appendChild(weightEmoji);
+            
             // Weight controls - PASS true FOR useSkillCred IN GLOBAL MODE
             const weightUp = this.createControlButton('+', () => {
                 if (runeCreditManager.modifySkillWeight(skillId, true, true)) { // true for useSkillCred
@@ -1149,7 +1156,7 @@ class SkillCustomizationUI {
             <span class="task-quantity">(${minQty}-${maxQty})</span>
         `;
         
-        // Control buttons with proper grouping
+        // Control buttons with proper grouping and inline emojis
         const controlsDiv = document.createElement('div');
         controlsDiv.className = 'task-controls';
         
@@ -1158,9 +1165,18 @@ class SkillCustomizationUI {
         const qtyLevel = runeCreditManager.quantityModLevels[this.currentSkillId]?.[task.itemId] || 0;
         
         if (hasLevel) {
-            // Weight control group
+            // Weight control group with inline emoji
             const weightGroup = document.createElement('div');
             weightGroup.className = 'control-group weight-group';
+            weightGroup.style.display = 'flex';
+            weightGroup.style.alignItems = 'center';
+            
+            // Add weight emoji before the buttons
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji';
+            weightEmoji.textContent = '🎲';
+            weightEmoji.style.marginRight = '5px';
+            weightGroup.appendChild(weightEmoji);
             
             const weightUp = this.createControlButton('+', () => {
                 if (runeCreditManager.modifyTaskWeight(this.currentSkillId, task.itemId, true)) {
@@ -1177,9 +1193,18 @@ class SkillCustomizationUI {
             weightGroup.appendChild(weightUp);
             weightGroup.appendChild(weightDown);
             
-            // Quantity control group
+            // Quantity control group with inline emoji
             const qtyGroup = document.createElement('div');
             qtyGroup.className = 'control-group quantity-group';
+            qtyGroup.style.display = 'flex';
+            qtyGroup.style.alignItems = 'center';
+            
+            // Add quantity emoji before the buttons
+            const qtyEmoji = document.createElement('span');
+            qtyEmoji.className = 'control-emoji';
+            qtyEmoji.textContent = '📦';
+            qtyEmoji.style.marginRight = '5px';
+            qtyGroup.appendChild(qtyEmoji);
             
             const qtyUp = this.createControlButton('+', () => {
                 if (runeCreditManager.modifyTaskQuantity(this.currentSkillId, task.itemId, true)) {
@@ -1199,9 +1224,20 @@ class SkillCustomizationUI {
             controlsDiv.appendChild(weightGroup);
             controlsDiv.appendChild(qtyGroup);
         } else {
-            // Add disabled placeholder buttons with proper grouping
+            // Add disabled placeholder buttons with proper grouping and emojis
             const weightGroup = document.createElement('div');
             weightGroup.className = 'control-group weight-group';
+            weightGroup.style.display = 'flex';
+            weightGroup.style.alignItems = 'center';
+            
+            // Add disabled weight emoji
+            const weightEmoji = document.createElement('span');
+            weightEmoji.className = 'control-emoji';
+            weightEmoji.textContent = '🎲';
+            weightEmoji.style.marginRight = '5px';
+            weightEmoji.style.opacity = '0.3';
+            weightGroup.appendChild(weightEmoji);
+            
             for (let i = 0; i < 2; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'control-button disabled';
@@ -1212,6 +1248,17 @@ class SkillCustomizationUI {
             
             const qtyGroup = document.createElement('div');
             qtyGroup.className = 'control-group quantity-group';
+            qtyGroup.style.display = 'flex';
+            qtyGroup.style.alignItems = 'center';
+            
+            // Add disabled quantity emoji
+            const qtyEmoji = document.createElement('span');
+            qtyEmoji.className = 'control-emoji';
+            qtyEmoji.textContent = '📦';
+            qtyEmoji.style.marginRight = '5px';
+            qtyEmoji.style.opacity = '0.3';
+            qtyGroup.appendChild(qtyEmoji);
+            
             for (let i = 0; i < 2; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'control-button disabled';
@@ -1241,11 +1288,11 @@ class SkillCustomizationUI {
         const nodesList = document.createElement('div');
         nodesList.className = 'nodes-list';
         
-        // Add header row for nodes
+        // Add header row for nodes - UPDATED TEXT
         const headerRow = document.createElement('div');
         headerRow.className = 'node-header-row';
         headerRow.innerHTML = `
-            <div class="node-header-info">Locations</div>
+            <div class="node-header-info">Locations (Nearest Bank)</div>
             <div class="node-header-controls">
                 <span class="header-icon">🎲</span>
                 <span class="header-label">Weight</span>
@@ -1460,7 +1507,7 @@ class SkillCustomizationUI {
         return btn;
     }
     
-    // Add this new method for creating tooltips
+    // Updated method with fixed tooltip text for 1.00x multiplier
     createButtonTooltip(type, isIncrease, currentLevel, skillId, itemId) {
         const tooltip = document.createElement('div');
         tooltip.className = 'control-button-tooltip';
@@ -1496,10 +1543,20 @@ class SkillCustomizationUI {
         let content = '';
         
         if (type === 'weight') {
+            // Determine the likelihood text - FIXED for 1.00x case
+            let likelihoodText = '';
+            if (newLevel === 0) {
+                likelihoodText = '1.00x likely'; // No "more" or "less" when exactly 1.00x
+            } else if (newLevel > 0) {
+                likelihoodText = `${newMultiplier.toFixed(2)}x more likely`;
+            } else {
+                likelihoodText = `${newMultiplier.toFixed(2)}x less likely`;
+            }
+            
             if (isIncrease) {
                 content = `
                     <div class="tooltip-header">Increase Weight (${currentLevel} → ${newLevel})</div>
-                    <div class="tooltip-effect">Effect: ${newMultiplier.toFixed(2)}x ${currentLevel >= 0 ? 'more' : 'less'} likely</div>
+                    <div class="tooltip-effect">Effect: ${likelihoodText}</div>
                     ${movingAwayFromZero ? 
                         `<div class="tooltip-cost">Cost: ${costOrRefund} ${this.getCreditName(skillId, isGlobalSkill)}</div>` :
                         `<div class="tooltip-refund">Refund: ${costOrRefund} ${this.getCreditName(skillId, isGlobalSkill)}</div>`
@@ -1508,7 +1565,7 @@ class SkillCustomizationUI {
             } else {
                 content = `
                     <div class="tooltip-header">Decrease Weight (${currentLevel} → ${newLevel})</div>
-                    <div class="tooltip-effect">Effect: ${newMultiplier.toFixed(2)}x ${newLevel > 0 ? 'more' : newLevel < 0 ? 'less' : ''} likely</div>
+                    <div class="tooltip-effect">Effect: ${likelihoodText}</div>
                     ${movingAwayFromZero ? 
                         `<div class="tooltip-cost">Cost: ${costOrRefund} ${this.getCreditName(skillId, isGlobalSkill)}</div>` :
                         `<div class="tooltip-refund">Refund: ${costOrRefund} ${this.getCreditName(skillId, isGlobalSkill)}</div>`
