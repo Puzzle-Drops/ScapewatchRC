@@ -1151,6 +1151,10 @@ body {
     transition: opacity 0.2s ease;
 }
 
+span.control-emoji {
+    font-size: 22px;
+}
+
 /* Task info styling */
 .task-info {
     display: flex;
