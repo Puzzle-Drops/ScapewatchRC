@@ -42,6 +42,17 @@
             image-rendering: crisp-edges;
         }
 
+        /* Map overlay for reference */
+        #map-overlay {
+            position: absolute;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            pointer-events: none;
+            opacity: 0.5; /* Easy to find and change opacity value */
+            display: none;
+        }
+
         /* Grid Overlay */
         #grid-overlay {
             position: absolute;
@@ -385,6 +396,7 @@
 
     <div class="map-container" id="mapContainer">
         <canvas id="map-canvas"></canvas>
+        <canvas id="map-overlay"></canvas>
         <canvas id="grid-overlay"></canvas>
         <div class="selection-box" id="selectionBox"></div>
     </div>
@@ -520,6 +532,11 @@
                 <label for="showGrid">Show grid at high zoom</label>
             </div>
             
+            <div class="toggle-container">
+                <input type="checkbox" id="showMapOverlay" onchange="toggleMapOverlay()">
+                <label for="showMapOverlay">Show map.png overlay (reference)</label>
+            </div>
+            
             <div class="help-text">
                 <strong>Pan:</strong> Middle-click or Shift+drag<br>
                 <strong>Zoom:</strong> Scroll wheel or buttons<br>
@@ -592,6 +609,8 @@
         const mapContainer = document.getElementById('mapContainer');
         const gridCanvas = document.getElementById('grid-overlay');
         const gridCtx = gridCanvas.getContext('2d');
+        const mapOverlayCanvas = document.getElementById('map-overlay');
+        const mapOverlayCtx = mapOverlayCanvas.getContext('2d');
         
         // State
         let collisionMapImage = null;
@@ -640,11 +659,16 @@
                     // Set canvas size to image size
                     canvas.width = collisionMapImage.width;
                     canvas.height = collisionMapImage.height;
+                    mapOverlayCanvas.width = collisionMapImage.width;
+                    mapOverlayCanvas.height = collisionMapImage.height;
                     
                     // Draw image and store data
                     ctx.drawImage(collisionMapImage, 0, 0);
                     originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    // Load map overlay
+                    loadMapOverlay();
                     
                     // Center camera
                     camera.x = canvas.width / 2;
@@ -675,6 +699,31 @@
                 document.getElementById('loadingOverlay').style.display = 'none';
                 showToast('Error loading collision map!', 'error');
             }
+        }
+        
+        // Load map overlay
+        function loadMapOverlay() {
+            const mapOverlayImage = new Image();
+            mapOverlayImage.crossOrigin = 'anonymous';
+            
+            mapOverlayImage.onload = function() {
+                mapOverlayCtx.drawImage(mapOverlayImage, 0, 0);
+                showToast('Map overlay loaded for reference');
+            };
+            
+            mapOverlayImage.onerror = function() {
+                console.warn('Failed to load map overlay - continuing without it');
+            };
+            
+            // Add timestamp to bypass cache
+            const timestamp = new Date().getTime();
+            mapOverlayImage.src = `https://puzzle-drops.github.io/ScapewatchRC/assets/map.png?t=${timestamp}`;
+        }
+        
+        // Toggle map overlay
+        function toggleMapOverlay() {
+            const showOverlay = document.getElementById('showMapOverlay').checked;
+            mapOverlayCanvas.style.display = showOverlay ? 'block' : 'none';
         }
         
         // Reload collision map (bypass cache)
@@ -757,6 +806,11 @@
             canvas.style.height = canvas.height + 'px';
             canvas.style.left = camera.x + 'px';
             canvas.style.top = camera.y + 'px';
+            
+            mapOverlayCanvas.style.width = canvas.width + 'px';
+            mapOverlayCanvas.style.height = canvas.height + 'px';
+            mapOverlayCanvas.style.left = camera.x + 'px';
+            mapOverlayCanvas.style.top = camera.y + 'px';
             
             updateGrid();
             render();
@@ -1486,6 +1540,12 @@
             canvas.style.left = camera.x + 'px';
             canvas.style.top = camera.y + 'px';
             
+            // Update map overlay
+            mapOverlayCanvas.style.width = (mapOverlayCanvas.width * zoom) + 'px';
+            mapOverlayCanvas.style.height = (mapOverlayCanvas.height * zoom) + 'px';
+            mapOverlayCanvas.style.left = camera.x + 'px';
+            mapOverlayCanvas.style.top = camera.y + 'px';
+            
             // Update grid
             updateGrid();
             
@@ -1666,6 +1726,10 @@
                 
                 canvas.style.left = camera.x + 'px';
                 canvas.style.top = camera.y + 'px';
+                
+                // Update map overlay position
+                mapOverlayCanvas.style.left = camera.x + 'px';
+                mapOverlayCanvas.style.top = camera.y + 'px';
                 
                 // Update grid position
                 if (showGrid && zoom >= 5) {
