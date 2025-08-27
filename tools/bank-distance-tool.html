@@ -34,6 +34,7 @@
             gap: 10px;
             margin-bottom: 20px;
             justify-content: center;
+            align-items: center;
         }
 
         button {
@@ -328,6 +329,10 @@
             <button id="generateBtn" disabled>Generate Waypoints for Selected</button>
             <button id="exportBtn" disabled>Export to Clipboard</button>
             <button id="downloadBtn" disabled>Download JSON</button>
+            <label style="display: flex; align-items: center; gap: 5px; color: #aaa; font-size: 14px;">
+                <input type="checkbox" id="includeBankPaths" checked>
+                Include Bank→Bank Paths
+            </label>
         </div>
 
         <div class="node-selector" id="nodeSelector">
@@ -1119,6 +1124,10 @@
                     throw new Error('No nodes data loaded!');
                 }
 
+                // Check if we should include bank paths
+                const includeBankPaths = document.getElementById('includeBankPaths').checked;
+                const totalPhases = includeBankPaths ? 3 : 2; // 2 phases without bank paths, 3 with
+
                 // Filter nodes based on selection
                 const selectedNodeEntries = Object.entries(nodesData).filter(([nodeId]) => selectedNodes.has(nodeId));
                 stats.total = selectedNodeEntries.length;
@@ -1128,6 +1137,7 @@
                 document.getElementById('liveTotalNodes').textContent = stats.total;
                 
                 logConsole(`Starting waypoint generation for ${stats.total} selected nodes...`, 'info');
+                logConsole(`Bank→Bank paths: ${includeBankPaths ? 'ENABLED' : 'DISABLED'}`, includeBankPaths ? 'info' : 'warning');
 
                 // Step 1: Check accessibility and find walkable positions
                 logConsole('', 'normal');
@@ -1142,7 +1152,7 @@
                     checkCount++;
                     
                     if (checkCount % 5 === 0) {
-                        updateProgress(checkCount, selectedNodeEntries.length * 3, // multiply by 3 for 3 phases
+                        updateProgress(checkCount, selectedNodeEntries.length * totalPhases,
                                      `Phase 1: Checking accessibility (${checkCount}/${selectedNodeEntries.length})`);
                         updateProgressDetail(`Currently checking: ${nodeId}`);
                         await asyncDelay(1);
@@ -1204,6 +1214,7 @@
                 logConsole('', 'normal');
                 logConsole('=== PHASE 2: GENERATING NODE→BANK PATHS ===', 'highlight');
                 logConsole(`Generating paths from ${accessibleNodes.length} nodes to their nearest banks...`, 'info');
+                logConsole(`Testing against ${allBanks.length} total banks in the game`, 'info');
                 
                 let processedCount = 0;
                 for (const { id: nodeId, node } of accessibleNodes) {
@@ -1211,8 +1222,11 @@
                     globalStats.nodesProcessed = processedCount;
                     
                     const progressBase = selectedNodeEntries.length;
-                    updateProgress(progressBase + processedCount, selectedNodeEntries.length * 3,
+                    updateProgress(progressBase + processedCount, selectedNodeEntries.length * totalPhases,
                                   `Phase 2: Generating node→bank paths (${processedCount}/${accessibleNodes.length})`);
+                    
+                    logConsole(``, 'normal');
+                    logConsole(`Current Node (${processedCount}/${accessibleNodes.length}): ${nodeId}`, 'info');
                     
                     if (node.type === 'bank') {
                         // Banks don't need paths to themselves
@@ -1220,18 +1234,52 @@
                         node.nearestBankDistance = 0;
                         // No pathToBank needed for banks
                         updateProgressDetail(`${nodeId}: Is a bank (no path needed)`);
+                        logConsole(`  → Skipping (is a bank itself)`, 'dim');
                         updateLiveStats();
                         await asyncDelay(1);
                     } else {
-                        updateProgressDetail(`${nodeId}: Finding path to nearest bank...`);
+                        updateProgressDetail(`${nodeId}: Starting bank search...`);
                         
                         const nodePos = nodeAdjustments[nodeId];
                         let nearestBank = null;
                         let shortestDistance = Infinity;
                         let bestPath = null;
+                        let bankTestCount = 0;
 
-                        // Test each bank (use all banks, not just selected)
-                        for (const { id: bankId, node: bankNode } of allBanks) {
+                        // Calculate Euclidean distances to all banks and sort them
+                        const banksWithDistance = allBanks.map(({ id: bankId, node: bankNode }) => {
+                            const bankPos = nodeAdjustments[bankId];
+                            const dx = bankPos.x - nodePos.x;
+                            const dy = bankPos.y - nodePos.y;
+                            const euclideanDistance = Math.sqrt(dx * dx + dy * dy);
+                            return { id: bankId, node: bankNode, euclideanDistance };
+                        });
+                        
+                        // Sort banks by Euclidean distance (closest first)
+                        banksWithDistance.sort((a, b) => a.euclideanDistance - b.euclideanDistance);
+                        
+                        logConsole(`  → Banks sorted by Euclidean distance (testing closest first)`, 'dim');
+                        
+                        // Test banks in order of Euclidean distance
+                        for (let i = 0; i < banksWithDistance.length; i++) {
+                            const { id: bankId, node: bankNode, euclideanDistance } = banksWithDistance[i];
+                            bankTestCount++;
+                            
+                            // Check if we can skip remaining banks
+                            if (shortestDistance < euclideanDistance) {
+                                const skipped = banksWithDistance.length - bankTestCount;
+                                logConsole(`  → OPTIMIZATION: Current best (${Math.round(shortestDistance)}px) < next Euclidean (${Math.round(euclideanDistance)}px)`, 'warning');
+                                logConsole(`  → Skipping ${skipped} remaining banks (impossible to be closer)`, 'warning');
+                                updateProgressDetail(`${nodeId}: Skipped ${skipped} banks via optimization`);
+                                await asyncDelay(0);
+                                break;
+                            }
+                            
+                            // Log before testing each bank (with Euclidean distance)
+                            logConsole(`  → Testing bank ${bankTestCount}/${banksWithDistance.length}: ${bankId} (Euclidean: ${Math.round(euclideanDistance)}px)`, 'dim');
+                            updateProgressDetail(`${nodeId}: Testing path to ${bankId} (${bankTestCount}/${banksWithDistance.length})`);
+                            await asyncDelay(0); // Let browser update
+                            
                             const bankPos = nodeAdjustments[bankId];
                             
                             const path = pathfinding.findPath(
@@ -1246,7 +1294,12 @@
                                     shortestDistance = distance;
                                     nearestBank = bankId;
                                     bestPath = path;
+                                    logConsole(`    ✓ Found path: distance=${Math.round(distance)} pixels (NEW BEST!)`, 'success');
+                                } else {
+                                    logConsole(`    ✓ Found path: distance=${Math.round(distance)} pixels`, 'dim');
                                 }
+                            } else {
+                                logConsole(`    ✗ No path found`, 'dim');
                             }
                         }
 
@@ -1259,12 +1312,12 @@
                             globalStats.totalWaypoints += bestPath.length;
                             stats.nodePaths++;
                             
-                            logConsole(`✓ ${nodeId} → ${nearestBank} (${Math.round(shortestDistance)} pixels, ${bestPath.length} waypoints)`, 'dim');
+                            logConsole(`  ✓ RESULT: ${nodeId} → ${nearestBank} (${Math.round(shortestDistance)} pixels, ${bestPath.length} waypoints)`, 'success');
                         } else {
                             node.nearestBank = null;
                             node.nearestBankDistance = null;
                             node.pathToBank = null;
-                            logConsole(`✗ ${nodeId} → NO REACHABLE BANK!`, 'error');
+                            logConsole(`  ✗ RESULT: ${nodeId} → NO REACHABLE BANK!`, 'error');
                         }
                         
                         updateLiveStats();
@@ -1275,57 +1328,73 @@
                 logConsole(`Phase 2 Complete: Generated ${stats.nodePaths} node→bank paths`, 'success');
                 await asyncDelay(100);
 
-                // Step 3: Generate bank to bank paths (only for selected banks)
-                logConsole('', 'normal');
-                logConsole('=== PHASE 3: GENERATING BANK→BANK PATHS ===', 'highlight');
-                logConsole(`Generating paths between ${accessibleBanks.length} selected banks...`, 'info');
-                
-                let bankProcessedCount = 0;
-                const totalBankPairs = accessibleBanks.length * (accessibleBanks.length - 1);
-                
-                for (const { id: bank1Id, node: bank1Node } of accessibleBanks) {
-                    // Initialize pathsToOtherBanks object
-                    if (!bank1Node.pathsToOtherBanks) {
-                        bank1Node.pathsToOtherBanks = {};
-                    }
+                // Step 3: Generate bank to bank paths (only if checkbox is checked)
+                if (includeBankPaths) {
+                    logConsole('', 'normal');
+                    logConsole('=== PHASE 3: GENERATING BANK→BANK PATHS ===', 'highlight');
+                    logConsole(`Generating paths between ${accessibleBanks.length} selected banks...`, 'info');
                     
-                    const bank1Pos = nodeAdjustments[bank1Id];
+                    let bankProcessedCount = 0;
+                    const totalBankPairs = accessibleBanks.length * (accessibleBanks.length - 1);
+                    logConsole(`Total bank pairs to process: ${totalBankPairs}`, 'info');
                     
-                    for (const { id: bank2Id, node: bank2Node } of accessibleBanks) {
-                        if (bank1Id === bank2Id) continue; // Skip self
+                    let bankIndex = 0;
+                    for (const { id: bank1Id, node: bank1Node } of accessibleBanks) {
+                        bankIndex++;
+                        logConsole(``, 'normal');
+                        logConsole(`Processing Bank ${bankIndex}/${accessibleBanks.length}: ${bank1Id}`, 'highlight');
                         
-                        bankProcessedCount++;
-                        const progressBase = selectedNodeEntries.length * 2;
-                        updateProgress(progressBase + bankProcessedCount, selectedNodeEntries.length * 3,
-                                      `Phase 3: Generating bank→bank paths (${bankProcessedCount}/${totalBankPairs})`);
-                        updateProgressDetail(`${bank1Id} → ${bank2Id}`);
-                        
-                        const bank2Pos = nodeAdjustments[bank2Id];
-                        
-                        const path = pathfinding.findPath(
-                            bank1Pos.x, bank1Pos.y,
-                            bank2Pos.x, bank2Pos.y
-                        );
-                        
-                        if (path) {
-                            bank1Node.pathsToOtherBanks[bank2Id] = path;
-                            
-                            globalStats.pathsGenerated++;
-                            globalStats.totalWaypoints += path.length;
-                            stats.bankPaths++;
-                            
-                            const distance = pathfinding.getPathDistance(path);
-                            logConsole(`✓ ${bank1Id} → ${bank2Id} (${Math.round(distance)} pixels, ${path.length} waypoints)`, 'dim');
-                        } else {
-                            logConsole(`✗ ${bank1Id} → ${bank2Id}: NO PATH FOUND!`, 'error');
+                        // Initialize pathsToOtherBanks object
+                        if (!bank1Node.pathsToOtherBanks) {
+                            bank1Node.pathsToOtherBanks = {};
                         }
                         
-                        updateLiveStats();
-                        await asyncDelay(1);
+                        const bank1Pos = nodeAdjustments[bank1Id];
+                        
+                        let targetBankIndex = 0;
+                        for (const { id: bank2Id, node: bank2Node } of accessibleBanks) {
+                            if (bank1Id === bank2Id) continue; // Skip self
+                            
+                            targetBankIndex++;
+                            bankProcessedCount++;
+                            
+                            logConsole(`  → Path ${targetBankIndex}: ${bank1Id} → ${bank2Id} (Overall: ${bankProcessedCount}/${totalBankPairs})`, 'dim');
+                            
+                            const progressBase = selectedNodeEntries.length * 2;
+                            updateProgress(progressBase + bankProcessedCount, selectedNodeEntries.length * totalPhases,
+                                          `Phase 3: Bank→bank paths (${bankProcessedCount}/${totalBankPairs})`);
+                            updateProgressDetail(`Testing: ${bank1Id} → ${bank2Id}`);
+                            
+                            const bank2Pos = nodeAdjustments[bank2Id];
+                            
+                            const path = pathfinding.findPath(
+                                bank1Pos.x, bank1Pos.y,
+                                bank2Pos.x, bank2Pos.y
+                            );
+                            
+                            if (path) {
+                                bank1Node.pathsToOtherBanks[bank2Id] = path;
+                                
+                                globalStats.pathsGenerated++;
+                                globalStats.totalWaypoints += path.length;
+                                stats.bankPaths++;
+                                
+                                const distance = pathfinding.getPathDistance(path);
+                                logConsole(`    ✓ Path found: ${Math.round(distance)} pixels, ${path.length} waypoints`, 'success');
+                            } else {
+                                logConsole(`    ✗ NO PATH FOUND!`, 'error');
+                            }
+                            
+                            updateLiveStats();
+                            await asyncDelay(1);
+                        }
                     }
-                }
 
-                logConsole(`Phase 3 Complete: Generated ${stats.bankPaths} bank→bank paths`, 'success');
+                    logConsole(`Phase 3 Complete: Generated ${stats.bankPaths} bank→bank paths`, 'success');
+                } else {
+                    logConsole('', 'normal');
+                    logConsole('=== PHASE 3: SKIPPED (Bank→Bank paths disabled) ===', 'warning');
+                }
 
                 // Step 4: Handle inaccessible nodes
                 logConsole('', 'normal');
@@ -1613,7 +1682,7 @@
         logConsole('• Load activities data to categorize nodes by skill', 'info');
         logConsole('• Let you select nodes organized by type and skill', 'info');
         logConsole('• Generate paths from selected nodes to nearest banks', 'info');
-        logConsole('• Generate paths between selected banks', 'info');
+        logConsole('• Optionally generate paths between selected banks (toggle checkbox)', 'info');
         logConsole('• Export nodes sorted by: Banks → Multi-skill → Skills (A-Z) → Quests', 'info');
         logConsole('Click "Load Nodes" to begin', 'success');
     </script>
