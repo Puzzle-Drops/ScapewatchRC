@@ -1,4 +1,42 @@
 {
+      "west_falador_bank": {
+            "id": "west_falador_bank",
+            "name": "West Falador Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3842,
+                    "y": 1580
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "west_falador_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "east_falador_bank": {
+            "id": "east_falador_bank",
+            "name": "East Falador Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3976,
+                    "y": 1609
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "east_falador_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
   "draynor_bank": {
     "id": "draynor_bank",
     "name": "Draynor Bank",
