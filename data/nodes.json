@@ -43,7 +43,7 @@
     "id": "west_varrock_bank",
     "name": "West Varrock Bank",
     "type": "bank",
-    "position": {"x":4318,"y":1439},
+    "position": {"x":4322,"y":1439},
     "activities": ["fletching","blowing_glass","cutting_gems","cleaning_herbs","making_potions"],
     "nearestBank": "west_varrock_bank",
     "nearestBankDistance": 0,
