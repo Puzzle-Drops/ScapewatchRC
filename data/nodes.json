@@ -18,25 +18,6 @@
             "nearestBankDistance": 0,
             "pathsToOtherBanks": {}
     },
-      "etceteria_bank": {
-            "id": "etceteria_bank",
-            "name": "Etceteria Bank",
-            "type": "bank",
-            "position": {
-                    "x": 3191,
-                    "y": 530
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "etceteria_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
       "canifis_bank": {
             "id": "canifis_bank",
             "name": "Canifis Bank",
