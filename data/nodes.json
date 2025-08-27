@@ -3,7 +3,7 @@
     "id": "draynor_bank",
     "name": "Draynor Bank",
     "type": "bank",
-    "position": {"x":4134,"y":1833},
+    "position": {"x":4132,"y":1833},
     "activities": ["fletching","blowing_glass","cutting_gems","cleaning_herbs","making_potions"],
     "nearestBank": "draynor_bank",
     "nearestBankDistance": 0,
