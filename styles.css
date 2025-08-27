@@ -1214,7 +1214,7 @@ body {
 /* Control buttons */
 .task-controls, .node-controls {
     display: flex;
-    gap: 12px;
+    gap: 6px;
 }
 
 .control-button {
@@ -1613,7 +1613,7 @@ body {
 
 .skill-weight-controls {
     display: flex;
-    gap: 12px;
+    gap: 6px;
 }
 
 /* ==================== UNLOCK ITEMS (CAPES AND PETS) ==================== */
@@ -1835,7 +1835,7 @@ body {
 .task-header-info, .node-header-info {
     flex: 1;
     color: #f39c12;
-    font-size: 13px;
+    font-size: 22px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -1860,12 +1860,12 @@ body {
 }
 
 .header-icon {
-    font-size: 16px;
+    font-size: 22px;
     filter: grayscale(20%); /* Slightly mute the emoji colors */
 }
 
 .header-label {
-    font-size: 11px;
+    font-size: 22px;
     color: #bdc3c7;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -1874,7 +1874,7 @@ body {
 /* Control button grouping */
 .control-group {
     display: flex;
-    gap: 2px;
+    gap: 6px;
 }
 
 .weight-group {
