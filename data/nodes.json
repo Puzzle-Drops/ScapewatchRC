@@ -1,4 +1,99 @@
 {
+      "castle_wars_bank": {
+            "id": "castle_wars_bank",
+            "name": "Castle Wars Bank",
+            "type": "bank",
+            "position": {
+                    "x": 2842,
+                    "y": 2154
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "castle_wars_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "etceteria_bank": {
+            "id": "etceteria_bank",
+            "name": "Etceteria Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3191,
+                    "y": 530
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "etceteria_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "canifis_bank": {
+            "id": "canifis_bank",
+            "name": "Canifis Bank",
+            "type": "bank",
+            "position": {
+                    "x": 4976,
+                    "y": 1359
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "canifis_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "duel_arena_bank": {
+            "id": "duel_arena_bank",
+            "name": "Duel Arena Bank",
+            "type": "bank",
+            "position": {
+                    "x": 4714,
+                    "y": 1781
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "duel_arena_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "fishing_guild_bank": {
+            "id": "fishing_guild_bank",
+            "name": "Fishing Guild Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3119,
+                    "y": 1479
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "fishing_guild_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
               "mage_arena_bank": {
             "id": "mage_arena_bank",
             "name": "Mage Arena Bank",
