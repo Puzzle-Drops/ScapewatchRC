@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Node Editor Tool</title>
+    <title>Advanced Node Editor v2.0</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Courier New', monospace;
             background-color: #1a1a1a;
             color: #fff;
             overflow: hidden;
@@ -38,29 +38,30 @@
 
         /* Controls Panel */
         .controls-panel {
-            width: 400px;
+            width: 450px;
             background-color: #2a2a2a;
-            padding: 20px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .panel-section {
             background-color: #333;
             border-radius: 8px;
             padding: 15px;
-            margin-bottom: 20px;
+            margin: 10px;
         }
 
         h2 {
             color: #f39c12;
             margin-bottom: 15px;
-            font-size: 20px;
+            font-size: 18px;
         }
 
         h3 {
             color: #f39c12;
             margin-bottom: 10px;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         /* Zoom Controls */
@@ -72,13 +73,13 @@
 
         .zoom-controls button {
             flex: 1;
-            padding: 10px;
+            padding: 8px;
             background-color: #444;
             color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .zoom-controls button:hover {
@@ -89,6 +90,7 @@
             text-align: center;
             margin-bottom: 10px;
             color: #aaa;
+            font-size: 12px;
         }
 
         /* Position Display */
@@ -98,7 +100,7 @@
             border-radius: 4px;
             margin-bottom: 10px;
             font-family: monospace;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .position-display.active {
@@ -112,7 +114,7 @@
 
         .accessibility-status {
             margin-top: 5px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
         }
 
@@ -126,25 +128,25 @@
 
         /* Form Controls */
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         label {
             display: block;
             margin-bottom: 5px;
             color: #aaa;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         input[type="text"],
         select {
             width: 100%;
-            padding: 8px;
+            padding: 6px;
             background-color: #222;
             color: #fff;
             border: 1px solid #444;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         input[type="text"]:focus,
@@ -153,48 +155,58 @@
             border-color: #f39c12;
         }
 
-        /* Activities Checkboxes */
-        .activities-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            max-height: 300px;
+        /* Activities List */
+        .activities-list {
+            max-height: 200px;
             overflow-y: auto;
-            padding: 10px;
             background-color: #222;
             border-radius: 4px;
+            padding: 5px;
         }
 
         .activity-item {
             display: flex;
             align-items: center;
+            padding: 3px;
             gap: 5px;
         }
 
+        .activity-item:hover {
+            background-color: #333;
+        }
+
         .activity-item input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             cursor: pointer;
         }
 
         .activity-item label {
             margin: 0;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .activity-skill {
+            color: #888;
+            font-size: 10px;
         }
 
         /* Buttons */
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background-color: #f39c12;
             color: #000;
             border: none;
             border-radius: 4px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .btn:hover {
@@ -210,6 +222,15 @@
             background-color: #2980b9;
         }
 
+        .btn-danger {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
         .btn-success {
             background-color: #27ae60;
             color: #fff;
@@ -219,76 +240,10 @@
             background-color: #229954;
         }
 
-        /* Output */
-        .output {
-            background-color: #222;
-            padding: 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-            word-break: break-all;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #27ae60;
-            color: #fff;
-            padding: 15px 30px;
-            border-radius: 4px;
-            font-size: 16px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
-
-        /* Highlighted Pixel */
-        .highlighted-pixel {
-            position: absolute;
-            border: 2px solid #f39c12;
-            pointer-events: none;
-            z-index: 11;
-            box-shadow: 0 0 10px rgba(243, 156, 18, 0.8),
-                       inset 0 0 10px rgba(243, 156, 18, 0.3);
-            background-color: rgba(243, 156, 18, 0.2);
-        }
-
-        .highlighted-pixel.inaccessible {
-            border-color: #e74c3c;
-            box-shadow: 0 0 10px rgba(231, 76, 60, 0.8),
-                       inset 0 0 10px rgba(231, 76, 60, 0.3);
-            background-color: rgba(231, 76, 60, 0.2);
-        }
-
-        /* Node info tooltip */
-        .node-tooltip {
-            position: absolute;
-            background-color: rgba(0, 0, 0, 0.95);
-            color: #fff;
-            padding: 8px 10px;
-            border-radius: 4px;
+        .btn-small {
+            padding: 5px 10px;
             font-size: 11px;
-            line-height: 1.4;
-            pointer-events: none;
-            z-index: 100;
-            display: none;
-            max-width: 300px;
-            border: 1px solid #444;
-        }
-        
-        .node-tooltip strong {
-            color: #f39c12;
+            margin-bottom: 5px;
         }
 
         /* Quick Actions */
@@ -300,131 +255,281 @@
         }
 
         .quick-btn {
-            padding: 8px;
+            padding: 6px;
             background-color: #444;
             color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .quick-btn:hover {
             background-color: #555;
         }
 
-        /* Toggle for showing existing nodes */
+        /* Toggle Container */
         .toggle-container {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .toggle-container input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             cursor: pointer;
         }
 
-        .collision-indicator {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-left: 10px;
+        /* Node List */
+        .node-list {
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: #222;
+            border-radius: 4px;
+            padding: 5px;
+            margin-bottom: 10px;
         }
 
-        .collision-indicator.on {
-            background-color: #e74c3c;
+        .node-list-item {
+            padding: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .node-list-item:hover {
+            background-color: #444;
+        }
+
+        .node-list-item.selected {
+            background-color: #f39c12;
+            color: #000;
+        }
+
+        .node-type-badge {
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            background-color: #555;
             color: #fff;
         }
 
-        .collision-indicator.off {
-            background-color: #444;
-            color: #999;
+        .node-type-badge.bank {
+            background-color: #f1c40f;
+            color: #000;
+        }
+
+        .node-type-badge.quest {
+            background-color: #9b59b6;
+        }
+
+        .node-type-badge.skill {
+            background-color: #2ecc71;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background-color: #222;
+            padding: 8px;
+            font-size: 11px;
+            color: #aaa;
+            border-top: 1px solid #444;
+        }
+
+        /* Highlighted Pixel */
+        .highlighted-pixel {
+            position: absolute;
+            border: 2px solid #f39c12;
+            pointer-events: none;
+            z-index: 11;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.8);
+            background-color: rgba(243, 156, 18, 0.2);
+        }
+
+        .highlighted-pixel.inaccessible {
+            border-color: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.8);
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+
+        /* Node Tooltip */
+        .node-tooltip {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            line-height: 1.6;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+            max-width: 350px;
+            border: 1px solid #444;
+            overflow-y: auto;
+            max-height: calc(100vh - 30px);
+        }
+        
+        .node-tooltip strong {
+            color: #f39c12;
+        }
+
+        .tooltip-activities {
+            margin-top: 5px;
+            font-size: 10px;
+            overflow-y: auto;
+        }
+
+        .tooltip-path {
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px solid #444;
+            color: #3498db;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #27ae60;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.error {
+            background-color: #e74c3c;
+        }
+
+        .toast.warning {
+            background-color: #f39c12;
+        }
+
+        /* Path visualization */
+        .path-waypoint {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: #3498db;
+            border: 1px solid #2980b9;
+            pointer-events: none;
+            z-index: 10;
+            border-radius: 50%;
+        }
+
+        /* Selected node highlight */
+        .selected-node-highlight {
+            position: absolute;
+            border: 3px solid #f39c12;
+            pointer-events: none;
+            z-index: 12;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .calculation-status {
+            padding: 5px;
+            background-color: #222;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-top: 5px;
+            color: #aaa;
+            text-align: center;
+        }
+
+        .calculation-status.calculating {
+            color: #f39c12;
+            background-color: #332a00;
+        }
+
+        .calculation-status.done {
+            color: #27ae60;
+            background-color: #1a3320;
         }
     </style>
 </head>
 <body>
     <div class="map-container" id="mapContainer">
         <canvas id="map-canvas"></canvas>
+        <div id="pathContainer"></div>
         <div class="highlighted-pixel" id="highlightedPixel" style="display: none;"></div>
+        <div class="selected-node-highlight" id="selectedNodeHighlight" style="display: none;"></div>
         <div class="node-tooltip" id="nodeTooltip"></div>
     </div>
 
     <div class="controls-panel">
         <div class="panel-section">
-            <h2>Map Controls</h2>
+            <h2>🗺️ Map Controls</h2>
             
             <div class="zoom-controls">
-                <button onclick="zoomIn()">Zoom In (+)</button>
-                <button onclick="zoomOut()">Zoom Out (-)</button>
-                <button onclick="resetZoom()">Reset (1)</button>
+                <button onclick="zoomIn()">Zoom In</button>
+                <button onclick="zoomOut()">Zoom Out</button>
+                <button onclick="resetZoom()">Reset</button>
             </div>
             <div id="zoom-level">Zoom: 1x</div>
-            <div style="font-size: 11px; color: #666;">
-                Nodes loaded: <span id="nodeCount">0</span> | 
-                Activities loaded: <span id="activityCount">0</span> | 
-                <span id="collisionStatus" style="color: #e74c3c;">Collision: Loading...</span>
-                <span class="collision-indicator" id="collisionIndicator">Collision: OFF</span>
-            </div>
             
             <div class="quick-actions">
-                <button class="quick-btn" onclick="goToLocation(4395, 1882)">Lumbridge</button>
+                <button class="quick-btn" onclick="goToLocation(4361, 1903)">Lumbridge</button>
                 <button class="quick-btn" onclick="goToLocation(4370, 1480)">Varrock</button>
                 <button class="quick-btn" onclick="goToLocation(4281, 1340)">GE</button>
+                <button class="quick-btn" onclick="goToLocation(4134, 1833)">Draynor</button>
+                <button class="quick-btn" onclick="goToLocation(4318, 1439)">W Varrock</button>
+                <button class="quick-btn" onclick="goToLocation(4459, 1480)">E Varrock</button>
             </div>
             
             <div class="toggle-container">
                 <input type="checkbox" id="showNodes" checked onchange="toggleNodes()">
-                <label for="showNodes" style="margin: 0;">Show existing nodes</label>
+                <label for="showNodes" style="margin: 0;">Show nodes</label>
             </div>
             
             <div class="toggle-container">
                 <input type="checkbox" id="showLabels" checked onchange="toggleLabels()">
-                <label for="showLabels" style="margin: 0;">Show node labels</label>
+                <label for="showLabels" style="margin: 0;">Show labels</label>
             </div>
             
             <div class="toggle-container">
                 <input type="checkbox" id="showCollision" onchange="toggleCollision()">
-                <label for="showCollision" style="margin: 0;">Show collision map (C key)</label>
-            </div>
-            
-            <div style="font-size: 11px; color: #666; margin: 10px 0; background-color: #222; padding: 8px; border-radius: 4px;">
-                <strong>Node Icons:</strong><br>
-                🏦 Banks use bank icon<br>
-                📜 Quests use quest icon<br>
-                ⛏️ Skills show activity icons<br>
-                🔴 Red areas are inaccessible<br>
-                Hover over nodes for details
+                <label for="showCollision" style="margin: 0;">Show collision (C key)</label>
             </div>
             
             <div class="position-display" id="positionDisplay">
-                Click on map to select position
+                Click map to select position
                 <div class="accessibility-status" id="accessibilityStatus"></div>
             </div>
-            
-            <div style="font-size: 11px; color: #666; margin: 10px 0;">
-                <strong>Controls:</strong><br>
-                • Left-click: Select pixel & auto-copy position<br>
-                • Right-click: Select & jump to name field<br>
-                • Shift+Click or Middle-click: Drag map<br>
-                • Scroll: Zoom in/out<br>
-                • +/- keys: Zoom | 1: Reset | G: Focus name field<br>
-                • C: Toggle collision overlay
-            </div>
-            
-            <button class="btn btn-secondary" onclick="copyPosition()">Copy Position to Clipboard</button>
         </div>
 
         <div class="panel-section">
-            <h2>Create Node</h2>
+            <h2>📍 Node Editor</h2>
+            
+            <div style="margin-bottom: 10px;">
+                <button class="btn btn-secondary btn-small" onclick="clearSelection()">Clear Selection</button>
+            </div>
             
             <div class="form-group">
                 <label>Node ID*</label>
-                <input type="text" id="nodeId" placeholder="e.g., lumbridge_bank" onkeyup="autoCompleteName()">
+                <input type="text" id="nodeId" placeholder="e.g., lumbridge_bank">
             </div>
 
             <div class="form-group">
@@ -433,8 +538,13 @@
             </div>
 
             <div class="form-group">
+                <label>Position*</label>
+                <input type="text" id="nodePosition" readonly style="background-color: #333;">
+            </div>
+
+            <div class="form-group">
                 <label>Node Type*</label>
-                <select id="nodeType" onchange="updateActivityList()">
+                <select id="nodeType" onchange="updateNodeTypeFields()">
                     <option value="skill">Skill Node</option>
                     <option value="bank">Bank</option>
                     <option value="quest">Quest</option>
@@ -447,24 +557,38 @@
             </div>
 
             <div class="form-group" id="activitiesGroup">
-                <label>Activities (for skill nodes)</label>
-                <div class="quick-actions">
-                    <button class="quick-btn" onclick="selectActivities('mining')">All Mining</button>
-                    <button class="quick-btn" onclick="selectActivities('fishing')">All Fishing</button>
-                    <button class="quick-btn" onclick="selectActivities('woodcutting')">All WC</button>
-                    <button class="quick-btn" onclick="clearActivities()">Clear All</button>
-                </div>
-                <div class="activities-grid" id="activitiesList">
-                    <!-- Activities will be populated here -->
-                </div>
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    Activities
+                    <button class="quick-btn" onclick="clearActivities()" style="padding: 3px 8px; font-size: 10px;">Clear All</button>
+                </label>
+                <div class="activities-list" id="activitiesList"></div>
             </div>
 
-            <button class="btn btn-success" onclick="generateNode()">Generate Node & Copy</button>
-            
             <div class="form-group">
-                <label>Generated Node JSON:</label>
-                <div class="output" id="output"></div>
+                <label>Nearest Bank</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="nearestBank" value="lumbridge_bank" style="flex: 1;">
+                    <button class="btn btn-secondary btn-small" onclick="calculateNearestBank()" style="width: auto;">Calculate</button>
+                </div>
+                <div class="calculation-status" id="calcStatus"></div>
             </div>
+
+            <button class="btn btn-success" onclick="addOrUpdateNode()">Add/Update Node</button>
+            <button class="btn btn-secondary" onclick="copySelectedNode()">Copy Selected to Clipboard</button>
+        </div>
+
+        <div class="panel-section">
+            <h2>📋 Node List</h2>
+            <div style="margin-bottom: 10px;">
+                <input type="text" id="nodeSearch" placeholder="Search nodes..." style="width: 100%;" onkeyup="filterNodes()">
+            </div>
+            <div class="node-list" id="nodeListContainer"></div>
+            <button class="btn btn-danger btn-small" onclick="deleteSelectedNode()">Delete Selected</button>
+            <button class="btn btn-secondary btn-small" onclick="exportAllNodes()">Export All Nodes</button>
+        </div>
+
+        <div class="status-bar">
+            <div>Nodes: <span id="nodeCount">0</span> | Activities: <span id="activityCount">0</span> | Selected: <span id="selectedNodeInfo">None</span></div>
         </div>
     </div>
 
@@ -481,8 +605,9 @@
         let collisionMapImage = null;
         let collisionCanvas = null;
         let collisionCtx = null;
+        let collisionImageData = null;
         let zoom = 1;
-        let camera = { x: 4395, y: 1882 }; // Start at Lumbridge
+        let camera = { x: 4361, y: 1903 }; // Start at Lumbridge
         let isDragging = false;
         let dragStart = { x: 0, y: 0 };
         let selectedPosition = null;
@@ -491,13 +616,276 @@
         let showCollision = false;
         
         // Data
-        let existingNodes = {};
+        let nodes = {};
         let activities = {};
         let hoveredNode = null;
+        let selectedNode = null;
+        let pathWaypoints = [];
         
         // Preloaded skill icons
         const skillIcons = {};
         
+        // Collision and Pathfinding (from bank distance tool)
+        class CollisionSystem {
+            constructor() {
+                this.imageData = null;
+                this.width = 0;
+                this.height = 0;
+                this.initialized = false;
+            }
+
+            initialize(imageData, width, height) {
+                this.imageData = imageData;
+                this.width = width;
+                this.height = height;
+                this.initialized = true;
+            }
+
+            isWalkable(x, y) {
+                if (!this.initialized) return false;
+                
+                x = Math.round(x);
+                y = Math.round(y);
+                
+                if (x < 0 || y < 0 || x >= this.width || y >= this.height) {
+                    return false;
+                }
+                
+                const index = (y * this.width + x) * 4;
+                const alpha = this.imageData.data[index + 3];
+                
+                return alpha === 0;
+            }
+
+            isLineOfSight(x1, y1, x2, y2) {
+                const dx = Math.abs(x2 - x1);
+                const dy = Math.abs(y2 - y1);
+                const sx = x1 < x2 ? 1 : -1;
+                const sy = y1 < y2 ? 1 : -1;
+                let err = dx - dy;
+                
+                let x = Math.round(x1);
+                let y = Math.round(y1);
+                
+                while (x !== Math.round(x2) || y !== Math.round(y2)) {
+                    if (!this.isWalkable(x, y)) {
+                        return false;
+                    }
+                    
+                    const e2 = 2 * err;
+                    if (e2 > -dy) {
+                        err -= dy;
+                        x += sx;
+                    }
+                    if (e2 < dx) {
+                        err += dx;
+                        y += sy;
+                    }
+                }
+                
+                return this.isWalkable(Math.round(x2), Math.round(y2));
+            }
+
+            getWalkableNeighbors(x, y) {
+                const neighbors = [];
+                
+                const directions = [
+                    { x: 0, y: -1 },  // North
+                    { x: 1, y: -1 },  // Northeast
+                    { x: 1, y: 0 },   // East
+                    { x: 1, y: 1 },   // Southeast
+                    { x: 0, y: 1 },   // South
+                    { x: -1, y: 1 },  // Southwest
+                    { x: -1, y: 0 },  // West
+                    { x: -1, y: -1 }  // Northwest
+                ];
+                
+                for (const dir of directions) {
+                    const nx = x + dir.x;
+                    const ny = y + dir.y;
+                    
+                    if (this.isWalkable(nx, ny)) {
+                        if (dir.x !== 0 && dir.y !== 0) {
+                            if (this.isWalkable(x + dir.x, y) && this.isWalkable(x, y + dir.y)) {
+                                neighbors.push({ x: nx, y: ny });
+                            }
+                        } else {
+                            neighbors.push({ x: nx, y: ny });
+                        }
+                    }
+                }
+                
+                return neighbors;
+            }
+        }
+
+        class PriorityQueue {
+            constructor() {
+                this.elements = [];
+            }
+
+            enqueue(element, priority) {
+                this.elements.push({ element, priority });
+                this.elements.sort((a, b) => a.priority - b.priority);
+            }
+
+            dequeue() {
+                return this.elements.shift().element;
+            }
+
+            isEmpty() {
+                return this.elements.length === 0;
+            }
+
+            contains(element) {
+                return this.elements.some(item => 
+                    item.element.x === element.x && item.element.y === element.y
+                );
+            }
+        }
+
+        class Pathfinding {
+            constructor(collisionSystem) {
+                this.collision = collisionSystem;
+            }
+
+            findPath(startX, startY, endX, endY) {
+                if (!this.collision.initialized) {
+                    return null;
+                }
+
+                const start = { x: Math.floor(startX) + 0.5, y: Math.floor(startY) + 0.5 };
+                const end = { x: Math.floor(endX) + 0.5, y: Math.floor(endY) + 0.5 };
+
+                if (!this.collision.isWalkable(Math.floor(start.x), Math.floor(start.y))) {
+                    return null;
+                }
+                if (!this.collision.isWalkable(Math.floor(end.x), Math.floor(end.y))) {
+                    return null;
+                }
+
+                if (this.collision.isLineOfSight(Math.floor(start.x), Math.floor(start.y), Math.floor(end.x), Math.floor(end.y))) {
+                    return [start, end];
+                }
+
+                const openSet = new PriorityQueue();
+                const closedSet = new Set();
+                const cameFrom = new Map();
+                const gScore = new Map();
+                const fScore = new Map();
+
+                const startKey = `${start.x},${start.y}`;
+                gScore.set(startKey, 0);
+                fScore.set(startKey, this.heuristic(start, end));
+                openSet.enqueue(start, fScore.get(startKey));
+
+                while (!openSet.isEmpty()) {
+                    const current = openSet.dequeue();
+                    const currentKey = `${current.x},${current.y}`;
+
+                    if (current.x === end.x && current.y === end.y) {
+                        return this.reconstructPath(cameFrom, current);
+                    }
+
+                    closedSet.add(currentKey);
+
+                    const neighbors = this.collision.getWalkableNeighbors(Math.floor(current.x), Math.floor(current.y));
+                    
+                    for (const neighbor of neighbors) {
+                        neighbor.x = neighbor.x + 0.5;
+                        neighbor.y = neighbor.y + 0.5;
+                        const neighborKey = `${neighbor.x},${neighbor.y}`;
+                        
+                        if (closedSet.has(neighborKey)) {
+                            continue;
+                        }
+
+                        const isDiagonal = Math.abs(neighbor.x - current.x) === 1 && Math.abs(neighbor.y - current.y) === 1;
+                        const moveCost = isDiagonal ? Math.sqrt(2) : 1;
+                        const tentativeGScore = gScore.get(currentKey) + moveCost;
+
+                        if (!gScore.has(neighborKey) || tentativeGScore < gScore.get(neighborKey)) {
+                            cameFrom.set(neighborKey, current);
+                            gScore.set(neighborKey, tentativeGScore);
+                            fScore.set(neighborKey, tentativeGScore + this.heuristic(neighbor, end));
+
+                            if (!openSet.contains(neighbor)) {
+                                openSet.enqueue(neighbor, fScore.get(neighborKey));
+                            }
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            heuristic(a, b) {
+                return Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+            }
+
+            reconstructPath(cameFrom, current) {
+                const path = [current];
+                let currentKey = `${current.x},${current.y}`;
+
+                while (cameFrom.has(currentKey)) {
+                    current = cameFrom.get(currentKey);
+                    path.unshift(current);
+                    currentKey = `${current.x},${current.y}`;
+                }
+                
+                const centeredPath = path.map(point => ({
+                    x: Math.floor(point.x) + 0.5,
+                    y: Math.floor(point.y) + 0.5
+                }));
+
+                return this.smoothPath(centeredPath);
+            }
+
+            smoothPath(path) {
+                if (path.length < 3) return path;
+
+                const smoothed = [path[0]];
+                let current = 0;
+
+                while (current < path.length - 1) {
+                    let farthest = current + 1;
+                    
+                    for (let i = current + 2; i < path.length; i++) {
+                        if (this.collision.isLineOfSight(
+                            Math.floor(path[current].x), 
+                            Math.floor(path[current].y), 
+                            Math.floor(path[i].x), 
+                            Math.floor(path[i].y)
+                        )) {
+                            farthest = i;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    smoothed.push(path[farthest]);
+                    current = farthest;
+                }
+
+                return smoothed;
+            }
+
+            getPathDistance(path) {
+                if (!path || path.length < 2) return Infinity;
+                
+                let distance = 0;
+                for (let i = 1; i < path.length; i++) {
+                    const dx = path[i].x - path[i-1].x;
+                    const dy = path[i].y - path[i-1].y;
+                    distance += Math.sqrt(dx * dx + dy * dy);
+                }
+                return distance;
+            }
+        }
+
+        let collision = new CollisionSystem();
+        let pathfinding = new Pathfinding(collision);
+
         // Load all data
         async function loadData() {
             try {
@@ -507,9 +895,8 @@
                 mapImage.onload = function() {
                     resetView();
                     render();
-                    console.log('Map loaded');
                 };
-                mapImage.src = 'https://puzzle-drops.github.io/Scapewatch/assets/map.png';
+                mapImage.src = 'https://puzzle-drops.github.io/ScapewatchRC/assets/map.png';
                 
                 // Load collision map
                 collisionMapImage = new Image();
@@ -521,135 +908,38 @@
                     collisionCanvas.height = collisionMapImage.height;
                     collisionCtx = collisionCanvas.getContext('2d');
                     collisionCtx.drawImage(collisionMapImage, 0, 0);
-                    console.log(`Collision map loaded: ${collisionMapImage.width}x${collisionMapImage.height}`);
+                    collisionImageData = collisionCtx.getImageData(0, 0, collisionMapImage.width, collisionMapImage.height);
                     
-                    // Update status
-                    const collisionStatus = document.getElementById('collisionStatus');
-                    if (collisionStatus) {
-                        collisionStatus.textContent = 'Collision: Ready';
-                        collisionStatus.style.color = '#27ae60';
-                    }
+                    // Initialize collision system
+                    collision.initialize(collisionImageData, collisionMapImage.width, collisionMapImage.height);
                     
-                    // Test collision detection at a few points
-                    const testPoints = [
-                        {x: 4395, y: 1882, name: "Lumbridge"},
-                        {x: 4370, y: 1480, name: "Varrock"},
-                        {x: 4281, y: 1340, name: "GE"}
-                    ];
-                    
-                    testPoints.forEach(point => {
-                        const accessible = isPositionAccessible(point.x, point.y);
-                        console.log(`${point.name} (${point.x}, ${point.y}): ${accessible ? 'Accessible' : 'BLOCKED'}`);
-                    });
-                    
+                    console.log('Collision system initialized');
                     render();
                 };
-                collisionMapImage.onerror = function() {
-                    console.error('Failed to load collision map');
-                    const collisionStatus = document.getElementById('collisionStatus');
-                    if (collisionStatus) {
-                        collisionStatus.textContent = 'Collision: Failed';
-                        collisionStatus.style.color = '#e74c3c';
-                    }
-                    showToast('Warning: Collision map failed to load', 'error');
-                };
-                collisionMapImage.src = 'https://puzzle-drops.github.io/Scapewatch/assets/collision-map.png';
-                
-                // Load nodes
-                const nodesResponse = await fetch('https://puzzle-drops.github.io/Scapewatch/data/nodes.json');
-                existingNodes = await nodesResponse.json();
-                console.log(`Loaded ${Object.keys(existingNodes).length} existing nodes`);
-                document.getElementById('nodeCount').textContent = Object.keys(existingNodes).length;
-                
-                // Load activities
-                const activitiesResponse = await fetch('https://puzzle-drops.github.io/Scapewatch/data/activities.json');
-                activities = await activitiesResponse.json();
-                console.log(`Loaded ${Object.keys(activities).length} activities`);
-                document.getElementById('activityCount').textContent = Object.keys(activities).length;
+                collisionMapImage.src = 'https://puzzle-drops.github.io/ScapewatchRC/assets/collision-map.png';
                 
                 // Load skill icons
                 await loadSkillIcons();
                 
+                // Load nodes
+                const nodesResponse = await fetch('https://puzzle-drops.github.io/ScapewatchRC/data/nodes.json');
+                nodes = await nodesResponse.json();
+                updateNodeCount();
+                updateNodeList();
+                
+                // Load activities
+                const activitiesResponse = await fetch('https://puzzle-drops.github.io/ScapewatchRC/data/activities.json');
+                activities = await activitiesResponse.json();
+                document.getElementById('activityCount').textContent = Object.keys(activities).length;
+                
                 // Populate activities list
                 populateActivities();
                 
-                // Start rendering
-                render();
-                
-                showToast(`Loaded ${Object.keys(existingNodes).length} nodes and ${Object.keys(activities).length} activities!`);
+                showToast(`Loaded ${Object.keys(nodes).length} nodes and ${Object.keys(activities).length} activities!`);
                 
             } catch (error) {
                 console.error('Error loading data:', error);
                 showToast('Error loading data. Some features may not work.', 'error');
-            }
-        }
-        
-        // Check if position is accessible
-        function isPositionAccessible(x, y) {
-            if (!collisionCtx || !collisionMapImage || !collisionMapImage.complete) {
-                console.log('Collision map not ready');
-                return true; // Default to accessible if no collision map
-            }
-            
-            // Ensure coordinates are within bounds
-            if (x < 0 || y < 0 || x >= collisionMapImage.width || y >= collisionMapImage.height) {
-                console.log('Position out of bounds:', x, y);
-                return false;
-            }
-            
-            // Get pixel data at position
-            const pixelData = collisionCtx.getImageData(x, y, 1, 1).data;
-            
-            // Debug log
-            const isAccessible = pixelData[3] === 0;
-            if (!isAccessible) {
-                console.log(`Position (${x}, ${y}) is blocked - RGBA: ${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}, ${pixelData[3]}`);
-            }
-            
-            // Check if pixel is transparent (alpha = 0)
-            // If there's any color at all (alpha > 0), it's not accessible
-            return isAccessible;
-        }
-        
-        // Update accessibility status display
-        function updateAccessibilityStatus() {
-            if (!selectedPosition) {
-                document.getElementById('accessibilityStatus').textContent = '';
-                document.getElementById('positionDisplay').classList.remove('inaccessible');
-                return;
-            }
-            
-            const accessible = isPositionAccessible(selectedPosition.x, selectedPosition.y);
-            const statusElement = document.getElementById('accessibilityStatus');
-            const posDisplay = document.getElementById('positionDisplay');
-            
-            if (accessible) {
-                statusElement.textContent = '✓ Position is accessible';
-                statusElement.className = 'accessibility-status accessible';
-                posDisplay.classList.remove('inaccessible');
-            } else {
-                statusElement.textContent = '✗ Position is NOT accessible (blocked)';
-                statusElement.className = 'accessibility-status inaccessible';
-                posDisplay.classList.add('inaccessible');
-            }
-        }
-        
-        // Toggle collision display
-        function toggleCollision() {
-            showCollision = document.getElementById('showCollision').checked;
-            updateCollisionIndicator();
-            render();
-        }
-        
-        // Update collision indicator
-        function updateCollisionIndicator() {
-            const indicator = document.getElementById('collisionIndicator');
-            if (showCollision) {
-                indicator.textContent = 'Collision: ON';
-                indicator.className = 'collision-indicator on';
-            } else {
-                indicator.textContent = 'Collision: OFF';
-                indicator.className = 'collision-indicator off';
             }
         }
         
@@ -675,7 +965,7 @@
                         console.warn(`Failed to load icon: ${name}`);
                         resolve();
                     };
-                    img.src = `https://puzzle-drops.github.io/Scapewatch/assets/skills/${name}.png`;
+                    img.src = `https://puzzle-drops.github.io/ScapewatchRC/assets/skills/${name}.png`;
                 });
             });
             
@@ -683,12 +973,25 @@
             console.log(`Loaded ${Object.keys(skillIcons).length} skill icons`);
         }
         
-        // Populate activities list from loaded data
+        // Populate activities list
         function populateActivities() {
             const list = document.getElementById('activitiesList');
             list.innerHTML = '';
             
-            for (const [id, data] of Object.entries(activities)) {
+            const sortedActivities = Object.entries(activities).sort((a, b) => {
+                // Sort by skill first
+                if (a[1].skill !== b[1].skill) {
+                    return a[1].skill.localeCompare(b[1].skill);
+                }
+                // Then by required level
+                if (a[1].requiredLevel !== b[1].requiredLevel) {
+                    return (a[1].requiredLevel || 0) - (b[1].requiredLevel || 0);
+                }
+                // Finally by name
+                return a[1].name.localeCompare(b[1].name);
+            });
+            
+            for (const [id, data] of sortedActivities) {
                 const item = document.createElement('div');
                 item.className = 'activity-item';
                 
@@ -699,8 +1002,7 @@
                 
                 const label = document.createElement('label');
                 label.htmlFor = `activity_${id}`;
-                label.textContent = data.name;
-                label.title = `${data.skill} - Level ${data.requiredLevel}`;
+                label.innerHTML = `<span>${data.name}</span><span class="activity-skill">${data.skill} (${data.requiredLevel || 1})</span>`;
                 
                 item.appendChild(checkbox);
                 item.appendChild(label);
@@ -708,30 +1010,463 @@
             }
         }
         
-        // Toggle nodes visibility
-        function toggleNodes() {
-            showNodes = document.getElementById('showNodes').checked;
-            render();
-        }
-        
-        // Toggle labels visibility
-        function toggleLabels() {
-            showLabels = document.getElementById('showLabels').checked;
-            render();
-        }
-        
-        // Auto-complete name based on ID
-        function autoCompleteName() {
-            const nodeId = document.getElementById('nodeId').value.trim();
-            const nameField = document.getElementById('nodeName');
+        // Update node type fields
+        function updateNodeTypeFields() {
+            const nodeType = document.getElementById('nodeType').value;
+            document.getElementById('questIdGroup').style.display = nodeType === 'quest' ? 'block' : 'none';
             
-            if (nodeId && !nameField.value) {
-                // Convert snake_case to Title Case
-                const name = nodeId
-                    .split('_')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
-                nameField.value = name;
+            if (nodeType === 'bank') {
+                // Auto-select bank activities
+                clearActivities();
+                const bankActivities = ['fletching', 'blowing_glass', 'cutting_gems', 'cleaning_herbs', 'making_potions'];
+                bankActivities.forEach(actId => {
+                    const checkbox = document.querySelector(`#activity_${actId}`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+        }
+        
+        // Clear selection
+        function clearSelection() {
+            selectedNode = null;
+            selectedPosition = null;
+            document.getElementById('nodeId').value = '';
+            document.getElementById('nodeName').value = '';
+            document.getElementById('nodePosition').value = '';
+            document.getElementById('questId').value = '';
+            document.getElementById('nearestBank').value = 'lumbridge_bank';
+            document.getElementById('calcStatus').textContent = '';
+            clearActivities();
+            updateNodeList();
+            updateSelectedNodeInfo();
+            document.getElementById('positionDisplay').textContent = 'Click map to select position';
+            document.getElementById('positionDisplay').classList.remove('active', 'inaccessible');
+            document.getElementById('accessibilityStatus').textContent = '';
+            document.getElementById('highlightedPixel').style.display = 'none';
+            document.getElementById('selectedNodeHighlight').style.display = 'none';
+            document.getElementById('pathContainer').innerHTML = '';
+            render();
+        }
+        
+        // Select skill activities
+        function selectSkillActivities(skill) {
+            clearActivities();
+            const checkboxes = document.querySelectorAll('.activity-item input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const activityData = activities[cb.value];
+                if (activityData && activityData.skill === skill) {
+                    cb.checked = true;
+                }
+            });
+        }
+        
+        // Clear activities
+        function clearActivities() {
+            const checkboxes = document.querySelectorAll('.activity-item input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+        
+        // Calculate nearest bank
+        async function calculateNearestBank() {
+            if (!selectedPosition) {
+                showToast('Please select a position first!', 'error');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('calcStatus');
+            statusDiv.textContent = 'Calculating...';
+            statusDiv.className = 'calculation-status calculating';
+            
+            // Small delay for UI update
+            await new Promise(resolve => setTimeout(resolve, 10));
+            
+            let nearestBank = null;
+            let shortestDistance = Infinity;
+            let bestPath = null;
+            
+            // Find all banks
+            for (const [bankId, bankNode] of Object.entries(nodes)) {
+                if (bankNode.type === 'bank') {
+                    const path = pathfinding.findPath(
+                        selectedPosition.x, selectedPosition.y,
+                        bankNode.position.x, bankNode.position.y
+                    );
+                    
+                    if (path) {
+                        const distance = pathfinding.getPathDistance(path);
+                        if (distance < shortestDistance) {
+                            shortestDistance = distance;
+                            nearestBank = bankId;
+                            bestPath = path;
+                        }
+                    }
+                }
+            }
+            
+            if (nearestBank && bestPath) {
+                document.getElementById('nearestBank').value = nearestBank;
+                statusDiv.textContent = `Found: ${nearestBank} (${Math.round(shortestDistance)} pixels)`;
+                statusDiv.className = 'calculation-status done';
+                
+                // Store the path for the current node being edited
+                if (selectedNode) {
+                    nodes[selectedNode].pathToBank = bestPath;
+                    nodes[selectedNode].nearestBankDistance = Math.round(shortestDistance);
+                }
+            } else {
+                statusDiv.textContent = 'No reachable bank found!';
+                statusDiv.className = 'calculation-status';
+            }
+        }
+        
+        // Add or update node
+        function addOrUpdateNode() {
+            const nodeId = document.getElementById('nodeId').value.trim();
+            const nodeName = document.getElementById('nodeName').value.trim();
+            const nodeType = document.getElementById('nodeType').value;
+            
+            if (!nodeId || !nodeName) {
+                showToast('Please enter node ID and name!', 'error');
+                return;
+            }
+            
+            if (!selectedPosition) {
+                showToast('Please select a position on the map!', 'error');
+                return;
+            }
+            
+            // Check accessibility
+            const accessible = collision.isWalkable(selectedPosition.x, selectedPosition.y);
+            if (!accessible && !confirm('Warning: This position is NOT accessible. Continue anyway?')) {
+                return;
+            }
+            
+            // Build node object
+            const node = {
+                id: nodeId,
+                name: nodeName,
+                type: nodeType,
+                position: { x: selectedPosition.x, y: selectedPosition.y }
+            };
+            
+            // Add activities
+            if (nodeType === 'skill' || nodeType === 'bank') {
+                const selectedActivities = [];
+                document.querySelectorAll('.activity-item input:checked').forEach(cb => {
+                    selectedActivities.push(cb.value);
+                });
+                if (selectedActivities.length > 0) {
+                    node.activities = selectedActivities;
+                }
+            }
+            
+            // Add quest ID
+            if (nodeType === 'quest') {
+                const questId = document.getElementById('questId').value.trim();
+                if (questId) {
+                    node.questId = questId;
+                }
+            }
+            
+            // Add nearest bank info
+            const nearestBank = document.getElementById('nearestBank').value.trim();
+            if (nearestBank && nodeType !== 'bank') {
+                node.nearestBank = nearestBank;
+                
+                // If we have calculated path info, use it
+                if (selectedNode === nodeId && nodes[nodeId] && nodes[nodeId].pathToBank) {
+                    node.nearestBankDistance = nodes[nodeId].nearestBankDistance;
+                    node.pathToBank = nodes[nodeId].pathToBank;
+                } else {
+                    // Use default values
+                    node.nearestBankDistance = 22; // Default from lumbridge_kitchen
+                    node.pathToBank = [
+                        {"x": 4374.5, "y": 1886.5},
+                        {"x": 4368.5, "y": 1896.5},
+                        {"x": 4366.5, "y": 1900.5},
+                        {"x": 4361.5, "y": 1903.5}
+                    ];
+                }
+            } else if (nodeType === 'bank') {
+                node.nearestBank = nodeId;
+                node.nearestBankDistance = 0;
+                // Banks don't have pathToBank, but they have pathsToOtherBanks (empty initially)
+                node.pathsToOtherBanks = {};
+            }
+            
+            // Add or update node
+            nodes[nodeId] = node;
+            
+            selectedNode = nodeId;
+            updateNodeList();
+            updateNodeCount();
+            render();
+            
+            showToast(`Node ${nodeId} ${nodes[nodeId] ? 'updated' : 'added'} successfully!`);
+        }
+        
+        // Update node list
+        function updateNodeList() {
+            const container = document.getElementById('nodeListContainer');
+            const searchTerm = document.getElementById('nodeSearch').value.toLowerCase();
+            container.innerHTML = '';
+            
+            const sortedNodes = Object.entries(nodes).sort((a, b) => {
+                // Sort by type first (banks, then skill, then quest)
+                const typeOrder = { bank: 0, skill: 1, quest: 2 };
+                if (typeOrder[a[1].type] !== typeOrder[b[1].type]) {
+                    return typeOrder[a[1].type] - typeOrder[b[1].type];
+                }
+                return a[0].localeCompare(b[0]);
+            });
+            
+            for (const [nodeId, node] of sortedNodes) {
+                if (searchTerm && !nodeId.toLowerCase().includes(searchTerm) && 
+                    !node.name.toLowerCase().includes(searchTerm)) {
+                    continue;
+                }
+                
+                const item = document.createElement('div');
+                item.className = 'node-list-item';
+                if (selectedNode === nodeId) {
+                    item.classList.add('selected');
+                }
+                
+                item.innerHTML = `
+                    <span>${node.name}</span>
+                    <span class="node-type-badge ${node.type}">${node.type}</span>
+                `;
+                
+                item.onclick = () => selectNodeFromList(nodeId);
+                container.appendChild(item);
+            }
+        }
+        
+        // Filter nodes in list
+        function filterNodes() {
+            updateNodeList();
+        }
+        
+        // Select node from list
+        function selectNodeFromList(nodeId) {
+            selectedNode = nodeId;
+            const node = nodes[nodeId];
+            
+            // Clear any existing path display
+            document.getElementById('pathContainer').innerHTML = '';
+            
+            // Update form
+            document.getElementById('nodeId').value = nodeId;
+            document.getElementById('nodeName').value = node.name;
+            document.getElementById('nodeType').value = node.type;
+            
+            // Update activities
+            clearActivities();
+            if (node.activities) {
+                node.activities.forEach(actId => {
+                    const checkbox = document.querySelector(`#activity_${actId}`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            
+            // Update quest ID
+            document.getElementById('questId').value = node.questId || '';
+            
+            // Update nearest bank
+            document.getElementById('nearestBank').value = node.nearestBank || 'lumbridge_bank';
+            document.getElementById('calcStatus').textContent = '';
+            document.getElementById('calcStatus').className = 'calculation-status';
+            
+            // Update position
+            selectedPosition = { x: node.position.x, y: node.position.y };
+            
+            // Update fields visibility
+            updateNodeTypeFields();
+            
+            // Go to node on map
+            camera.x = node.position.x;
+            camera.y = node.position.y;
+            zoom = 10;
+            
+            // Update everything immediately
+            updatePositionDisplay();
+            updateNodeList();
+            updateSelectedNodeInfo();
+            render();
+            updateHighlight();
+        }
+        
+        // Delete selected node
+        function deleteSelectedNode() {
+            if (!selectedNode) {
+                showToast('No node selected!', 'error');
+                return;
+            }
+            
+            if (confirm(`Delete node ${selectedNode}?`)) {
+                delete nodes[selectedNode];
+                selectedNode = null;
+                updateNodeList();
+                updateNodeCount();
+                updateSelectedNodeInfo();
+                render();
+                showToast('Node deleted!');
+            }
+        }
+        
+        // Copy selected node
+        function copySelectedNode() {
+            if (!selectedNode) {
+                showToast('No node selected!', 'error');
+                return;
+            }
+            
+            const node = nodes[selectedNode];
+            const jsonText = `    "${selectedNode}": ${JSON.stringify(node, null, 8).split('\n').join('\n    ')}`;
+            
+            navigator.clipboard.writeText(jsonText);
+            showToast('Node copied to clipboard!');
+        }
+        
+        // Export all nodes with proper formatting (from bank distance tool)
+        function formatCompactJSON(data) {
+            const indent = '  ';
+            
+            function stringifyValue(value, depth) {
+                if (value === null) return 'null';
+                if (typeof value === 'undefined') return 'undefined';
+                if (typeof value === 'string') return JSON.stringify(value);
+                if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+                
+                if (Array.isArray(value)) {
+                    return JSON.stringify(value);
+                }
+                
+                if (typeof value === 'object') {
+                    const keys = Object.keys(value);
+                    if (keys.length <= 5 || keys.includes('x') || keys.includes('y')) {
+                        return JSON.stringify(value);
+                    }
+                    
+                    if (keys.every(k => Array.isArray(value[k]))) {
+                        let result = '{';
+                        const entries = Object.entries(value);
+                        entries.forEach(([key, val], index) => {
+                            result += `"${key}":${JSON.stringify(val)}`;
+                            if (index < entries.length - 1) result += ',';
+                        });
+                        result += '}';
+                        return result;
+                    }
+                    
+                    let result = '{';
+                    const entries = Object.entries(value);
+                    entries.forEach(([key, val], index) => {
+                        result += '\n' + indent.repeat(depth + 1) + '"' + key + '": ';
+                        
+                        if (typeof val === 'object' && val !== null && !Array.isArray(val) && 
+                            !Object.keys(val).includes('x') && key !== 'pathsToOtherBanks') {
+                            result += stringifyValue(val, depth + 1);
+                        } else {
+                            result += stringifyValue(val, depth + 1);
+                        }
+                        
+                        if (index < entries.length - 1) result += ',';
+                    });
+                    if (entries.length > 0) {
+                        result += '\n' + indent.repeat(depth);
+                    }
+                    result += '}';
+                    return result;
+                }
+                
+                return JSON.stringify(value);
+            }
+            
+            let result = '{';
+            const entries = Object.entries(data);
+            entries.forEach(([nodeId, nodeData], index) => {
+                result += '\n' + indent + '"' + nodeId + '": ';
+                result += stringifyValue(nodeData, 1);
+                if (index < entries.length - 1) result += ',';
+            });
+            if (entries.length > 0) {
+                result += '\n';
+            }
+            result += '}';
+            
+            return result;
+        }
+        
+        // Export all nodes
+        function exportAllNodes() {
+            // Sort nodes by type then alphabetically
+            const sortedNodes = {};
+            const banks = [];
+            const skills = [];
+            const quests = [];
+            
+            for (const [nodeId, node] of Object.entries(nodes)) {
+                if (node.type === 'bank') banks.push([nodeId, node]);
+                else if (node.type === 'skill') skills.push([nodeId, node]);
+                else if (node.type === 'quest') quests.push([nodeId, node]);
+            }
+            
+            banks.sort((a, b) => a[0].localeCompare(b[0]));
+            skills.sort((a, b) => a[0].localeCompare(b[0]));
+            quests.sort((a, b) => a[0].localeCompare(b[0]));
+            
+            [...banks, ...skills, ...quests].forEach(([nodeId, node]) => {
+                sortedNodes[nodeId] = node;
+            });
+            
+            const jsonStr = formatCompactJSON(sortedNodes);
+            navigator.clipboard.writeText(jsonStr);
+            showToast('All nodes exported to clipboard!');
+        }
+        
+        // Update node count
+        function updateNodeCount() {
+            document.getElementById('nodeCount').textContent = Object.keys(nodes).length;
+        }
+        
+        // Update selected node info
+        function updateSelectedNodeInfo() {
+            const info = document.getElementById('selectedNodeInfo');
+            if (selectedNode) {
+                info.textContent = selectedNode;
+            } else {
+                info.textContent = 'None';
+            }
+        }
+        
+        // Update position display
+        function updatePositionDisplay() {
+            const display = document.getElementById('positionDisplay');
+            const positionField = document.getElementById('nodePosition');
+            
+            if (selectedPosition) {
+                const posText = `Position: {x: ${selectedPosition.x}, y: ${selectedPosition.y}}`;
+                display.textContent = posText;
+                display.classList.add('active');
+                
+                // Update the position field in the editor
+                positionField.value = `{x: ${selectedPosition.x}, y: ${selectedPosition.y}}`;
+                
+                const accessible = collision.isWalkable(selectedPosition.x, selectedPosition.y);
+                const statusElement = document.getElementById('accessibilityStatus');
+                
+                if (accessible) {
+                    statusElement.textContent = '✓ Accessible';
+                    statusElement.className = 'accessibility-status accessible';
+                    display.classList.remove('inaccessible');
+                } else {
+                    statusElement.textContent = '✗ Blocked';
+                    statusElement.className = 'accessibility-status inaccessible';
+                    display.classList.add('inaccessible');
+                }
+            } else {
+                positionField.value = '';
             }
         }
         
@@ -740,9 +1475,6 @@
             if (!mapImage) return;
             
             zoom = 1;
-            camera.x = 4395; // Lumbridge
-            camera.y = 1882;
-            
             canvas.width = mapContainer.clientWidth;
             canvas.height = mapContainer.clientHeight;
         }
@@ -759,31 +1491,24 @@
             ctx.scale(zoom, zoom);
             ctx.translate(-camera.x, -camera.y);
             
-            // Disable smoothing for pixel-perfect rendering
+            // Disable smoothing
             ctx.imageSmoothingEnabled = false;
-            ctx.webkitImageSmoothingEnabled = false;
-            ctx.mozImageSmoothingEnabled = false;
-            ctx.msImageSmoothingEnabled = false;
             
             // Draw map
             ctx.drawImage(mapImage, 0, 0);
             
-            // Draw collision map overlay if enabled
-            if (showCollision && collisionMapImage && collisionMapImage.complete) {
+            // Draw collision overlay if enabled
+            if (showCollision && collisionMapImage) {
                 ctx.save();
-                ctx.globalAlpha = 0.5;
-                ctx.globalCompositeOperation = 'multiply';
+                ctx.globalAlpha = 0.7; // Solid red overlay
                 
-                // Create a red tinted version
+                // Create red overlay
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = collisionMapImage.width;
                 tempCanvas.height = collisionMapImage.height;
                 const tempCtx = tempCanvas.getContext('2d');
                 
-                // Draw collision map
                 tempCtx.drawImage(collisionMapImage, 0, 0);
-                
-                // Apply red tint to non-transparent pixels
                 const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
                 const data = imageData.data;
                 
@@ -792,7 +1517,7 @@
                         data[i] = 255;     // Red
                         data[i + 1] = 0;   // Green
                         data[i + 2] = 0;   // Blue
-                        data[i + 3] = 128; // Semi-transparent
+                        // Keep original alpha for solid appearance
                     }
                 }
                 
@@ -802,37 +1527,35 @@
                 ctx.restore();
             }
             
-            // Draw nodes if enabled
+            // Draw nodes
             if (showNodes) {
                 drawNodes();
             }
             
             ctx.restore();
             
-            // Update zoom display
+            // Always update highlights after rendering
+            updateHighlight();
+            
             document.getElementById('zoom-level').textContent = `Zoom: ${Math.round(zoom * 10) / 10}x`;
         }
         
-        // Draw nodes on canvas
+        // Draw nodes  
         function drawNodes() {
-            for (const [id, node] of Object.entries(existingNodes)) {
-                // Only draw nodes within view
+            // Draw all nodes
+            for (const [id, node] of Object.entries(nodes)) {
                 const screenDist = Math.abs(node.position.x - camera.x) + Math.abs(node.position.y - camera.y);
-                if (screenDist > 1500 / zoom) continue;
+                if (screenDist > 2000 / zoom) continue;
                 
-                const x = Math.floor(node.position.x) + 0.5;
-                const y = Math.floor(node.position.y) + 0.5;
+                const x = node.position.x;
+                const y = node.position.y;
                 
-                // Check if node position is accessible
-                const accessible = isPositionAccessible(node.position.x, node.position.y);
-                
-                // Draw icons based on node type
+                // Draw node based on type with icons
                 if (node.type === 'bank') {
                     const bankIcon = skillIcons.bank;
                     if (bankIcon) {
                         ctx.drawImage(bankIcon, x - 2, y - 2, 4, 4);
                     } else {
-                        // Fallback yellow square
                         ctx.fillStyle = '#f1c40f';
                         ctx.fillRect(x - 2, y - 2, 4, 4);
                     }
@@ -841,12 +1564,10 @@
                     if (questIcon) {
                         ctx.drawImage(questIcon, x - 2, y - 2, 4, 4);
                     } else {
-                        // Fallback purple square
                         ctx.fillStyle = '#9b59b6';
                         ctx.fillRect(x - 2, y - 2, 4, 4);
                     }
                 } else if (node.type === 'skill' && node.activities) {
-                    // Get unique skills from activities
                     const skillSet = new Set();
                     for (const activityId of node.activities) {
                         const activity = activities[activityId];
@@ -857,7 +1578,6 @@
                     
                     const uniqueSkills = Array.from(skillSet);
                     if (uniqueSkills.length === 0) {
-                        // Fallback green square if no activities
                         ctx.fillStyle = '#2ecc71';
                         ctx.fillRect(x - 2, y - 2, 4, 4);
                     } else {
@@ -866,40 +1586,88 @@
                         const totalWidth = uniqueSkills.length * iconSize + (uniqueSkills.length - 1) * spacing;
                         const startX = x - totalWidth / 2;
                         
-                        // Draw skill icons
                         uniqueSkills.forEach((skill, index) => {
                             const skillIcon = skillIcons[skill];
                             const iconX = startX + index * (iconSize + spacing);
                             if (skillIcon) {
                                 ctx.drawImage(skillIcon, iconX, y - 2, iconSize, iconSize);
                             } else {
-                                // Fallback colored square
                                 ctx.fillStyle = '#2ecc71';
                                 ctx.fillRect(iconX, y - 2, iconSize, iconSize);
                             }
                         });
                     }
+                } else {
+                    ctx.fillStyle = '#2ecc71';
+                    ctx.fillRect(x - 2, y - 2, 4, 4);
                 }
                 
-                // Draw inaccessible indicator
+                // Check if node position is accessible
+                const accessible = collision.isWalkable(node.position.x, node.position.y);
                 if (!accessible) {
                     ctx.strokeStyle = '#e74c3c';
                     ctx.lineWidth = 0.5;
                     ctx.strokeRect(x - 3, y - 3, 6, 6);
                 }
                 
-                // Draw node name if labels are enabled
+                // Draw label
                 if (showLabels) {
                     ctx.font = '2px Arial';
                     ctx.fillStyle = accessible ? '#fff' : '#ff9999';
                     ctx.strokeStyle = '#000';
-                    ctx.lineWidth = 0.25;
+                    ctx.lineWidth = 0.3;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'bottom';
-                    ctx.strokeText(node.name, x, y - 5);
-                    ctx.fillText(node.name, x, y - 5);
+                    ctx.strokeText(node.name, x, y - 4);
+                    ctx.fillText(node.name, x, y - 4);
                 }
             }
+        }
+        
+        // Draw path waypoints with lines
+        function drawPath(path) {
+            if (!path || path.length < 2) return;
+            
+            const pathContainer = document.getElementById('pathContainer');
+            pathContainer.innerHTML = '';
+            
+            // Draw lines between waypoints
+            const canvas = document.createElement('canvas');
+            canvas.style.position = 'absolute';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.width = mapContainer.clientWidth;
+            canvas.height = mapContainer.clientHeight;
+            canvas.style.zIndex = '9';
+            const ctx = canvas.getContext('2d');
+            
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            
+            let firstPoint = true;
+            for (const point of path) {
+                const screen = worldToScreen(point.x, point.y);
+                
+                if (firstPoint) {
+                    ctx.moveTo(screen.x, screen.y);
+                    firstPoint = false;
+                } else {
+                    ctx.lineTo(screen.x, screen.y);
+                }
+                
+                // Draw waypoint dot
+                const waypoint = document.createElement('div');
+                waypoint.className = 'path-waypoint';
+                waypoint.style.left = `${screen.x - 2}px`;
+                waypoint.style.top = `${screen.y - 2}px`;
+                pathContainer.appendChild(waypoint);
+            }
+            
+            ctx.stroke();
+            pathContainer.appendChild(canvas);
         }
         
         // Convert screen to world coordinates
@@ -911,10 +1679,7 @@
             const worldX = (x - canvas.width / 2) / zoom + camera.x;
             const worldY = (y - canvas.height / 2) / zoom + camera.y;
             
-            return {
-                x: Math.floor(worldX),
-                y: Math.floor(worldY)
-            };
+            return { x: Math.floor(worldX), y: Math.floor(worldY) };
         }
         
         // Convert world to screen coordinates
@@ -924,23 +1689,142 @@
             return { x, y };
         }
         
+        // Update highlight
+        function updateHighlight() {
+            const pixel = document.getElementById('highlightedPixel');
+            const selectedHighlight = document.getElementById('selectedNodeHighlight');
+            
+            // Update position highlight
+            if (selectedPosition) {
+                const screen = worldToScreen(selectedPosition.x + 0.5, selectedPosition.y + 0.5);
+                const pixelSize = Math.max(zoom, 10);
+                
+                pixel.style.display = 'block';
+                pixel.style.left = `${screen.x - pixelSize/2}px`;
+                pixel.style.top = `${screen.y - pixelSize/2}px`;
+                pixel.style.width = `${pixelSize}px`;
+                pixel.style.height = `${pixelSize}px`;
+                
+                const accessible = collision.isWalkable(selectedPosition.x, selectedPosition.y);
+                if (accessible) {
+                    pixel.classList.remove('inaccessible');
+                } else {
+                    pixel.classList.add('inaccessible');
+                }
+            } else {
+                pixel.style.display = 'none';
+            }
+            
+            // Update selected node highlight
+            if (selectedNode && nodes[selectedNode]) {
+                const node = nodes[selectedNode];
+                const nodeScreen = worldToScreen(node.position.x, node.position.y);
+                const highlightSize = Math.max(zoom * 1.5, 15);
+                
+                selectedHighlight.style.display = 'block';
+                selectedHighlight.style.left = `${nodeScreen.x - highlightSize/2}px`;
+                selectedHighlight.style.top = `${nodeScreen.y - highlightSize/2}px`;
+                selectedHighlight.style.width = `${highlightSize}px`;
+                selectedHighlight.style.height = `${highlightSize}px`;
+            } else {
+                selectedHighlight.style.display = 'none';
+            }
+        }
+        
+        // Check node hover and show path
+        function checkNodeHover(worldX, worldY, screenX, screenY) {
+            let foundNode = null;
+            let foundId = null;
+            
+            for (const [id, node] of Object.entries(nodes)) {
+                const dist = Math.sqrt(
+                    Math.pow(worldX - node.position.x, 2) + 
+                    Math.pow(worldY - node.position.y, 2)
+                );
+                
+                if (dist <= 3) {
+                    foundNode = node;
+                    foundId = id;
+                    break;
+                }
+            }
+            
+            const tooltip = document.getElementById('nodeTooltip');
+            
+            if (foundNode) {
+                // Build tooltip
+                let tooltipHTML = `<strong>${foundNode.name}</strong><br>`;
+                tooltipHTML += `ID: ${foundId}<br>`;
+                tooltipHTML += `Type: ${foundNode.type}<br>`;
+                tooltipHTML += `Pos: ${foundNode.position.x}, ${foundNode.position.y}`;
+                
+                // Show ALL activities
+                if (foundNode.activities && foundNode.activities.length > 0) {
+                    tooltipHTML += `<br><strong>Activities (${foundNode.activities.length}):</strong>`;
+                    tooltipHTML += '<div class="tooltip-activities">';
+                    foundNode.activities.forEach(actId => {
+                        const act = activities[actId];
+                        if (act) {
+                            tooltipHTML += `<div>• ${act.name} (${act.skill})</div>`;
+                        }
+                    });
+                    tooltipHTML += '</div>';
+                }
+                
+                // Show nearest bank and path
+                if (foundNode.nearestBank) {
+                    tooltipHTML += '<div class="tooltip-path">';
+                    tooltipHTML += `<strong>Nearest Bank:</strong> ${foundNode.nearestBank}<br>`;
+                    if (foundNode.nearestBankDistance !== undefined) {
+                        tooltipHTML += `Distance: ${foundNode.nearestBankDistance} pixels<br>`;
+                    }
+                    if (foundNode.pathToBank) {
+                        tooltipHTML += `Path waypoints: ${foundNode.pathToBank.length}`;
+                        
+                        // Draw the path
+                        drawPath(foundNode.pathToBank);
+                    }
+                    tooltipHTML += '</div>';
+                }
+                
+                tooltip.innerHTML = tooltipHTML;
+                tooltip.style.display = 'block';
+                tooltip.style.left = `${screenX + 10}px`;
+                tooltip.style.top = `${screenY - 30}px`;
+                hoveredNode = foundNode;
+            } else {
+                tooltip.style.display = 'none';
+                document.getElementById('pathContainer').innerHTML = '';
+                hoveredNode = null;
+            }
+        }
+        
         // Zoom controls
         function zoomIn() {
             zoom = Math.min(zoom * 1.5, 50);
             render();
             updateHighlight();
+            if (hoveredNode && hoveredNode.pathToBank) {
+                drawPath(hoveredNode.pathToBank);
+            }
         }
         
         function zoomOut() {
             zoom = Math.max(zoom / 1.5, 0.5);
             render();
             updateHighlight();
+            if (hoveredNode && hoveredNode.pathToBank) {
+                drawPath(hoveredNode.pathToBank);
+            }
         }
         
         function resetZoom() {
             zoom = 1;
             render();
             updateHighlight();
+            if (hoveredNode && hoveredNode.pathToBank) {
+                drawPath(hoveredNode.pathToBank);
+            }
         }
         
         // Go to location
@@ -950,35 +1834,38 @@
             zoom = 5;
             render();
             updateHighlight();
+            if (hoveredNode && hoveredNode.pathToBank) {
+                drawPath(hoveredNode.pathToBank);
+            }
         }
         
-        // Update highlighted pixel position
-        function updateHighlight() {
-            if (!selectedPosition) {
-                document.getElementById('highlightedPixel').style.display = 'none';
-                return;
-            }
+        // Toggle functions
+        function toggleNodes() {
+            showNodes = document.getElementById('showNodes').checked;
+            render();
+        }
+        
+        function toggleLabels() {
+            showLabels = document.getElementById('showLabels').checked;
+            render();
+        }
+        
+        function toggleCollision() {
+            showCollision = document.getElementById('showCollision').checked;
+            render();
+        }
+        
+        // Show toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            if (type === 'error') toast.classList.add('error');
+            if (type === 'warning') toast.classList.add('warning');
             
-            const screen = worldToScreen(selectedPosition.x + 0.5, selectedPosition.y + 0.5);
-            const pixel = document.getElementById('highlightedPixel');
-            
-            const pixelSize = Math.max(zoom, 10);
-            
-            pixel.style.display = 'block';
-            pixel.style.left = `${screen.x - pixelSize/2}px`;
-            pixel.style.top = `${screen.y - pixelSize/2}px`;
-            pixel.style.width = `${pixelSize}px`;
-            pixel.style.height = `${pixelSize}px`;
-            
-            // Check accessibility and update color immediately
-            const accessible = isPositionAccessible(selectedPosition.x, selectedPosition.y);
-            if (accessible) {
-                pixel.classList.remove('inaccessible');
-            } else {
-                pixel.classList.add('inaccessible');
-            }
-            
-            updateAccessibilityStatus();
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
         
         // Mouse events
@@ -988,47 +1875,79 @@
         });
         
         canvas.addEventListener('mousedown', (e) => {
-            if (e.button === 2) { // Right click
-                e.preventDefault();
+            e.preventDefault();
+            
+            if (e.button === 0 && !e.shiftKey) { // Left click
                 const world = screenToWorld(e.clientX, e.clientY);
-                selectedPosition = world;
                 
-                const display = document.getElementById('positionDisplay');
-                display.textContent = `Position: { "x": ${world.x}, "y": ${world.y} }`;
-                display.classList.add('active');
+                // Check if clicking on a node
+                let clickedNodeId = null;
+                for (const [id, node] of Object.entries(nodes)) {
+                    const dist = Math.sqrt(
+                        Math.pow(world.x - node.position.x, 2) + 
+                        Math.pow(world.y - node.position.y, 2)
+                    );
+                    
+                    if (dist <= 3) {
+                        clickedNodeId = id;
+                        break;
+                    }
+                }
                 
-                updateHighlight();
-                
-                // Check accessibility and show appropriate toast
-                const accessible = isPositionAccessible(world.x, world.y);
-                console.log(`Right-clicked position (${world.x}, ${world.y}): ${accessible ? 'Accessible' : 'BLOCKED'}`);
-                if (accessible) {
-                    showToast('Position selected! Enter node ID.', 'success');
+                if (clickedNodeId) {
+                    // Select the existing node
+                    const node = nodes[clickedNodeId];
+                    selectedNode = clickedNodeId;
+                    selectedPosition = { x: node.position.x, y: node.position.y };
+                    
+                    // Update form
+                    document.getElementById('nodeId').value = clickedNodeId;
+                    document.getElementById('nodeName').value = node.name;
+                    document.getElementById('nodeType').value = node.type;
+                    document.getElementById('questId').value = node.questId || '';
+                    document.getElementById('nearestBank').value = node.nearestBank || 'lumbridge_bank';
+                    document.getElementById('calcStatus').textContent = '';
+                    
+                    // Update activities
+                    clearActivities();
+                    if (node.activities) {
+                        node.activities.forEach(actId => {
+                            const checkbox = document.querySelector(`#activity_${actId}`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
+                    
+                    updateNodeTypeFields();
+                    camera.x = node.position.x;
+                    camera.y = node.position.y;
+                    zoom = 10;
                 } else {
-                    showToast('Position selected but is BLOCKED! Enter node ID.', 'error');
+                    // Click on empty space - new node
+                    selectedNode = null;
+                    selectedPosition = world;
+                    
+                    // Reset form for new node
+                    document.getElementById('nodeId').value = 'new_node';
+                    document.getElementById('nodeName').value = 'New Node';
+                    document.getElementById('nodeType').value = 'skill';
+                    document.getElementById('questId').value = '';
+                    document.getElementById('nearestBank').value = 'lumbridge_bank';
+                    document.getElementById('calcStatus').textContent = '';
+                    clearActivities();
+                    updateNodeTypeFields();
                 }
                 
-                document.getElementById('nodeId').focus();
-                document.getElementById('nodeId').select();
-            } else if (e.button === 0 && !e.shiftKey) { // Left click
-                const world = screenToWorld(e.clientX, e.clientY);
-                selectedPosition = world;
+                // Clear paths
+                document.getElementById('pathContainer').innerHTML = '';
                 
-                const display = document.getElementById('positionDisplay');
-                display.textContent = `Position: { "x": ${world.x}, "y": ${world.y} }`;
-                display.classList.add('active');
-                
+                // Update everything
+                updatePositionDisplay();
+                updateNodeList();
+                updateSelectedNodeInfo();
                 updateHighlight();
+                render();
                 
-                // Check accessibility for toast message
-                const accessible = isPositionAccessible(world.x, world.y);
-                console.log(`Left-clicked position (${world.x}, ${world.y}): ${accessible ? 'Accessible' : 'BLOCKED'}`);
-                if (!accessible) {
-                    showToast('Warning: Position is blocked!', 'error');
-                }
-                
-                copyPosition(true);
-            } else if (e.button === 0 && e.shiftKey || e.button === 1) { // Drag
+            } else if ((e.button === 0 && e.shiftKey) || e.button === 1) { // Drag
                 isDragging = true;
                 dragStart.x = e.clientX;
                 dragStart.y = e.clientY;
@@ -1049,74 +1968,22 @@
                 
                 render();
                 updateHighlight();
+                
+                // Update path display if hovering or selected
+                if (hoveredNode && hoveredNode.pathToBank) {
+                    drawPath(hoveredNode.pathToBank);
+                } else if (!hoveredNode && selectedNode && nodes[selectedNode] && nodes[selectedNode].pathToBank) {
+                    // Keep showing selected node's path while dragging
+                    drawPath(nodes[selectedNode].pathToBank);
+                } else if (!hoveredNode && !selectedNode) {
+                    // Clear path if not hovering and no selection
+                    document.getElementById('pathContainer').innerHTML = '';
+                }
             } else {
-                // Check for node hover
                 const world = screenToWorld(e.clientX, e.clientY);
                 checkNodeHover(world.x, world.y, e.clientX, e.clientY);
             }
         });
-        
-        // Check if hovering over a node
-        function checkNodeHover(worldX, worldY, screenX, screenY) {
-            let foundNode = null;
-            let foundId = null;
-            
-            for (const [id, node] of Object.entries(existingNodes)) {
-                const dist = Math.sqrt(
-                    Math.pow(worldX - node.position.x, 2) + 
-                    Math.pow(worldY - node.position.y, 2)
-                );
-                
-                if (dist <= 3) { // Within 3 pixels
-                    foundNode = node;
-                    foundId = id;
-                    break;
-                }
-            }
-            
-            const tooltip = document.getElementById('nodeTooltip');
-            
-            if (foundNode) {
-                // Build tooltip text
-                let tooltipHTML = `<strong>${foundNode.name}</strong><br>`;
-                tooltipHTML += `ID: ${foundId}<br>`;
-                tooltipHTML += `Type: ${foundNode.type}<br>`;
-                tooltipHTML += `Pos: ${foundNode.position.x}, ${foundNode.position.y}`;
-                
-                // Check accessibility
-                const accessible = isPositionAccessible(foundNode.position.x, foundNode.position.y);
-                if (!accessible) {
-                    tooltipHTML += `<br><span style="color: #e74c3c;">⚠ Inaccessible</span>`;
-                }
-                
-                if (foundNode.activities && foundNode.activities.length > 0) {
-                    tooltipHTML += `<br>Activities: ${foundNode.activities.length}`;
-                    // Show first few activities
-                    const activityNames = foundNode.activities.slice(0, 3).map(actId => {
-                        const act = activities[actId];
-                        return act ? act.name : actId;
-                    });
-                    tooltipHTML += `<br>${activityNames.join(', ')}`;
-                    if (foundNode.activities.length > 3) {
-                        tooltipHTML += ` +${foundNode.activities.length - 3} more`;
-                    }
-                }
-                
-                if (foundNode.questId) {
-                    tooltipHTML += `<br>Quest: ${foundNode.questId}`;
-                }
-                
-                tooltip.innerHTML = tooltipHTML;
-                tooltip.style.display = 'block';
-                tooltip.style.left = `${screenX + 10}px`;
-                tooltip.style.top = `${screenY - 30}px`;
-                hoveredNode = foundNode;
-            } else if (hoveredNode) {
-                // Hide tooltip
-                tooltip.style.display = 'none';
-                hoveredNode = null;
-            }
-        }
         
         canvas.addEventListener('mouseup', () => {
             isDragging = false;
@@ -1138,166 +2005,29 @@
             
             render();
             updateHighlight();
+            
+            // Update path display if hovering
+            if (hoveredNode && hoveredNode.pathToBank) {
+                drawPath(hoveredNode.pathToBank);
+            }
         });
-        
-        // Copy position
-        function copyPosition(silent = false) {
-            if (!selectedPosition) {
-                if (!silent) showToast('No position selected!', 'error');
-                return;
-            }
-            
-            const positionText = `"x": ${selectedPosition.x}, "y": ${selectedPosition.y}`;
-            navigator.clipboard.writeText(positionText);
-            
-            if (!silent) {
-                const accessible = isPositionAccessible(selectedPosition.x, selectedPosition.y);
-                if (accessible) {
-                    showToast('Position copied to clipboard!');
-                } else {
-                    showToast('Position copied (Warning: blocked location!)', 'error');
-                }
-            }
-        }
-        
-        // Update form based on node type
-        function updateActivityList() {
-            const nodeType = document.getElementById('nodeType').value;
-            document.getElementById('activitiesGroup').style.display = nodeType === 'skill' ? 'block' : 'none';
-            document.getElementById('questIdGroup').style.display = nodeType === 'quest' ? 'block' : 'none';
-        }
-        
-        // Select activities by type
-        function selectActivities(type) {
-            const checkboxes = document.querySelectorAll('.activity-item input[type="checkbox"]');
-            checkboxes.forEach(cb => {
-                const activityData = activities[cb.value];
-                if (activityData) {
-                    if (type === 'mining' && activityData.skill === 'mining') {
-                        cb.checked = true;
-                    } else if (type === 'fishing' && activityData.skill === 'fishing') {
-                        cb.checked = true;
-                    } else if (type === 'woodcutting' && activityData.skill === 'woodcutting') {
-                        cb.checked = true;
-                    }
-                }
-            });
-        }
-        
-        // Clear all activities
-        function clearActivities() {
-            const checkboxes = document.querySelectorAll('.activity-item input[type="checkbox"]');
-            checkboxes.forEach(cb => cb.checked = false);
-        }
-        
-        // Generate node
-        function generateNode() {
-            const nodeId = document.getElementById('nodeId').value.trim();
-            const nodeName = document.getElementById('nodeName').value.trim();
-            
-            if (!nodeId) {
-                showToast('Please enter a node ID!', 'error');
-                return;
-            }
-            
-            if (!nodeName) {
-                showToast('Please enter a node name!', 'error');
-                return;
-            }
-            
-            if (!selectedPosition) {
-                showToast('Please select a position on the map!', 'error');
-                return;
-            }
-            
-            // Check if position is accessible
-            const accessible = isPositionAccessible(selectedPosition.x, selectedPosition.y);
-            if (!accessible) {
-                if (!confirm('Warning: This position is NOT accessible (blocked by collision). Do you still want to create the node?')) {
-                    return;
-                }
-            }
-            
-            // Build node object
-            const node = {
-                id: nodeId,
-                name: nodeName,
-                type: document.getElementById('nodeType').value,
-                position: {
-                    x: selectedPosition.x,
-                    y: selectedPosition.y
-                }
-            };
-            
-            // Add type-specific properties
-            if (node.type === 'skill') {
-                const selectedActivities = [];
-                const checkboxes = document.querySelectorAll('.activity-item input[type="checkbox"]:checked');
-                checkboxes.forEach(cb => selectedActivities.push(cb.value));
-                
-                if (selectedActivities.length > 0) {
-                    node.activities = selectedActivities;
-                }
-            } else if (node.type === 'quest') {
-                const questId = document.getElementById('questId').value.trim();
-                if (questId) {
-                    node.questId = questId;
-                }
-            }
-            
-            // Format JSON
-            const jsonText = `    "${nodeId}": ${JSON.stringify(node, null, 8).split('\n').join('\n    ')}`;
-            
-            // Display and copy
-            document.getElementById('output').textContent = jsonText;
-            navigator.clipboard.writeText(jsonText);
-            
-            showToast('Node copied to clipboard!' + (accessible ? '' : ' (Warning: inaccessible position)'));
-            
-            // Clear form for next node
-            document.getElementById('nodeName').value = '';
-            document.getElementById('nodeId').value = '';
-            document.getElementById('questId').value = '';
-            clearActivities();
-        }
-        
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.backgroundColor = type === 'error' ? '#e74c3c' : '#27ae60';
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
-                if (e.key === 'Enter' && e.ctrlKey) {
-                    generateNode();
-                }
                 return;
             }
             
-            if (e.key === '+' || e.key === '=') {
+            if (e.key === 'c' || e.key === 'C') {
+                const checkbox = document.getElementById('showCollision');
+                checkbox.checked = !checkbox.checked;
+                toggleCollision();
+            } else if (e.key === '+' || e.key === '=') {
                 zoomIn();
             } else if (e.key === '-') {
                 zoomOut();
             } else if (e.key === '1') {
                 resetZoom();
-            } else if (e.key === 'c' || e.key === 'C') {
-                if (!e.ctrlKey) { // Make sure it's not Ctrl+C
-                    e.preventDefault();
-                    const checkbox = document.getElementById('showCollision');
-                    checkbox.checked = !checkbox.checked;
-                    toggleCollision();
-                }
-            } else if (e.key === 'g' || e.key === 'G') {
-                document.getElementById('nodeId').focus();
-                document.getElementById('nodeId').select();
             }
         });
         
@@ -1307,6 +2037,11 @@
             canvas.height = mapContainer.clientHeight;
             render();
             updateHighlight();
+            
+            // Update path display if hovering
+            if (hoveredNode && hoveredNode.pathToBank) {
+                drawPath(hoveredNode.pathToBank);
+            }
         });
         
         // Initialize
@@ -1314,8 +2049,7 @@
             canvas.width = mapContainer.clientWidth;
             canvas.height = mapContainer.clientHeight;
             loadData();
-            updateActivityList();
-            updateCollisionIndicator();
+            updateNodeTypeFields();
         });
     </script>
 </body>
