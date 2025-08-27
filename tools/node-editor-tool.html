@@ -534,7 +534,10 @@
 
             <div class="form-group">
                 <label>Node Name*</label>
-                <input type="text" id="nodeName" placeholder="e.g., Lumbridge Bank">
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="nodeName" placeholder="e.g., Lumbridge Bank" style="flex: 1;">
+                    <button class="quick-btn" onclick="autoFormatNodeName()" style="width: auto; padding: 6px 10px;">Format</button>
+                </div>
             </div>
 
             <div class="form-group">
@@ -1046,6 +1049,45 @@
             document.getElementById('selectedNodeHighlight').style.display = 'none';
             document.getElementById('pathContainer').innerHTML = '';
             render();
+        }
+        
+        // Auto-format node name from node ID
+        function autoFormatNodeName() {
+            const nodeId = document.getElementById('nodeId').value.trim();
+            if (!nodeId) {
+                showToast('Please enter a Node ID first!', 'error');
+                return;
+            }
+            
+            // Convert snake_case to Title Case
+            const formatted = nodeId
+                .split('_')
+                .map(word => {
+                    // Handle special abbreviations
+                    const upperCaseWords = ['ge', 'gp', 'xp', 'npc', 'pvp', 'pvm'];
+                    const specialWords = {
+                        'ge': 'GE',
+                        'gp': 'GP', 
+                        'xp': 'XP',
+                        'npc': 'NPC',
+                        'pvp': 'PvP',
+                        'pvm': 'PvM',
+                        'al': 'Al',
+                        'i': 'I',
+                        '&': '&'
+                    };
+                    
+                    const lowerWord = word.toLowerCase();
+                    if (specialWords[lowerWord]) {
+                        return specialWords[lowerWord];
+                    }
+                    
+                    // Capitalize first letter of each word
+                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                })
+                .join(' ');
+            
+            document.getElementById('nodeName').value = formatted;
         }
         
         // Select skill activities
@@ -1624,14 +1666,12 @@
             }
         }
         
-        // Draw path waypoints with lines
-        function drawPath(path) {
-            if (!path || path.length < 2) return;
-            
+        // Draw path waypoints with lines (modified for multiple paths)
+        function drawPaths(paths) {
             const pathContainer = document.getElementById('pathContainer');
             pathContainer.innerHTML = '';
             
-            // Draw lines between waypoints
+            // Create a canvas for drawing all paths
             const canvas = document.createElement('canvas');
             canvas.style.position = 'absolute';
             canvas.style.pointerEvents = 'none';
@@ -1642,32 +1682,43 @@
             canvas.style.zIndex = '9';
             const ctx = canvas.getContext('2d');
             
-            ctx.strokeStyle = '#3498db';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([5, 5]);
-            ctx.beginPath();
-            
-            let firstPoint = true;
-            for (const point of path) {
-                const screen = worldToScreen(point.x, point.y);
+            // Draw each path
+            paths.forEach(path => {
+                if (!path || path.length < 2) return;
                 
-                if (firstPoint) {
-                    ctx.moveTo(screen.x, screen.y);
-                    firstPoint = false;
-                } else {
-                    ctx.lineTo(screen.x, screen.y);
+                ctx.strokeStyle = '#3498db';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                
+                let firstPoint = true;
+                for (const point of path) {
+                    const screen = worldToScreen(point.x, point.y);
+                    
+                    if (firstPoint) {
+                        ctx.moveTo(screen.x, screen.y);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(screen.x, screen.y);
+                    }
+                    
+                    // Draw waypoint dot
+                    const waypoint = document.createElement('div');
+                    waypoint.className = 'path-waypoint';
+                    waypoint.style.left = `${screen.x - 2}px`;
+                    waypoint.style.top = `${screen.y - 2}px`;
+                    pathContainer.appendChild(waypoint);
                 }
                 
-                // Draw waypoint dot
-                const waypoint = document.createElement('div');
-                waypoint.className = 'path-waypoint';
-                waypoint.style.left = `${screen.x - 2}px`;
-                waypoint.style.top = `${screen.y - 2}px`;
-                pathContainer.appendChild(waypoint);
-            }
+                ctx.stroke();
+            });
             
-            ctx.stroke();
             pathContainer.appendChild(canvas);
+        }
+        
+        // Draw single path (keep for backward compatibility)
+        function drawPath(path) {
+            drawPaths([path]);
         }
         
         // Convert screen to world coordinates
@@ -1731,7 +1782,7 @@
             }
         }
         
-        // Check node hover and show path
+        // Check node hover and show path (modified for bank paths)
         function checkNodeHover(worldX, worldY, screenX, screenY) {
             let foundNode = null;
             let foundId = null;
@@ -1771,20 +1822,30 @@
                     tooltipHTML += '</div>';
                 }
                 
-                // Show nearest bank and path
-                if (foundNode.nearestBank) {
-                    tooltipHTML += '<div class="tooltip-path">';
-                    tooltipHTML += `<strong>Nearest Bank:</strong> ${foundNode.nearestBank}<br>`;
-                    if (foundNode.nearestBankDistance !== undefined) {
-                        tooltipHTML += `Distance: ${foundNode.nearestBankDistance} pixels<br>`;
+                // Check if this is a bank node
+                if (foundNode.type === 'bank' && foundNode.pathsToOtherBanks) {
+                    // Draw all bank paths without showing in tooltip
+                    const bankPaths = Object.entries(foundNode.pathsToOtherBanks);
+                    if (bankPaths.length > 0) {
+                        const allPaths = bankPaths.map(([bankId, path]) => path);
+                        drawPaths(allPaths);
                     }
-                    if (foundNode.pathToBank) {
-                        tooltipHTML += `Path waypoints: ${foundNode.pathToBank.length}`;
-                        
-                        // Draw the path
-                        drawPath(foundNode.pathToBank);
+                } else {
+                    // Non-bank nodes - show nearest bank and path as before
+                    if (foundNode.nearestBank) {
+                        tooltipHTML += '<div class="tooltip-path">';
+                        tooltipHTML += `<strong>Nearest Bank:</strong> ${foundNode.nearestBank}<br>`;
+                        if (foundNode.nearestBankDistance !== undefined) {
+                            tooltipHTML += `Distance: ${foundNode.nearestBankDistance} pixels<br>`;
+                        }
+                        if (foundNode.pathToBank) {
+                            tooltipHTML += `Path waypoints: ${foundNode.pathToBank.length}`;
+                            
+                            // Draw the path
+                            drawPath(foundNode.pathToBank);
+                        }
+                        tooltipHTML += '</div>';
                     }
-                    tooltipHTML += '</div>';
                 }
                 
                 tooltip.innerHTML = tooltipHTML;
@@ -1804,8 +1865,15 @@
             zoom = Math.min(zoom * 1.5, 50);
             render();
             updateHighlight();
-            if (hoveredNode && hoveredNode.pathToBank) {
-                drawPath(hoveredNode.pathToBank);
+            
+            // Re-draw paths if hovering
+            if (hoveredNode) {
+                if (hoveredNode.type === 'bank' && hoveredNode.pathsToOtherBanks) {
+                    const allPaths = Object.values(hoveredNode.pathsToOtherBanks);
+                    drawPaths(allPaths);
+                } else if (hoveredNode.pathToBank) {
+                    drawPath(hoveredNode.pathToBank);
+                }
             }
         }
         
@@ -1813,8 +1881,15 @@
             zoom = Math.max(zoom / 1.5, 0.5);
             render();
             updateHighlight();
-            if (hoveredNode && hoveredNode.pathToBank) {
-                drawPath(hoveredNode.pathToBank);
+            
+            // Re-draw paths if hovering
+            if (hoveredNode) {
+                if (hoveredNode.type === 'bank' && hoveredNode.pathsToOtherBanks) {
+                    const allPaths = Object.values(hoveredNode.pathsToOtherBanks);
+                    drawPaths(allPaths);
+                } else if (hoveredNode.pathToBank) {
+                    drawPath(hoveredNode.pathToBank);
+                }
             }
         }
         
@@ -1822,8 +1897,15 @@
             zoom = 1;
             render();
             updateHighlight();
-            if (hoveredNode && hoveredNode.pathToBank) {
-                drawPath(hoveredNode.pathToBank);
+            
+            // Re-draw paths if hovering
+            if (hoveredNode) {
+                if (hoveredNode.type === 'bank' && hoveredNode.pathsToOtherBanks) {
+                    const allPaths = Object.values(hoveredNode.pathsToOtherBanks);
+                    drawPaths(allPaths);
+                } else if (hoveredNode.pathToBank) {
+                    drawPath(hoveredNode.pathToBank);
+                }
             }
         }
         
@@ -1834,8 +1916,15 @@
             zoom = 5;
             render();
             updateHighlight();
-            if (hoveredNode && hoveredNode.pathToBank) {
-                drawPath(hoveredNode.pathToBank);
+            
+            // Re-draw paths if hovering
+            if (hoveredNode) {
+                if (hoveredNode.type === 'bank' && hoveredNode.pathsToOtherBanks) {
+                    const allPaths = Object.values(hoveredNode.pathsToOtherBanks);
+                    drawPaths(allPaths);
+                } else if (hoveredNode.pathToBank) {
+                    drawPath(hoveredNode.pathToBank);
+                }
             }
         }
         
@@ -1970,11 +2059,22 @@
                 updateHighlight();
                 
                 // Update path display if hovering or selected
-                if (hoveredNode && hoveredNode.pathToBank) {
-                    drawPath(hoveredNode.pathToBank);
-                } else if (!hoveredNode && selectedNode && nodes[selectedNode] && nodes[selectedNode].pathToBank) {
+                if (hoveredNode) {
+                    if (hoveredNode.type === 'bank' && hoveredNode.pathsToOtherBanks) {
+                        const allPaths = Object.values(hoveredNode.pathsToOtherBanks);
+                        drawPaths(allPaths);
+                    } else if (hoveredNode.pathToBank) {
+                        drawPath(hoveredNode.pathToBank);
+                    }
+                } else if (!hoveredNode && selectedNode && nodes[selectedNode]) {
                     // Keep showing selected node's path while dragging
-                    drawPath(nodes[selectedNode].pathToBank);
+                    const node = nodes[selectedNode];
+                    if (node.type === 'bank' && node.pathsToOtherBanks) {
+                        const allPaths = Object.values(node.pathsToOtherBanks);
+                        drawPaths(allPaths);
+                    } else if (node.pathToBank) {
+                        drawPath(node.pathToBank);
+                    }
                 } else if (!hoveredNode && !selectedNode) {
                     // Clear path if not hovering and no selection
                     document.getElementById('pathContainer').innerHTML = '';
@@ -2007,8 +2107,13 @@
             updateHighlight();
             
             // Update path display if hovering
-            if (hoveredNode && hoveredNode.pathToBank) {
-                drawPath(hoveredNode.pathToBank);
+            if (hoveredNode) {
+                if (hoveredNode.type === 'bank' && hoveredNode.pathsToOtherBanks) {
+                    const allPaths = Object.values(hoveredNode.pathsToOtherBanks);
+                    drawPaths(allPaths);
+                } else if (hoveredNode.pathToBank) {
+                    drawPath(hoveredNode.pathToBank);
+                }
             }
         });
         
@@ -2039,8 +2144,13 @@
             updateHighlight();
             
             // Update path display if hovering
-            if (hoveredNode && hoveredNode.pathToBank) {
-                drawPath(hoveredNode.pathToBank);
+            if (hoveredNode) {
+                if (hoveredNode.type === 'bank' && hoveredNode.pathsToOtherBanks) {
+                    const allPaths = Object.values(hoveredNode.pathsToOtherBanks);
+                    drawPaths(allPaths);
+                } else if (hoveredNode.pathToBank) {
+                    drawPath(hoveredNode.pathToBank);
+                }
             }
         });
         
