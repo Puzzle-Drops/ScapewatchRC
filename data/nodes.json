@@ -1,4 +1,42 @@
 {
+              "mage_arena_bank": {
+            "id": "mage_arena_bank",
+            "name": "Mage Arena Bank",
+            "type": "bank",
+            "position": {
+                    "x": 4134,
+                    "y": 405
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "mage_arena_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "legends_guild_bank": {
+            "id": "legends_guild_bank",
+            "name": "Legends Guild Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3402,
+                    "y": 1569
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "legends_guild_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
           "shantay_pass_bank": {
             "id": "shantay_pass_bank",
             "name": "Shanty Pass Bank",
