@@ -1,4 +1,61 @@
 {
+      "ardougne_north_bank": {
+            "id": "ardougne_north_bank",
+            "name": "Ardougne North Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3185,
+                    "y": 1655
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "ardougne_north_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "ardougne_south_bank": {
+            "id": "ardougne_south_bank",
+            "name": "Ardougne South Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3262,
+                    "y": 1752
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "ardougne_south_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "seers_village_bank": {
+            "id": "seers_village_bank",
+            "name": "Seers Village Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3403,
+                    "y": 1331
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "seers_village_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
               "catherby_bank": {
             "id": "catherby_bank",
             "name": "Catherby Bank",
