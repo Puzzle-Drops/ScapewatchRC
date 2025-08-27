@@ -1,4 +1,23 @@
 {
+          "al-kharid_bank": {
+            "id": "al-kharid_bank",
+            "name": "Al-Kharid Bank",
+            "type": "bank",
+            "position": {
+                    "x": 4487,
+                    "y": 1986
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "al-kharid_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
       "west_falador_bank": {
             "id": "west_falador_bank",
             "name": "West Falador Bank",
