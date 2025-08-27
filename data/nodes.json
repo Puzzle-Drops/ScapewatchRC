@@ -1,4 +1,61 @@
 {
+          "gnome_stronghold_north_bank": {
+            "id": "gnome_stronghold_north_bank",
+            "name": "Gnome Stronghold North Bank",
+            "type": "bank",
+            "position": {
+                    "x": 2883,
+                    "y": 1328
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "gnome_stronghold_north_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+          "gnome_stronghold_south_bank": {
+            "id": "gnome_stronghold_south_bank",
+            "name": "Gnome Stronghold South Bank",
+            "type": "bank",
+            "position": {
+                    "x": 2846,
+                    "y": 1472
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "gnome_stronghold_south_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+          "yanille_bank": {
+            "id": "yanille_bank",
+            "name": "Yanille Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3176,
+                    "y": 2134
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "yanille_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
       "ardougne_north_bank": {
             "id": "ardougne_north_bank",
             "name": "Ardougne North Bank",
