@@ -432,6 +432,9 @@
                 <button class="tool-btn" id="paintbrushTool" onclick="selectTool('paintbrush')">
                     🖌️ Paintbrush
                 </button>
+                <button class="tool-btn" id="oceanRemovalTool" onclick="selectTool('oceanRemoval')">
+                    🌊 Ocean Remove
+                </button>
             </div>
             
             <div id="paintBucketOptions" style="display: none; margin-top: 10px; padding: 10px; background-color: #3a3a3a; border-radius: 4px;">
@@ -509,7 +512,8 @@
                 <strong>Select:</strong> Left-drag to select, DEL to delete<br>
                 <strong>Eyedropper:</strong> Click to add protected color<br>
                 <strong>Area:</strong> Select area for bulk operations<br>
-                <strong>Paintbrush:</strong> Left-drag to paint
+                <strong>Paintbrush:</strong> Left-drag to paint<br>
+                <strong>Ocean Remove:</strong> Click to remove color, keeps 12px border
             </div>
         </div>
 
@@ -1106,6 +1110,95 @@
             return pixelsFilled;
         }
         
+        // Ocean removal function
+        function oceanRemoval(startX, startY) {
+            if (startX < 0 || startY < 0 || startX >= canvas.width || startY >= canvas.height) {
+                return 0;
+            }
+            
+            // Get the color of the starting pixel
+            const targetColor = getPixelColor(startX, startY);
+            if (!targetColor || targetColor.a === 0) {
+                showToast('No color at this position!', 'error');
+                return 0;
+            }
+            
+            // First, find all connected pixels of the same color using flood fill
+            const connectedPixels = new Set();
+            const stack = [[startX, startY]];
+            const visited = new Set();
+            
+            // Find all connected pixels of the target color
+            while (stack.length > 0) {
+                const [x, y] = stack.pop();
+                const key = `${x},${y}`;
+                
+                if (visited.has(key)) continue;
+                if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) continue;
+                
+                visited.add(key);
+                
+                const currentColor = getPixelColor(x, y);
+                if (!currentColor || !colorEquals(currentColor, targetColor)) continue;
+                
+                connectedPixels.add(key);
+                
+                // Add neighbors to stack
+                stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+            }
+            
+            showToast(`Found ${connectedPixels.size} connected pixels. Analyzing borders...`);
+            
+            // Now check each connected pixel to see if it should be kept or deleted
+            const pixelsToDelete = new Set();
+            const borderDistance = 12;
+            
+            connectedPixels.forEach(key => {
+                const [px, py] = key.split(',').map(Number);
+                let hasNearbyDifferentColor = false;
+                
+                // Check in a square around this pixel for any different color
+                for (let dx = -borderDistance; dx <= borderDistance && !hasNearbyDifferentColor; dx++) {
+                    for (let dy = -borderDistance; dy <= borderDistance && !hasNearbyDifferentColor; dy++) {
+                        const checkX = px + dx;
+                        const checkY = py + dy;
+                        
+                        // Skip if out of bounds
+                        if (checkX < 0 || checkY < 0 || checkX >= canvas.width || checkY >= canvas.height) {
+                            // Edge of map counts as a "different color" to preserve borders at map edges
+                            hasNearbyDifferentColor = true;
+                            break;
+                        }
+                        
+                        const checkColor = getPixelColor(checkX, checkY);
+                        
+                        // If we find a pixel that's not the target color OR is transparent, keep this pixel
+                        // This ensures borders are preserved around both land AND transparent areas
+                        if (!checkColor || checkColor.a === 0 || !colorEquals(checkColor, targetColor)) {
+                            hasNearbyDifferentColor = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // If no different color was found nearby, mark for deletion
+                if (!hasNearbyDifferentColor) {
+                    pixelsToDelete.add(key);
+                }
+            });
+            
+            // Delete the marked pixels
+            let deleted = 0;
+            pixelsToDelete.forEach(key => {
+                const [x, y] = key.split(',').map(Number);
+                if (deletePixel(x, y)) {
+                    deleted++;
+                }
+            });
+            
+            return deleted;
+        }
+        
         // Check if two colors are equal
         function colorEquals(color1, color2) {
             return color1.r === color2.r && 
@@ -1653,6 +1746,17 @@
                     if (paintBrush(pos.x, pos.y)) {
                         render();
                     }
+                } else if (currentTool === 'oceanRemoval') {
+                    // Ocean removal
+                    const deleted = oceanRemoval(pos.x, pos.y);
+                    if (deleted > 0) {
+                        pixelsDeleted += deleted;
+                        saveState();
+                        render();
+                        showToast(`Removed ${deleted} pixels, preserved 12px border!`);
+                    } else {
+                        showToast('No pixels to remove (all within border distance)');
+                    }
                 }
             } else if (e.button === 1) { // Middle click
                 isDragging = true;
@@ -1712,6 +1816,8 @@
                 }
             } else if (currentTool === 'eyedropper' && isPickingCustomColor) {
                 extraInfo = '<br>Picking custom ' + (pickingColorFor || '') + ' color...';
+            } else if (currentTool === 'oceanRemoval') {
+                extraInfo = '<br>Ocean Removal: Removes color, keeps 12px border';
             }
             
             cursorInfo.innerHTML = `Position: x: ${pos.x}, y: ${pos.y}<br>Color: ${colorText}${extraInfo}`;
