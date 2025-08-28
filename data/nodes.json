@@ -1,4 +1,23 @@
 {
+              "arceuus_bank": {
+            "id": "arceuus_bank",
+            "name": "Arceuus Bank",
+            "type": "bank",
+            "position": {
+                    "x": 1203,
+                    "y": 830
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "arceuus_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
           "cooks_guild_bank": {
             "id": "cooks_guild_bank",
             "name": "Cooks Guild Bank",
