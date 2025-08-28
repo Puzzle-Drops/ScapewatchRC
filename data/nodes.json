@@ -1,4 +1,42 @@
 {
+          "cooks_guild_bank": {
+            "id": "cooks_guild_bank",
+            "name": "Cooks Guild Bank",
+            "type": "bank",
+            "position": {
+                    "x": 4246,
+                    "y": 1415
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "cooks_guild_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+          "port_khazard_bank": {
+            "id": "port_khazard_bank",
+            "name": "Port Khazard Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3274,
+                    "y": 1994
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "port_khazard_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
       "barbarian_outpost_bank": {
             "id": "barbarian_outpost_bank",
             "name": "Barbarian Outpost Bank",
