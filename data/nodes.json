@@ -1,4 +1,80 @@
 {
+          "mount_quidamortem_bank": {
+            "id": "mount_quidamortem_bank",
+            "name": "Mount Quidamortem Bank",
+            "type": "bank",
+            "position": {
+                    "x": 460,
+                    "y": 1176
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "mount_quidamortem_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+          "lands_end_bank": {
+            "id": "lands_end_bank",
+            "name": "Lands End Bank",
+            "type": "bank",
+            "position": {
+                    "x": 975,
+                    "y": 1477
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "lands_end_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+          "wintertodt_bank": {
+            "id": "wintertodt_bank",
+            "name": "Wintertodt Bank",
+            "type": "bank",
+            "position": {
+                    "x": 1231,
+                    "y": 431
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "wintertodt_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+          "woocutting_guild_bank": {
+            "id": "woocutting_guild_bank",
+            "name": "Woocutting Guild Bank",
+            "type": "bank",
+            "position": {
+                    "x": 1134,
+                    "y": 1364
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "woocutting_guild_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
       "ape_atoll_bank": {
             "id": "ape_atoll_bank",
             "name": "Ape Atoll Bank",
