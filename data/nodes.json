@@ -1,4 +1,99 @@
 {
+              "warriors_guild_bank": {
+            "id": "warriors_guild_bank",
+            "name": "Warriors Guild Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3636,
+                    "y": 1234
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "warriors_guild_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "piscatoris_bank": {
+            "id": "piscatoris_bank",
+            "name": "Piscatoris Bank",
+            "type": "bank",
+            "position": {
+                    "x": 2611,
+                    "y": 941
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "piscatoris_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+          "void_knights_outpost_bank": {
+            "id": "void_knights_outpost_bank",
+            "name": "Void Knights Outpost Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3286,
+                    "y": 3013
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "void_knights_outpost_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "burgh_de_rott_bank": {
+            "id": "burgh_de_rott_bank",
+            "name": "Burgh De Rott Bank",
+            "type": "bank",
+            "position": {
+                    "x": 4938,
+                    "y": 1896
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "burgh_de_rott_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "mos_le_harmless_bank": {
+            "id": "mos_le_harmless_bank",
+            "name": "Mos Le Harmless Bank",
+            "type": "bank",
+            "position": {
+                    "x": 5336,
+                    "y": 2365
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "mos_le_harmless_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
           "nardah_bank": {
             "id": "nardah_bank",
             "name": "Nardah Bank",
