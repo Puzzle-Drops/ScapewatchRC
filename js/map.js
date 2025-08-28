@@ -10,7 +10,7 @@ class MapRenderer {
         x: 4395, // Start at player position
         y: 1882, // Start at player position
         zoom: 14, // Current zoom level
-        minZoom: 1, // Maximum zoom out (see more of the map)
+        minZoom: 2, // Maximum zoom out (see more of the map)
         maxZoom: 50, // Maximum zoom in (see less of the map, bigger sprites)
         zoomSpeed: 1 // How much to zoom per wheel tick
     };
