@@ -1,4 +1,80 @@
 {
+          "nardah_bank": {
+            "id": "nardah_bank",
+            "name": "Nardah Bank",
+            "type": "bank",
+            "position": {
+                    "x": 4801,
+                    "y": 2532
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "nardah_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+          "lletya_bank": {
+            "id": "lletya_bank",
+            "name": "Lletya Bank",
+            "type": "bank",
+            "position": {
+                    "x": 2658,
+                    "y": 1990
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "lletya_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+          "rouges_den_bank": {
+            "id": "rouges_den_bank",
+            "name": "Rouges Den Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3763,
+                    "y": 1246
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "rouges_den_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+          "port_phasmatys_bank": {
+            "id": "port_phasmatys_bank",
+            "name": "Port Phasmatys Bank",
+            "type": "bank",
+            "position": {
+                    "x": 5329,
+                    "y": 1386
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "port_phasmatys_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
       "etceteria_bank": {
             "id": "etceteria_bank",
             "name": "Etceteria Bank",
