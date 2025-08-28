@@ -1,4 +1,118 @@
 {
+      "barbarian_outpost_bank": {
+            "id": "barbarian_outpost_bank",
+            "name": "Barbarian Outpost Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3024,
+                    "y": 1169
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "barbarian_outpost_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "crafting_guild_bank": {
+            "id": "crafting_guild_bank",
+            "name": "Crafting Guild Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3823,
+                    "y": 1760
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "crafting_guild_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "jatizso_bank": {
+            "id": "jatizso_bank",
+            "name": "Jatizso Bank",
+            "type": "bank",
+            "position": {
+                    "x": 2785,
+                    "y": 719
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "jatizso_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "neitiznot_bank": {
+            "id": "neitiznot_bank",
+            "name": "Neitiznot Bank",
+            "type": "bank",
+            "position": {
+                    "x": 2625,
+                    "y": 705
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "neitiznot_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "sophanem_bank": {
+            "id": "sophanem_bank",
+            "name": "Sophanem Bank",
+            "type": "bank",
+            "position": {
+                    "x": 4580,
+                    "y": 2723
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "sophanem_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "lunar_isle_bank": {
+            "id": "lunar_isle_bank",
+            "name": "Lunar Isle Bank",
+            "type": "bank",
+            "position": {
+                    "x": 2148,
+                    "y": 479
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "lunar_isle_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
               "warriors_guild_bank": {
             "id": "warriors_guild_bank",
             "name": "Warriors Guild Bank",
