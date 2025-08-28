@@ -1,4 +1,194 @@
 {
+      "ape_atoll_bank": {
+            "id": "ape_atoll_bank",
+            "name": "Ape Atoll Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3513,
+                    "y": 2754
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "ape_atoll_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "shayzien_tent_bank": {
+            "id": "shayzien_tent_bank",
+            "name": "Shayzien Tent Bank",
+            "type": "bank",
+            "position": {
+                    "x": 921,
+                    "y": 1025
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "shayzien_tent_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "shayzien_bank": {
+            "id": "shayzien_bank",
+            "name": "Shayzien Bank",
+            "type": "bank",
+            "position": {
+                    "x": 922,
+                    "y": 1135
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "shayzien_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "port_piscarilius_bank": {
+            "id": "port_piscarilius_bank",
+            "name": "Port Piscarilius Bank",
+            "type": "bank",
+            "position": {
+                    "x": 1558,
+                    "y": 736
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "port_piscarilius_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "lovakengj_mine_bank": {
+            "id": "lovakengj_mine_bank",
+            "name": "Lovakengj Mine Bank",
+            "type": "bank",
+            "position": {
+                    "x": 826,
+                    "y": 664
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "lovakengj_mine_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "lovakengj_bank": {
+            "id": "lovakengj_bank",
+            "name": "Lovakengj Bank",
+            "type": "bank",
+            "position": {
+                    "x": 1003,
+                    "y": 837
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "lovakengj_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "kourend_castle_bank": {
+            "id": "kourend_castle_bank",
+            "name": "Kourend Castle Bank",
+            "type": "bank",
+            "position": {
+                    "x": 1178,
+                    "y": 966
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "kourend_castle_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "hosidius_kitchen_bank": {
+            "id": "hosidius_kitchen_bank",
+            "name": "Hosidius Kitchen Bank",
+            "type": "bank",
+            "position": {
+                    "x": 1303,
+                    "y": 1088
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "hosidius_kitchen_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "hosidius_bank": {
+            "id": "hosidius_bank",
+            "name": "Hosidius Bank",
+            "type": "bank",
+            "position": {
+                    "x": 1444,
+                    "y": 1122
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "hosidius_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "hosidius_camp_bank": {
+            "id": "hosidius_camp_bank",
+            "name": "Hosidius Camp Bank",
+            "type": "bank",
+            "position": {
+                    "x": 1386,
+                    "y": 1380
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "hosidius_camp_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
               "arceuus_bank": {
             "id": "arceuus_bank",
             "name": "Arceuus Bank",
