@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scapewatch Waypoint Generator v4.2</title>
+    <title>Scapewatch Waypoint Generator v4.3</title>
     <style>
         * {
             margin: 0;
@@ -322,7 +322,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🛤️ Scapewatch Waypoint Generator v4.2 🛤️</h1>
+        <h1>🛤️ Scapewatch Waypoint Generator v4.3 🛤️</h1>
         
         <div class="controls">
             <button id="loadBtn">Load Nodes</button>
@@ -1331,12 +1331,18 @@
                 // Step 3: Generate bank to bank paths (only if checkbox is checked)
                 if (includeBankPaths) {
                     logConsole('', 'normal');
-                    logConsole('=== PHASE 3: GENERATING BANK→BANK PATHS ===', 'highlight');
+                    logConsole('=== PHASE 3: GENERATING BANK→BANK PATHS (OPTIMIZED) ===', 'highlight');
                     logConsole(`Generating paths between ${accessibleBanks.length} selected banks...`, 'info');
                     
+                    // Track which bank pairs have been calculated in this session
+                    const calculatedPairs = new Set();
+                    
+                    // Calculate total unique pairs (n * (n-1) / 2)
+                    const totalUniquePairs = (accessibleBanks.length * (accessibleBanks.length - 1)) / 2;
+                    logConsole(`Using symmetric path optimization: ${totalUniquePairs} unique pairs instead of ${accessibleBanks.length * (accessibleBanks.length - 1)} total`, 'warning');
+                    
                     let bankProcessedCount = 0;
-                    const totalBankPairs = accessibleBanks.length * (accessibleBanks.length - 1);
-                    logConsole(`Total bank pairs to process: ${totalBankPairs}`, 'info');
+                    let skippedByOptimization = 0;
                     
                     let bankIndex = 0;
                     for (const { id: bank1Id, node: bank1Node } of accessibleBanks) {
@@ -1356,14 +1362,28 @@
                             if (bank1Id === bank2Id) continue; // Skip self
                             
                             targetBankIndex++;
+                            
+                            // Create a unique key for this pair (alphabetically sorted to ensure consistency)
+                            const pairKey = [bank1Id, bank2Id].sort().join('->');
+                            
+                            // Check if we've already calculated this pair
+                            if (calculatedPairs.has(pairKey)) {
+                                skippedByOptimization++;
+                                logConsole(`  → Path ${targetBankIndex}: ${bank1Id} → ${bank2Id} [SKIPPED - already calculated as ${bank2Id} → ${bank1Id}]`, 'warning');
+                                
+                                // The reverse path should already exist, no need to do anything
+                                updateProgressDetail(`Skipped (using reversed path): ${bank1Id} → ${bank2Id}`);
+                                continue;
+                            }
+                            
                             bankProcessedCount++;
                             
-                            logConsole(`  → Path ${targetBankIndex}: ${bank1Id} → ${bank2Id} (Overall: ${bankProcessedCount}/${totalBankPairs})`, 'dim');
+                            logConsole(`  → Path ${targetBankIndex}: ${bank1Id} → ${bank2Id} (Unique pair ${bankProcessedCount}/${totalUniquePairs})`, 'dim');
                             
                             const progressBase = selectedNodeEntries.length * 2;
-                            updateProgress(progressBase + bankProcessedCount, selectedNodeEntries.length * totalPhases,
-                                          `Phase 3: Bank→bank paths (${bankProcessedCount}/${totalBankPairs})`);
-                            updateProgressDetail(`Testing: ${bank1Id} → ${bank2Id}`);
+                            updateProgress(progressBase + bankProcessedCount, selectedNodeEntries.length * 2 + totalUniquePairs,
+                                          `Phase 3: Bank→bank paths (${bankProcessedCount}/${totalUniquePairs} unique)`);
+                            updateProgressDetail(`Calculating: ${bank1Id} → ${bank2Id}`);
                             
                             const bank2Pos = nodeAdjustments[bank2Id];
                             
@@ -1373,15 +1393,30 @@
                             );
                             
                             if (path) {
+                                // Store the path from bank1 to bank2
                                 bank1Node.pathsToOtherBanks[bank2Id] = path;
                                 
-                                globalStats.pathsGenerated++;
-                                globalStats.totalWaypoints += path.length;
-                                stats.bankPaths++;
+                                // Store the REVERSED path from bank2 to bank1
+                                if (!bank2Node.pathsToOtherBanks) {
+                                    bank2Node.pathsToOtherBanks = {};
+                                }
+                                const reversedPath = [...path].reverse();
+                                bank2Node.pathsToOtherBanks[bank1Id] = reversedPath;
+                                
+                                // Mark this pair as calculated
+                                calculatedPairs.add(pairKey);
+                                
+                                // Update stats (counting both paths)
+                                globalStats.pathsGenerated += 2;
+                                globalStats.totalWaypoints += path.length * 2;
+                                stats.bankPaths += 2;
                                 
                                 const distance = pathfinding.getPathDistance(path);
                                 logConsole(`    ✓ Path found: ${Math.round(distance)} pixels, ${path.length} waypoints`, 'success');
+                                logConsole(`    ✓ Reversed path automatically stored for ${bank2Id} → ${bank1Id}`, 'info');
                             } else {
+                                // Mark as calculated even if no path found
+                                calculatedPairs.add(pairKey);
                                 logConsole(`    ✗ NO PATH FOUND!`, 'error');
                             }
                             
@@ -1390,7 +1425,9 @@
                         }
                     }
 
+                    logConsole(``, 'normal');
                     logConsole(`Phase 3 Complete: Generated ${stats.bankPaths} bank→bank paths`, 'success');
+                    logConsole(`Optimization saved ${skippedByOptimization} redundant calculations!`, 'warning');
                 } else {
                     logConsole('', 'normal');
                     logConsole('=== PHASE 3: SKIPPED (Bank→Bank paths disabled) ===', 'warning');
@@ -1600,7 +1637,7 @@
             loadBtn.disabled = true;
             
             try {
-                logConsole('Starting Waypoint Generator v4.2...', 'highlight');
+                logConsole('Starting Waypoint Generator v4.3...', 'highlight');
                 
                 collision = new CollisionSystem();
                 await collision.initialize('https://puzzle-drops.github.io/ScapewatchRC/assets/collision-map.png');
@@ -1677,12 +1714,13 @@
         document.getElementById('downloadBtn').addEventListener('click', downloadJSON);
         
         // Initial log
-        logConsole('Waypoint Generator v4.2 ready', 'highlight');
+        logConsole('Waypoint Generator v4.3 ready', 'highlight');
         logConsole('This tool will:', 'info');
         logConsole('• Load activities data to categorize nodes by skill', 'info');
         logConsole('• Let you select nodes organized by type and skill', 'info');
         logConsole('• Generate paths from selected nodes to nearest banks', 'info');
         logConsole('• Optionally generate paths between selected banks (toggle checkbox)', 'info');
+        logConsole('• NEW v4.3: Use symmetric path optimization for bank→bank paths', 'warning');
         logConsole('• Export nodes sorted by: Banks → Multi-skill → Skills (A-Z) → Quests', 'info');
         logConsole('Click "Load Nodes" to begin', 'success');
     </script>
