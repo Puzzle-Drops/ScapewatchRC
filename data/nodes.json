@@ -1,859 +1,4 @@
 {
-      "ruins_of_unkah_bank": {
-            "id": "ruins_of_unkah_bank",
-            "name": "Ruins Of Unkah Bank",
-            "type": "bank",
-            "position": {
-                    "x": 4263,
-                    "y": 2649
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "ruins_of_unkah_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "trouble_brewing_bank": {
-            "id": "trouble_brewing_bank",
-            "name": "Trouble Brewing Bank",
-            "type": "bank",
-            "position": {
-                    "x": 5577,
-                    "y": 2277
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "trouble_brewing_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "ferox_enclave_bank": {
-            "id": "ferox_enclave_bank",
-            "name": "Ferox Enclave Bank",
-            "type": "bank",
-            "position": {
-                    "x": 4210,
-                    "y": 1062
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "ferox_enclave_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "darkmeyer_bank": {
-            "id": "darkmeyer_bank",
-            "name": "Darkmeyer Bank",
-            "type": "bank",
-            "position": {
-                    "x": 5162,
-                    "y": 1584
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "darkmeyer_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "prifddinas_bank": {
-            "id": "prifddinas_bank",
-            "name": "Prifddinas Bank",
-            "type": "bank",
-            "position": {
-                    "x": 2431,
-                    "y": 1659
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "prifddinas_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "mount_karuulm": {
-            "id": "mount_karuulm",
-            "name": "Mount Karuulm",
-            "type": "bank",
-            "position": {
-                    "x": 600,
-                    "y": 671
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "mount_karuulm",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "farming_guild_bank": {
-            "id": "farming_guild_bank",
-            "name": "Farming Guild Bank",
-            "type": "bank",
-            "position": {
-                    "x": 449,
-                    "y": 798
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "farming_guild_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "ver_sinhaza_bank": {
-            "id": "ver_sinhaza_bank",
-            "name": "Ver Sinhaza Bank",
-            "type": "bank",
-            "position": {
-                    "x": 5254,
-                    "y": 1907
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "ver_sinhaza_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "myths_guild_bank": {
-            "id": "myths_guild_bank",
-            "name": "Myths Guild Bank",
-            "type": "bank",
-            "position": {
-                    "x": 2866,
-                    "y": 2638
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "myths_guild_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "corsair_cove_bank": {
-            "id": "corsair_cove_bank",
-            "name": "Corsair Cove Bank",
-            "type": "bank",
-            "position": {
-                    "x": 3092,
-                    "y": 2588
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "corsair_cove_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "fossil_island_bank": {
-            "id": "fossil_island_bank",
-            "name": "Fossil Island Bank",
-            "type": "bank",
-            "position": {
-                    "x": 5435,
-                    "y": 711
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "fossil_island_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "fossil_island_small_bank": {
-            "id": "fossil_island_small_bank",
-            "name": "Fossil Island Small Bank",
-            "type": "bank",
-            "position": {
-                    "x": 5494,
-                    "y": 523
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "fossil_island_small_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "mount_quidamortem_bank": {
-            "id": "mount_quidamortem_bank",
-            "name": "Mount Quidamortem Bank",
-            "type": "bank",
-            "position": {
-                    "x": 460,
-                    "y": 1176
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "mount_quidamortem_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "lands_end_bank": {
-            "id": "lands_end_bank",
-            "name": "Lands End Bank",
-            "type": "bank",
-            "position": {
-                    "x": 975,
-                    "y": 1477
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "lands_end_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "wintertodt_bank": {
-            "id": "wintertodt_bank",
-            "name": "Wintertodt Bank",
-            "type": "bank",
-            "position": {
-                    "x": 1231,
-                    "y": 431
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "wintertodt_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "woocutting_guild_bank": {
-            "id": "woocutting_guild_bank",
-            "name": "Woocutting Guild Bank",
-            "type": "bank",
-            "position": {
-                    "x": 1134,
-                    "y": 1364
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "woocutting_guild_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "ape_atoll_bank": {
-            "id": "ape_atoll_bank",
-            "name": "Ape Atoll Bank",
-            "type": "bank",
-            "position": {
-                    "x": 3513,
-                    "y": 2754
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "ape_atoll_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "shayzien_tent_bank": {
-            "id": "shayzien_tent_bank",
-            "name": "Shayzien Tent Bank",
-            "type": "bank",
-            "position": {
-                    "x": 921,
-                    "y": 1025
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "shayzien_tent_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "shayzien_bank": {
-            "id": "shayzien_bank",
-            "name": "Shayzien Bank",
-            "type": "bank",
-            "position": {
-                    "x": 922,
-                    "y": 1135
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "shayzien_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "port_piscarilius_bank": {
-            "id": "port_piscarilius_bank",
-            "name": "Port Piscarilius Bank",
-            "type": "bank",
-            "position": {
-                    "x": 1558,
-                    "y": 736
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "port_piscarilius_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "lovakengj_mine_bank": {
-            "id": "lovakengj_mine_bank",
-            "name": "Lovakengj Mine Bank",
-            "type": "bank",
-            "position": {
-                    "x": 826,
-                    "y": 664
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "lovakengj_mine_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "lovakengj_bank": {
-            "id": "lovakengj_bank",
-            "name": "Lovakengj Bank",
-            "type": "bank",
-            "position": {
-                    "x": 1003,
-                    "y": 837
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "lovakengj_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "kourend_castle_bank": {
-            "id": "kourend_castle_bank",
-            "name": "Kourend Castle Bank",
-            "type": "bank",
-            "position": {
-                    "x": 1178,
-                    "y": 966
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "kourend_castle_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "hosidius_kitchen_bank": {
-            "id": "hosidius_kitchen_bank",
-            "name": "Hosidius Kitchen Bank",
-            "type": "bank",
-            "position": {
-                    "x": 1303,
-                    "y": 1088
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "hosidius_kitchen_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "hosidius_bank": {
-            "id": "hosidius_bank",
-            "name": "Hosidius Bank",
-            "type": "bank",
-            "position": {
-                    "x": 1444,
-                    "y": 1122
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "hosidius_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "hosidius_camp_bank": {
-            "id": "hosidius_camp_bank",
-            "name": "Hosidius Camp Bank",
-            "type": "bank",
-            "position": {
-                    "x": 1386,
-                    "y": 1380
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "hosidius_camp_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "arceuus_bank": {
-            "id": "arceuus_bank",
-            "name": "Arceuus Bank",
-            "type": "bank",
-            "position": {
-                    "x": 1203,
-                    "y": 830
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "arceuus_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "cooks_guild_bank": {
-            "id": "cooks_guild_bank",
-            "name": "Cooks Guild Bank",
-            "type": "bank",
-            "position": {
-                    "x": 4246,
-                    "y": 1415
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "cooks_guild_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "port_khazard_bank": {
-            "id": "port_khazard_bank",
-            "name": "Port Khazard Bank",
-            "type": "bank",
-            "position": {
-                    "x": 3274,
-                    "y": 1994
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "port_khazard_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "barbarian_outpost_bank": {
-            "id": "barbarian_outpost_bank",
-            "name": "Barbarian Outpost Bank",
-            "type": "bank",
-            "position": {
-                    "x": 3024,
-                    "y": 1169
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "barbarian_outpost_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "crafting_guild_bank": {
-            "id": "crafting_guild_bank",
-            "name": "Crafting Guild Bank",
-            "type": "bank",
-            "position": {
-                    "x": 3823,
-                    "y": 1760
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "crafting_guild_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "jatizso_bank": {
-            "id": "jatizso_bank",
-            "name": "Jatizso Bank",
-            "type": "bank",
-            "position": {
-                    "x": 2785,
-                    "y": 719
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "jatizso_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "neitiznot_bank": {
-            "id": "neitiznot_bank",
-            "name": "Neitiznot Bank",
-            "type": "bank",
-            "position": {
-                    "x": 2625,
-                    "y": 705
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "neitiznot_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "sophanem_bank": {
-            "id": "sophanem_bank",
-            "name": "Sophanem Bank",
-            "type": "bank",
-            "position": {
-                    "x": 4580,
-                    "y": 2723
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "sophanem_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "lunar_isle_bank": {
-            "id": "lunar_isle_bank",
-            "name": "Lunar Isle Bank",
-            "type": "bank",
-            "position": {
-                    "x": 2148,
-                    "y": 479
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "lunar_isle_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "warriors_guild_bank": {
-            "id": "warriors_guild_bank",
-            "name": "Warriors Guild Bank",
-            "type": "bank",
-            "position": {
-                    "x": 3636,
-                    "y": 1234
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "warriors_guild_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "piscatoris_bank": {
-            "id": "piscatoris_bank",
-            "name": "Piscatoris Bank",
-            "type": "bank",
-            "position": {
-                    "x": 2611,
-                    "y": 941
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "piscatoris_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "void_knights_outpost_bank": {
-            "id": "void_knights_outpost_bank",
-            "name": "Void Knights Outpost Bank",
-            "type": "bank",
-            "position": {
-                    "x": 3286,
-                    "y": 3013
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "void_knights_outpost_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "burgh_de_rott_bank": {
-            "id": "burgh_de_rott_bank",
-            "name": "Burgh De Rott Bank",
-            "type": "bank",
-            "position": {
-                    "x": 4938,
-                    "y": 1896
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "burgh_de_rott_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-              "mos_le_harmless_bank": {
-            "id": "mos_le_harmless_bank",
-            "name": "Mos Le Harmless Bank",
-            "type": "bank",
-            "position": {
-                    "x": 5336,
-                    "y": 2365
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "mos_le_harmless_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "nardah_bank": {
-            "id": "nardah_bank",
-            "name": "Nardah Bank",
-            "type": "bank",
-            "position": {
-                    "x": 4801,
-                    "y": 2532
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "nardah_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "lletya_bank": {
-            "id": "lletya_bank",
-            "name": "Lletya Bank",
-            "type": "bank",
-            "position": {
-                    "x": 2658,
-                    "y": 1990
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "lletya_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "rouges_den_bank": {
-            "id": "rouges_den_bank",
-            "name": "Rouges Den Bank",
-            "type": "bank",
-            "position": {
-                    "x": 3763,
-                    "y": 1246
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "rouges_den_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-          "port_phasmatys_bank": {
-            "id": "port_phasmatys_bank",
-            "name": "Port Phasmatys Bank",
-            "type": "bank",
-            "position": {
-                    "x": 5329,
-                    "y": 1386
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "port_phasmatys_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
-      "etceteria_bank": {
-            "id": "etceteria_bank",
-            "name": "Etceteria Bank",
-            "type": "bank",
-            "position": {
-                    "x": 3191,
-                    "y": 530
-            },
-            "activities": [
-                    "blowing_glass",
-                    "cutting_gems",
-                    "fletching",
-                    "cleaning_herbs",
-                    "making_potions"
-            ],
-            "nearestBank": "etceteria_bank",
-            "nearestBankDistance": 0,
-            "pathsToOtherBanks": {}
-    },
   "al_kharid_bank": {
     "id": "al_kharid_bank",
     "name": "Al Kharid Bank",
@@ -885,6 +30,26 @@
       "varrock_west_bank": [{"x":4487.5,"y":1986.5},{"x":4497.5,"y":1985.5},{"x":4497.5,"y":1967.5},{"x":4492.5,"y":1961.5},{"x":4490.5,"y":1935.5},{"x":4488.5,"y":1864.5},{"x":4486.5,"y":1861.5},{"x":4484.5,"y":1852.5},{"x":4483.5,"y":1845.5},{"x":4456.5,"y":1810.5},{"x":4430.5,"y":1749.5},{"x":4431.5,"y":1648.5},{"x":4415.5,"y":1642.5},{"x":4407.5,"y":1636.5},{"x":4401.5,"y":1609.5},{"x":4401.5,"y":1587.5},{"x":4398.5,"y":1578.5},{"x":4372.5,"y":1552.5},{"x":4372.5,"y":1513.5},{"x":4342.5,"y":1472.5},{"x":4341.5,"y":1468.5},{"x":4325.5,"y":1455.5},{"x":4318.5,"y":1455.5},{"x":4317.5,"y":1452.5},{"x":4317.5,"y":1439.5}],
       "yanille_bank": [{"x":4487.5,"y":1986.5},{"x":4497.5,"y":1985.5},{"x":4497.5,"y":1970.5},{"x":4488.5,"y":1953.5},{"x":4488.5,"y":1865.5},{"x":4442.5,"y":1867.5},{"x":4411.5,"y":1866.5},{"x":4392.5,"y":1848.5},{"x":4364.5,"y":1833.5},{"x":4309.5,"y":1776.5},{"x":4305.5,"y":1770.5},{"x":4298.5,"y":1769.5},{"x":4261.5,"y":1735.5},{"x":4180.5,"y":1708.5},{"x":4091.5,"y":1663.5},{"x":3969.5,"y":1675.5},{"x":3960.5,"y":1670.5},{"x":3952.5,"y":1670.5},{"x":3906.5,"y":1684.5},{"x":3871.5,"y":1684.5},{"x":3846.5,"y":1652.5},{"x":3846.5,"y":1643.5},{"x":3825.5,"y":1609.5},{"x":3819.5,"y":1606.5},{"x":3731.5,"y":1510.5},{"x":3731.5,"y":1500.5},{"x":3709.5,"y":1476.5},{"x":3709.5,"y":1470.5},{"x":3677.5,"y":1425.5},{"x":3677.5,"y":1405.5},{"x":3664.5,"y":1374.5},{"x":3665.5,"y":1345.5},{"x":3671.5,"y":1338.5},{"x":3675.5,"y":1324.5},{"x":3674.5,"y":1319.5},{"x":3667.5,"y":1308.5},{"x":3662.5,"y":1304.5},{"x":3645.5,"y":1303.5},{"x":3635.5,"y":1314.5},{"x":3635.5,"y":1320.5},{"x":3651.5,"y":1330.5},{"x":3653.5,"y":1332.5},{"x":3653.5,"y":1337.5},{"x":3644.5,"y":1373.5},{"x":3639.5,"y":1385.5},{"x":3643.5,"y":1408.5},{"x":3661.5,"y":1433.5},{"x":3661.5,"y":1439.5},{"x":3612.5,"y":1447.5},{"x":3589.5,"y":1447.5},{"x":3579.5,"y":1451.5},{"x":3559.5,"y":1459.5},{"x":3551.5,"y":1459.5},{"x":3525.5,"y":1467.5},{"x":3491.5,"y":1469.5},{"x":3475.5,"y":1478.5},{"x":3429.5,"y":1593.5},{"x":3414.5,"y":1623.5},{"x":3375.5,"y":1659.5},{"x":3372.5,"y":1663.5},{"x":3291.5,"y":1745.5},{"x":3287.5,"y":1745.5},{"x":3265.5,"y":1769.5},{"x":3248.5,"y":1789.5},{"x":3239.5,"y":1789.5},{"x":3230.5,"y":1795.5},{"x":3199.5,"y":1956.5},{"x":3184.5,"y":2106.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
+  },
+  "ape_atoll_bank": {
+    "id": "ape_atoll_bank",
+    "name": "Ape Atoll Bank",
+    "type": "bank",
+    "position": {"x":3513,"y":2754},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "ape_atoll_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "arceuus_bank": {
+    "id": "arceuus_bank",
+    "name": "Arceuus Bank",
+    "type": "bank",
+    "position": {"x":1203,"y":830},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "arceuus_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
   },
   "ardougne_north_bank": {
     "id": "ardougne_north_bank",
@@ -949,6 +114,26 @@
       "varrock_west_bank": [{"x":3262.5,"y":1752.5},{"x":3239.5,"y":1750.5},{"x":3239.5,"y":1741.5},{"x":3242.5,"y":1740.5},{"x":3278.5,"y":1740.5},{"x":3281.5,"y":1741.5},{"x":3293.5,"y":1741.5},{"x":3365.5,"y":1672.5},{"x":3380.5,"y":1653.5},{"x":3436.5,"y":1601.5},{"x":3441.5,"y":1587.5},{"x":3447.5,"y":1571.5},{"x":3450.5,"y":1550.5},{"x":3470.5,"y":1497.5},{"x":3475.5,"y":1478.5},{"x":3480.5,"y":1475.5},{"x":3493.5,"y":1469.5},{"x":3535.5,"y":1465.5},{"x":3553.5,"y":1459.5},{"x":3567.5,"y":1457.5},{"x":3584.5,"y":1449.5},{"x":3591.5,"y":1447.5},{"x":3656.5,"y":1444.5},{"x":3661.5,"y":1438.5},{"x":3660.5,"y":1428.5},{"x":3650.5,"y":1417.5},{"x":3639.5,"y":1385.5},{"x":3641.5,"y":1381.5},{"x":3651.5,"y":1362.5},{"x":3653.5,"y":1331.5},{"x":3647.5,"y":1327.5},{"x":3641.5,"y":1325.5},{"x":3635.5,"y":1319.5},{"x":3635.5,"y":1315.5},{"x":3645.5,"y":1303.5},{"x":3663.5,"y":1304.5},{"x":3675.5,"y":1318.5},{"x":3674.5,"y":1340.5},{"x":3670.5,"y":1345.5},{"x":3666.5,"y":1355.5},{"x":3665.5,"y":1360.5},{"x":3664.5,"y":1367.5},{"x":3664.5,"y":1376.5},{"x":3680.5,"y":1396.5},{"x":3683.5,"y":1428.5},{"x":3690.5,"y":1442.5},{"x":3701.5,"y":1460.5},{"x":3722.5,"y":1463.5},{"x":3775.5,"y":1461.5},{"x":3778.5,"y":1460.5},{"x":3800.5,"y":1441.5},{"x":3822.5,"y":1419.5},{"x":3832.5,"y":1419.5},{"x":3850.5,"y":1437.5},{"x":3872.5,"y":1444.5},{"x":3896.5,"y":1454.5},{"x":3914.5,"y":1470.5},{"x":3925.5,"y":1474.5},{"x":3929.5,"y":1467.5},{"x":3947.5,"y":1461.5},{"x":4092.5,"y":1463.5},{"x":4097.5,"y":1467.5},{"x":4134.5,"y":1474.5},{"x":4141.5,"y":1476.5},{"x":4177.5,"y":1476.5},{"x":4180.5,"y":1474.5},{"x":4279.5,"y":1467.5},{"x":4316.5,"y":1454.5},{"x":4317.5,"y":1439.5}],
       "yanille_bank": [{"x":3262.5,"y":1752.5},{"x":3239.5,"y":1753.5},{"x":3235.5,"y":1775.5},{"x":3230.5,"y":1798.5},{"x":3198.5,"y":1961.5},{"x":3185.5,"y":2105.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
+  },
+  "barbarian_outpost_bank": {
+    "id": "barbarian_outpost_bank",
+    "name": "Barbarian Outpost Bank",
+    "type": "bank",
+    "position": {"x":3024,"y":1169},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "barbarian_outpost_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "burgh_de_rott_bank": {
+    "id": "burgh_de_rott_bank",
+    "name": "Burgh De Rott Bank",
+    "type": "bank",
+    "position": {"x":4938,"y":1896},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "burgh_de_rott_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
   },
   "canifis_bank": {
     "id": "canifis_bank",
@@ -1046,6 +231,46 @@
       "yanille_bank": [{"x":3572.5,"y":1436.5},{"x":3565.5,"y":1447.5},{"x":3547.5,"y":1453.5},{"x":3533.5,"y":1453.5},{"x":3488.5,"y":1471.5},{"x":3475.5,"y":1478.5},{"x":3429.5,"y":1593.5},{"x":3414.5,"y":1623.5},{"x":3375.5,"y":1659.5},{"x":3372.5,"y":1663.5},{"x":3291.5,"y":1745.5},{"x":3287.5,"y":1745.5},{"x":3265.5,"y":1769.5},{"x":3248.5,"y":1789.5},{"x":3239.5,"y":1789.5},{"x":3230.5,"y":1795.5},{"x":3199.5,"y":1956.5},{"x":3184.5,"y":2106.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
   },
+  "cooks_guild_bank": {
+    "id": "cooks_guild_bank",
+    "name": "Cooks Guild Bank",
+    "type": "bank",
+    "position": {"x":4246,"y":1415},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "cooks_guild_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "corsair_cove_bank": {
+    "id": "corsair_cove_bank",
+    "name": "Corsair Cove Bank",
+    "type": "bank",
+    "position": {"x":3092,"y":2588},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "corsair_cove_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "crafting_guild_bank": {
+    "id": "crafting_guild_bank",
+    "name": "Crafting Guild Bank",
+    "type": "bank",
+    "position": {"x":3823,"y":1760},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "crafting_guild_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "darkmeyer_bank": {
+    "id": "darkmeyer_bank",
+    "name": "Darkmeyer Bank",
+    "type": "bank",
+    "position": {"x":5162,"y":1584},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "darkmeyer_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
   "draynor_bank": {
     "id": "draynor_bank",
     "name": "Draynor Bank",
@@ -1112,6 +337,16 @@
       "yanille_bank": [{"x":4714.5,"y":1781.5},{"x":4715.5,"y":1786.5},{"x":4708.5,"y":1787.5},{"x":4615.5,"y":1790.5},{"x":4600.5,"y":1808.5},{"x":4600.5,"y":1816.5},{"x":4593.5,"y":1827.5},{"x":4584.5,"y":1840.5},{"x":4575.5,"y":1848.5},{"x":4484.5,"y":1862.5},{"x":4456.5,"y":1866.5},{"x":4451.5,"y":1867.5},{"x":4412.5,"y":1867.5},{"x":4392.5,"y":1848.5},{"x":4364.5,"y":1833.5},{"x":4309.5,"y":1776.5},{"x":4305.5,"y":1770.5},{"x":4298.5,"y":1769.5},{"x":4261.5,"y":1735.5},{"x":4180.5,"y":1708.5},{"x":4091.5,"y":1663.5},{"x":3969.5,"y":1675.5},{"x":3960.5,"y":1670.5},{"x":3952.5,"y":1670.5},{"x":3906.5,"y":1684.5},{"x":3871.5,"y":1684.5},{"x":3846.5,"y":1652.5},{"x":3846.5,"y":1643.5},{"x":3825.5,"y":1609.5},{"x":3819.5,"y":1606.5},{"x":3731.5,"y":1510.5},{"x":3731.5,"y":1500.5},{"x":3709.5,"y":1476.5},{"x":3709.5,"y":1470.5},{"x":3677.5,"y":1425.5},{"x":3677.5,"y":1405.5},{"x":3664.5,"y":1374.5},{"x":3665.5,"y":1345.5},{"x":3671.5,"y":1338.5},{"x":3675.5,"y":1324.5},{"x":3674.5,"y":1319.5},{"x":3667.5,"y":1308.5},{"x":3662.5,"y":1304.5},{"x":3645.5,"y":1303.5},{"x":3635.5,"y":1314.5},{"x":3635.5,"y":1320.5},{"x":3651.5,"y":1330.5},{"x":3653.5,"y":1332.5},{"x":3653.5,"y":1337.5},{"x":3644.5,"y":1373.5},{"x":3639.5,"y":1385.5},{"x":3643.5,"y":1408.5},{"x":3661.5,"y":1433.5},{"x":3661.5,"y":1439.5},{"x":3612.5,"y":1447.5},{"x":3589.5,"y":1447.5},{"x":3579.5,"y":1451.5},{"x":3559.5,"y":1459.5},{"x":3551.5,"y":1459.5},{"x":3525.5,"y":1467.5},{"x":3491.5,"y":1469.5},{"x":3475.5,"y":1478.5},{"x":3429.5,"y":1593.5},{"x":3414.5,"y":1623.5},{"x":3375.5,"y":1659.5},{"x":3372.5,"y":1663.5},{"x":3291.5,"y":1745.5},{"x":3287.5,"y":1745.5},{"x":3265.5,"y":1769.5},{"x":3248.5,"y":1789.5},{"x":3239.5,"y":1789.5},{"x":3230.5,"y":1795.5},{"x":3199.5,"y":1956.5},{"x":3184.5,"y":2106.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
   },
+  "etceteria_bank": {
+    "id": "etceteria_bank",
+    "name": "Etceteria Bank",
+    "type": "bank",
+    "position": {"x":3191,"y":530},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "etceteria_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
   "falador_east_bank": {
     "id": "falador_east_bank",
     "name": "Falador East Bank",
@@ -1176,6 +411,26 @@
       "yanille_bank": [{"x":3842.5,"y":1580.5},{"x":3842.5,"y":1571.5},{"x":3839.5,"y":1570.5},{"x":3835.5,"y":1571.5},{"x":3826.5,"y":1608.5},{"x":3821.5,"y":1608.5},{"x":3731.5,"y":1510.5},{"x":3731.5,"y":1500.5},{"x":3709.5,"y":1476.5},{"x":3709.5,"y":1470.5},{"x":3677.5,"y":1425.5},{"x":3677.5,"y":1405.5},{"x":3664.5,"y":1374.5},{"x":3665.5,"y":1345.5},{"x":3671.5,"y":1338.5},{"x":3675.5,"y":1324.5},{"x":3674.5,"y":1319.5},{"x":3667.5,"y":1308.5},{"x":3662.5,"y":1304.5},{"x":3645.5,"y":1303.5},{"x":3635.5,"y":1314.5},{"x":3635.5,"y":1320.5},{"x":3651.5,"y":1330.5},{"x":3653.5,"y":1332.5},{"x":3653.5,"y":1337.5},{"x":3644.5,"y":1373.5},{"x":3639.5,"y":1385.5},{"x":3643.5,"y":1408.5},{"x":3661.5,"y":1433.5},{"x":3661.5,"y":1439.5},{"x":3612.5,"y":1447.5},{"x":3589.5,"y":1447.5},{"x":3579.5,"y":1451.5},{"x":3559.5,"y":1459.5},{"x":3551.5,"y":1459.5},{"x":3525.5,"y":1467.5},{"x":3491.5,"y":1469.5},{"x":3475.5,"y":1478.5},{"x":3429.5,"y":1593.5},{"x":3414.5,"y":1623.5},{"x":3375.5,"y":1659.5},{"x":3372.5,"y":1663.5},{"x":3291.5,"y":1745.5},{"x":3287.5,"y":1745.5},{"x":3265.5,"y":1769.5},{"x":3248.5,"y":1789.5},{"x":3239.5,"y":1789.5},{"x":3230.5,"y":1795.5},{"x":3199.5,"y":1956.5},{"x":3184.5,"y":2106.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
   },
+  "farming_guild_bank": {
+    "id": "farming_guild_bank",
+    "name": "Farming Guild Bank",
+    "type": "bank",
+    "position": {"x":449,"y":798},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "farming_guild_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "ferox_enclave_bank": {
+    "id": "ferox_enclave_bank",
+    "name": "Ferox Enclave Bank",
+    "type": "bank",
+    "position": {"x":4210,"y":1062},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "ferox_enclave_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
   "fishing_guild_bank": {
     "id": "fishing_guild_bank",
     "name": "Fishing Guild Bank",
@@ -1207,6 +462,26 @@
       "varrock_west_bank": [{"x":3119.5,"y":1479.5},{"x":3140.5,"y":1490.5},{"x":3151.5,"y":1504.5},{"x":3156.5,"y":1508.5},{"x":3174.5,"y":1523.5},{"x":3174.5,"y":1532.5},{"x":3195.5,"y":1533.5},{"x":3443.5,"y":1510.5},{"x":3479.5,"y":1475.5},{"x":3493.5,"y":1469.5},{"x":3535.5,"y":1465.5},{"x":3553.5,"y":1459.5},{"x":3567.5,"y":1457.5},{"x":3584.5,"y":1449.5},{"x":3591.5,"y":1447.5},{"x":3656.5,"y":1444.5},{"x":3661.5,"y":1438.5},{"x":3660.5,"y":1428.5},{"x":3650.5,"y":1417.5},{"x":3639.5,"y":1385.5},{"x":3641.5,"y":1381.5},{"x":3651.5,"y":1362.5},{"x":3653.5,"y":1331.5},{"x":3647.5,"y":1327.5},{"x":3641.5,"y":1325.5},{"x":3635.5,"y":1319.5},{"x":3635.5,"y":1315.5},{"x":3645.5,"y":1303.5},{"x":3663.5,"y":1304.5},{"x":3675.5,"y":1318.5},{"x":3674.5,"y":1340.5},{"x":3670.5,"y":1345.5},{"x":3666.5,"y":1355.5},{"x":3665.5,"y":1360.5},{"x":3664.5,"y":1367.5},{"x":3664.5,"y":1376.5},{"x":3680.5,"y":1396.5},{"x":3683.5,"y":1428.5},{"x":3690.5,"y":1442.5},{"x":3701.5,"y":1460.5},{"x":3722.5,"y":1463.5},{"x":3775.5,"y":1461.5},{"x":3778.5,"y":1460.5},{"x":3800.5,"y":1441.5},{"x":3822.5,"y":1419.5},{"x":3832.5,"y":1419.5},{"x":3850.5,"y":1437.5},{"x":3872.5,"y":1444.5},{"x":3896.5,"y":1454.5},{"x":3914.5,"y":1470.5},{"x":3925.5,"y":1474.5},{"x":3929.5,"y":1467.5},{"x":3947.5,"y":1461.5},{"x":4092.5,"y":1463.5},{"x":4097.5,"y":1467.5},{"x":4134.5,"y":1474.5},{"x":4141.5,"y":1476.5},{"x":4177.5,"y":1476.5},{"x":4180.5,"y":1474.5},{"x":4279.5,"y":1467.5},{"x":4316.5,"y":1454.5},{"x":4317.5,"y":1439.5}],
       "yanille_bank": [{"x":3119.5,"y":1479.5},{"x":3138.5,"y":1489.5},{"x":3161.5,"y":1515.5},{"x":3173.5,"y":1522.5},{"x":3176.5,"y":1638.5},{"x":3169.5,"y":1646.5},{"x":3168.5,"y":1655.5},{"x":3167.5,"y":1682.5},{"x":3156.5,"y":1746.5},{"x":3149.5,"y":1756.5},{"x":3145.5,"y":1765.5},{"x":3146.5,"y":1775.5},{"x":3148.5,"y":1778.5},{"x":3155.5,"y":1791.5},{"x":3157.5,"y":1809.5},{"x":3195.5,"y":1896.5},{"x":3196.5,"y":1899.5},{"x":3189.5,"y":2101.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
+  },
+  "fossil_island_bank": {
+    "id": "fossil_island_bank",
+    "name": "Fossil Island Bank",
+    "type": "bank",
+    "position": {"x":5435,"y":711},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "fossil_island_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "fossil_island_small_bank": {
+    "id": "fossil_island_small_bank",
+    "name": "Fossil Island Small Bank",
+    "type": "bank",
+    "position": {"x":5494,"y":523},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "fossil_island_small_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
   },
   "gnome_stronghold_north_bank": {
     "id": "gnome_stronghold_north_bank",
@@ -1306,6 +581,66 @@
       "yanille_bank": [{"x":4281.5,"y":1340.5},{"x":4278.5,"y":1386.5},{"x":4228.5,"y":1412.5},{"x":4170.5,"y":1476.5},{"x":4104.5,"y":1475.5},{"x":4095.5,"y":1467.5},{"x":3962.5,"y":1461.5},{"x":3945.5,"y":1461.5},{"x":3927.5,"y":1468.5},{"x":3924.5,"y":1474.5},{"x":3869.5,"y":1457.5},{"x":3831.5,"y":1419.5},{"x":3821.5,"y":1419.5},{"x":3780.5,"y":1460.5},{"x":3776.5,"y":1460.5},{"x":3743.5,"y":1463.5},{"x":3704.5,"y":1463.5},{"x":3677.5,"y":1425.5},{"x":3677.5,"y":1405.5},{"x":3664.5,"y":1374.5},{"x":3665.5,"y":1345.5},{"x":3671.5,"y":1338.5},{"x":3675.5,"y":1324.5},{"x":3674.5,"y":1319.5},{"x":3667.5,"y":1308.5},{"x":3662.5,"y":1304.5},{"x":3645.5,"y":1303.5},{"x":3635.5,"y":1314.5},{"x":3635.5,"y":1320.5},{"x":3651.5,"y":1330.5},{"x":3653.5,"y":1332.5},{"x":3653.5,"y":1337.5},{"x":3644.5,"y":1373.5},{"x":3639.5,"y":1385.5},{"x":3643.5,"y":1408.5},{"x":3661.5,"y":1433.5},{"x":3661.5,"y":1439.5},{"x":3612.5,"y":1447.5},{"x":3589.5,"y":1447.5},{"x":3579.5,"y":1451.5},{"x":3559.5,"y":1459.5},{"x":3551.5,"y":1459.5},{"x":3525.5,"y":1467.5},{"x":3491.5,"y":1469.5},{"x":3475.5,"y":1478.5},{"x":3429.5,"y":1593.5},{"x":3414.5,"y":1623.5},{"x":3375.5,"y":1659.5},{"x":3372.5,"y":1663.5},{"x":3291.5,"y":1745.5},{"x":3287.5,"y":1745.5},{"x":3265.5,"y":1769.5},{"x":3248.5,"y":1789.5},{"x":3239.5,"y":1789.5},{"x":3230.5,"y":1795.5},{"x":3199.5,"y":1956.5},{"x":3184.5,"y":2106.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
   },
+  "hosidius_bank": {
+    "id": "hosidius_bank",
+    "name": "Hosidius Bank",
+    "type": "bank",
+    "position": {"x":1444,"y":1122},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "hosidius_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "hosidius_camp_bank": {
+    "id": "hosidius_camp_bank",
+    "name": "Hosidius Camp Bank",
+    "type": "bank",
+    "position": {"x":1386,"y":1380},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "hosidius_camp_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "hosidius_kitchen_bank": {
+    "id": "hosidius_kitchen_bank",
+    "name": "Hosidius Kitchen Bank",
+    "type": "bank",
+    "position": {"x":1303,"y":1088},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "hosidius_kitchen_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "jatizso_bank": {
+    "id": "jatizso_bank",
+    "name": "Jatizso Bank",
+    "type": "bank",
+    "position": {"x":2785,"y":719},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "jatizso_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "kourend_castle_bank": {
+    "id": "kourend_castle_bank",
+    "name": "Kourend Castle Bank",
+    "type": "bank",
+    "position": {"x":1178,"y":966},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "kourend_castle_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "lands_end_bank": {
+    "id": "lands_end_bank",
+    "name": "Lands End Bank",
+    "type": "bank",
+    "position": {"x":975,"y":1477},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "lands_end_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
   "legends_guild_bank": {
     "id": "legends_guild_bank",
     "name": "Legends Guild Bank",
@@ -1337,6 +672,36 @@
       "varrock_west_bank": [{"x":3402.5,"y":1569.5},{"x":3398.5,"y":1567.5},{"x":3399.5,"y":1566.5},{"x":3406.5,"y":1566.5},{"x":3407.5,"y":1577.5},{"x":3410.5,"y":1621.5},{"x":3416.5,"y":1621.5},{"x":3449.5,"y":1569.5},{"x":3450.5,"y":1550.5},{"x":3470.5,"y":1497.5},{"x":3475.5,"y":1478.5},{"x":3480.5,"y":1475.5},{"x":3493.5,"y":1469.5},{"x":3535.5,"y":1465.5},{"x":3553.5,"y":1459.5},{"x":3567.5,"y":1457.5},{"x":3584.5,"y":1449.5},{"x":3591.5,"y":1447.5},{"x":3656.5,"y":1444.5},{"x":3661.5,"y":1438.5},{"x":3660.5,"y":1428.5},{"x":3650.5,"y":1417.5},{"x":3639.5,"y":1385.5},{"x":3641.5,"y":1381.5},{"x":3651.5,"y":1362.5},{"x":3653.5,"y":1331.5},{"x":3647.5,"y":1327.5},{"x":3641.5,"y":1325.5},{"x":3635.5,"y":1319.5},{"x":3635.5,"y":1315.5},{"x":3645.5,"y":1303.5},{"x":3663.5,"y":1304.5},{"x":3675.5,"y":1318.5},{"x":3674.5,"y":1340.5},{"x":3670.5,"y":1345.5},{"x":3666.5,"y":1355.5},{"x":3665.5,"y":1360.5},{"x":3664.5,"y":1367.5},{"x":3664.5,"y":1376.5},{"x":3680.5,"y":1396.5},{"x":3683.5,"y":1428.5},{"x":3690.5,"y":1442.5},{"x":3701.5,"y":1460.5},{"x":3722.5,"y":1463.5},{"x":3775.5,"y":1461.5},{"x":3778.5,"y":1460.5},{"x":3800.5,"y":1441.5},{"x":3822.5,"y":1419.5},{"x":3832.5,"y":1419.5},{"x":3850.5,"y":1437.5},{"x":3872.5,"y":1444.5},{"x":3896.5,"y":1454.5},{"x":3914.5,"y":1470.5},{"x":3925.5,"y":1474.5},{"x":3929.5,"y":1467.5},{"x":3947.5,"y":1461.5},{"x":4092.5,"y":1463.5},{"x":4097.5,"y":1467.5},{"x":4134.5,"y":1474.5},{"x":4141.5,"y":1476.5},{"x":4177.5,"y":1476.5},{"x":4180.5,"y":1474.5},{"x":4279.5,"y":1467.5},{"x":4316.5,"y":1454.5},{"x":4317.5,"y":1439.5}],
       "yanille_bank": [{"x":3402.5,"y":1569.5},{"x":3398.5,"y":1567.5},{"x":3399.5,"y":1566.5},{"x":3406.5,"y":1566.5},{"x":3407.5,"y":1577.5},{"x":3407.5,"y":1627.5},{"x":3372.5,"y":1662.5},{"x":3316.5,"y":1720.5},{"x":3283.5,"y":1750.5},{"x":3265.5,"y":1769.5},{"x":3248.5,"y":1789.5},{"x":3239.5,"y":1789.5},{"x":3230.5,"y":1795.5},{"x":3199.5,"y":1956.5},{"x":3184.5,"y":2106.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
+  },
+  "lletya_bank": {
+    "id": "lletya_bank",
+    "name": "Lletya Bank",
+    "type": "bank",
+    "position": {"x":2658,"y":1990},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "lletya_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "lovakengj_bank": {
+    "id": "lovakengj_bank",
+    "name": "Lovakengj Bank",
+    "type": "bank",
+    "position": {"x":1003,"y":837},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "lovakengj_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "lovakengj_mine_bank": {
+    "id": "lovakengj_mine_bank",
+    "name": "Lovakengj Mine Bank",
+    "type": "bank",
+    "position": {"x":826,"y":664},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "lovakengj_mine_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
   },
   "lumbridge_bank": {
     "id": "lumbridge_bank",
@@ -1372,6 +737,16 @@
       "yanille_bank": [{"x":4361.5,"y":1903.5},{"x":4368.5,"y":1897.5},{"x":4367.5,"y":1895.5},{"x":4360.5,"y":1891.5},{"x":4356.5,"y":1889.5},{"x":4355.5,"y":1882.5},{"x":4330.5,"y":1880.5},{"x":4215.5,"y":1814.5},{"x":4186.5,"y":1801.5},{"x":4185.5,"y":1800.5},{"x":4157.5,"y":1777.5},{"x":4099.5,"y":1774.5},{"x":4091.5,"y":1767.5},{"x":3913.5,"y":1767.5},{"x":3878.5,"y":1736.5},{"x":3855.5,"y":1716.5},{"x":3823.5,"y":1688.5},{"x":3813.5,"y":1674.5},{"x":3806.5,"y":1661.5},{"x":3776.5,"y":1579.5},{"x":3731.5,"y":1509.5},{"x":3731.5,"y":1500.5},{"x":3709.5,"y":1476.5},{"x":3709.5,"y":1470.5},{"x":3700.5,"y":1458.5},{"x":3677.5,"y":1421.5},{"x":3677.5,"y":1405.5},{"x":3664.5,"y":1374.5},{"x":3665.5,"y":1345.5},{"x":3671.5,"y":1338.5},{"x":3675.5,"y":1324.5},{"x":3674.5,"y":1319.5},{"x":3667.5,"y":1308.5},{"x":3662.5,"y":1304.5},{"x":3645.5,"y":1303.5},{"x":3635.5,"y":1314.5},{"x":3635.5,"y":1320.5},{"x":3651.5,"y":1330.5},{"x":3653.5,"y":1332.5},{"x":3653.5,"y":1337.5},{"x":3644.5,"y":1373.5},{"x":3639.5,"y":1385.5},{"x":3643.5,"y":1408.5},{"x":3661.5,"y":1433.5},{"x":3661.5,"y":1439.5},{"x":3612.5,"y":1447.5},{"x":3589.5,"y":1447.5},{"x":3579.5,"y":1451.5},{"x":3559.5,"y":1459.5},{"x":3551.5,"y":1459.5},{"x":3525.5,"y":1467.5},{"x":3491.5,"y":1469.5},{"x":3475.5,"y":1478.5},{"x":3429.5,"y":1593.5},{"x":3414.5,"y":1623.5},{"x":3375.5,"y":1659.5},{"x":3372.5,"y":1663.5},{"x":3291.5,"y":1745.5},{"x":3287.5,"y":1745.5},{"x":3265.5,"y":1769.5},{"x":3248.5,"y":1789.5},{"x":3239.5,"y":1789.5},{"x":3230.5,"y":1795.5},{"x":3199.5,"y":1956.5},{"x":3184.5,"y":2106.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
   },
+  "lunar_isle_bank": {
+    "id": "lunar_isle_bank",
+    "name": "Lunar Isle Bank",
+    "type": "bank",
+    "position": {"x":2148,"y":479},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "lunar_isle_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
   "mage_arena_bank": {
     "id": "mage_arena_bank",
     "name": "Mage Arena Bank",
@@ -1403,6 +778,136 @@
       "varrock_west_bank": [{"x":4134.5,"y":405.5},{"x":4153.5,"y":403.5},{"x":4158.5,"y":399.5},{"x":4168.5,"y":399.5},{"x":4188.5,"y":411.5},{"x":4235.5,"y":461.5},{"x":4241.5,"y":480.5},{"x":4290.5,"y":510.5},{"x":4399.5,"y":510.5},{"x":4397.5,"y":514.5},{"x":4268.5,"y":590.5},{"x":4232.5,"y":836.5},{"x":4229.5,"y":1026.5},{"x":4226.5,"y":1029.5},{"x":4226.5,"y":1036.5},{"x":4222.5,"y":1040.5},{"x":4221.5,"y":1099.5},{"x":4225.5,"y":1376.5},{"x":4226.5,"y":1385.5},{"x":4242.5,"y":1388.5},{"x":4316.5,"y":1423.5},{"x":4317.5,"y":1439.5}],
       "yanille_bank": [{"x":4134.5,"y":405.5},{"x":4146.5,"y":405.5},{"x":4146.5,"y":409.5},{"x":4139.5,"y":409.5},{"x":4050.5,"y":479.5},{"x":3916.5,"y":479.5},{"x":3881.5,"y":482.5},{"x":3880.5,"y":479.5},{"x":3872.5,"y":463.5},{"x":3868.5,"y":464.5},{"x":3858.5,"y":482.5},{"x":3848.5,"y":512.5},{"x":3842.5,"y":691.5},{"x":3845.5,"y":970.5},{"x":3841.5,"y":1167.5},{"x":3819.5,"y":1251.5},{"x":3751.5,"y":1352.5},{"x":3751.5,"y":1378.5},{"x":3745.5,"y":1387.5},{"x":3743.5,"y":1401.5},{"x":3723.5,"y":1427.5},{"x":3711.5,"y":1437.5},{"x":3711.5,"y":1454.5},{"x":3705.5,"y":1460.5},{"x":3701.5,"y":1460.5},{"x":3677.5,"y":1420.5},{"x":3677.5,"y":1405.5},{"x":3664.5,"y":1374.5},{"x":3665.5,"y":1345.5},{"x":3671.5,"y":1338.5},{"x":3675.5,"y":1324.5},{"x":3674.5,"y":1319.5},{"x":3667.5,"y":1308.5},{"x":3662.5,"y":1304.5},{"x":3645.5,"y":1303.5},{"x":3635.5,"y":1314.5},{"x":3635.5,"y":1320.5},{"x":3651.5,"y":1330.5},{"x":3653.5,"y":1332.5},{"x":3653.5,"y":1337.5},{"x":3644.5,"y":1373.5},{"x":3639.5,"y":1385.5},{"x":3643.5,"y":1408.5},{"x":3661.5,"y":1433.5},{"x":3661.5,"y":1439.5},{"x":3612.5,"y":1447.5},{"x":3589.5,"y":1447.5},{"x":3579.5,"y":1451.5},{"x":3559.5,"y":1459.5},{"x":3551.5,"y":1459.5},{"x":3525.5,"y":1467.5},{"x":3491.5,"y":1469.5},{"x":3475.5,"y":1478.5},{"x":3458.5,"y":1540.5},{"x":3430.5,"y":1581.5},{"x":3430.5,"y":1592.5},{"x":3414.5,"y":1623.5},{"x":3375.5,"y":1659.5},{"x":3372.5,"y":1663.5},{"x":3291.5,"y":1745.5},{"x":3287.5,"y":1745.5},{"x":3265.5,"y":1769.5},{"x":3248.5,"y":1789.5},{"x":3239.5,"y":1789.5},{"x":3230.5,"y":1795.5},{"x":3199.5,"y":1956.5},{"x":3184.5,"y":2106.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
+  },
+  "mos_le_harmless_bank": {
+    "id": "mos_le_harmless_bank",
+    "name": "Mos Le Harmless Bank",
+    "type": "bank",
+    "position": {"x":5336,"y":2365},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "mos_le_harmless_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "mount_karuulm": {
+    "id": "mount_karuulm",
+    "name": "Mount Karuulm",
+    "type": "bank",
+    "position": {"x":600,"y":671},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "mount_karuulm",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "mount_quidamortem_bank": {
+    "id": "mount_quidamortem_bank",
+    "name": "Mount Quidamortem Bank",
+    "type": "bank",
+    "position": {"x":460,"y":1176},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "mount_quidamortem_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "myths_guild_bank": {
+    "id": "myths_guild_bank",
+    "name": "Myths Guild Bank",
+    "type": "bank",
+    "position": {"x":2866,"y":2638},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "myths_guild_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "nardah_bank": {
+    "id": "nardah_bank",
+    "name": "Nardah Bank",
+    "type": "bank",
+    "position": {"x":4801,"y":2532},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "nardah_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "neitiznot_bank": {
+    "id": "neitiznot_bank",
+    "name": "Neitiznot Bank",
+    "type": "bank",
+    "position": {"x":2625,"y":705},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "neitiznot_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "piscatoris_bank": {
+    "id": "piscatoris_bank",
+    "name": "Piscatoris Bank",
+    "type": "bank",
+    "position": {"x":2611,"y":941},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "piscatoris_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "port_khazard_bank": {
+    "id": "port_khazard_bank",
+    "name": "Port Khazard Bank",
+    "type": "bank",
+    "position": {"x":3274,"y":1994},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "port_khazard_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "port_phasmatys_bank": {
+    "id": "port_phasmatys_bank",
+    "name": "Port Phasmatys Bank",
+    "type": "bank",
+    "position": {"x":5329,"y":1386},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "port_phasmatys_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "port_piscarilius_bank": {
+    "id": "port_piscarilius_bank",
+    "name": "Port Piscarilius Bank",
+    "type": "bank",
+    "position": {"x":1558,"y":736},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "port_piscarilius_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "prifddinas_bank": {
+    "id": "prifddinas_bank",
+    "name": "Prifddinas Bank",
+    "type": "bank",
+    "position": {"x":2431,"y":1659},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "prifddinas_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "rouges_den_bank": {
+    "id": "rouges_den_bank",
+    "name": "Rouges Den Bank",
+    "type": "bank",
+    "position": {"x":3763,"y":1246},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "rouges_den_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "ruins_of_unkah_bank": {
+    "id": "ruins_of_unkah_bank",
+    "name": "Ruins Of Unkah Bank",
+    "type": "bank",
+    "position": {"x":4263,"y":2649},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "ruins_of_unkah_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
   },
   "seers_village_bank": {
     "id": "seers_village_bank",
@@ -1468,6 +973,26 @@
       "yanille_bank": [{"x":4570.5,"y":2075.5},{"x":4553.5,"y":2050.5},{"x":4497.5,"y":1988.5},{"x":4497.5,"y":1970.5},{"x":4488.5,"y":1953.5},{"x":4488.5,"y":1865.5},{"x":4442.5,"y":1867.5},{"x":4411.5,"y":1866.5},{"x":4392.5,"y":1848.5},{"x":4364.5,"y":1833.5},{"x":4309.5,"y":1776.5},{"x":4305.5,"y":1770.5},{"x":4298.5,"y":1769.5},{"x":4261.5,"y":1735.5},{"x":4180.5,"y":1708.5},{"x":4091.5,"y":1663.5},{"x":3969.5,"y":1675.5},{"x":3960.5,"y":1670.5},{"x":3952.5,"y":1670.5},{"x":3906.5,"y":1684.5},{"x":3871.5,"y":1684.5},{"x":3846.5,"y":1652.5},{"x":3846.5,"y":1643.5},{"x":3825.5,"y":1609.5},{"x":3819.5,"y":1606.5},{"x":3731.5,"y":1510.5},{"x":3731.5,"y":1500.5},{"x":3709.5,"y":1476.5},{"x":3709.5,"y":1470.5},{"x":3677.5,"y":1425.5},{"x":3677.5,"y":1405.5},{"x":3664.5,"y":1374.5},{"x":3665.5,"y":1345.5},{"x":3671.5,"y":1338.5},{"x":3675.5,"y":1324.5},{"x":3674.5,"y":1319.5},{"x":3667.5,"y":1308.5},{"x":3662.5,"y":1304.5},{"x":3645.5,"y":1303.5},{"x":3635.5,"y":1314.5},{"x":3635.5,"y":1320.5},{"x":3651.5,"y":1330.5},{"x":3653.5,"y":1332.5},{"x":3653.5,"y":1337.5},{"x":3644.5,"y":1373.5},{"x":3639.5,"y":1385.5},{"x":3643.5,"y":1408.5},{"x":3661.5,"y":1433.5},{"x":3661.5,"y":1439.5},{"x":3612.5,"y":1447.5},{"x":3589.5,"y":1447.5},{"x":3579.5,"y":1451.5},{"x":3559.5,"y":1459.5},{"x":3551.5,"y":1459.5},{"x":3525.5,"y":1467.5},{"x":3491.5,"y":1469.5},{"x":3475.5,"y":1478.5},{"x":3429.5,"y":1593.5},{"x":3414.5,"y":1623.5},{"x":3375.5,"y":1659.5},{"x":3372.5,"y":1663.5},{"x":3291.5,"y":1745.5},{"x":3287.5,"y":1745.5},{"x":3265.5,"y":1769.5},{"x":3248.5,"y":1789.5},{"x":3239.5,"y":1789.5},{"x":3230.5,"y":1795.5},{"x":3199.5,"y":1956.5},{"x":3184.5,"y":2106.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
   },
+  "shayzien_bank": {
+    "id": "shayzien_bank",
+    "name": "Shayzien Bank",
+    "type": "bank",
+    "position": {"x":922,"y":1135},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "shayzien_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "shayzien_tent_bank": {
+    "id": "shayzien_tent_bank",
+    "name": "Shayzien Tent Bank",
+    "type": "bank",
+    "position": {"x":921,"y":1025},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "shayzien_tent_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
   "shilo_village_bank": {
     "id": "shilo_village_bank",
     "name": "Shilo Village Bank",
@@ -1475,6 +1000,26 @@
     "position": {"x":3656,"y":2411},
     "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
     "nearestBank": "shilo_village_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "sophanem_bank": {
+    "id": "sophanem_bank",
+    "name": "Sophanem Bank",
+    "type": "bank",
+    "position": {"x":4580,"y":2723},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "sophanem_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "trouble_brewing_bank": {
+    "id": "trouble_brewing_bank",
+    "name": "Trouble Brewing Bank",
+    "type": "bank",
+    "position": {"x":5577,"y":2277},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "trouble_brewing_bank",
     "nearestBankDistance": 0,
     "pathsToOtherBanks": {}
   },
@@ -1543,6 +1088,56 @@
       "varrock_east_bank": [{"x":4317.5,"y":1439.5},{"x":4317.5,"y":1454.5},{"x":4320.5,"y":1455.5},{"x":4357.5,"y":1459.5},{"x":4375.5,"y":1461.5},{"x":4451.5,"y":1462.5},{"x":4457.5,"y":1468.5},{"x":4458.5,"y":1475.5},{"x":4459.5,"y":1480.5}],
       "yanille_bank": [{"x":4317.5,"y":1439.5},{"x":4316.5,"y":1454.5},{"x":4313.5,"y":1455.5},{"x":4282.5,"y":1468.5},{"x":4179.5,"y":1474.5},{"x":4164.5,"y":1476.5},{"x":4104.5,"y":1475.5},{"x":4095.5,"y":1467.5},{"x":3962.5,"y":1461.5},{"x":3945.5,"y":1461.5},{"x":3927.5,"y":1468.5},{"x":3924.5,"y":1474.5},{"x":3869.5,"y":1457.5},{"x":3831.5,"y":1419.5},{"x":3821.5,"y":1419.5},{"x":3780.5,"y":1460.5},{"x":3776.5,"y":1460.5},{"x":3743.5,"y":1463.5},{"x":3704.5,"y":1463.5},{"x":3677.5,"y":1425.5},{"x":3677.5,"y":1405.5},{"x":3664.5,"y":1374.5},{"x":3665.5,"y":1345.5},{"x":3671.5,"y":1338.5},{"x":3675.5,"y":1324.5},{"x":3674.5,"y":1319.5},{"x":3667.5,"y":1308.5},{"x":3662.5,"y":1304.5},{"x":3645.5,"y":1303.5},{"x":3635.5,"y":1314.5},{"x":3635.5,"y":1320.5},{"x":3651.5,"y":1330.5},{"x":3653.5,"y":1332.5},{"x":3653.5,"y":1337.5},{"x":3644.5,"y":1373.5},{"x":3639.5,"y":1385.5},{"x":3643.5,"y":1408.5},{"x":3661.5,"y":1433.5},{"x":3661.5,"y":1439.5},{"x":3612.5,"y":1447.5},{"x":3589.5,"y":1447.5},{"x":3579.5,"y":1451.5},{"x":3559.5,"y":1459.5},{"x":3551.5,"y":1459.5},{"x":3525.5,"y":1467.5},{"x":3491.5,"y":1469.5},{"x":3475.5,"y":1478.5},{"x":3429.5,"y":1593.5},{"x":3414.5,"y":1623.5},{"x":3375.5,"y":1659.5},{"x":3372.5,"y":1663.5},{"x":3291.5,"y":1745.5},{"x":3287.5,"y":1745.5},{"x":3265.5,"y":1769.5},{"x":3248.5,"y":1789.5},{"x":3239.5,"y":1789.5},{"x":3230.5,"y":1795.5},{"x":3199.5,"y":1956.5},{"x":3184.5,"y":2106.5},{"x":3167.5,"y":2124.5},{"x":3167.5,"y":2130.5},{"x":3176.5,"y":2134.5}]
     }
+  },
+  "ver_sinhaza_bank": {
+    "id": "ver_sinhaza_bank",
+    "name": "Ver Sinhaza Bank",
+    "type": "bank",
+    "position": {"x":5254,"y":1907},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "ver_sinhaza_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "void_knights_outpost_bank": {
+    "id": "void_knights_outpost_bank",
+    "name": "Void Knights Outpost Bank",
+    "type": "bank",
+    "position": {"x":3286,"y":3013},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "void_knights_outpost_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "warriors_guild_bank": {
+    "id": "warriors_guild_bank",
+    "name": "Warriors Guild Bank",
+    "type": "bank",
+    "position": {"x":3636,"y":1234},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "warriors_guild_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "wintertodt_bank": {
+    "id": "wintertodt_bank",
+    "name": "Wintertodt Bank",
+    "type": "bank",
+    "position": {"x":1231,"y":431},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "wintertodt_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
+  },
+  "woocutting_guild_bank": {
+    "id": "woocutting_guild_bank",
+    "name": "Woocutting Guild Bank",
+    "type": "bank",
+    "position": {"x":1134,"y":1364},
+    "activities": ["blowing_glass","cutting_gems","fletching","cleaning_herbs","making_potions"],
+    "nearestBank": "woocutting_guild_bank",
+    "nearestBankDistance": 0,
+    "pathsToOtherBanks": {}
   },
   "yanille_bank": {
     "id": "yanille_bank",
@@ -1642,9 +1237,9 @@
     "type": "skill",
     "position": {"x":3202,"y":963},
     "activities": ["rellekka_rooftop"],
-    "nearestBank": "seers_village_bank",
-    "nearestBankDistance": 498,
-    "pathToBank": [{"x":3202.5,"y":963.5},{"x":3210.5,"y":969.5},{"x":3235.5,"y":990.5},{"x":3235.5,"y":1006.5},{"x":3255.5,"y":1024.5},{"x":3275.5,"y":1030.5},{"x":3273.5,"y":1034.5},{"x":3259.5,"y":1122.5},{"x":3260.5,"y":1167.5},{"x":3298.5,"y":1225.5},{"x":3327.5,"y":1286.5},{"x":3348.5,"y":1300.5},{"x":3352.5,"y":1301.5},{"x":3387.5,"y":1332.5},{"x":3388.5,"y":1333.5},{"x":3391.5,"y":1336.5},{"x":3391.5,"y":1341.5},{"x":3397.5,"y":1346.5},{"x":3398.5,"y":1347.5},{"x":3402.5,"y":1347.5},{"x":3403.5,"y":1331.5}]
+    "nearestBank": "etceteria_bank",
+    "nearestBankDistance": 445,
+    "pathToBank": [{"x":3202.5,"y":963.5},{"x":3193.5,"y":961.5},{"x":3192.5,"y":847.5},{"x":3187.5,"y":629.5},{"x":3191.5,"y":578.5},{"x":3191.5,"y":540.5},{"x":3186.5,"y":534.5},{"x":3191.5,"y":530.5}]
   },
   "seers_rooftop": {
     "id": "seers_rooftop",
@@ -1672,9 +1267,9 @@
     "type": "skill",
     "position": {"x":3855,"y":1870},
     "activities": ["build_tables"],
-    "nearestBank": "falador_east_bank",
-    "nearestBankDistance": 317,
-    "pathToBank": [{"x":3855.5,"y":1870.5},{"x":3919.5,"y":1763.5},{"x":3934.5,"y":1702.5},{"x":3962.5,"y":1673.5},{"x":3964.5,"y":1647.5},{"x":3967.5,"y":1601.5},{"x":3970.5,"y":1600.5},{"x":3975.5,"y":1600.5},{"x":3976.5,"y":1603.5},{"x":3976.5,"y":1609.5}]
+    "nearestBank": "crafting_guild_bank",
+    "nearestBankDistance": 184,
+    "pathToBank": [{"x":3855.5,"y":1870.5},{"x":3841.5,"y":1826.5},{"x":3839.5,"y":1820.5},{"x":3840.5,"y":1737.5},{"x":3836.5,"y":1734.5},{"x":3823.5,"y":1732.5},{"x":3819.5,"y":1736.5},{"x":3818.5,"y":1745.5},{"x":3823.5,"y":1760.5}]
   },
   "lumbridge_kitchen": {
     "id": "lumbridge_kitchen",
@@ -1962,9 +1557,9 @@
     "type": "quest",
     "position": {"x":3866,"y":1294},
     "questId": "goblin_diplomacy",
-    "nearestBank": "falador_west_bank",
-    "nearestBankDistance": 308,
-    "pathToBank": [{"x":3866.5,"y":1294.5},{"x":3862.5,"y":1370.5},{"x":3858.5,"y":1384.5},{"x":3856.5,"y":1406.5},{"x":3858.5,"y":1408.5},{"x":3863.5,"y":1414.5},{"x":3864.5,"y":1437.5},{"x":3876.5,"y":1527.5},{"x":3878.5,"y":1530.5},{"x":3876.5,"y":1534.5},{"x":3874.5,"y":1550.5},{"x":3854.5,"y":1566.5},{"x":3843.5,"y":1571.5},{"x":3842.5,"y":1580.5}]
+    "nearestBank": "rouges_den_bank",
+    "nearestBankDistance": 262,
+    "pathToBank": [{"x":3866.5,"y":1294.5},{"x":3862.5,"y":1334.5},{"x":3861.5,"y":1359.5},{"x":3858.5,"y":1360.5},{"x":3848.5,"y":1362.5},{"x":3831.5,"y":1317.5},{"x":3831.5,"y":1300.5},{"x":3824.5,"y":1295.5},{"x":3812.5,"y":1295.5},{"x":3809.5,"y":1291.5},{"x":3809.5,"y":1282.5},{"x":3807.5,"y":1276.5},{"x":3774.5,"y":1253.5},{"x":3774.5,"y":1249.5},{"x":3783.5,"y":1249.5},{"x":3784.5,"y":1246.5},{"x":3783.5,"y":1245.5},{"x":3763.5,"y":1246.5}]
   },
   "imp_catcher_quest": {
     "id": "imp_catcher_quest",
@@ -2092,9 +1687,9 @@
     "type": "quest",
     "position": {"x":3887,"y":1908},
     "questId": "witchs_potion",
-    "nearestBank": "falador_east_bank",
-    "nearestBankDistance": 356,
-    "pathToBank": [{"x":3887.5,"y":1908.5},{"x":3878.5,"y":1905.5},{"x":3875.5,"y":1902.5},{"x":3875.5,"y":1877.5},{"x":3891.5,"y":1860.5},{"x":3910.5,"y":1810.5},{"x":3918.5,"y":1736.5},{"x":3962.5,"y":1673.5},{"x":3964.5,"y":1647.5},{"x":3967.5,"y":1601.5},{"x":3970.5,"y":1600.5},{"x":3975.5,"y":1600.5},{"x":3976.5,"y":1603.5},{"x":3976.5,"y":1609.5}]
+    "nearestBank": "crafting_guild_bank",
+    "nearestBankDistance": 233,
+    "pathToBank": [{"x":3887.5,"y":1908.5},{"x":3878.5,"y":1905.5},{"x":3875.5,"y":1902.5},{"x":3866.5,"y":1799.5},{"x":3839.5,"y":1736.5},{"x":3836.5,"y":1734.5},{"x":3823.5,"y":1732.5},{"x":3819.5,"y":1736.5},{"x":3818.5,"y":1745.5},{"x":3823.5,"y":1760.5}]
   },
   "x_marks_the_spot_quest": {
     "id": "x_marks_the_spot_quest",
