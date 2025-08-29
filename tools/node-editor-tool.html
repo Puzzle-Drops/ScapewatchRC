@@ -1247,6 +1247,70 @@
             showToast(`Node ${nodeId} ${nodes[nodeId] ? 'updated' : 'added'} successfully!`);
         }
         
+        // Show node tooltip (extracted function for reuse)
+        function showNodeTooltip(node, nodeId, screenX, screenY) {
+            const tooltip = document.getElementById('nodeTooltip');
+            
+            // Build tooltip
+            let tooltipHTML = `<strong>${node.name}</strong><br>`;
+            tooltipHTML += `ID: ${nodeId}<br>`;
+            tooltipHTML += `Type: ${node.type}<br>`;
+            tooltipHTML += `Pos: ${node.position.x}, ${node.position.y}`;
+            
+            // Show ALL activities
+            if (node.activities && node.activities.length > 0) {
+                tooltipHTML += `<br><strong>Activities (${node.activities.length}):</strong>`;
+                tooltipHTML += '<div class="tooltip-activities">';
+                node.activities.forEach(actId => {
+                    const act = activities[actId];
+                    if (act) {
+                        tooltipHTML += `<div>• ${act.name} (${act.skill})</div>`;
+                    }
+                });
+                tooltipHTML += '</div>';
+            }
+            
+            // Check if this is a bank node
+            if (node.type === 'bank' && node.pathsToOtherBanks) {
+                // Draw all bank paths without showing in tooltip
+                const bankPaths = Object.entries(node.pathsToOtherBanks);
+                if (bankPaths.length > 0) {
+                    const allPaths = bankPaths.map(([bankId, path]) => path);
+                    drawPaths(allPaths);
+                }
+            } else {
+                // Non-bank nodes - show nearest bank and path as before
+                if (node.nearestBank) {
+                    tooltipHTML += '<div class="tooltip-path">';
+                    tooltipHTML += `<strong>Nearest Bank:</strong> ${node.nearestBank}<br>`;
+                    if (node.nearestBankDistance !== undefined) {
+                        tooltipHTML += `Distance: ${node.nearestBankDistance} pixels<br>`;
+                    }
+                    if (node.pathToBank) {
+                        tooltipHTML += `Path waypoints: ${node.pathToBank.length}`;
+                        
+                        // Draw the path
+                        drawPath(node.pathToBank);
+                    }
+                    tooltipHTML += '</div>';
+                }
+            }
+            
+            tooltip.innerHTML = tooltipHTML;
+            tooltip.style.display = 'block';
+            tooltip.style.left = `${screenX + 10}px`;
+            tooltip.style.top = `${screenY - 30}px`;
+            hoveredNode = node;
+        }
+        
+        // Hide node tooltip
+        function hideNodeTooltip() {
+            const tooltip = document.getElementById('nodeTooltip');
+            tooltip.style.display = 'none';
+            document.getElementById('pathContainer').innerHTML = '';
+            hoveredNode = null;
+        }
+        
         // Update node list
         function updateNodeList() {
             const container = document.getElementById('nodeListContainer');
@@ -1280,6 +1344,16 @@
                 `;
                 
                 item.onclick = () => selectNodeFromList(nodeId);
+                
+                // Add hover functionality to show tooltip and paths
+                item.onmouseover = (e) => {
+                    showNodeTooltip(node, nodeId, e.clientX, e.clientY);
+                };
+                
+                item.onmouseout = () => {
+                    hideNodeTooltip();
+                };
+                
                 container.appendChild(item);
             }
         }
@@ -1800,63 +1874,10 @@
                 }
             }
             
-            const tooltip = document.getElementById('nodeTooltip');
-            
             if (foundNode) {
-                // Build tooltip
-                let tooltipHTML = `<strong>${foundNode.name}</strong><br>`;
-                tooltipHTML += `ID: ${foundId}<br>`;
-                tooltipHTML += `Type: ${foundNode.type}<br>`;
-                tooltipHTML += `Pos: ${foundNode.position.x}, ${foundNode.position.y}`;
-                
-                // Show ALL activities
-                if (foundNode.activities && foundNode.activities.length > 0) {
-                    tooltipHTML += `<br><strong>Activities (${foundNode.activities.length}):</strong>`;
-                    tooltipHTML += '<div class="tooltip-activities">';
-                    foundNode.activities.forEach(actId => {
-                        const act = activities[actId];
-                        if (act) {
-                            tooltipHTML += `<div>• ${act.name} (${act.skill})</div>`;
-                        }
-                    });
-                    tooltipHTML += '</div>';
-                }
-                
-                // Check if this is a bank node
-                if (foundNode.type === 'bank' && foundNode.pathsToOtherBanks) {
-                    // Draw all bank paths without showing in tooltip
-                    const bankPaths = Object.entries(foundNode.pathsToOtherBanks);
-                    if (bankPaths.length > 0) {
-                        const allPaths = bankPaths.map(([bankId, path]) => path);
-                        drawPaths(allPaths);
-                    }
-                } else {
-                    // Non-bank nodes - show nearest bank and path as before
-                    if (foundNode.nearestBank) {
-                        tooltipHTML += '<div class="tooltip-path">';
-                        tooltipHTML += `<strong>Nearest Bank:</strong> ${foundNode.nearestBank}<br>`;
-                        if (foundNode.nearestBankDistance !== undefined) {
-                            tooltipHTML += `Distance: ${foundNode.nearestBankDistance} pixels<br>`;
-                        }
-                        if (foundNode.pathToBank) {
-                            tooltipHTML += `Path waypoints: ${foundNode.pathToBank.length}`;
-                            
-                            // Draw the path
-                            drawPath(foundNode.pathToBank);
-                        }
-                        tooltipHTML += '</div>';
-                    }
-                }
-                
-                tooltip.innerHTML = tooltipHTML;
-                tooltip.style.display = 'block';
-                tooltip.style.left = `${screenX + 10}px`;
-                tooltip.style.top = `${screenY - 30}px`;
-                hoveredNode = foundNode;
+                showNodeTooltip(foundNode, foundId, screenX, screenY);
             } else {
-                tooltip.style.display = 'none';
-                document.getElementById('pathContainer').innerHTML = '';
-                hoveredNode = null;
+                hideNodeTooltip();
             }
         }
         
@@ -1878,7 +1899,7 @@
         }
         
         function zoomOut() {
-            zoom = Math.max(zoom / 1.5, 0.5);
+            zoom = Math.max(zoom / 1.5, 0.2);
             render();
             updateHighlight();
             
@@ -2094,7 +2115,7 @@
             e.preventDefault();
             
             const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            const newZoom = Math.max(0.5, Math.min(50, zoom * delta));
+            const newZoom = Math.max(0.2, Math.min(50, zoom * delta));
             
             const world = screenToWorld(e.clientX, e.clientY);
             zoom = newZoom;
