@@ -1,4 +1,80 @@
 {
+      "ruins_of_unkah_bank": {
+            "id": "ruins_of_unkah_bank",
+            "name": "Ruins Of Unkah Bank",
+            "type": "bank",
+            "position": {
+                    "x": 4263,
+                    "y": 2649
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "ruins_of_unkah_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "trouble_brewing_bank": {
+            "id": "trouble_brewing_bank",
+            "name": "Trouble Brewing Bank",
+            "type": "bank",
+            "position": {
+                    "x": 5577,
+                    "y": 2277
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "trouble_brewing_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "ferox_enclave_bank": {
+            "id": "ferox_enclave_bank",
+            "name": "Ferox Enclave Bank",
+            "type": "bank",
+            "position": {
+                    "x": 4210,
+                    "y": 1062
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "ferox_enclave_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+      "darkmeyer_bank": {
+            "id": "darkmeyer_bank",
+            "name": "Darkmeyer Bank",
+            "type": "bank",
+            "position": {
+                    "x": 5162,
+                    "y": 1584
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "darkmeyer_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
               "prifddinas_bank": {
             "id": "prifddinas_bank",
             "name": "Prifddinas Bank",
