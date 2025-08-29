@@ -1536,10 +1536,10 @@
                         return JSON.stringify(value);
                     }
                     
-                    // For pathsToOtherBanks, format each path on one line
+                    // For pathsToOtherBanks, format each path on one line with alphabetically sorted keys
                     if (keys.every(k => Array.isArray(value[k]))) {
                         let result = '{';
-                        const entries = Object.entries(value);
+                        const entries = Object.entries(value).sort(([a], [b]) => a.localeCompare(b));
                         entries.forEach(([key, val], index) => {
                             result += '\n' + indent.repeat(depth + 1) + '"' + key + '": ' + JSON.stringify(val);
                             if (index < entries.length - 1) result += ',';
