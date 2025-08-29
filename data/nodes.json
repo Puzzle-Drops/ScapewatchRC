@@ -1,4 +1,156 @@
 {
+              "prifddinas_bank": {
+            "id": "prifddinas_bank",
+            "name": "Prifddinas Bank",
+            "type": "bank",
+            "position": {
+                    "x": 2431,
+                    "y": 1659
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "prifddinas_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "mount_karuulm": {
+            "id": "mount_karuulm",
+            "name": "Mount Karuulm",
+            "type": "bank",
+            "position": {
+                    "x": 600,
+                    "y": 671
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "mount_karuulm",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "farming_guild_bank": {
+            "id": "farming_guild_bank",
+            "name": "Farming Guild Bank",
+            "type": "bank",
+            "position": {
+                    "x": 449,
+                    "y": 798
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "farming_guild_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "ver_sinhaza_bank": {
+            "id": "ver_sinhaza_bank",
+            "name": "Ver Sinhaza Bank",
+            "type": "bank",
+            "position": {
+                    "x": 5254,
+                    "y": 1907
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "ver_sinhaza_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "myths_guild_bank": {
+            "id": "myths_guild_bank",
+            "name": "Myths Guild Bank",
+            "type": "bank",
+            "position": {
+                    "x": 2866,
+                    "y": 2638
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "myths_guild_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "corsair_cove_bank": {
+            "id": "corsair_cove_bank",
+            "name": "Corsair Cove Bank",
+            "type": "bank",
+            "position": {
+                    "x": 3092,
+                    "y": 2588
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "corsair_cove_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "fossil_island_bank": {
+            "id": "fossil_island_bank",
+            "name": "Fossil Island Bank",
+            "type": "bank",
+            "position": {
+                    "x": 5435,
+                    "y": 711
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "fossil_island_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
+              "fossil_island_small_bank": {
+            "id": "fossil_island_small_bank",
+            "name": "Fossil Island Small Bank",
+            "type": "bank",
+            "position": {
+                    "x": 5494,
+                    "y": 523
+            },
+            "activities": [
+                    "blowing_glass",
+                    "cutting_gems",
+                    "fletching",
+                    "cleaning_herbs",
+                    "making_potions"
+            ],
+            "nearestBank": "fossil_island_small_bank",
+            "nearestBankDistance": 0,
+            "pathsToOtherBanks": {}
+    },
           "mount_quidamortem_bank": {
             "id": "mount_quidamortem_bank",
             "name": "Mount Quidamortem Bank",
