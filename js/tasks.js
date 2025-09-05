@@ -154,6 +154,7 @@ class TaskManager {
             !this.currentTask.isCookingTask && 
             !this.currentTask.isFiremakingTask && 
             !this.currentTask.isAgilityTask && 
+            !this.currentTask.isSailingTask && 
             !this.currentTask.isThievingTask && 
             !this.currentTask.isHuntingTask && 
             this.currentTask.itemId === itemId) {
@@ -167,8 +168,9 @@ class TaskManager {
         if (this.currentTask && this.currentTask.progress < 1) {
             // Check if this task manages its own progress (processing skills)
             if (this.currentTask.isCookingTask || 
-                this.currentTask.isFiremakingTask || 
+                this.currentTask.isFiremakingTask ||
                 this.currentTask.isAgilityTask ||
+                this.currentTask.isSailingTask ||
                 this.currentTask.isThievingTask ||
                 this.currentTask.isRunecraftingTask ||
                 this.currentTask.isConstructionTask ||
