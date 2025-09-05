@@ -23,6 +23,10 @@ class Player {
         this.isPreparingPath = false;
         this.pathPrepEndTime = 0;
         this.pathPrepDuration = 600; // 0.6 seconds
+
+        this.lastWaterCheck = 0;
+        this.isOnWaterCache = false;
+        this.waterCheckInterval = 100; // Only check every 100ms
     }
 
     update(deltaTime) {
@@ -632,12 +636,24 @@ class Player {
     }
 
     isOnWater() {
-        // Check the main map for water color RGB(104, 125, 170)
-        // Make sure map exists and is ready before checking
-        if (window.map && window.map.worldMap && window.map.isWaterPosition) {
-            return map.isWaterPosition(this.position.x, this.position.y);
+        // Cache water checks to improve performance on slow PCs
+        const now = Date.now();
+        
+        // Only check every 100ms instead of every frame
+        if (now - this.lastWaterCheck < this.waterCheckInterval) {
+            return this.isOnWaterCache;
         }
-        return false;
+        
+        this.lastWaterCheck = now;
+        
+        // Check the main map for water color RGB(104, 125, 170)
+        if (window.map && window.map.worldMap && window.map.isWaterPosition) {
+            this.isOnWaterCache = map.isWaterPosition(this.position.x, this.position.y);
+        } else {
+            this.isOnWaterCache = false;
+        }
+        
+        return this.isOnWaterCache;
     }
 
     isAtNode(nodeId) {
