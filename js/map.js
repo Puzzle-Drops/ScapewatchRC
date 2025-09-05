@@ -288,7 +288,6 @@ zoomCamera(newZoom) {
             'fishing': '#5DADE2',     // Light blue
             'woodcutting': '#27AE60', // Green
             'cooking': '#8E44AD',     // Purple
-            // Add more skills as needed
             'attack': '#C0392B',
             'strength': '#E74C3C',
             'defence': '#3498DB',
@@ -306,7 +305,8 @@ zoomCamera(newZoom) {
             'hunter': '#5D4E37',
             'smithing': '#515A5A',
             'firemaking': '#DC7633',
-            'farming': '#1E8449'
+            'farming': '#1E8449',
+            'sailing': '#1E90FF'
         };
         
         return skillColors[skillId] || '#f39c12'; // Default orange
