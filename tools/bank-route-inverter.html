@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Route Inverter - Edgeville Routes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .input-section, .output-section {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .stats.show {
+            display: block;
+        }
+        .stat-item {
+            display: inline-block;
+            margin-right: 30px;
+            margin-bottom: 10px;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .stat-value {
+            color: #333;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .error.show {
+            display: block;
+        }
+        .success {
+            background: #efe;
+            color: #3a3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .success.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Bank Route Inverter Tool</h1>
+        <p class="subtitle">Automatically creates inverse routes from banks back to Edgeville</p>
+        
+        <div class="input-section">
+            <label for="input">Paste your JSON here:</label>
+            <textarea id="input" placeholder="Paste your complete JSON data here..."></textarea>
+        </div>
+        
+        <button onclick="processRoutes()">Generate Inverse Routes</button>
+        
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
+        
+        <div id="stats" class="stats">
+            <div class="stat-item">
+                <div class="stat-label">Banks Found:</div>
+                <div class="stat-value" id="banksFound">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Routes from Edgeville:</div>
+                <div class="stat-value" id="edgevilleRoutes">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Inverse Routes Added:</div>
+                <div class="stat-value" id="routesAdded">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Routes Already Existed:</div>
+                <div class="stat-value" id="routesExisted">0</div>
+            </div>
+        </div>
+        
+        <div class="output-section">
+            <label for="output">Modified JSON (with inverse routes added):</label>
+            <textarea id="output" placeholder="Processed JSON will appear here..." readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        function processRoutes() {
+            const inputElement = document.getElementById('input');
+            const outputElement = document.getElementById('output');
+            const errorElement = document.getElementById('error');
+            const successElement = document.getElementById('success');
+            const statsElement = document.getElementById('stats');
+            
+            // Hide previous messages
+            errorElement.classList.remove('show');
+            successElement.classList.remove('show');
+            statsElement.classList.remove('show');
+            
+            try {
+                // Parse the input JSON
+                const data = JSON.parse(inputElement.value);
+                
+                // Find edgeville_bank
+                const edgevilleBank = data['edgeville_bank'];
+                if (!edgevilleBank) {
+                    throw new Error('Could not find edgeville_bank in the JSON');
+                }
+                
+                // Statistics
+                let banksFound = 0;
+                let edgevilleRoutesCount = 0;
+                let routesAdded = 0;
+                let routesExisted = 0;
+                
+                // Count banks
+                for (const key in data) {
+                    if (data[key].type === 'bank') {
+                        banksFound++;
+                    }
+                }
+                
+                // Process each route from Edgeville
+                const edgevilleRoutes = edgevilleBank.pathsToOtherBanks;
+                edgevilleRoutesCount = Object.keys(edgevilleRoutes).length;
+                
+                for (const targetBankId in edgevilleRoutes) {
+                    // Get the route from Edgeville to target bank
+                    const routeToBank = edgevilleRoutes[targetBankId];
+                    
+                    // Find the target bank in the data
+                    const targetBank = data[targetBankId];
+                    
+                    if (targetBank && targetBank.type === 'bank') {
+                        // Initialize pathsToOtherBanks if it doesn't exist
+                        if (!targetBank.pathsToOtherBanks) {
+                            targetBank.pathsToOtherBanks = {};
+                        }
+                        
+                        // Check if route back to Edgeville already exists
+                        if (targetBank.pathsToOtherBanks['edgeville_bank']) {
+                            routesExisted++;
+                        } else {
+                            // Create inverse route (reverse the array)
+                            const inverseRoute = [...routeToBank].reverse();
+                            
+                            // Add the inverse route
+                            targetBank.pathsToOtherBanks['edgeville_bank'] = inverseRoute;
+                            routesAdded++;
+                        }
+                    }
+                }
+                
+                // Output the modified JSON
+                outputElement.value = JSON.stringify(data, null, 2);
+                
+                // Update statistics
+                document.getElementById('banksFound').textContent = banksFound;
+                document.getElementById('edgevilleRoutes').textContent = edgevilleRoutesCount;
+                document.getElementById('routesAdded').textContent = routesAdded;
+                document.getElementById('routesExisted').textContent = routesExisted;
+                
+                // Show success message and stats
+                successElement.textContent = `Success! Added ${routesAdded} inverse routes. ${routesExisted} routes already existed.`;
+                successElement.classList.add('show');
+                statsElement.classList.add('show');
+                
+            } catch (error) {
+                errorElement.textContent = 'Error: ' + error.message;
+                errorElement.classList.add('show');
+                outputElement.value = '';
+            }
+        }
+        
+        // Allow tab key in textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 2;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

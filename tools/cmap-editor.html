@@ -1172,9 +1172,8 @@
                         
                         const checkColor = getPixelColor(checkX, checkY);
                         
-                        // If we find a pixel that's not the target color OR is transparent, keep this pixel
-                        // This ensures borders are preserved around both land AND transparent areas
-                        if (!checkColor || checkColor.a === 0 || !colorEquals(checkColor, targetColor)) {
+                        // If we find a pixel that's not the target color (including transparent), keep this pixel
+                        if (!checkColor || !colorEquals(checkColor, targetColor)) {
                             hasNearbyDifferentColor = true;
                             break;
                         }
