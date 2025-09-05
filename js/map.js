@@ -28,14 +28,23 @@ class MapRenderer {
         // Check if a position is water based on map color
         if (!this.worldMap) return false;
         
-        // Create a temporary canvas to check pixel color
+        // Create the color check canvas only once, and only after map is loaded
         if (!this.colorCheckCanvas) {
-            this.colorCheckCanvas = document.createElement('canvas');
-            this.colorCheckCanvas.width = this.worldMap.width;
-            this.colorCheckCanvas.height = this.worldMap.height;
-            this.colorCheckCtx = this.colorCheckCanvas.getContext('2d');
-            this.colorCheckCtx.drawImage(this.worldMap, 0, 0);
+            try {
+                this.colorCheckCanvas = document.createElement('canvas');
+                this.colorCheckCanvas.width = this.worldMap.width;
+                this.colorCheckCanvas.height = this.worldMap.height;
+                this.colorCheckCtx = this.colorCheckCanvas.getContext('2d');
+                this.colorCheckCtx.drawImage(this.worldMap, 0, 0);
+                console.log('Color check canvas created for water detection');
+            } catch (error) {
+                console.error('Failed to create color check canvas:', error);
+                return false;
+            }
         }
+        
+        // Safety check
+        if (!this.colorCheckCtx) return false;
         
         // Get pixel data at position
         const pixelX = Math.floor(x);
@@ -46,10 +55,15 @@ class MapRenderer {
             return false;
         }
         
-        const pixelData = this.colorCheckCtx.getImageData(pixelX, pixelY, 1, 1).data;
-        
-        // Check if it's water color RGB(104, 125, 170)
-        return pixelData[0] === 104 && pixelData[1] === 125 && pixelData[2] === 170;
+        try {
+            const pixelData = this.colorCheckCtx.getImageData(pixelX, pixelY, 1, 1).data;
+            
+            // Check if it's water color RGB(104, 125, 170)
+            return pixelData[0] === 104 && pixelData[1] === 125 && pixelData[2] === 170;
+        } catch (error) {
+            console.error('Failed to get pixel data:', error);
+            return false;
+        }
     }
 
     applyNoSmoothing() {
