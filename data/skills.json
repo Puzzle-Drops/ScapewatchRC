@@ -67,7 +67,7 @@
     "agility": {
         "name": "Agility",
         "category": "utility",
-        "description": "Increases movement speed"
+        "description": "Increases movement speed on land"
     },
     "thieving": {
         "name": "Thieving",
@@ -113,5 +113,10 @@
         "name": "Firemaking",
         "category": "utility",
         "description": "Light fires"
+    },
+    "sailing": {
+        "name": "Sailing",
+        "category": "utility",
+        "description": "Increases movement speed on water"
     }
 }
