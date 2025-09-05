@@ -33,14 +33,16 @@ class Player {
 
         // Track water movement for sailing XP
         if (this.isOnWater() && this.isMoving()) {
-            const sailingSkill = window.skillRegistry ? skillRegistry.getSkill('sailing') : null;
+            const sailingSkill = window.skillRegistry && window.skillRegistry.initialized ? 
+                skillRegistry.getSkill('sailing') : null;
             if (sailingSkill) {
                 sailingSkill.trackWaterMovement(this.position);
             }
         } else {
             // Reset water tracking when not on water
-            const sailingSkill = window.skillRegistry ? skillRegistry.getSkill('sailing') : null;
-            if (sailingSkill) {
+            const sailingSkill = window.skillRegistry && window.skillRegistry.initialized ? 
+                skillRegistry.getSkill('sailing') : null;
+            if (sailingSkill && sailingSkill.resetWaterTracking) {
                 sailingSkill.resetWaterTracking();
             }
         }
@@ -631,7 +633,8 @@ class Player {
 
     isOnWater() {
         // Check the main map for water color RGB(104, 125, 170)
-        if (window.map && map.isWaterPosition) {
+        // Make sure map exists and is ready before checking
+        if (window.map && window.map.worldMap && window.map.isWaterPosition) {
             return map.isWaterPosition(this.position.x, this.position.y);
         }
         return false;
