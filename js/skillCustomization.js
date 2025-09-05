@@ -1790,6 +1790,9 @@ class SkillCustomizationUI {
     possibleTaskIds.set(`runecraft_trips_${activityId}`, canDoActivity);
 } else if (this.currentSkillId === 'agility') {
     possibleTaskIds.set(`agility_laps_${activityId}`, canDoActivity);
+} else if (this.currentSkillId === 'sailing') {
+    // Map sailing activities to their virtual tracking items
+    possibleTaskIds.set(`sailing_laps_${activityId}`, canDoActivity);
 } else if (this.currentSkillId === 'thieving') {
     possibleTaskIds.set(`thieving_${activityId}`, canDoActivity);
 } else if (this.currentSkillId === 'hunter') {
@@ -2010,6 +2013,8 @@ class SkillCustomizationUI {
     canProduce = taskItemId === `runecraft_trips_${activityId}`;
 } else if (this.currentSkillId === 'agility') {
     canProduce = taskItemId === `agility_laps_${activityId}`;
+} else if (this.currentSkillId === 'sailing') {
+    canProduce = taskItemId === `sailing_laps_${activityId}`;
 } else if (this.currentSkillId === 'thieving') {
     canProduce = taskItemId === `thieving_${activityId}`;
 } else if (this.currentSkillId === 'hunter') {
@@ -2119,27 +2124,30 @@ class SkillCustomizationUI {
     }
     
     getItemDisplayName(itemId) {
-    if (itemId.startsWith('agility_laps_')) {
-        return itemId.replace('agility_laps_', '').replace(/_/g, ' ') + ' laps';
+        if (itemId.startsWith('agility_laps_')) {
+            return itemId.replace('agility_laps_', '').replace(/_/g, ' ') + ' laps';
+        }
+        if (itemId.startsWith('sailing_laps_')) {
+            return itemId.replace('sailing_laps_', '').replace(/_/g, ' ') + ' laps';
+        }
+        if (itemId.startsWith('thieving_')) {
+            return itemId.replace('thieving_', '').replace(/_/g, ' ');
+        }
+        if (itemId.startsWith('runecraft_trips_')) {
+            return itemId.replace('runecraft_trips_', '').replace(/_/g, ' ');
+        }
+        if (itemId.startsWith('hunter_')) {
+            // Handle hunter virtual items
+            return itemId.replace('hunter_', '').replace(/_/g, ' ');
+        }
+        if (itemId === 'chinchompa') {
+            // Special case for chinchompa
+            return 'Chinchompas';
+        }
+        
+        const itemData = loadingManager.getData('items')[itemId];
+        return itemData ? itemData.name : itemId.replace(/_/g, ' ');
     }
-    if (itemId.startsWith('thieving_')) {
-        return itemId.replace('thieving_', '').replace(/_/g, ' ');
-    }
-    if (itemId.startsWith('runecraft_trips_')) {
-        return itemId.replace('runecraft_trips_', '').replace(/_/g, ' ');
-    }
-    if (itemId.startsWith('hunter_')) {
-        // Handle hunter virtual items
-        return itemId.replace('hunter_', '').replace(/_/g, ' ');
-    }
-    if (itemId === 'chinchompa') {
-        // Special case for chinchompa
-        return 'Chinchompas';
-    }
-    
-    const itemData = loadingManager.getData('items')[itemId];
-    return itemData ? itemData.name : itemId.replace(/_/g, ' ');
-}
     
     getItemCounts(itemId) {
         const defaultCounts = { min: 20, max: 50 };
