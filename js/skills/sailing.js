@@ -42,7 +42,7 @@ class SailingSkill extends BaseSkill {
         while (this.waterPixelsTraveled >= 10) {
             this.waterPixelsTraveled -= 10;
             if (window.skills) {
-                skills.addXp('sailing', 10);
+                skills.addXp('sailing', 1);
             }
         }
         
