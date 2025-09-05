@@ -974,24 +974,80 @@ class DevConsole {
     // ==================== SPEED COMMANDS ====================
 
     cmdPlayerSpeed(args) {
-        if (args.length === 0) {
-            this.log(`Current player speed: ${this.speedModifiers.playerSpeed} tiles/second`, 'info');
-            this.log(`Default: ${this.speedModifiers.defaultPlayerSpeed} tiles/second`, 'info');
+    if (args.length === 0) {
+        if (window.player) {
+            const currentSpeed = player.getMovementSpeed();
+            const onWater = player.isOnWater();
+            const baseSpeed = onWater ? player.baseWaterSpeed : player.baseLandSpeed;
+            
+            this.log('=== MOVEMENT SPEED INFO ===', 'info');
+            this.log(`Current terrain: ${onWater ? 'WATER' : 'LAND'}`, 'info');
+            this.log(`Base ${onWater ? 'water' : 'land'} speed: ${baseSpeed} tiles/sec`, 'info');
+            
+            // Show skill bonuses
+            if (onWater) {
+                const sailingLevel = window.skills ? skills.getLevel('sailing') : 1;
+                const sailingBonus = 1 + (sailingLevel - 1) * 0.025;
+                this.log(`Sailing bonus (Lv ${sailingLevel}): x${sailingBonus.toFixed(2)}`, 'info');
+            } else {
+                const agilityLevel = window.skills ? skills.getLevel('agility') : 1;
+                const agilityBonus = 1 + (agilityLevel - 1) * 0.025;
+                this.log(`Agility bonus (Lv ${agilityLevel}): x${agilityBonus.toFixed(2)}`, 'info');
+            }
+            
+            this.log(`Dev multiplier: x${player.speedMultiplier}`, 'info');
+            this.log(`Final speed: ${currentSpeed.toFixed(1)} tiles/sec`, 'success');
+        } else {
+            this.log(`Speed multiplier: ${this.speedModifiers.playerSpeed}x`, 'info');
+        }
+        this.log('', 'info');
+        this.log('Usage: playerspeed <multiplier> - Set speed multiplier', 'info');
+        this.log('       playerspeed land <speed> - Set base land speed', 'info');
+        this.log('       playerspeed water <speed> - Set base water speed', 'info');
+        return;
+    }
+    
+    // Check for land/water specific commands
+    if (args.length === 2 && (args[0] === 'land' || args[0] === 'water')) {
+        const type = args[0];
+        const speed = this.parseFloatArg(args[1], `${type} speed`, 0.1, 100);
+        if (speed === null) return;
+        
+        if (!window.player) {
+            this.log('Player not initialized yet', 'error');
             return;
         }
         
-        const speed = this.parseFloatArg(args[0], 'Speed', 0.1, 100);
-        if (speed === null) return;
-        
-        this.speedModifiers.playerSpeed = speed;
-        
-        // Apply to player if exists
-        if (window.player) {
-            player.movementSpeed = speed;
+        if (type === 'land') {
+            player.baseLandSpeed = speed;
+            this.log(`Base land speed set to ${speed} tiles/sec`, 'success');
+        } else {
+            player.baseWaterSpeed = speed;
+            this.log(`Base water speed set to ${speed} tiles/sec`, 'success');
         }
         
-        this.log(`Player speed set to ${speed} tiles/second`, 'success');
+        const currentSpeed = player.getMovementSpeed();
+        this.log(`Current speed: ${currentSpeed.toFixed(1)} tiles/sec on ${player.isOnWater() ? 'water' : 'land'}`, 'info');
+        return;
     }
+    
+    // Regular multiplier command
+    const multiplier = this.parseFloatArg(args[0], 'Multiplier', 0.1, 100);
+    if (multiplier === null) return;
+    
+    this.speedModifiers.playerSpeed = multiplier;
+    
+    // Apply to player if exists
+    if (window.player) {
+        player.speedMultiplier = multiplier;
+        
+        const currentSpeed = player.getMovementSpeed();
+        this.log(`Speed multiplier set to ${multiplier}x`, 'success');
+        this.log(`Current speed: ${currentSpeed.toFixed(1)} tiles/sec on ${player.isOnWater() ? 'water' : 'land'}`, 'info');
+    } else {
+        this.log(`Speed multiplier set to ${multiplier}x (will apply when player loads)`, 'success');
+    }
+}
 
     cmdActionSpeed(args) {
         if (args.length === 0) {
@@ -1038,56 +1094,83 @@ class DevConsole {
     }
 
     cmdTestMode(args) {
-        const mode = args.length > 0 ? args[0].toLowerCase() : 'toggle';
-        
-        let enable = false;
-        if (mode === 'toggle') {
-            enable = this.speedModifiers.playerSpeed === this.speedModifiers.defaultPlayerSpeed;
-        } else {
-            enable = mode === 'on' || mode === 'true' || mode === '1';
-        }
-        
-        if (enable) {
-            // Fast testing mode
-            this.speedModifiers.playerSpeed = 30; // 30 tiles/sec
-            this.speedModifiers.actionDuration = 0.01; // 100x faster actions
-            
-            if (window.player) {
-                player.movementSpeed = 30;
-            }
-            
-            // Apply action speed
-            this.cmdActionSpeed(['0.01']);
-            
-            this.log('Test mode ENABLED', 'success');
-            this.log('- Player speed: 30 tiles/sec', 'info');
-            this.log('- Actions: 100x faster', 'info');
-        } else {
-            // Reset to defaults
-            this.cmdResetSpeeds();
-        }
+    const mode = args.length > 0 ? args[0].toLowerCase() : 'toggle';
+    
+    let enable = false;
+    if (mode === 'toggle') {
+        enable = this.speedModifiers.playerSpeed === this.speedModifiers.defaultPlayerSpeed;
+    } else {
+        enable = mode === 'on' || mode === 'true' || mode === '1';
     }
-
-    cmdResetSpeeds() {
-        this.speedModifiers.playerSpeed = this.speedModifiers.defaultPlayerSpeed;
-        this.speedModifiers.actionDuration = this.speedModifiers.defaultActionDuration;
+    
+    if (enable) {
+        // Fast testing mode
+        this.speedModifiers.playerSpeed = 10; // 10x multiplier
+        this.speedModifiers.actionDuration = 0.01; // 100x faster actions
         
         if (window.player) {
-            player.movementSpeed = this.speedModifiers.defaultPlayerSpeed;
+            player.speedMultiplier = 10;
+            
+            // Also boost base speeds for extreme testing
+            player.baseLandSpeed = 5;  // Up from 3
+            player.baseWaterSpeed = 8; // Up from 5
         }
         
-        // Restore original skill methods if they were overridden
-        if (this.originalSkillMethods && window.skillRegistry) {
-            const allSkills = skillRegistry.getAllSkills();
-            for (const skill of allSkills) {
-                if (this.originalSkillMethods[skill.id]) {
-                    skill.getDuration = this.originalSkillMethods[skill.id];
-                }
-            }
+        // Apply action speed
+        this.cmdActionSpeed(['0.01']);
+        
+        this.log('=== TEST MODE ENABLED ===', 'success');
+        this.log('Movement changes:', 'info');
+        this.log('  - Speed multiplier: 10x', 'info');
+        this.log('  - Base land speed: 5 tiles/sec', 'info');
+        this.log('  - Base water speed: 8 tiles/sec', 'info');
+        
+        if (window.player) {
+            const currentSpeed = player.getMovementSpeed();
+            const terrain = player.isOnWater() ? 'water' : 'land';
+            this.log(`  - Current speed: ${currentSpeed.toFixed(1)} tiles/sec on ${terrain}`, 'success');
         }
         
+        this.log('Action changes:', 'info');
+        this.log('  - Actions: 100x faster', 'info');
+    } else {
+        // Reset to defaults
+        this.cmdResetSpeeds();
+    }
+}
+
+    cmdResetSpeeds() {
+    this.speedModifiers.playerSpeed = this.speedModifiers.defaultPlayerSpeed;
+    this.speedModifiers.actionDuration = this.speedModifiers.defaultActionDuration;
+    
+    if (window.player) {
+        // Reset all movement values to defaults
+        player.speedMultiplier = 1;
+        player.baseLandSpeed = 3;
+        player.baseWaterSpeed = 5;
+        
+        const currentSpeed = player.getMovementSpeed();
+        const terrain = player.isOnWater() ? 'water' : 'land';
+        
+        this.log('=== SPEEDS RESET TO DEFAULT ===', 'success');
+        this.log(`Base land speed: 3 tiles/sec`, 'info');
+        this.log(`Base water speed: 5 tiles/sec`, 'info');
+        this.log(`Speed multiplier: 1x`, 'info');
+        this.log(`Current speed: ${currentSpeed.toFixed(1)} tiles/sec on ${terrain}`, 'info');
+    } else {
         this.log('All speeds reset to default', 'success');
     }
+    
+    // Restore original skill methods if they were overridden
+    if (this.originalSkillMethods && window.skillRegistry) {
+        const allSkills = skillRegistry.getAllSkills();
+        for (const skill of allSkills) {
+            if (this.originalSkillMethods[skill.id]) {
+                skill.getDuration = this.originalSkillMethods[skill.id];
+            }
+        }
+    }
+}
 
     // ==================== SKILL COMMANDS ====================
 
