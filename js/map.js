@@ -24,7 +24,34 @@ class MapRenderer {
     this.setupZoomControls();
 }
 
-    // Add this new method right after the constructor
+    isWaterPosition(x, y) {
+        // Check if a position is water based on map color
+        if (!this.worldMap) return false;
+        
+        // Create a temporary canvas to check pixel color
+        if (!this.colorCheckCanvas) {
+            this.colorCheckCanvas = document.createElement('canvas');
+            this.colorCheckCanvas.width = this.worldMap.width;
+            this.colorCheckCanvas.height = this.worldMap.height;
+            this.colorCheckCtx = this.colorCheckCanvas.getContext('2d');
+            this.colorCheckCtx.drawImage(this.worldMap, 0, 0);
+        }
+        
+        // Get pixel data at position
+        const pixelX = Math.floor(x);
+        const pixelY = Math.floor(y);
+        
+        // Bounds check
+        if (pixelX < 0 || pixelY < 0 || pixelX >= this.worldMap.width || pixelY >= this.worldMap.height) {
+            return false;
+        }
+        
+        const pixelData = this.colorCheckCtx.getImageData(pixelX, pixelY, 1, 1).data;
+        
+        // Check if it's water color RGB(104, 125, 170)
+        return pixelData[0] === 104 && pixelData[1] === 125 && pixelData[2] === 170;
+    }
+
     applyNoSmoothing() {
         this.ctx.imageSmoothingEnabled = false;
         this.ctx.webkitImageSmoothingEnabled = false;
