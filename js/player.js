@@ -632,7 +632,6 @@ class Player {
     }
 
     isOnWater() {
-        return false; // temp disabled
         // Check the main map for water color RGB(104, 125, 170)
         // Make sure map exists and is ready before checking
         if (window.map && window.map.worldMap && window.map.isWaterPosition) {
