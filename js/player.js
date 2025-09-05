@@ -1,23 +1,28 @@
 class Player {
     constructor() {
-        this.position = { x: 4395, y: 1882 };
-        this.targetPosition = null;
-        this.currentNode = null; // Start at Lumbridge bank
-        this.targetNode = null;
-        this.currentActivity = null;
-        this.activityProgress = 0;
-        this.activityStartTime = 0;
-        this.movementSpeed = 3;
-        this.path = [];
-        this.pathIndex = 0;
-        this.segmentProgress = 0;
-        this.isStunned = false;
-        this.stunEndTime = 0;
-        this.stunDuration = 0;
-        this.isBanking = false;
-        this.bankingEndTime = 0;
-        this.bankingDuration = 600; // 0.6 seconds
-        this.movementStartTime = 0;
+    this.position = { x: 4395, y: 1882 };
+    this.targetPosition = null;
+    this.currentNode = null; // Start at Lumbridge bank
+    this.targetNode = null;
+    this.currentActivity = null;
+    this.activityProgress = 0;
+    this.activityStartTime = 0;
+    
+    // Movement speeds
+    this.baseLandSpeed = 3;  // Base land speed (tiles/sec)
+    this.baseWaterSpeed = 5; // Base water speed (tiles/sec)
+    this.speedMultiplier = 1;  // Dev console speed multiplier
+    
+    this.path = [];
+    this.pathIndex = 0;
+    this.segmentProgress = 0;
+    this.isStunned = false;
+    this.stunEndTime = 0;
+    this.stunDuration = 0;
+    this.isBanking = false;
+    this.bankingEndTime = 0;
+    this.bankingDuration = 600; // 0.6 seconds
+    this.movementStartTime = 0;
         
         // Path preparation animation (white circle)
         this.isPreparingPath = false;
@@ -619,21 +624,24 @@ class Player {
     }
 
     getMovementSpeed() {
-        // Check if we're on water
-        if (this.isOnWater()) {
-            // Water speed scales with sailing
-            const sailingLevel = skills.getLevel('sailing');
-            const baseWaterSpeed = 5; // Slightly slower base than land
-            const speedBonus = 1 + (sailingLevel - 1) * 0.025;
-            return baseWaterSpeed * speedBonus;
-        } else {
-            // Land speed scales with agility
-            const agilityLevel = skills.getLevel('agility');
-            const baseLandSpeed = 3;
-            const speedBonus = 1 + (agilityLevel - 1) * 0.025;
-            return baseLandSpeed * speedBonus;
-        }
+    let speed;
+    
+    // Check if we're on water
+    if (this.isOnWater()) {
+        // Water speed scales with sailing
+        const sailingLevel = skills.getLevel('sailing');
+        const speedBonus = 1 + (sailingLevel - 1) * 0.025;
+        speed = this.baseWaterSpeed * speedBonus;
+    } else {
+        // Land speed scales with agility
+        const agilityLevel = skills.getLevel('agility');
+        const speedBonus = 1 + (agilityLevel - 1) * 0.025;
+        speed = this.baseLandSpeed * speedBonus;
     }
+    
+    // Apply dev console speed multiplier
+    return speed * this.speedMultiplier;
+}
 
     isOnWater() {
         // Cache water checks to improve performance on slow PCs
