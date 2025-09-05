@@ -28,13 +28,16 @@ class MapRenderer {
         // Check if a position is water based on map color
         if (!this.worldMap) return false;
         
-        // Create the color check canvas only once, and only after map is loaded
+        // Create the color check canvas only once with performance optimization
         if (!this.colorCheckCanvas) {
             try {
                 this.colorCheckCanvas = document.createElement('canvas');
                 this.colorCheckCanvas.width = this.worldMap.width;
                 this.colorCheckCanvas.height = this.worldMap.height;
-                this.colorCheckCtx = this.colorCheckCanvas.getContext('2d');
+                // IMPORTANT: Add willReadFrequently for better performance
+                this.colorCheckCtx = this.colorCheckCanvas.getContext('2d', { 
+                    willReadFrequently: true 
+                });
                 this.colorCheckCtx.drawImage(this.worldMap, 0, 0);
                 console.log('Color check canvas created for water detection');
             } catch (error) {
