@@ -111,9 +111,16 @@ constructor() {
         // Determine which sprite sheet to use
         let activeSheet = this.spriteSheet;
         
-        // Check if player is on water
-        if (window.player && player.isOnWater && player.isOnWater()) {
-            activeSheet = this.sailSheet || this.spriteSheet; // Fallback to regular sprite
+        // Check if player is on water (with safety checks)
+        if (window.player && window.player.isOnWater && typeof window.player.isOnWater === 'function') {
+            try {
+                if (player.isOnWater()) {
+                    activeSheet = this.sailSheet || this.spriteSheet; // Fallback to regular sprite
+                }
+            } catch (error) {
+                // If there's any error checking water, just use regular sprite
+                activeSheet = this.spriteSheet;
+            }
         }
         
         if (!activeSheet) return false;
