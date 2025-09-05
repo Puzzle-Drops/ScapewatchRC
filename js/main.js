@@ -19,13 +19,14 @@ async function init() {
     loadingManager.addImage('worldMap', 'assets/map.png');
     loadingManager.addImage('collisionMap', 'assets/collision-map.png');
     loadingManager.addImage('playerSprite', 'assets/player-sheet.png');
+    loadingManager.addImage('sailSprite', 'assets/sail-sheet.png');
     
     // Add skill icons
     const skillIcons = [
         'agility', 'attack', 'bank', 'combat', 'construction', 'cooking', 
         'crafting', 'defence', 'farming', 'firemaking', 'fishing', 'fletching', 
         'herblore', 'hitpoints', 'hunter', 'magic', 'mining', 'prayer', 
-        'quests', 'ranged', 'runecraft', 'skills', 'slayer', 'smithing', 
+        'quests', 'ranged', 'runecraft', 'sailing', 'skills', 'slayer', 'smithing', 
         'strength', 'thieving', 'woodcutting'
     ];
     
@@ -40,7 +41,7 @@ async function init() {
         'agility', 'attack', 'construction', 'cooking', 
         'crafting', 'defence', 'farming', 'firemaking', 'fishing', 'fletching', 
         'herblore', 'hitpoints', 'hunter', 'magic', 'mining', 'prayer', 
-        'ranged', 'runecraft', 'slayer', 'smithing', 
+        'ranged', 'runecraft', 'sailing', 'slayer', 'smithing', 
         'strength', 'thieving', 'woodcutting'
     ];
 
