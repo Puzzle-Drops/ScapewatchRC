@@ -11,6 +11,7 @@ class SkillRegistry {
         this.register(new FishingSkill());
         this.register(new CookingSkill());
         this.register(new AgilitySkill());
+        this.register(new SailingSkill());
         this.register(new FiremakingSkill());
         this.register(new ThievingSkill());
         this.register(new RunecraftingSkill());
