@@ -509,7 +509,7 @@ class SkillCustomizationUI {
             // Column 2
             ['hitpoints', 'agility', 'herblore', 'thieving', 'crafting', 'fletching', 'slayer', 'hunter'],
             // Column 3
-            ['mining', 'smithing', 'fishing', 'cooking', 'firemaking', 'woodcutting', 'farming']
+            ['mining', 'smithing', 'fishing', 'cooking', 'firemaking', 'woodcutting', 'farming', 'sailing']
         ];
         
         // Get registered skills to filter properly
