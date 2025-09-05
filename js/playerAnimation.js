@@ -26,10 +26,12 @@ constructor() {
     
     initialize() {
         this.spriteSheet = loadingManager.getImage('playerSprite');
+        this.sailSheet = loadingManager.getImage('sailSprite');
         if (this.spriteSheet) {
             console.log('Player sprite sheet loaded successfully');
-        } else {
-            console.error('Failed to load player sprite sheet');
+        }
+        if (this.sailSheet) {
+            console.log('Sail sprite sheet loaded successfully');
         }
     }
     
@@ -106,14 +108,22 @@ constructor() {
     }
     
     draw(ctx, x, y, scale) {
-        if (!this.spriteSheet) return false;
+        // Determine which sprite sheet to use
+        let activeSheet = this.spriteSheet;
+        
+        // Check if player is on water
+        if (window.player && player.isOnWater && player.isOnWater()) {
+            activeSheet = this.sailSheet || this.spriteSheet; // Fallback to regular sprite
+        }
+        
+        if (!activeSheet) return false;
         
         const row = this.directions[this.facing];
         const col = this.animationFrame;
         
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(
-            this.spriteSheet,
+            activeSheet,
             col * this.spriteSize,
             row * this.spriteSize,
             this.spriteSize,
