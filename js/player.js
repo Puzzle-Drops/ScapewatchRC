@@ -30,6 +30,20 @@ class Player {
         if (window.playerAnimation) {
             playerAnimation.update(deltaTime, this);
         }
+
+        // Track water movement for sailing XP
+        if (this.isOnWater() && this.isMoving()) {
+            const sailingSkill = window.skillRegistry ? skillRegistry.getSkill('sailing') : null;
+            if (sailingSkill) {
+                sailingSkill.trackWaterMovement(this.position);
+            }
+        } else {
+            // Reset water tracking when not on water
+            const sailingSkill = window.skillRegistry ? skillRegistry.getSkill('sailing') : null;
+            if (sailingSkill) {
+                sailingSkill.resetWaterTracking();
+            }
+        }
     
         // Handle movement along path (don't move while banking or preparing path)
         if (this.path.length > 0 && this.pathIndex < this.path.length && !this.isBanking && !this.isPreparingPath) {
@@ -599,9 +613,28 @@ class Player {
     }
 
     getMovementSpeed() {
-        const agilityLevel = skills.getLevel('agility');
-        const speedBonus = 1 + (agilityLevel - 1) * 0.01;
-        return this.movementSpeed * speedBonus;
+        // Check if we're on water
+        if (this.isOnWater()) {
+            // Water speed scales with sailing
+            const sailingLevel = skills.getLevel('sailing');
+            const baseWaterSpeed = 5; // Slightly slower base than land
+            const speedBonus = 1 + (sailingLevel - 1) * 0.025;
+            return baseWaterSpeed * speedBonus;
+        } else {
+            // Land speed scales with agility
+            const agilityLevel = skills.getLevel('agility');
+            const baseLandSpeed = 3;
+            const speedBonus = 1 + (agilityLevel - 1) * 0.025;
+            return baseLandSpeed * speedBonus;
+        }
+    }
+
+    isOnWater() {
+        // Check the main map for water color RGB(104, 125, 170)
+        if (window.map && map.isWaterPosition) {
+            return map.isWaterPosition(this.position.x, this.position.y);
+        }
+        return false;
     }
 
     isAtNode(nodeId) {
