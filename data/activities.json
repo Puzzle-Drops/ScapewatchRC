@@ -862,6 +862,87 @@
     "baseDuration": 45600,
     "markOfGraceChance": 0.125
 },
+"calm_waters_trial": {
+    "id": "calm_waters_trial",
+    "name": "Calm Waters Barracuda Trial",
+    "skill": "sailing",
+    "requiredLevel": 1,
+    "xpPerLap": 120,
+    "baseDuration": 43200,
+    "markOfGraceChance": 0.125
+},
+"reef_runner_trial": {
+    "id": "reef_runner_trial",
+    "name": "Reef Runner Barracuda Trial",
+    "skill": "sailing",
+    "requiredLevel": 20,
+    "xpPerLap": 216,
+    "baseDuration": 64200,
+    "markOfGraceChance": 0.125
+},
+"storm_chaser_trial": {
+    "id": "storm_chaser_trial",
+    "name": "Storm Chaser Barracuda Trial",
+    "skill": "sailing",
+    "requiredLevel": 30,
+    "xpPerLap": 270,
+    "baseDuration": 70000,
+    "markOfGraceChance": 0.125
+},
+"tempest_trial": {
+    "id": "tempest_trial",
+    "name": "Tempest Barracuda Trial",
+    "skill": "sailing",
+    "requiredLevel": 40,
+    "xpPerLap": 240,
+    "baseDuration": 43800,
+    "markOfGraceChance": 0.25
+},
+"maelstrom_trial": {
+    "id": "maelstrom_trial",
+    "name": "Maelstrom Barracuda Trial",
+    "skill": "sailing",
+    "requiredLevel": 50,
+    "xpPerLap": 586,
+    "baseDuration": 60000,
+    "markOfGraceChance": 0.125
+},
+"typhoon_trial": {
+    "id": "typhoon_trial",
+    "name": "Typhoon Barracuda Trial",
+    "skill": "sailing",
+    "requiredLevel": 60,
+    "xpPerLap": 570,
+    "baseDuration": 43800,
+    "markOfGraceChance": 0.125
+},
+"hurricane_trial": {
+    "id": "hurricane_trial",
+    "name": "Hurricane Barracuda Trial",
+    "skill": "sailing",
+    "requiredLevel": 70,
+    "xpPerLap": 890,
+    "baseDuration": 47400,
+    "markOfGraceChance": 0.125
+},
+"kraken_wake_trial": {
+    "id": "kraken_wake_trial",
+    "name": "Kraken's Wake Barracuda Trial",
+    "skill": "sailing",
+    "requiredLevel": 80,
+    "xpPerLap": 780,
+    "baseDuration": 51000,
+    "markOfGraceChance": 0.125
+},
+"neptune_wrath_trial": {
+    "id": "neptune_wrath_trial",
+    "name": "Neptune's Wrath Barracuda Trial",
+    "skill": "sailing",
+    "requiredLevel": 90,
+    "xpPerLap": 889,
+    "baseDuration": 45600,
+    "markOfGraceChance": 0.125
+},
     "small_fishing_net": {
         "id": "small_fishing_net",
         "name": "Small Net Fishing",
