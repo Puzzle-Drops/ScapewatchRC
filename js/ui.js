@@ -489,17 +489,20 @@ class UIManager {
         taskContent.className = 'task-content';
         
         // Skill icon
-        const iconDiv = document.createElement('div');
-        iconDiv.className = 'task-icon';
-        const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
-        if (skillIcon) {
-            const icon = document.createElement('img');
-            icon.src = skillIcon.src;
-            iconDiv.appendChild(icon);
-        } else {
-            // Fallback text
-            iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
-        }
+const iconDiv = document.createElement('div');
+iconDiv.className = 'task-icon';
+// Add skill-colored border for current and next tasks
+iconDiv.classList.add(`skill-border-${task.skill}`);
+
+const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
+if (skillIcon) {
+    const icon = document.createElement('img');
+    icon.src = skillIcon.src;
+    iconDiv.appendChild(icon);
+} else {
+    // Fallback text
+    iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
+}
         
         // Task details container
         const detailsDiv = document.createElement('div');
@@ -591,21 +594,42 @@ createSelectableTaskElement(taskSlot, slotIndex) {
     const iconsWrapper = document.createElement('div');
     iconsWrapper.className = 'task-icons-wrapper';
     
-    taskSlot.options.forEach((task, optionIndex) => {
+    // Reorder options so selected is always last (rightmost)
+    const reorderedOptions = [];
+    const selectedIndex = taskSlot.selectedIndex || 0;
+    
+    // Add non-selected options first
+    taskSlot.options.forEach((task, idx) => {
+        if (idx !== selectedIndex) {
+            reorderedOptions.push({ task, originalIndex: idx });
+        }
+    });
+    
+    // Add selected option last
+    reorderedOptions.push({ 
+        task: taskSlot.options[selectedIndex], 
+        originalIndex: selectedIndex 
+    });
+    
+    // Create icons in reordered sequence
+    reorderedOptions.forEach((option, displayIndex) => {
         const iconDiv = document.createElement('div');
         iconDiv.className = 'task-icon-option';
-        if (optionIndex === taskSlot.selectedIndex) {
+        
+        // Mark if this is the selected one (will be last/rightmost)
+        if (option.originalIndex === selectedIndex) {
             iconDiv.classList.add('selected');
+            iconDiv.classList.add(`skill-border-${option.task.skill}`);
         }
         
-        const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
+        const skillIcon = loadingManager.getImage(`skill_${option.task.skill}`);
         if (skillIcon) {
             const icon = document.createElement('img');
             icon.src = skillIcon.src;
             iconDiv.appendChild(icon);
         } else {
             // Fallback text
-            iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
+            iconDiv.textContent = option.task.skill.substring(0, 3).toUpperCase();
         }
         
         // Add hover handler to preview task
@@ -613,7 +637,7 @@ createSelectableTaskElement(taskSlot, slotIndex) {
             // Update the task details preview
             const descDiv = taskDiv.querySelector('.task-description');
             if (descDiv) {
-                descDiv.textContent = task.description;
+                descDiv.textContent = option.task.description;
             }
         });
         
@@ -621,11 +645,19 @@ createSelectableTaskElement(taskSlot, slotIndex) {
         iconDiv.addEventListener('click', (e) => {
             e.stopPropagation();
             if (window.taskManager) {
-                taskManager.selectTaskOption(slotIndex, optionIndex);
+                taskManager.selectTaskOption(slotIndex, option.originalIndex);
             }
         });
         
         iconsWrapper.appendChild(iconDiv);
+    });
+    
+    // Add mouse leave handler to restore selected task description
+    iconsWrapper.addEventListener('mouseleave', () => {
+        const descDiv = taskDiv.querySelector('.task-description');
+        if (descDiv) {
+            descDiv.textContent = selectedTask.description;
+        }
     });
     
     iconContainer.appendChild(iconsWrapper);
