@@ -2394,3 +2394,12 @@ span.control-emoji {
     80% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-10px); }
 }
+
+.auth-success {
+    color: #2ecc71;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+    min-height: 20px;
+}
+
