@@ -143,6 +143,11 @@ async function continueGameStart() {
     // Load saved game data if logged in
     if (firebaseManager.currentUser) {
         await firebaseManager.loadGame();
+
+        // IMPORTANT: Give AI a grace period after loading
+        if (window.ai) {
+            ai.decisionCooldown = 2000; // 2 second grace period
+        }
         
         // Start auto-save
         firebaseManager.startAutoSave();
@@ -216,12 +221,18 @@ function setupAuthHandlers() {
             e.target.classList.add('active');
             
             const tabName = e.target.dataset.tab;
+            // Hide all forms
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('forgot-form').style.display = 'none';
+            
+            // Show selected form
             if (tabName === 'login') {
                 document.getElementById('login-form').style.display = 'block';
-                document.getElementById('signup-form').style.display = 'none';
-            } else {
-                document.getElementById('login-form').style.display = 'none';
+            } else if (tabName === 'signup') {
                 document.getElementById('signup-form').style.display = 'block';
+            } else if (tabName === 'forgot') {
+                document.getElementById('forgot-form').style.display = 'block';
             }
         });
     });
@@ -267,6 +278,32 @@ function setupAuthHandlers() {
         gameState.isLoggedIn = true;
         document.getElementById('login-screen').style.display = 'none';
         continueGameStart();
+    });
+
+    // Forgot password form
+    document.getElementById('forgot-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('forgot-username').value;
+        
+        try {
+            document.getElementById('forgot-error').textContent = '';
+            document.getElementById('forgot-success').style.display = 'none';
+            
+            // Get email from username
+            const email = await firebaseManager.getEmailFromUsername(username);
+            
+            // Send reset email
+            await firebaseManager.resetPassword(email);
+            
+            // Show success message
+            document.getElementById('forgot-success').textContent = 'Password reset email sent! Check your inbox.';
+            document.getElementById('forgot-success').style.display = 'block';
+            
+            // Clear form
+            document.getElementById('forgot-username').value = '';
+        } catch (error) {
+            document.getElementById('forgot-error').textContent = error.message;
+        }
     });
 }
 
