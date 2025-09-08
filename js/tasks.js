@@ -16,45 +16,46 @@ class TaskManager {
     }
 
     // Generate initial set of tasks (current, next, and 5 regular)
-generateInitialTasks() {
-    // Generate current and next as single tasks
-    const initialTasks = this.generateMultipleTasks(2);
-    
-    if (initialTasks.length > 0) {
-        this.currentTask = initialTasks[0];
-        // Initialize startingCount for current task if it's a gathering task
-        if (this.currentTask && !this.currentTask.isCookingTask) {
-            this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
+    generateInitialTasks() {
+        // Generate current and next as single tasks
+        const initialTasks = this.generateMultipleTasks(2);
+        
+        if (initialTasks.length > 0) {
+            this.currentTask = initialTasks[0];
+            // Initialize startingCount for current task if it's a gathering task
+            if (this.currentTask && !this.currentTask.isCookingTask) {
+                this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
+            }
+        }
+        
+        if (initialTasks.length > 1) {
+            this.nextTask = initialTasks[1];
+        }
+        
+        // Generate 5 task slots with 3 options each
+        this.tasks = [];
+        for (let i = 0; i < 5; i++) {
+            const options = this.generateMultipleTasks(3);
+            if (options.length > 0) {
+                this.tasks.push({
+                    options: options,
+                    selectedIndex: 0,  // Auto-select first option
+                    displayOrder: [0, 1, 2]  // Track display order for swapping
+                });
+            }
+        }
+        
+        // Notify UI to update
+        if (window.ui) {
+            window.ui.updateTasks();
+        }
+        
+        // Notify AI about the new current task
+        if (window.ai) {
+            window.ai.currentTask = null;
+            window.ai.decisionCooldown = 0;
         }
     }
-    
-    if (initialTasks.length > 1) {
-        this.nextTask = initialTasks[1];
-    }
-    
-    // Generate 5 task slots with 3 options each
-    this.tasks = [];
-    for (let i = 0; i < 5; i++) {
-        const options = this.generateMultipleTasks(3);
-        if (options.length > 0) {
-            this.tasks.push({
-                options: options,
-                selectedIndex: 0  // Auto-select first option
-            });
-        }
-    }
-    
-    // Notify UI to update
-    if (window.ui) {
-        window.ui.updateTasks();
-    }
-    
-    // Notify AI about the new current task
-    if (window.ai) {
-        window.ai.currentTask = null;
-        window.ai.decisionCooldown = 0;
-    }
-}
 
     // Generate multiple tasks at once
     generateMultipleTasks(count) {
@@ -256,157 +257,175 @@ generateInitialTasks() {
     }
 
     // Move next task to current, and first regular task to next
-promoteNextTask() {
-    // Store the previous task's bank for optimization
-    const previousBank = this.currentTask && window.nodes ? 
-        (nodes.getNode(this.currentTask.nodeId)?.nearestBank) : null;
-    
-    this.currentTask = this.nextTask;
-    
-    // Check if new task uses same bank as previous (for AI optimization)
-    if (this.currentTask && previousBank && window.ai) {
-        const newTaskBank = window.nodes ? 
-            nodes.getNode(this.currentTask.nodeId)?.nearestBank : null;
+    promoteNextTask() {
+        // Store the previous task's bank for optimization
+        const previousBank = this.currentTask && window.nodes ? 
+            (nodes.getNode(this.currentTask.nodeId)?.nearestBank) : null;
         
-        if (newTaskBank === previousBank) {
-            console.log(`New task uses same bank (${previousBank}), AI can skip re-banking`);
-            // AI can check this to avoid unnecessary re-banking
-            if (window.ai) {
-                window.ai.hasBankedForCurrentTask = true;
+        this.currentTask = this.nextTask;
+        
+        // Check if new task uses same bank as previous (for AI optimization)
+        if (this.currentTask && previousBank && window.ai) {
+            const newTaskBank = window.nodes ? 
+                nodes.getNode(this.currentTask.nodeId)?.nearestBank : null;
+            
+            if (newTaskBank === previousBank) {
+                console.log(`New task uses same bank (${previousBank}), AI can skip re-banking`);
+                // AI can check this to avoid unnecessary re-banking
+                if (window.ai) {
+                    window.ai.hasBankedForCurrentTask = true;
+                }
+            } else {
+                console.log(`New task uses different bank (${previousBank} → ${newTaskBank})`);
+                if (window.ai) {
+                    window.ai.hasBankedForCurrentTask = false;
+                }
             }
+        }
+        
+        // Initialize starting count for new current task if it's a gathering task
+        if (this.currentTask && !this.currentTask.isCookingTask && this.currentTask.startingCount === null) {
+            this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
+            console.log(`New current task "${this.currentTask.description}" starting count: ${this.currentTask.startingCount}`);
+        }
+        
+        // Move first regular task to next
+        if (this.tasks.length > 0) {
+            const firstTaskSlot = this.tasks.shift();
+            // Get the selected task from the slot (or pick first if none selected)
+            const selectedTask = firstTaskSlot.options[firstTaskSlot.selectedIndex || 0];
+            this.nextTask = selectedTask;
+            console.log(`Promoted task to next: ${this.nextTask.description}`);
         } else {
-            console.log(`New task uses different bank (${previousBank} → ${newTaskBank})`);
-            if (window.ai) {
-                window.ai.hasBankedForCurrentTask = false;
-            }
+            this.nextTask = null;
         }
-    }
-    
-    // Initialize starting count for new current task if it's a gathering task
-    if (this.currentTask && !this.currentTask.isCookingTask && this.currentTask.startingCount === null) {
-        this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
-        console.log(`New current task "${this.currentTask.description}" starting count: ${this.currentTask.startingCount}`);
-    }
-    
-    // Move first regular task to next
-    if (this.tasks.length > 0) {
-        const firstTaskSlot = this.tasks.shift();
-        // Get the selected task from the slot (or pick first if none selected)
-        const selectedTask = firstTaskSlot.options[firstTaskSlot.selectedIndex || 0];
-        this.nextTask = selectedTask;
-        console.log(`Promoted task to next: ${this.nextTask.description}`);
-    } else {
-        this.nextTask = null;
-    }
-    
-    // Ensure we always have 5 tasks in the queue
-    this.ensureFullTaskQueue();
-    
-    // Update UI
-    if (window.ui) {
-        window.ui.updateTasks();
-    }
-    
-    // Notify AI to re-evaluate
-    if (window.ai) {
-        console.log('Current task changed, notifying AI to re-evaluate');
-        window.ai.currentTask = null;
-        window.ai.decisionCooldown = 0;
-    }
-}
-
-    // Ensure we always have 5 tasks in the queue
-ensureFullTaskQueue() {
-    const tasksNeeded = this.maxTasks - this.tasks.length;
-    
-    if (tasksNeeded <= 0) {
-        return; // Already have enough tasks
-    }
-    
-    console.log(`Task queue has ${this.tasks.length} tasks, generating ${tasksNeeded} more to reach ${this.maxTasks}`);
-    
-    for (let i = 0; i < tasksNeeded; i++) {
-        const options = this.generateMultipleTasks(3);
-        if (options.length > 0) {
-            this.tasks.push({
-                options: options,
-                selectedIndex: 0  // Auto-select first option
-            });
-        }
-    }
-    
-    console.log(`Added ${tasksNeeded} task slots to queue, now have ${this.tasks.length} slots`);
-}
-
-    // Reroll a specific regular task (index 0-4)
-rerollTask(index) {
-    if (index < 0 || index >= this.tasks.length) {
-        console.error('Invalid task index');
-        return;
-    }
-
-    const oldTaskSlot = this.tasks[index];
-    const oldTask = oldTaskSlot.options[oldTaskSlot.selectedIndex || 0];
-    console.log(`Rerolling task: ${oldTask.description}`);
-
-    // Generate 3 new task options
-    const newOptions = this.generateMultipleTasks(3);
-    
-    if (newOptions.length > 0) {
-        this.tasks[index] = {
-            options: newOptions,
-            selectedIndex: 0  // Auto-select first option
-        };
-        console.log(`Generated ${newOptions.length} new task options`);
         
-        // Ensure we still have a full queue after reroll
+        // Ensure we always have 5 tasks in the queue
         this.ensureFullTaskQueue();
         
         // Update UI
         if (window.ui) {
             window.ui.updateTasks();
         }
-    } else {
-        console.error('Failed to generate replacement tasks');
-        // Try to maintain full queue even if reroll failed
-        this.ensureFullTaskQueue();
+        
+        // Notify AI to re-evaluate
+        if (window.ai) {
+            console.log('Current task changed, notifying AI to re-evaluate');
+            window.ai.currentTask = null;
+            window.ai.decisionCooldown = 0;
+        }
     }
-}
+
+    // Ensure we always have 5 tasks in the queue
+    ensureFullTaskQueue() {
+        const tasksNeeded = this.maxTasks - this.tasks.length;
+        
+        if (tasksNeeded <= 0) {
+            return; // Already have enough tasks
+        }
+        
+        console.log(`Task queue has ${this.tasks.length} tasks, generating ${tasksNeeded} more to reach ${this.maxTasks}`);
+        
+        for (let i = 0; i < tasksNeeded; i++) {
+            const options = this.generateMultipleTasks(3);
+            if (options.length > 0) {
+                this.tasks.push({
+                    options: options,
+                    selectedIndex: 0,  // Auto-select first option
+                    displayOrder: [0, 1, 2]  // Initialize display order
+                });
+            }
+        }
+        
+        console.log(`Added ${tasksNeeded} task slots to queue, now have ${this.tasks.length} slots`);
+    }
+
+    // Reroll a specific regular task (index 0-4)
+    rerollTask(index) {
+        if (index < 0 || index >= this.tasks.length) {
+            console.error('Invalid task index');
+            return;
+        }
+
+        const oldTaskSlot = this.tasks[index];
+        const oldTask = oldTaskSlot.options[oldTaskSlot.selectedIndex || 0];
+        console.log(`Rerolling task: ${oldTask.description}`);
+
+        // Generate 3 new task options
+        const newOptions = this.generateMultipleTasks(3);
+        
+        if (newOptions.length > 0) {
+            this.tasks[index] = {
+                options: newOptions,
+                selectedIndex: 0,  // Auto-select first option
+                displayOrder: [0, 1, 2]  // Reset display order for new tasks
+            };
+            console.log(`Generated ${newOptions.length} new task options`);
+            
+            // Ensure we still have a full queue after reroll
+            this.ensureFullTaskQueue();
+            
+            // Update UI
+            if (window.ui) {
+                window.ui.updateTasks();
+            }
+        } else {
+            console.error('Failed to generate replacement tasks');
+            // Try to maintain full queue even if reroll failed
+            this.ensureFullTaskQueue();
+        }
+    }
 
     // Select a specific task option for a queue slot
-selectTaskOption(slotIndex, optionIndex) {
-    if (slotIndex < 0 || slotIndex >= this.tasks.length) {
-        console.error('Invalid slot index');
-        return;
+    selectTaskOption(slotIndex, optionIndex) {
+        if (slotIndex < 0 || slotIndex >= this.tasks.length) {
+            console.error('Invalid slot index');
+            return;
+        }
+        
+        const slot = this.tasks[slotIndex];
+        if (optionIndex < 0 || optionIndex >= slot.options.length) {
+            console.error('Invalid option index');
+            return;
+        }
+        
+        // If selecting the already selected option, do nothing
+        if (slot.selectedIndex === optionIndex) {
+            return;
+        }
+        
+        const oldTask = slot.options[slot.selectedIndex || 0];
+        const newTask = slot.options[optionIndex];
+        
+        console.log(`Changing task selection from "${oldTask.description}" to "${newTask.description}"`);
+        
+        // Swap positions in display order
+        const oldDisplayPos = slot.displayOrder.indexOf(slot.selectedIndex);
+        const newDisplayPos = slot.displayOrder.indexOf(optionIndex);
+        
+        // Swap the positions
+        const temp = slot.displayOrder[oldDisplayPos];
+        slot.displayOrder[oldDisplayPos] = slot.displayOrder[newDisplayPos];
+        slot.displayOrder[newDisplayPos] = temp;
+        
+        // Update selected index
+        slot.selectedIndex = optionIndex;
+        
+        // Update UI
+        if (window.ui) {
+            window.ui.updateTasks();
+        }
     }
-    
-    const slot = this.tasks[slotIndex];
-    if (optionIndex < 0 || optionIndex >= slot.options.length) {
-        console.error('Invalid option index');
-        return;
-    }
-    
-    const oldTask = slot.options[slot.selectedIndex || 0];
-    const newTask = slot.options[optionIndex];
-    
-    console.log(`Changing task selection from "${oldTask.description}" to "${newTask.description}"`);
-    slot.selectedIndex = optionIndex;
-    
-    // Update UI
-    if (window.ui) {
-        window.ui.updateTasks();
-    }
-}
 
-// Get the currently selected task for a slot
-getSelectedTask(slotIndex) {
-    if (slotIndex < 0 || slotIndex >= this.tasks.length) {
-        return null;
+    // Get the currently selected task for a slot
+    getSelectedTask(slotIndex) {
+        if (slotIndex < 0 || slotIndex >= this.tasks.length) {
+            return null;
+        }
+        
+        const slot = this.tasks[slotIndex];
+        return slot.options[slot.selectedIndex || 0];
     }
-    
-    const slot = this.tasks[slotIndex];
-    return slot.options[slot.selectedIndex || 0];
-}
 
     // Get the first incomplete task (for AI)
     getFirstIncompleteTask() {
@@ -423,7 +442,12 @@ getSelectedTask(slotIndex) {
         
         if (this.currentTask) allTasks.push(this.currentTask);
         if (this.nextTask) allTasks.push(this.nextTask);
-        allTasks.push(...this.tasks);
+        
+        // For regular tasks, get the selected option from each slot
+        for (const slot of this.tasks) {
+            const selectedTask = slot.options[slot.selectedIndex || 0];
+            allTasks.push(selectedTask);
+        }
         
         return allTasks;
     }
