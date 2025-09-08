@@ -13,14 +13,15 @@ class FirebaseManager {
 
     // Initialize Firebase with your config
     initialize() {
-        // TODO: Replace with your Firebase config from Firebase Console
+        // Your Firebase configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDNTjUANEOUzcx13IhqZAT-grfMNPL8ia8",
+            authDomain: "scapewatch-f2d9d.firebaseapp.com",
+            projectId: "scapewatch-f2d9d",
+            storageBucket: "scapewatch-f2d9d.firebasestorage.app",
+            messagingSenderId: "631909394106",
+            appId: "1:631909394106:web:86cf7b0a7d97675216c483",
+            measurementId: "G-HJFKPL6N2B"
         };
 
         // Initialize Firebase
@@ -221,7 +222,7 @@ class FirebaseManager {
                 completed: taskManager.completedTasks
             },
             
-            // RuneCred system (if persistence is enabled)
+            // RuneCred system
             runeCred: null
         };
 
@@ -233,8 +234,8 @@ class FirebaseManager {
             };
         }
 
-        // Save RuneCred data if persistence is enabled
-        if (window.runeCreditManager && runeCreditManager.enablePersistence) {
+        // Save RuneCred data (always save it now for accounts)
+        if (window.runeCreditManager) {
             saveData.runeCred = {
                 skillCredits: runeCreditManager.skillCredits,
                 skillCredSpent: runeCreditManager.skillCredSpent,
@@ -296,11 +297,24 @@ class FirebaseManager {
 
         // Load RuneCred data
         if (saveData.runeCred && window.runeCreditManager) {
-            // Enable persistence for RuneCred
+            // Enable persistence for online accounts
             runeCreditManager.enablePersistence = true;
             
             // Load all the RuneCred data
-            Object.assign(runeCreditManager, saveData.runeCred);
+            if (saveData.runeCred.skillCredits) runeCreditManager.skillCredits = saveData.runeCred.skillCredits;
+            if (saveData.runeCred.skillCredSpent) runeCreditManager.skillCredSpent = saveData.runeCred.skillCredSpent;
+            if (saveData.runeCred.runeCred) runeCreditManager.runeCred = saveData.runeCred.runeCred;
+            if (saveData.runeCred.totalTasksCompleted) runeCreditManager.totalTasksCompleted = saveData.runeCred.totalTasksCompleted;
+            if (saveData.runeCred.tasksPerSkill) runeCreditManager.tasksPerSkill = saveData.runeCred.tasksPerSkill;
+            if (saveData.runeCred.creditsSpentPerSkill) runeCreditManager.creditsSpentPerSkill = saveData.runeCred.creditsSpentPerSkill;
+            if (saveData.runeCred.skillModLevels) runeCreditManager.skillModLevels = saveData.runeCred.skillModLevels;
+            if (saveData.runeCred.taskModLevels) runeCreditManager.taskModLevels = saveData.runeCred.taskModLevels;
+            if (saveData.runeCred.nodeModLevels) runeCreditManager.nodeModLevels = saveData.runeCred.nodeModLevels;
+            if (saveData.runeCred.quantityModLevels) runeCreditManager.quantityModLevels = saveData.runeCred.quantityModLevels;
+            if (saveData.runeCred.speedBonuses) runeCreditManager.speedBonuses = saveData.runeCred.speedBonuses;
+            if (saveData.runeCred.petCounts) runeCreditManager.petCounts = saveData.runeCred.petCounts;
+            if (saveData.runeCred.totalPetsObtained) runeCreditManager.totalPetsObtained = saveData.runeCred.totalPetsObtained;
+            if (saveData.runeCred.totalShinyPetsObtained) runeCreditManager.totalShinyPetsObtained = saveData.runeCred.totalShinyPetsObtained;
             
             // Update Skill Cred based on total level
             runeCreditManager.updateSkillCred();
@@ -351,6 +365,12 @@ class FirebaseManager {
             clearInterval(this.saveTimer);
             this.saveTimer = null;
         }
+    }
+
+    // Manual save trigger (for dev console or save button)
+    async saveNow() {
+        this.lastSaveTime = 0; // Reset timer to force save
+        await this.saveGame();
     }
 }
 
