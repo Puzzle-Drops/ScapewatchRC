@@ -120,15 +120,64 @@ class FirebaseManager {
         // Sign in with email
         const userCredential = await this.auth.signInWithEmailAndPassword(email, password);
         
-        // Update last played
+        // Generate a unique session ID for this login
+        const sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        // Update user document with new session
         await this.db.collection('users').doc(userCredential.user.uid).update({
-            lastPlayed: firebase.firestore.FieldValue.serverTimestamp()
+            lastPlayed: firebase.firestore.FieldValue.serverTimestamp(),
+            currentSessionId: sessionId,
+            lastLoginTime: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         this.currentUser = userCredential.user;
         this.username = username;
+        this.sessionId = sessionId;
+        
+        // Start session monitoring
+        this.startSessionMonitoring();
 
         return userCredential.user;
+    }
+    
+    // Monitor for session conflicts
+    startSessionMonitoring() {
+        if (!this.currentUser) return;
+        
+        // Listen for changes to the user document
+        this.sessionListener = this.db.collection('users')
+            .doc(this.currentUser.uid)
+            .onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    // Check if another session has taken over
+                    if (data.currentSessionId && data.currentSessionId !== this.sessionId) {
+                        console.warn('Another session detected! Logging out...');
+                        this.handleForcedLogout();
+                    }
+                }
+            });
+    }
+    
+    // Handle being logged out by another session
+    handleForcedLogout() {
+        // Stop monitoring
+        if (this.sessionListener) {
+            this.sessionListener();
+            this.sessionListener = null;
+        }
+        
+        // Stop auto-save
+        this.stopAutoSave();
+        
+        // Clear session
+        this.currentUser = null;
+        this.username = null;
+        this.sessionId = null;
+        
+        // Show alert and redirect to login
+        alert('You have been logged in from another location. You will be logged out from this session.');
+        location.reload();
     }
 
     // Logout
