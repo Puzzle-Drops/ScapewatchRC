@@ -9,6 +9,8 @@ class FirebaseManager {
         this.saveTimer = null;
         this.lastSaveTime = 0;
         this.saveDebounceTimer = null;
+        this.sessionId = null;
+        this.sessionListener = null;
     }
 
     // Initialize Firebase with your config
@@ -29,17 +31,86 @@ class FirebaseManager {
         this.auth = firebase.auth();
         this.db = firebase.firestore();
 
+        // Restore session ID from localStorage if it exists
+        this.sessionId = localStorage.getItem('scapewatch_session_id');
+
         // Set up auth state listener
         this.auth.onAuthStateChanged(async (user) => {
             if (user) {
                 this.currentUser = user;
                 await this.loadUsername();
                 console.log('User logged in:', this.username);
+                
+                // Validate session if we have a stored sessionId
+                if (this.sessionId) {
+                    await this.validateSession();
+                }
             } else {
                 this.currentUser = null;
                 this.username = null;
+                this.sessionId = null;
+                localStorage.removeItem('scapewatch_session_id');
             }
         });
+    }
+
+    // Validate current session
+    async validateSession() {
+        if (!this.currentUser || !this.sessionId) return;
+        
+        try {
+            const userDoc = await this.db.collection('users').doc(this.currentUser.uid).get();
+            if (userDoc.exists) {
+                const data = userDoc.data();
+                
+                // Check if our session is still the current one
+                if (data.currentSessionId !== this.sessionId) {
+                    console.warn('Session mismatch detected');
+                    
+                    // Check if there's a newer session
+                    if (data.currentSessionId && data.lastLoginTime) {
+                        const lastLoginTime = data.lastLoginTime.toDate ? data.lastLoginTime.toDate() : new Date(data.lastLoginTime);
+                        const timeDiff = Date.now() - lastLoginTime.getTime();
+                        
+                        // If the other session is recent (within last 5 minutes), we were kicked out
+                        if (timeDiff < 5 * 60 * 1000) {
+                            this.handleForcedLogout();
+                            return;
+                        }
+                    }
+                    
+                    // Otherwise, reclaim the session
+                    console.log('Reclaiming session...');
+                    await this.updateSession();
+                }
+                
+                // Start monitoring
+                this.startSessionMonitoring();
+            }
+        } catch (error) {
+            console.error('Failed to validate session:', error);
+        }
+    }
+
+    // Update session info
+    async updateSession() {
+        if (!this.currentUser) return;
+        
+        // Generate new session ID if we don't have one
+        if (!this.sessionId) {
+            this.sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('scapewatch_session_id', this.sessionId);
+        }
+        
+        try {
+            await this.db.collection('users').doc(this.currentUser.uid).update({
+                currentSessionId: this.sessionId,
+                lastLoginTime: firebase.firestore.FieldValue.serverTimestamp(),
+                lastActiveTime: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (error) {
+            console.error('Failed to update session:', error);
+        }
     }
 
     // Check if username is available
@@ -67,6 +138,29 @@ class FirebaseManager {
         }
     }
 
+    // Get email from username (for password reset)
+    async getEmailFromUsername(username) {
+        const usernameDoc = await this.db.collection('usernames').doc(username.toLowerCase()).get();
+        
+        if (!usernameDoc.exists) {
+            throw new Error('Username not found');
+        }
+        
+        const uid = usernameDoc.data().uid;
+        const userDoc = await this.db.collection('users').doc(uid).get();
+        
+        if (!userDoc.exists) {
+            throw new Error('User data not found');
+        }
+        
+        return userDoc.data().email;
+    }
+
+    // Reset password
+    async resetPassword(email) {
+        await this.auth.sendPasswordResetEmail(email);
+    }
+
     // Sign up new user
     async signUp(username, email, password) {
         // Validate username
@@ -84,17 +178,26 @@ class FirebaseManager {
         const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
+        // Generate session ID
+        this.sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('scapewatch_session_id', this.sessionId);
+
         // Reserve username and create user document
         await this.reserveUsername(username, user.uid);
         await this.db.collection('users').doc(user.uid).set({
             username: username,
             email: email,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            lastPlayed: firebase.firestore.FieldValue.serverTimestamp()
+            lastPlayed: firebase.firestore.FieldValue.serverTimestamp(),
+            currentSessionId: this.sessionId,
+            lastLoginTime: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         this.currentUser = user;
         this.username = username;
+        
+        // Start session monitoring
+        this.startSessionMonitoring();
 
         return user;
     }
@@ -121,18 +224,19 @@ class FirebaseManager {
         const userCredential = await this.auth.signInWithEmailAndPassword(email, password);
         
         // Generate a unique session ID for this login
-        const sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        this.sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('scapewatch_session_id', this.sessionId);
         
         // Update user document with new session
         await this.db.collection('users').doc(userCredential.user.uid).update({
             lastPlayed: firebase.firestore.FieldValue.serverTimestamp(),
-            currentSessionId: sessionId,
-            lastLoginTime: firebase.firestore.FieldValue.serverTimestamp()
+            currentSessionId: this.sessionId,
+            lastLoginTime: firebase.firestore.FieldValue.serverTimestamp(),
+            lastActiveTime: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         this.currentUser = userCredential.user;
         this.username = username;
-        this.sessionId = sessionId;
         
         // Start session monitoring
         this.startSessionMonitoring();
@@ -144,6 +248,12 @@ class FirebaseManager {
     startSessionMonitoring() {
         if (!this.currentUser) return;
         
+        // Clear any existing listener
+        if (this.sessionListener) {
+            this.sessionListener();
+            this.sessionListener = null;
+        }
+        
         // Listen for changes to the user document
         this.sessionListener = this.db.collection('users')
             .doc(this.currentUser.uid)
@@ -152,11 +262,29 @@ class FirebaseManager {
                     const data = doc.data();
                     // Check if another session has taken over
                     if (data.currentSessionId && data.currentSessionId !== this.sessionId) {
-                        console.warn('Another session detected! Logging out...');
+                        console.warn('Another session detected! Session ID:', data.currentSessionId);
                         this.handleForcedLogout();
                     }
                 }
             });
+            
+        // Also update last active time periodically (every 2 minutes)
+        this.activityTimer = setInterval(() => {
+            this.updateLastActive();
+        }, 2 * 60 * 1000);
+    }
+    
+    // Update last active time
+    async updateLastActive() {
+        if (!this.currentUser || this.isOfflineMode) return;
+        
+        try {
+            await this.db.collection('users').doc(this.currentUser.uid).update({
+                lastActiveTime: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (error) {
+            console.error('Failed to update last active time:', error);
+        }
     }
     
     // Handle being logged out by another session
@@ -167,6 +295,12 @@ class FirebaseManager {
             this.sessionListener = null;
         }
         
+        // Stop activity timer
+        if (this.activityTimer) {
+            clearInterval(this.activityTimer);
+            this.activityTimer = null;
+        }
+        
         // Stop auto-save
         this.stopAutoSave();
         
@@ -174,10 +308,28 @@ class FirebaseManager {
         this.currentUser = null;
         this.username = null;
         this.sessionId = null;
+        localStorage.removeItem('scapewatch_session_id');
         
         // Show alert and redirect to login
         alert('You have been logged in from another location. You will be logged out from this session.');
         location.reload();
+    }
+
+    // Force logout all sessions
+    async forceLogoutAllSessions() {
+        if (!this.currentUser) return;
+        
+        try {
+            // Clear the session ID in the database
+            await this.db.collection('users').doc(this.currentUser.uid).update({
+                currentSessionId: null,
+                lastLogoutTime: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            console.log('All sessions have been logged out');
+        } catch (error) {
+            console.error('Failed to logout all sessions:', error);
+        }
     }
 
     // Logout
@@ -187,9 +339,37 @@ class FirebaseManager {
             await this.saveGame();
         }
         
+        // Clear session in database
+        if (this.currentUser) {
+            try {
+                await this.db.collection('users').doc(this.currentUser.uid).update({
+                    currentSessionId: null,
+                    lastLogoutTime: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Failed to clear session:', error);
+            }
+        }
+        
+        // Stop monitoring
+        if (this.sessionListener) {
+            this.sessionListener();
+            this.sessionListener = null;
+        }
+        
+        // Stop activity timer
+        if (this.activityTimer) {
+            clearInterval(this.activityTimer);
+            this.activityTimer = null;
+        }
+        
+        // Clear local session
+        localStorage.removeItem('scapewatch_session_id');
+        
         await this.auth.signOut();
         this.currentUser = null;
         this.username = null;
+        this.sessionId = null;
         
         // Redirect to login
         location.reload();
@@ -210,7 +390,8 @@ class FirebaseManager {
             await this.db.collection('saves').doc(this.currentUser.uid).set({
                 ...saveData,
                 username: this.username,
-                lastSaved: firebase.firestore.FieldValue.serverTimestamp()
+                lastSaved: firebase.firestore.FieldValue.serverTimestamp(),
+                sessionId: this.sessionId // Include session ID in save
             });
 
             this.lastSaveTime = now;
@@ -234,14 +415,83 @@ class FirebaseManager {
             }
 
             const saveData = saveDoc.data();
-            this.applySaveData(saveData);
             
-            console.log('Game loaded successfully');
-            return true;
+            // Validate save data before applying
+            if (this.validateSaveData(saveData)) {
+                this.applySaveData(saveData);
+                console.log('Game loaded successfully');
+                return true;
+            } else {
+                console.warn('Save data validation failed, starting fresh');
+                return false;
+            }
         } catch (error) {
             console.error('Failed to load game:', error);
             return false;
         }
+    }
+
+    // Validate save data integrity
+    validateSaveData(saveData) {
+        if (!saveData) return false;
+        
+        // Basic structure validation
+        if (!saveData.player || !saveData.skills) {
+            console.warn('Save data missing core components');
+            return false;
+        }
+        
+        // Validate task data if present
+        if (saveData.tasks) {
+            // Ensure tasks have required fields
+            if (saveData.tasks.current && !this.validateTask(saveData.tasks.current)) {
+                console.warn('Current task validation failed');
+                saveData.tasks.current = null;
+            }
+            
+            if (saveData.tasks.next && !this.validateTask(saveData.tasks.next)) {
+                console.warn('Next task validation failed');
+                saveData.tasks.next = null;
+            }
+            
+            // Validate task queue
+            if (saveData.tasks.queue && Array.isArray(saveData.tasks.queue)) {
+                // Remove invalid tasks from queue
+                saveData.tasks.queue = saveData.tasks.queue.filter(task => {
+                    if (task && task.options) {
+                        // Validate each option
+                        task.options = task.options.filter(opt => this.validateTask(opt));
+                        return task.options.length > 0;
+                    }
+                    return false;
+                });
+            }
+        }
+        
+        return true;
+    }
+    
+    // Validate individual task
+    validateTask(task) {
+        if (!task) return false;
+        
+        // Check required fields
+        const requiredFields = ['skill', 'nodeId', 'activityId', 'targetCount', 'description'];
+        for (const field of requiredFields) {
+            if (task[field] === undefined || task[field] === null) {
+                console.warn(`Task missing required field: ${field}`);
+                return false;
+            }
+        }
+        
+        // Validate progress is between 0 and 1
+        if (task.progress !== undefined) {
+            if (task.progress < 0 || task.progress > 1) {
+                task.progress = Math.max(0, Math.min(1, task.progress));
+            }
+        }
+        
+        return true;
     }
 
     // Collect all game data for saving
@@ -251,7 +501,20 @@ class FirebaseManager {
             player: {
                 position: player.position,
                 currentNode: player.currentNode,
-                targetNode: player.targetNode
+                targetNode: player.targetNode,
+                path: player.path,
+                pathIndex: player.pathIndex,
+                segmentProgress: player.segmentProgress,
+                targetPosition: player.targetPosition,
+                currentActivity: player.currentActivity,
+                activityProgress: player.activityProgress,
+                activityStartTime: player.activityStartTime
+            },
+            
+            // AI state
+            ai: {
+                hasBankedForCurrentTask: window.ai ? ai.hasBankedForCurrentTask : false,
+                failedNodes: window.ai && ai.failedNodes ? Array.from(ai.failedNodes) : []
             },
             
             // Skills
@@ -453,6 +716,10 @@ class FirebaseManager {
             taskManager.nextTask = saveData.tasks.next;
             taskManager.tasks = saveData.tasks.queue || [];
             taskManager.completedTasks = saveData.tasks.completed || [];
+            
+            // CRITICAL: Ensure we have a full task queue
+            console.log('Validating task queue after load...');
+            taskManager.ensureFullTaskQueue();
         }
 
         // Load RuneCred data
@@ -525,6 +792,11 @@ class FirebaseManager {
             clearInterval(this.saveTimer);
             this.saveTimer = null;
         }
+        
+        if (this.activityTimer) {
+            clearInterval(this.activityTimer);
+            this.activityTimer = null;
+        }
     }
 
     // Manual save trigger (for dev console or save button)
@@ -544,7 +816,8 @@ class FirebaseManager {
             await this.db.collection('saves').doc(this.currentUser.uid).set({
                 ...saveData,
                 username: this.username,
-                lastSaved: firebase.firestore.FieldValue.serverTimestamp()
+                lastSaved: firebase.firestore.FieldValue.serverTimestamp(),
+                sessionId: this.sessionId
             });
 
             this.lastSaveTime = Date.now();
