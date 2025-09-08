@@ -87,6 +87,12 @@ async function startGame() {
     // Hide loading screen
     document.getElementById('loading-screen').style.display = 'none';
     
+    // Initialize dev console BEFORE login check
+    if (window.DevConsole) {
+        window.devConsole = new DevConsole();
+        console.log('Dev console initialized - Press ` (backtick) to open');
+    }
+    
     // Check if user is logged in
     if (!gameState.isLoggedIn && !firebaseManager.isOfflineMode) {
         // Show login screen
