@@ -6,12 +6,15 @@ window.gameState = {
     deltaTime: 0,
     fps: 0,
     frameCount: 0,
-    fpsTime: 0
+    fpsTime: 0,
+    isLoggedIn: false  // Added for Firebase
 };
 
 // Initialize the game
 async function init() {
-
+    // Initialize Firebase first
+    firebaseManager.initialize();
+    
     // Initialize scaling system early so loading screen is scaled
     scalingSystem.initialize();
     
@@ -45,21 +48,21 @@ async function init() {
         'strength', 'thieving', 'woodcutting'
     ];
 
-// Load capes
-for (const skill of skillsForAssets) {
-    loadingManager.addImage(`cape_${skill}`, `assets/capes/${skill}_cape.png`);
-    loadingManager.addImage(`cape_${skill}_t`, `assets/capes/${skill}_cape(t).png`);
-}
+    // Load capes
+    for (const skill of skillsForAssets) {
+        loadingManager.addImage(`cape_${skill}`, `assets/capes/${skill}_cape.png`);
+        loadingManager.addImage(`cape_${skill}_t`, `assets/capes/${skill}_cape(t).png`);
+    }
 
-// Load max capes
-loadingManager.addImage('cape_max', 'assets/capes/max_cape.png');
-loadingManager.addImage('cape_max_t', 'assets/capes/max_cape(t).png');
+    // Load max capes
+    loadingManager.addImage('cape_max', 'assets/capes/max_cape.png');
+    loadingManager.addImage('cape_max_t', 'assets/capes/max_cape(t).png');
 
-// Load pets
-for (const skill of skillsForAssets) {
-    loadingManager.addImage(`pet_${skill}`, `assets/pets/${skill}_pet.png`);
-    loadingManager.addImage(`pet_${skill}_s`, `assets/pets/${skill}_pet(s).png`);
-}
+    // Load pets
+    for (const skill of skillsForAssets) {
+        loadingManager.addImage(`pet_${skill}`, `assets/pets/${skill}_pet.png`);
+        loadingManager.addImage(`pet_${skill}_s`, `assets/pets/${skill}_pet(s).png`);
+    }
     
     loadingManager.addJSON('skills', 'data/skills.json');
     loadingManager.addJSON('items', 'data/items.json');
@@ -81,8 +84,23 @@ for (const skill of skillsForAssets) {
 }
 
 async function startGame() {
-    // Hide loading screen and show game container
+    // Hide loading screen
     document.getElementById('loading-screen').style.display = 'none';
+    
+    // Check if user is logged in
+    if (!gameState.isLoggedIn && !firebaseManager.isOfflineMode) {
+        // Show login screen
+        document.getElementById('login-screen').style.display = 'flex';
+        setupAuthHandlers();
+        return;
+    }
+    
+    // Continue with game initialization
+    continueGameStart();
+}
+
+async function continueGameStart() {
+    // Show game container
     document.getElementById('game-container').style.display = 'block';
     
     // Scaling system is already initialized
@@ -116,7 +134,18 @@ async function startGame() {
         playerAnimation.initialize();
     }
 
-    // Initialize task manager
+    // Load saved game data if logged in
+    if (firebaseManager.currentUser) {
+        await firebaseManager.loadGame();
+        
+        // Start auto-save
+        firebaseManager.startAutoSave();
+        
+        // Show account info
+        showAccountInfo();
+    }
+
+    // Initialize task manager after potential load
     taskManager.initialize();
 
     // Run test scenario if enabled
@@ -128,48 +157,126 @@ async function startGame() {
     map.render();
 
     // Set up pause control with icon toggle
-document.getElementById('pause-toggle').addEventListener('click', () => {
-    gameState.paused = !gameState.paused;
-    const pauseBtn = document.getElementById('pause-toggle');
-    const icon = pauseBtn.querySelector('.pause-icon');
-    if (icon) {
-        icon.textContent = gameState.paused ? '▶' : '⏸';
-        pauseBtn.title = gameState.paused ? 'Resume AI' : 'Pause AI';
-    }
-});
+    document.getElementById('pause-toggle').addEventListener('click', () => {
+        gameState.paused = !gameState.paused;
+        const pauseBtn = document.getElementById('pause-toggle');
+        const icon = pauseBtn.querySelector('.pause-icon');
+        if (icon) {
+            icon.textContent = gameState.paused ? '▶' : '⏸';
+            pauseBtn.title = gameState.paused ? 'Resume AI' : 'Pause AI';
+        }
+    });
 
     // Set up ESC key handler for closing popups
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' || e.keyCode === 27) {
-        // Check and close popups in priority order (most recent/important first)
-        
-        // 1. Check Skill Customization overlay (highest priority as it's the most complex)
-        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
-            window.skillCustomizationUI.close();
-            e.preventDefault();
-            return;
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' || e.keyCode === 27) {
+            // Check and close popups in priority order (most recent/important first)
+            
+            // 1. Check Skill Customization overlay (highest priority as it's the most complex)
+            if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
+                window.skillCustomizationUI.close();
+                e.preventDefault();
+                return;
+            }
+            
+            // 2. Check Shop modal
+            if (window.shop && window.shop.isOpen) {
+                window.shop.close();
+                e.preventDefault();
+                return;
+            }
+            
+            // 3. Check Bank modal
+            if (window.ui && window.ui.bankOpen) {
+                window.ui.closeBank();
+                e.preventDefault();
+                return;
+            }
         }
-        
-        // 2. Check Shop modal
-        if (window.shop && window.shop.isOpen) {
-            window.shop.close();
-            e.preventDefault();
-            return;
-        }
-        
-        // 3. Check Bank modal
-        if (window.ui && window.ui.bankOpen) {
-            window.ui.closeBank();
-            e.preventDefault();
-            return;
-        }
-    }
-});
+    });
 
     // Start game loop
     gameState.running = true;
     gameState.lastTime = performance.now();
     requestAnimationFrame(gameLoop);
+}
+
+// Setup authentication handlers
+function setupAuthHandlers() {
+    // Tab switching
+    document.querySelectorAll('.login-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            const tabName = e.target.dataset.tab;
+            if (tabName === 'login') {
+                document.getElementById('login-form').style.display = 'block';
+                document.getElementById('signup-form').style.display = 'none';
+            } else {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('signup-form').style.display = 'block';
+            }
+        });
+    });
+    
+    // Login form
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+        
+        try {
+            document.getElementById('login-error').textContent = '';
+            await firebaseManager.login(username, password);
+            gameState.isLoggedIn = true;
+            document.getElementById('login-screen').style.display = 'none';
+            continueGameStart();
+        } catch (error) {
+            document.getElementById('login-error').textContent = error.message;
+        }
+    });
+    
+    // Signup form
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('signup-username').value;
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        
+        try {
+            document.getElementById('signup-error').textContent = '';
+            await firebaseManager.signUp(username, email, password);
+            gameState.isLoggedIn = true;
+            document.getElementById('login-screen').style.display = 'none';
+            continueGameStart();
+        } catch (error) {
+            document.getElementById('signup-error').textContent = error.message;
+        }
+    });
+    
+    // Play offline button
+    document.getElementById('play-offline-btn').addEventListener('click', () => {
+        firebaseManager.isOfflineMode = true;
+        gameState.isLoggedIn = true;
+        document.getElementById('login-screen').style.display = 'none';
+        continueGameStart();
+    });
+}
+
+// Show account info in game
+function showAccountInfo() {
+    if (firebaseManager.isOfflineMode) {
+        return; // Don't show for offline mode
+    }
+    
+    const accountDiv = document.createElement('div');
+    accountDiv.className = 'account-info';
+    accountDiv.innerHTML = `
+        <span class="account-username">${firebaseManager.username}</span>
+        <button class="logout-btn" onclick="firebaseManager.logout()">Logout</button>
+    `;
+    document.getElementById('game-container').appendChild(accountDiv);
 }
 
 function gameLoop(currentTime) {
