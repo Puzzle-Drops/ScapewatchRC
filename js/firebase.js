@@ -259,11 +259,122 @@ class FirebaseManager {
 
     // Apply loaded save data to game
     applySaveData(saveData) {
-        // Load player position
+        // Load player state
         if (saveData.player) {
-            player.position = saveData.player.position;
+            // First, restore node information
             player.currentNode = saveData.player.currentNode;
             player.targetNode = saveData.player.targetNode;
+            
+            // Check if we have a saved path in progress
+            if (saveData.player.path && saveData.player.path.length > 0 && 
+                saveData.player.pathIndex !== undefined && 
+                saveData.player.pathIndex < saveData.player.path.length) {
+                
+                console.log(`Restoring path: waypoint ${saveData.player.pathIndex}/${saveData.player.path.length}, progress: ${(saveData.player.segmentProgress * 100).toFixed(1)}%`);
+                
+                // Restore path data
+                player.path = saveData.player.path;
+                player.pathIndex = saveData.player.pathIndex;
+                player.segmentProgress = saveData.player.segmentProgress || 0;
+                player.targetPosition = saveData.player.targetPosition;
+                
+                // CRITICAL: Recalculate position from path data to avoid drift
+                if (player.pathIndex > 0 && player.pathIndex < player.path.length) {
+                    // We're between two waypoints
+                    const prevWaypoint = player.path[player.pathIndex - 1];
+                    const nextWaypoint = player.path[player.pathIndex];
+                    
+                    // Interpolate position based on segment progress
+                    const dx = nextWaypoint.x - prevWaypoint.x;
+                    const dy = nextWaypoint.y - prevWaypoint.y;
+                    
+                    player.position = {
+                        x: prevWaypoint.x + (dx * player.segmentProgress),
+                        y: prevWaypoint.y + (dy * player.segmentProgress)
+                    };
+                    
+                    console.log(`Restored position from path: (${player.position.x.toFixed(1)}, ${player.position.y.toFixed(1)})`);
+                    
+                    // Clear current node since we're mid-path
+                    player.currentNode = null;
+                } else if (player.pathIndex === 0) {
+                    // At the very start of path
+                    player.position = saveData.player.position;
+                    player.segmentProgress = 0;
+                } else {
+                    // Path index out of bounds, use saved position
+                    player.position = saveData.player.position;
+                }
+                
+            } else if (saveData.player.position) {
+                // No active path, just restore position
+                player.position = saveData.player.position;
+                
+                // Clear any invalid path data
+                player.path = [];
+                player.pathIndex = 0;
+                player.segmentProgress = 0;
+                player.targetPosition = null;
+                
+                // Check if we're at a node
+                if (!player.currentNode && window.nodes) {
+                    const tolerance = 2;
+                    const allNodes = nodes.getAllNodes();
+                    
+                    for (const [nodeId, node] of Object.entries(allNodes)) {
+                        const dist = window.distance ? 
+                            distance(player.position.x, player.position.y, node.position.x, node.position.y) : 
+                            Math.sqrt(Math.pow(node.position.x - player.position.x, 2) + 
+                                     Math.pow(node.position.y - player.position.y, 2));
+                        
+                        if (dist <= tolerance) {
+                            player.currentNode = nodeId;
+                            console.log(`Found player at node: ${nodeId}`);
+                            break;
+                        }
+                    }
+                }
+                
+                // If still no current node but we had one saved, teleport there
+                if (!player.currentNode && saveData.player.currentNode) {
+                    console.log(`Restoring player to last known node: ${saveData.player.currentNode}`);
+                    const nodeData = nodes.getNode(saveData.player.currentNode);
+                    if (nodeData) {
+                        player.position = { x: nodeData.position.x, y: nodeData.position.y };
+                        player.currentNode = saveData.player.currentNode;
+                    }
+                }
+            }
+            
+            // Activity state
+            if (saveData.player.currentActivity) {
+                player.currentActivity = saveData.player.currentActivity;
+                player.activityProgress = saveData.player.activityProgress || 0;
+                // Adjust activity start time to account for time passed
+                if (saveData.player.activityStartTime) {
+                    // Calculate how much time should have elapsed
+                    const elapsed = player.activityProgress * 
+                        (window.loadingManager && loadingManager.getData('activities')[player.currentActivity] ? 
+                         loadingManager.getData('activities')[player.currentActivity].baseDuration : 3000);
+                    player.activityStartTime = Date.now() - elapsed;
+                }
+            }
+            
+            // Animation states (reset these)
+            player.isPreparingPath = false;
+            player.isBanking = false;
+            player.pathPrepEndTime = 0;
+            player.bankingEndTime = 0;
+        }
+
+        // Load AI state
+        if (saveData.ai && window.ai) {
+            ai.hasBankedForCurrentTask = saveData.ai.hasBankedForCurrentTask || false;
+            if (saveData.ai.failedNodes) {
+                ai.failedNodes = new Set(saveData.ai.failedNodes);
+            }
+            // Reset decision cooldown on login
+            ai.decisionCooldown = 0;
         }
 
         // Load skills
