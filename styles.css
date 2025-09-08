@@ -1995,16 +1995,18 @@ span.control-emoji {
     width: 50px;
     height: 50px;
     overflow: visible;
+    z-index: 20; /* Ensure it renders above other elements */
 }
 
 .task-icons-wrapper {
     display: flex;
     gap: 8px;
     position: absolute;
-    left: 0;
+    right: 0; /* Align to right edge */
     top: 0;
-    z-index: 10;
+    z-index: 100; /* High z-index to render above panel edge */
     transition: all 0.2s ease;
+    flex-direction: row-reverse; /* Right to left ordering */
 }
 
 /* Hide non-selected icons by default */
@@ -2012,13 +2014,15 @@ span.control-emoji {
     display: none;
 }
 
-/* Show all icons on hover */
+/* Show all icons on hover, expanding to the left */
 .task-icon-container:hover .task-icons-wrapper {
     background: #1a1a1a;
     padding: 4px;
     border-radius: 4px;
     border: 1px solid #444;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    transform: translateX(calc(-100% + 50px)); /* Expand to the left */
+    flex-direction: row; /* Normal left-to-right when expanded */
 }
 
 .task-icon-container:hover .task-icon-option {
@@ -2046,7 +2050,6 @@ span.control-emoji {
 }
 
 .task-icon-option.selected {
-    border-color: #27ae60;
     background-color: #2a2a2a;
 }
 
@@ -2054,6 +2057,60 @@ span.control-emoji {
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+/* Skill-specific border colors for selected tasks */
+.skill-border-mining { border: 2px solid var(--skill-mining) !important; }
+.skill-border-fishing { border: 2px solid var(--skill-fishing) !important; }
+.skill-border-woodcutting { border: 2px solid var(--skill-woodcutting) !important; }
+.skill-border-cooking { border: 2px solid var(--skill-cooking) !important; }
+.skill-border-attack { border: 2px solid var(--skill-attack) !important; }
+.skill-border-strength { border: 2px solid var(--skill-strength) !important; }
+.skill-border-defence { border: 2px solid var(--skill-defence) !important; }
+.skill-border-magic { border: 2px solid var(--skill-magic) !important; }
+.skill-border-ranged { border: 2px solid var(--skill-ranged) !important; }
+.skill-border-prayer { border: 2px solid var(--skill-prayer) !important; }
+.skill-border-runecraft { border: 2px solid var(--skill-runecraft) !important; }
+.skill-border-construction { border: 2px solid var(--skill-construction) !important; }
+.skill-border-agility { border: 2px solid var(--skill-agility) !important; }
+.skill-border-herblore { border: 2px solid var(--skill-herblore) !important; }
+.skill-border-thieving { border: 2px solid var(--skill-thieving) !important; }
+.skill-border-crafting { border: 2px solid var(--skill-crafting) !important; }
+.skill-border-fletching { border: 2px solid var(--skill-fletching) !important; }
+.skill-border-slayer { border: 2px solid var(--skill-slayer) !important; }
+.skill-border-hunter { border: 2px solid var(--skill-hunter) !important; }
+.skill-border-smithing { border: 2px solid var(--skill-smithing) !important; }
+.skill-border-firemaking { border: 2px solid var(--skill-firemaking) !important; }
+.skill-border-farming { border: 2px solid var(--skill-farming) !important; }
+.skill-border-sailing { border: 2px solid var(--skill-sailing) !important; }
+.skill-border-hitpoints { border: 2px solid #e74c3c !important; }
+
+/* Apply border to current and next task icons as well */
+.task-icon.skill-border-mining,
+.task-icon.skill-border-fishing,
+.task-icon.skill-border-woodcutting,
+.task-icon.skill-border-cooking,
+.task-icon.skill-border-attack,
+.task-icon.skill-border-strength,
+.task-icon.skill-border-defence,
+.task-icon.skill-border-magic,
+.task-icon.skill-border-ranged,
+.task-icon.skill-border-prayer,
+.task-icon.skill-border-runecraft,
+.task-icon.skill-border-construction,
+.task-icon.skill-border-agility,
+.task-icon.skill-border-herblore,
+.task-icon.skill-border-thieving,
+.task-icon.skill-border-crafting,
+.task-icon.skill-border-fletching,
+.task-icon.skill-border-slayer,
+.task-icon.skill-border-hunter,
+.task-icon.skill-border-smithing,
+.task-icon.skill-border-firemaking,
+.task-icon.skill-border-farming,
+.task-icon.skill-border-sailing,
+.task-icon.skill-border-hitpoints {
+    border-radius: 4px;
 }
 
 /* Ensure task details don't jump when icons expand */
@@ -2064,4 +2121,22 @@ span.control-emoji {
 /* Smooth transition for description changes */
 .selectable-task .task-description {
     transition: opacity 0.1s ease;
+}
+
+/* Ensure the panel doesn't clip the expanded icons */
+.ui-panel {
+    overflow: visible;
+}
+
+.panel-content {
+    overflow: visible;
+}
+
+#tasks-panel {
+    overflow: visible;
+}
+
+.regular-tasks-container {
+    position: relative;
+    overflow: visible;
 }
