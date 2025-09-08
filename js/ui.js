@@ -503,6 +503,12 @@ if (skillIcon) {
     // Fallback text
     iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
 }
+
+// Add task quantity badge
+const quantityBadge = document.createElement('div');
+quantityBadge.className = 'task-quantity-badge';
+quantityBadge.textContent = task.targetCount;
+iconDiv.appendChild(quantityBadge);
         
         // Task details container
         const detailsDiv = document.createElement('div');
@@ -612,25 +618,31 @@ createSelectableTaskElement(taskSlot, slotIndex) {
     });
     
     // Create icons in reordered sequence
-    reorderedOptions.forEach((option, displayIndex) => {
-        const iconDiv = document.createElement('div');
-        iconDiv.className = 'task-icon-option';
-        
-        // Mark if this is the selected one (will be last/rightmost)
-        if (option.originalIndex === selectedIndex) {
-            iconDiv.classList.add('selected');
-            iconDiv.classList.add(`skill-border-${option.task.skill}`);
-        }
-        
-        const skillIcon = loadingManager.getImage(`skill_${option.task.skill}`);
-        if (skillIcon) {
-            const icon = document.createElement('img');
-            icon.src = skillIcon.src;
-            iconDiv.appendChild(icon);
-        } else {
-            // Fallback text
-            iconDiv.textContent = option.task.skill.substring(0, 3).toUpperCase();
-        }
+reorderedOptions.forEach((option, displayIndex) => {
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'task-icon-option';
+    
+    // Mark if this is the selected one (will be last/rightmost)
+    if (option.originalIndex === selectedIndex) {
+        iconDiv.classList.add('selected');
+        iconDiv.classList.add(`skill-border-${option.task.skill}`);
+    }
+    
+    const skillIcon = loadingManager.getImage(`skill_${option.task.skill}`);
+    if (skillIcon) {
+        const icon = document.createElement('img');
+        icon.src = skillIcon.src;
+        iconDiv.appendChild(icon);
+    } else {
+        // Fallback text
+        iconDiv.textContent = option.task.skill.substring(0, 3).toUpperCase();
+    }
+    
+    // Add task quantity display
+    const quantityDiv = document.createElement('div');
+    quantityDiv.className = 'task-quantity-badge';
+    quantityDiv.textContent = option.task.targetCount;
+    iconDiv.appendChild(quantityDiv);
         
         // Add hover handler to preview task
         iconDiv.addEventListener('mouseenter', () => {
