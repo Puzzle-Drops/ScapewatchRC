@@ -37,53 +37,53 @@ class UIManager {
     }
 
     setupPanelButtons() {
-        const buttons = document.querySelectorAll('.panel-btn');
+    const buttons = document.querySelectorAll('.panel-btn');
+    
+    buttons.forEach(btn => {
+        // Skip the pause button - it has its own handler
+        if (btn.id === 'pause-toggle') {
+            return;
+        }
         
-        buttons.forEach(btn => {
-            // Skip the pause button - it has its own handler
-            if (btn.id === 'pause-toggle') {
+        btn.addEventListener('click', (e) => {
+            const panel = btn.dataset.panel;
+            
+            // Check if clicking the already active panel (to minimize/maximize)
+            if (btn.classList.contains('active') && panel !== 'bank' && panel !== 'shop') {
+                this.toggleMinimize();
                 return;
             }
             
-            btn.addEventListener('click', (e) => {
-                const panel = btn.dataset.panel;
-                
-                // Check if clicking the already active panel (to minimize/maximize)
-                if (btn.classList.contains('active') && panel !== 'bank' && panel !== 'shop') {
-                    this.toggleMinimize();
-                    return;
-                }
-                
-                // Handle bank and shop buttons (keep minimized state)
-                if (panel === 'bank') {
-                    this.openBank();
-                    return;
-                } else if (panel === 'shop') {
-                    this.openShop();
-                    return;
-                }
-                
-                // For regular panels, restore if minimized then switch
-                if (this.minimized) {
-                    this.restore();
-                }
-                
-                this.switchPanel(panel);
-            });
+            // Handle bank and shop buttons (keep minimized state)
+            if (panel === 'bank') {
+                this.openBank();
+                return;
+            } else if (panel === 'shop') {
+                this.openShop();
+                return;
+            }
+            
+            // For regular panels, restore if minimized then switch
+            if (this.minimized) {
+                this.restore();
+            }
+            
+            this.switchPanel(panel);
         });
-    }
+    });
+}
 
     setupModalButtons() {
-        // Bank X close button
-        const bankCloseX = document.getElementById('bank-close-x');
-        if (bankCloseX) {
-            bankCloseX.addEventListener('click', () => {
-                this.closeBank();
-            });
-        }
-        
-        // Shop X close button (handled by shop.js)
+    // Bank X close button
+    const bankCloseX = document.getElementById('bank-close-x');
+    if (bankCloseX) {
+        bankCloseX.addEventListener('click', () => {
+            this.closeBank();
+        });
     }
+    
+    // Shop X close button (handled by shop.js)
+}
 
     // ==================== MINIMIZE/MAXIMIZE FUNCTIONALITY ====================
 
@@ -410,72 +410,72 @@ class UIManager {
     // ==================== TASKS DISPLAY ====================
 
     updateTasks() {
-        if (this.currentPanel !== 'tasks' || this.minimized) return;
-        
-        const tasksList = document.getElementById('tasks-list');
-        if (!tasksList || !window.taskManager) return;
+    if (this.currentPanel !== 'tasks' || this.minimized) return;
+    
+    const tasksList = document.getElementById('tasks-list');
+    if (!tasksList || !window.taskManager) return;
 
-        // Update all task progress first to ensure accuracy
-        taskManager.updateAllProgress();
+    // Update all task progress first to ensure accuracy
+    taskManager.updateAllProgress();
+    
+    tasksList.innerHTML = '';
+    
+    // Create sections for current, next, and regular tasks
+    
+    // Current Task Section
+    if (taskManager.currentTask) {
+        const currentSection = document.createElement('div');
+        currentSection.className = 'task-section';
         
-        tasksList.innerHTML = '';
+        const currentHeader = document.createElement('div');
+        currentHeader.className = 'task-section-header';
+        currentHeader.textContent = 'Current Task';
         
-        // Create sections for current, next, and regular tasks
+        const currentTaskDiv = this.createTaskElement(taskManager.currentTask, -1, true); // -1 means no reroll
         
-        // Current Task Section
-        if (taskManager.currentTask) {
-            const currentSection = document.createElement('div');
-            currentSection.className = 'task-section';
-            
-            const currentHeader = document.createElement('div');
-            currentHeader.className = 'task-section-header';
-            currentHeader.textContent = 'Current Task';
-            
-            const currentTaskDiv = this.createTaskElement(taskManager.currentTask, -1, true); // -1 means no reroll
-            
-            currentSection.appendChild(currentHeader);
-            currentSection.appendChild(currentTaskDiv);
-            tasksList.appendChild(currentSection);
-        }
-        
-        // Next Task Section
-        if (taskManager.nextTask) {
-            const nextSection = document.createElement('div');
-            nextSection.className = 'task-section';
-            
-            const nextHeader = document.createElement('div');
-            nextHeader.className = 'task-section-header';
-            nextHeader.textContent = 'Next Task';
-            
-            const nextTaskDiv = this.createTaskElement(taskManager.nextTask, -1, false); // No reroll, no progress
-            
-            nextSection.appendChild(nextHeader);
-            nextSection.appendChild(nextTaskDiv);
-            tasksList.appendChild(nextSection);
-        }
-        
-        // Regular Tasks Section
-        if (taskManager.tasks.length > 0) {
-            const regularSection = document.createElement('div');
-            regularSection.className = 'task-section';
-            
-            const regularHeader = document.createElement('div');
-            regularHeader.className = 'task-section-header';
-            regularHeader.textContent = 'Tasks';
-            
-            const regularTasksContainer = document.createElement('div');
-            regularTasksContainer.className = 'regular-tasks-container';
-            
-            taskManager.tasks.forEach((taskSlot, index) => {
-                const taskDiv = this.createSelectableTaskElement(taskSlot, index);
-                regularTasksContainer.appendChild(taskDiv);
-            });
-            
-            regularSection.appendChild(regularHeader);
-            regularSection.appendChild(regularTasksContainer);
-            tasksList.appendChild(regularSection);
-        }
+        currentSection.appendChild(currentHeader);
+        currentSection.appendChild(currentTaskDiv);
+        tasksList.appendChild(currentSection);
     }
+    
+    // Next Task Section
+    if (taskManager.nextTask) {
+        const nextSection = document.createElement('div');
+        nextSection.className = 'task-section';
+        
+        const nextHeader = document.createElement('div');
+        nextHeader.className = 'task-section-header';
+        nextHeader.textContent = 'Next Task';
+        
+        const nextTaskDiv = this.createTaskElement(taskManager.nextTask, -1, false); // No reroll, no progress
+        
+        nextSection.appendChild(nextHeader);
+        nextSection.appendChild(nextTaskDiv);
+        tasksList.appendChild(nextSection);
+    }
+    
+    // Regular Tasks Section
+    if (taskManager.tasks.length > 0) {
+        const regularSection = document.createElement('div');
+        regularSection.className = 'task-section';
+        
+        const regularHeader = document.createElement('div');
+        regularHeader.className = 'task-section-header';
+        regularHeader.textContent = 'Tasks';
+        
+        const regularTasksContainer = document.createElement('div');
+        regularTasksContainer.className = 'regular-tasks-container';
+        
+        taskManager.tasks.forEach((taskSlot, index) => {
+            const taskDiv = this.createSelectableTaskElement(taskSlot, index);
+            regularTasksContainer.appendChild(taskDiv);
+        });
+        
+        regularSection.appendChild(regularHeader);
+        regularSection.appendChild(regularTasksContainer);
+        tasksList.appendChild(regularSection);
+    }
+}
 
     createTaskElement(task, rerollIndex, showProgress) {
         const taskDiv = document.createElement('div');
@@ -489,26 +489,26 @@ class UIManager {
         taskContent.className = 'task-content';
         
         // Skill icon
-        const iconDiv = document.createElement('div');
-        iconDiv.className = 'task-icon';
-        // Add skill-colored border for current and next tasks
-        iconDiv.classList.add(`skill-border-${task.skill}`);
+const iconDiv = document.createElement('div');
+iconDiv.className = 'task-icon';
+// Add skill-colored border for current and next tasks
+iconDiv.classList.add(`skill-border-${task.skill}`);
 
-        const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
-        if (skillIcon) {
-            const icon = document.createElement('img');
-            icon.src = skillIcon.src;
-            iconDiv.appendChild(icon);
-        } else {
-            // Fallback text
-            iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
-        }
+const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
+if (skillIcon) {
+    const icon = document.createElement('img');
+    icon.src = skillIcon.src;
+    iconDiv.appendChild(icon);
+} else {
+    // Fallback text
+    iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
+}
 
-        // Add task quantity badge
-        const quantityBadge = document.createElement('div');
-        quantityBadge.className = 'task-quantity-badge';
-        quantityBadge.textContent = task.targetCount;
-        iconDiv.appendChild(quantityBadge);
+// Add task quantity badge
+const quantityBadge = document.createElement('div');
+quantityBadge.className = 'task-quantity-badge';
+quantityBadge.textContent = task.targetCount;
+iconDiv.appendChild(quantityBadge);
         
         // Task details container
         const detailsDiv = document.createElement('div');
@@ -579,129 +579,142 @@ class UIManager {
         return taskDiv;
     }
 
-    createSelectableTaskElement(taskSlot, slotIndex) {
-        const selectedTask = taskSlot.options[taskSlot.selectedIndex || 0];
+createSelectableTaskElement(taskSlot, slotIndex) {
+    const selectedTask = taskSlot.options[taskSlot.selectedIndex || 0];
+    
+    const taskDiv = document.createElement('div');
+    taskDiv.className = 'task-item selectable-task';
+    
+    // Add skill-based class for styling
+    taskDiv.classList.add(`task-skill-${selectedTask.skill}`);
+    
+    // Container for icon and content
+    const taskContent = document.createElement('div');
+    taskContent.className = 'task-content';
+    
+    // Icon container that will expand on hover
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'task-icon-container';
+    
+    // Create all 3 skill icons
+    const iconsWrapper = document.createElement('div');
+    iconsWrapper.className = 'task-icons-wrapper';
+    
+    // Reorder options so selected is always last (rightmost)
+    const reorderedOptions = [];
+    const selectedIndex = taskSlot.selectedIndex || 0;
+    
+    // Add non-selected options first
+    taskSlot.options.forEach((task, idx) => {
+        if (idx !== selectedIndex) {
+            reorderedOptions.push({ task, originalIndex: idx });
+        }
+    });
+    
+    // Add selected option last
+    reorderedOptions.push({ 
+        task: taskSlot.options[selectedIndex], 
+        originalIndex: selectedIndex 
+    });
+    
+    // Create icons in reordered sequence
+reorderedOptions.forEach((option, displayIndex) => {
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'task-icon-option';
+    
+    // Mark if this is the selected one (will be last/rightmost)
+    if (option.originalIndex === selectedIndex) {
+        iconDiv.classList.add('selected');
+        iconDiv.classList.add(`skill-border-${option.task.skill}`);
+    }
+    
+    const skillIcon = loadingManager.getImage(`skill_${option.task.skill}`);
+    if (skillIcon) {
+        const icon = document.createElement('img');
+        icon.src = skillIcon.src;
+        iconDiv.appendChild(icon);
+    } else {
+        // Fallback text
+        iconDiv.textContent = option.task.skill.substring(0, 3).toUpperCase();
+    }
+    
+    // Add task quantity display
+    const quantityDiv = document.createElement('div');
+    quantityDiv.className = 'task-quantity-badge';
+    quantityDiv.textContent = option.task.targetCount;
+    iconDiv.appendChild(quantityDiv);
         
-        const taskDiv = document.createElement('div');
-        taskDiv.className = 'task-item selectable-task';
-        
-        // Add skill-based class for styling
-        taskDiv.classList.add(`task-skill-${selectedTask.skill}`);
-        
-        // Container for icon and content
-        const taskContent = document.createElement('div');
-        taskContent.className = 'task-content';
-        
-        // Icon container that will expand on hover
-        const iconContainer = document.createElement('div');
-        iconContainer.className = 'task-icon-container';
-        
-        // Create all 3 skill icons
-        const iconsWrapper = document.createElement('div');
-        iconsWrapper.className = 'task-icons-wrapper';
-        
-        // Use the display order from the task slot
-        const displayOrder = taskSlot.displayOrder || [0, 1, 2];
-        
-        // Create icons in display order
-        displayOrder.forEach((optionIndex) => {
-            const task = taskSlot.options[optionIndex];
-            const iconDiv = document.createElement('div');
-            iconDiv.className = 'task-icon-option';
-            
-            // Mark if this is the selected one
-            if (optionIndex === taskSlot.selectedIndex) {
-                iconDiv.classList.add('selected');
-                iconDiv.classList.add(`skill-border-${task.skill}`);
-            }
-            
-            const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
-            if (skillIcon) {
-                const icon = document.createElement('img');
-                icon.src = skillIcon.src;
-                iconDiv.appendChild(icon);
-            } else {
-                // Fallback text
-                iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
-            }
-            
-            // Add task quantity display
-            const quantityDiv = document.createElement('div');
-            quantityDiv.className = 'task-quantity-badge';
-            quantityDiv.textContent = task.targetCount;
-            iconDiv.appendChild(quantityDiv);
-            
-            // Add hover handler to preview task
-            iconDiv.addEventListener('mouseenter', () => {
-                // Update the task details preview
-                const descDiv = taskDiv.querySelector('.task-description');
-                if (descDiv) {
-                    descDiv.textContent = task.description;
-                }
-            });
-            
-            // Add click handler to select task
-            iconDiv.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (window.taskManager) {
-                    taskManager.selectTaskOption(slotIndex, optionIndex);
-                }
-            });
-            
-            iconsWrapper.appendChild(iconDiv);
-        });
-        
-        // Add mouse leave handler to restore selected task description
-        iconsWrapper.addEventListener('mouseleave', () => {
+        // Add hover handler to preview task
+        iconDiv.addEventListener('mouseenter', () => {
+            // Update the task details preview
             const descDiv = taskDiv.querySelector('.task-description');
             if (descDiv) {
-                descDiv.textContent = selectedTask.description;
+                descDiv.textContent = option.task.description;
             }
         });
         
-        iconContainer.appendChild(iconsWrapper);
-        
-        // Task details container
-        const detailsDiv = document.createElement('div');
-        detailsDiv.className = 'task-details';
-        
-        // Header with description and reroll button
-        const headerDiv = document.createElement('div');
-        headerDiv.className = 'task-header';
-        
-        const descDiv = document.createElement('div');
-        descDiv.className = 'task-description';
-        descDiv.textContent = selectedTask.description;
-        
-        headerDiv.appendChild(descDiv);
-        
-        // Add reroll button
-        const rerollBtn = document.createElement('button');
-        rerollBtn.className = 'task-reroll';
-        rerollBtn.textContent = '↻';
-        rerollBtn.title = 'Reroll task';
-        rerollBtn.addEventListener('click', (e) => {
+        // Add click handler to select task
+        iconDiv.addEventListener('click', (e) => {
             e.stopPropagation();
             if (window.taskManager) {
-                taskManager.rerollTask(slotIndex);
+                taskManager.selectTaskOption(slotIndex, option.originalIndex);
             }
         });
-        headerDiv.appendChild(rerollBtn);
         
-        detailsDiv.appendChild(headerDiv);
-        
-        // Assemble the task element
-        taskContent.appendChild(iconContainer);
-        taskContent.appendChild(detailsDiv);
-        taskDiv.appendChild(taskContent);
-        
-        // Mark complete tasks
-        if (selectedTask.progress >= 1) {
-            taskDiv.classList.add('task-complete');
+        iconsWrapper.appendChild(iconDiv);
+    });
+    
+    // Add mouse leave handler to restore selected task description
+    iconsWrapper.addEventListener('mouseleave', () => {
+        const descDiv = taskDiv.querySelector('.task-description');
+        if (descDiv) {
+            descDiv.textContent = selectedTask.description;
         }
-        
-        return taskDiv;
+    });
+    
+    iconContainer.appendChild(iconsWrapper);
+    
+    // Task details container
+    const detailsDiv = document.createElement('div');
+    detailsDiv.className = 'task-details';
+    
+    // Header with description and reroll button
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'task-header';
+    
+    const descDiv = document.createElement('div');
+    descDiv.className = 'task-description';
+    descDiv.textContent = selectedTask.description;
+    
+    headerDiv.appendChild(descDiv);
+    
+    // Add reroll button
+    const rerollBtn = document.createElement('button');
+    rerollBtn.className = 'task-reroll';
+    rerollBtn.textContent = '↻';
+    rerollBtn.title = 'Reroll task';
+    rerollBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.taskManager) {
+            taskManager.rerollTask(slotIndex);
+        }
+    });
+    headerDiv.appendChild(rerollBtn);
+    
+    detailsDiv.appendChild(headerDiv);
+    
+    // Assemble the task element
+    taskContent.appendChild(iconContainer);
+    taskContent.appendChild(detailsDiv);
+    taskDiv.appendChild(taskContent);
+    
+    // Mark complete tasks
+    if (selectedTask.progress >= 1) {
+        taskDiv.classList.add('task-complete');
     }
+    
+    return taskDiv;
+}
 
     // ==================== BANK DISPLAY ====================
 
@@ -769,19 +782,19 @@ class UIManager {
         
         const imgElement = this.createItemImage(itemId, quantity);
 
-        // Check if it's an img element or a container div
-        if (imgElement.tagName === 'IMG') {
-            imgElement.onerror = function() {
-                this.style.display = 'none';
-                const textDiv = document.createElement('div');
-                textDiv.style.fontSize = '12px';
-                textDiv.textContent = itemData.name.substring(0, 3);
-                slotDiv.appendChild(textDiv);
-            };
-        }
-        // If it's a div container (bank note), error handling is already set up inside createItemImage
+// Check if it's an img element or a container div
+if (imgElement.tagName === 'IMG') {
+    imgElement.onerror = function() {
+        this.style.display = 'none';
+        const textDiv = document.createElement('div');
+        textDiv.style.fontSize = '12px';
+        textDiv.textContent = itemData.name.substring(0, 3);
+        slotDiv.appendChild(textDiv);
+    };
+}
+// If it's a div container (bank note), error handling is already set up inside createItemImage
 
-        slotDiv.appendChild(imgElement);
+slotDiv.appendChild(imgElement);
         
         // Only show count if quantity is greater than 1
         if (quantity > 1) {
@@ -795,83 +808,83 @@ class UIManager {
     }
 
     createItemImage(itemId, quantity) {
-        const itemData = loadingManager.getData('items')[itemId];
+    const itemData = loadingManager.getData('items')[itemId];
+    
+    // Check if this is a bank note
+    if (itemData && itemData.category === 'note' && itemData.convertsTo) {
+        // Create a container for the bank note
+        const container = document.createElement('div');
+        container.style.position = 'relative';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.justifyContent = 'center';
         
-        // Check if this is a bank note
-        if (itemData && itemData.category === 'note' && itemData.convertsTo) {
-            // Create a container for the bank note
-            const container = document.createElement('div');
-            container.style.position = 'relative';
-            container.style.width = '100%';
-            container.style.height = '100%';
-            container.style.display = 'flex';
-            container.style.alignItems = 'center';
-            container.style.justifyContent = 'center';
-            
-            // Bank note background
-            const noteImg = document.createElement('img');
-            noteImg.src = 'assets/items/bank_note.png';
-            noteImg.style.position = 'absolute';
-            noteImg.style.width = '100%';
-            noteImg.style.height = '100%';
-            noteImg.style.objectFit = 'contain';
-            noteImg.style.zIndex = '1';
-            
-            // Item image on top of the note
-            const itemImg = document.createElement('img');
-            itemImg.src = `assets/items/${itemData.convertsTo}.png`;
-            itemImg.style.position = 'relative';
-            itemImg.style.width = '60%';  // Smaller to fit within the note
-            itemImg.style.height = '60%';
-            itemImg.style.objectFit = 'contain';
-            itemImg.style.zIndex = '2';
-            
-            // Handle image load errors for bank note
-            noteImg.onerror = function() {
-                // If bank note image fails, just show the item
-                container.innerHTML = '';
-                const fallbackImg = document.createElement('img');
-                fallbackImg.src = `assets/items/${itemData.convertsTo}.png`;
-                fallbackImg.style.width = '100%';
-                fallbackImg.style.height = '100%';
-                fallbackImg.style.objectFit = 'contain';
-                container.appendChild(fallbackImg);
-            };
-            
-            // Handle image load errors for item
-            itemImg.onerror = function() {
-                this.style.display = 'none';
-                const textDiv = document.createElement('div');
-                textDiv.style.fontSize = '10px';
-                textDiv.style.position = 'relative';
-                textDiv.style.zIndex = '2';
-                const convertedItemData = loadingManager.getData('items')[itemData.convertsTo];
-                textDiv.textContent = convertedItemData ? convertedItemData.name.substring(0, 3) : '?';
-                container.appendChild(textDiv);
-            };
-            
-            container.appendChild(noteImg);
-            container.appendChild(itemImg);
-            
-            return container;
-        }
+        // Bank note background
+        const noteImg = document.createElement('img');
+        noteImg.src = 'assets/items/bank_note.png';
+        noteImg.style.position = 'absolute';
+        noteImg.style.width = '100%';
+        noteImg.style.height = '100%';
+        noteImg.style.objectFit = 'contain';
+        noteImg.style.zIndex = '1';
         
-        // Regular item handling
-        const img = document.createElement('img');
+        // Item image on top of the note
+        const itemImg = document.createElement('img');
+        itemImg.src = `assets/items/${itemData.convertsTo}.png`;
+        itemImg.style.position = 'relative';
+        itemImg.style.width = '60%';  // Smaller to fit within the note
+        itemImg.style.height = '60%';
+        itemImg.style.objectFit = 'contain';
+        itemImg.style.zIndex = '2';
         
-        if (itemId === 'coins') {
-            const coinImage = this.getCoinImage(quantity);
-            img.src = `assets/items/${coinImage}.png`;
-        } else {
-            img.src = `assets/items/${itemId}.png`;
-        }
+        // Handle image load errors for bank note
+        noteImg.onerror = function() {
+            // If bank note image fails, just show the item
+            container.innerHTML = '';
+            const fallbackImg = document.createElement('img');
+            fallbackImg.src = `assets/items/${itemData.convertsTo}.png`;
+            fallbackImg.style.width = '100%';
+            fallbackImg.style.height = '100%';
+            fallbackImg.style.objectFit = 'contain';
+            container.appendChild(fallbackImg);
+        };
         
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'contain';
+        // Handle image load errors for item
+        itemImg.onerror = function() {
+            this.style.display = 'none';
+            const textDiv = document.createElement('div');
+            textDiv.style.fontSize = '10px';
+            textDiv.style.position = 'relative';
+            textDiv.style.zIndex = '2';
+            const convertedItemData = loadingManager.getData('items')[itemData.convertsTo];
+            textDiv.textContent = convertedItemData ? convertedItemData.name.substring(0, 3) : '?';
+            container.appendChild(textDiv);
+        };
         
-        return img;
+        container.appendChild(noteImg);
+        container.appendChild(itemImg);
+        
+        return container;
     }
+    
+    // Regular item handling
+    const img = document.createElement('img');
+    
+    if (itemId === 'coins') {
+        const coinImage = this.getCoinImage(quantity);
+        img.src = `assets/items/${coinImage}.png`;
+    } else {
+        img.src = `assets/items/${itemId}.png`;
+    }
+    
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'contain';
+    
+    return img;
+}
 
     createItemCount(itemId, quantity) {
         const countDiv = document.createElement('div');
