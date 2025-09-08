@@ -2403,3 +2403,17 @@ span.control-emoji {
     min-height: 20px;
 }
 
+.logout-everywhere-btn {
+    background: #f39c12;
+    border: none;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.logout-everywhere-btn:hover {
+    background: #e67e22;
+}
