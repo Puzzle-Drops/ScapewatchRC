@@ -483,6 +483,27 @@ class FirebaseManager {
         this.lastSaveTime = 0; // Reset timer to force save
         await this.saveGame();
     }
+
+    // Force save (bypasses cooldown for critical moments)
+    async forceSave() {
+        if (this.isOfflineMode || !this.currentUser) return;
+
+        try {
+            const saveData = this.collectSaveData();
+            
+            // Save to Firestore immediately
+            await this.db.collection('saves').doc(this.currentUser.uid).set({
+                ...saveData,
+                username: this.username,
+                lastSaved: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            this.lastSaveTime = Date.now();
+            console.log('Force save completed (task completion)');
+        } catch (error) {
+            console.error('Failed to force save:', error);
+        }
+    }
 }
 
 // Create global instance
