@@ -47,6 +47,7 @@
             <div class="login-tabs">
                 <button class="login-tab active" data-tab="login">Login</button>
                 <button class="login-tab" data-tab="signup">Sign Up</button>
+                <button class="login-tab" data-tab="forgot">Forgot Password</button>
             </div>
             
             <form id="login-form" class="auth-form">
@@ -75,6 +76,16 @@
                 </div>
                 <button type="submit" class="auth-btn">Create Account</button>
                 <div class="auth-error" id="signup-error"></div>
+            </form>
+            
+            <form id="forgot-form" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <input type="text" id="forgot-username" placeholder="Username" required>
+                    <div class="username-hint">Enter your username to reset password</div>
+                </div>
+                <button type="submit" class="auth-btn">Send Reset Email</button>
+                <div class="auth-success" id="forgot-success" style="display: none;"></div>
+                <div class="auth-error" id="forgot-error"></div>
             </form>
             
             <div class="login-footer">
