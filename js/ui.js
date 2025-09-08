@@ -410,72 +410,72 @@ class UIManager {
     // ==================== TASKS DISPLAY ====================
 
     updateTasks() {
-        if (this.currentPanel !== 'tasks' || this.minimized) return;
-        
-        const tasksList = document.getElementById('tasks-list');
-        if (!tasksList || !window.taskManager) return;
+    if (this.currentPanel !== 'tasks' || this.minimized) return;
+    
+    const tasksList = document.getElementById('tasks-list');
+    if (!tasksList || !window.taskManager) return;
 
-        // Update all task progress first to ensure accuracy
-        taskManager.updateAllProgress();
+    // Update all task progress first to ensure accuracy
+    taskManager.updateAllProgress();
+    
+    tasksList.innerHTML = '';
+    
+    // Create sections for current, next, and regular tasks
+    
+    // Current Task Section
+    if (taskManager.currentTask) {
+        const currentSection = document.createElement('div');
+        currentSection.className = 'task-section';
         
-        tasksList.innerHTML = '';
+        const currentHeader = document.createElement('div');
+        currentHeader.className = 'task-section-header';
+        currentHeader.textContent = 'Current Task';
         
-        // Create sections for current, next, and regular tasks
+        const currentTaskDiv = this.createTaskElement(taskManager.currentTask, -1, true); // -1 means no reroll
         
-        // Current Task Section
-        if (taskManager.currentTask) {
-            const currentSection = document.createElement('div');
-            currentSection.className = 'task-section';
-            
-            const currentHeader = document.createElement('div');
-            currentHeader.className = 'task-section-header';
-            currentHeader.textContent = 'Current Task';
-            
-            const currentTaskDiv = this.createTaskElement(taskManager.currentTask, -1, true); // -1 means no reroll
-            
-            currentSection.appendChild(currentHeader);
-            currentSection.appendChild(currentTaskDiv);
-            tasksList.appendChild(currentSection);
-        }
-        
-        // Next Task Section
-        if (taskManager.nextTask) {
-            const nextSection = document.createElement('div');
-            nextSection.className = 'task-section';
-            
-            const nextHeader = document.createElement('div');
-            nextHeader.className = 'task-section-header';
-            nextHeader.textContent = 'Next Task';
-            
-            const nextTaskDiv = this.createTaskElement(taskManager.nextTask, -1, false); // No reroll, no progress
-            
-            nextSection.appendChild(nextHeader);
-            nextSection.appendChild(nextTaskDiv);
-            tasksList.appendChild(nextSection);
-        }
-        
-        // Regular Tasks Section
-        if (taskManager.tasks.length > 0) {
-            const regularSection = document.createElement('div');
-            regularSection.className = 'task-section';
-            
-            const regularHeader = document.createElement('div');
-            regularHeader.className = 'task-section-header';
-            regularHeader.textContent = 'Tasks';
-            
-            const regularTasksContainer = document.createElement('div');
-            regularTasksContainer.className = 'regular-tasks-container';
-            
-            taskManager.tasks.forEach((task, index) => {
-                const taskDiv = this.createTaskElement(task, index, false); // Can reroll, no progress
-                regularTasksContainer.appendChild(taskDiv);
-            });
-            
-            regularSection.appendChild(regularHeader);
-            regularSection.appendChild(regularTasksContainer);
-            tasksList.appendChild(regularSection);
-        }
+        currentSection.appendChild(currentHeader);
+        currentSection.appendChild(currentTaskDiv);
+        tasksList.appendChild(currentSection);
     }
+    
+    // Next Task Section
+    if (taskManager.nextTask) {
+        const nextSection = document.createElement('div');
+        nextSection.className = 'task-section';
+        
+        const nextHeader = document.createElement('div');
+        nextHeader.className = 'task-section-header';
+        nextHeader.textContent = 'Next Task';
+        
+        const nextTaskDiv = this.createTaskElement(taskManager.nextTask, -1, false); // No reroll, no progress
+        
+        nextSection.appendChild(nextHeader);
+        nextSection.appendChild(nextTaskDiv);
+        tasksList.appendChild(nextSection);
+    }
+    
+    // Regular Tasks Section
+    if (taskManager.tasks.length > 0) {
+        const regularSection = document.createElement('div');
+        regularSection.className = 'task-section';
+        
+        const regularHeader = document.createElement('div');
+        regularHeader.className = 'task-section-header';
+        regularHeader.textContent = 'Tasks';
+        
+        const regularTasksContainer = document.createElement('div');
+        regularTasksContainer.className = 'regular-tasks-container';
+        
+        taskManager.tasks.forEach((taskSlot, index) => {
+            const taskDiv = this.createSelectableTaskElement(taskSlot, index);
+            regularTasksContainer.appendChild(taskDiv);
+        });
+        
+        regularSection.appendChild(regularHeader);
+        regularSection.appendChild(regularTasksContainer);
+        tasksList.appendChild(regularSection);
+    }
+}
 
     createTaskElement(task, rerollIndex, showProgress) {
         const taskDiv = document.createElement('div');
@@ -569,6 +569,108 @@ class UIManager {
         
         return taskDiv;
     }
+
+createSelectableTaskElement(taskSlot, slotIndex) {
+    const selectedTask = taskSlot.options[taskSlot.selectedIndex || 0];
+    
+    const taskDiv = document.createElement('div');
+    taskDiv.className = 'task-item selectable-task';
+    
+    // Add skill-based class for styling
+    taskDiv.classList.add(`task-skill-${selectedTask.skill}`);
+    
+    // Container for icon and content
+    const taskContent = document.createElement('div');
+    taskContent.className = 'task-content';
+    
+    // Icon container that will expand on hover
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'task-icon-container';
+    
+    // Create all 3 skill icons
+    const iconsWrapper = document.createElement('div');
+    iconsWrapper.className = 'task-icons-wrapper';
+    
+    taskSlot.options.forEach((task, optionIndex) => {
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'task-icon-option';
+        if (optionIndex === taskSlot.selectedIndex) {
+            iconDiv.classList.add('selected');
+        }
+        
+        const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
+        if (skillIcon) {
+            const icon = document.createElement('img');
+            icon.src = skillIcon.src;
+            iconDiv.appendChild(icon);
+        } else {
+            // Fallback text
+            iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
+        }
+        
+        // Add hover handler to preview task
+        iconDiv.addEventListener('mouseenter', () => {
+            // Update the task details preview
+            const descDiv = taskDiv.querySelector('.task-description');
+            if (descDiv) {
+                descDiv.textContent = task.description;
+            }
+        });
+        
+        // Add click handler to select task
+        iconDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (window.taskManager) {
+                taskManager.selectTaskOption(slotIndex, optionIndex);
+            }
+        });
+        
+        iconsWrapper.appendChild(iconDiv);
+    });
+    
+    iconContainer.appendChild(iconsWrapper);
+    
+    // Task details container
+    const detailsDiv = document.createElement('div');
+    detailsDiv.className = 'task-details';
+    
+    // Header with description and reroll button
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'task-header';
+    
+    const descDiv = document.createElement('div');
+    descDiv.className = 'task-description';
+    descDiv.textContent = selectedTask.description;
+    
+    headerDiv.appendChild(descDiv);
+    
+    // Add reroll button
+    const rerollBtn = document.createElement('button');
+    rerollBtn.className = 'task-reroll';
+    rerollBtn.textContent = '↻';
+    rerollBtn.title = 'Reroll task';
+    rerollBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.taskManager) {
+            taskManager.rerollTask(slotIndex);
+        }
+    });
+    headerDiv.appendChild(rerollBtn);
+    
+    detailsDiv.appendChild(headerDiv);
+    
+    // Assemble the task element
+    taskContent.appendChild(iconContainer);
+    taskContent.appendChild(detailsDiv);
+    taskDiv.appendChild(taskContent);
+    
+    // Mark complete tasks
+    if (selectedTask.progress >= 1) {
+        taskDiv.classList.add('task-complete');
+    }
+    
+    return taskDiv;
+}
 
     // ==================== BANK DISPLAY ====================
 
