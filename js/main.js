@@ -141,23 +141,32 @@ async function continueGameStart() {
     }
 
     // Load saved game data if logged in
-    if (firebaseManager.currentUser) {
-        await firebaseManager.loadGame();
+if (firebaseManager.currentUser) {
+    const loadSuccess = await firebaseManager.loadGame();
 
-        // IMPORTANT: Give AI a grace period after loading
-        if (window.ai) {
-            ai.decisionCooldown = 2000; // 2 second grace period
-        }
-        
-        // Start auto-save
-        firebaseManager.startAutoSave();
-        
-        // Show account info
-        showAccountInfo();
+    // IMPORTANT: Give AI a grace period after loading
+    if (window.ai) {
+        ai.decisionCooldown = 2000; // 2 second grace period
     }
-
-    // Initialize task manager after potential load
+    
+    // Start auto-save
+    firebaseManager.startAutoSave();
+    
+    // Show account info
+    showAccountInfo();
+    
+    // If no save data or new account, ensure tasks are generated
+    if (!loadSuccess) {
+        console.log('No save data loaded, generating initial tasks...');
+        taskManager.generateInitialTasks();
+    }
+} else {
+    // Offline mode or not logged in - initialize tasks normally
     taskManager.initialize();
+}
+
+// Always ensure we have a full task queue
+taskManager.ensureFullTaskQueue();
 
     // Run test scenario if enabled
     if (window.testScenario) {
@@ -317,6 +326,7 @@ function showAccountInfo() {
     accountDiv.className = 'account-info';
     accountDiv.innerHTML = `
         <span class="account-username">${firebaseManager.username}</span>
+        <button class="logout-everywhere-btn" onclick="firebaseManager.forceLogoutAllSessions().then(() => location.reload())" title="Logout all devices">⚠</button>
         <button class="logout-btn" onclick="firebaseManager.logout()">Logout</button>
     `;
     document.getElementById('game-container').appendChild(accountDiv);
