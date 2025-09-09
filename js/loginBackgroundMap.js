@@ -10,7 +10,7 @@ class LoginBackgroundMap {
         this.zoomLevel = 7;
         
         // Pan speed (pixels per second)
-        this.panSpeed = 20;
+        this.panSpeed = 5;
         
         // Positions to cycle through
         this.positions = [
