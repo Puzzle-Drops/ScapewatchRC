@@ -9,8 +9,8 @@ class Player {
     this.activityStartTime = 0;
     
     // Movement speeds
-    this.baseLandSpeed = 3;  // Base land speed (tiles/sec)
-    this.baseWaterSpeed = 5; // Base water speed (tiles/sec)
+    this.baseLandSpeed = 4;  // Base land speed (tiles/sec)
+    this.baseWaterSpeed = 6; // Base water speed (tiles/sec)
     this.speedMultiplier = 1;  // Dev console speed multiplier
     
     this.path = [];
