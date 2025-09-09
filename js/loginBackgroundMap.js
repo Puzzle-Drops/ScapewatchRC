@@ -14,11 +14,11 @@ class LoginBackgroundMap {
         
         // Positions to cycle through
         this.positions = [
-            {x: 4394, y: 1882},  // Lumbridge (start)
-            {x: 4394, y: 1355},  // North of Lumbridge
-            {x: 3896, y: 1635},  // Position 3
-            {x: 3742, y: 1236},  // Position 4
-            {x: 3579, y: 1426},  // Position 5
+            {x: 4163, y: 2129},  // tut island (start)
+            {x: 4394, y: 1881},  // Lumbridge
+            {x: 4394, y: 956},  // Wildy
+            {x: 4026, y: 956},  // Position 4
+            {x: 4026, y: 1881},  // Position 5
             {x: 3384, y: 1348},  // Position 6
             // Add more positions here as needed
             // Example additional positions:
