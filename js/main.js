@@ -147,9 +147,14 @@ async function continueGameStart() {
     window.ai = new AIManager();
 
     // Initialize player animation
-    if (window.playerAnimation) {
-        playerAnimation.initialize();
-    }
+if (window.playerAnimation) {
+    playerAnimation.initialize();
+}
+
+// Initialize hi-scores
+if (window.hiScoresManager) {
+    hiScoresManager.initialize();
+}
 
     // Load saved game data if logged in
 if (firebaseManager.currentUser) {
