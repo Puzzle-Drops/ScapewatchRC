@@ -301,6 +301,7 @@ async fetchLeaderboardData(category, page) {
             query = firebaseManager.db.collection('hiscores')
                 .orderBy('totalLevel', 'desc')
                 .orderBy('totalXp', 'desc')
+                .orderBy('totalLevelFirstReached', 'asc')
                 .limit(this.pageSize);
         } else if (category === 'tasks') {
             query = firebaseManager.db.collection('hiscores')
@@ -319,6 +320,7 @@ async fetchLeaderboardData(category, page) {
             query = firebaseManager.db.collection('hiscores')
                 .orderBy(`level_${skillId}`, 'desc')
                 .orderBy(`xp_${skillId}`, 'desc')
+                .orderBy(`levelFirst_${skillId}`, 'asc')
                 .limit(this.pageSize);
         } else {
             return [];
