@@ -97,6 +97,12 @@ async function startGame() {
     if (!gameState.isLoggedIn && !firebaseManager.isOfflineMode) {
         // Show login screen
         document.getElementById('login-screen').style.display = 'flex';
+        
+        // Initialize and start the background map animation
+        if (window.loginBackgroundMap) {
+            loginBackgroundMap.initialize();
+        }
+        
         setupAuthHandlers();
         return;
     }
@@ -106,6 +112,11 @@ async function startGame() {
 }
 
 async function continueGameStart() {
+    // Stop login background animation if it's running
+    if (window.loginBackgroundMap) {
+        loginBackgroundMap.stopAnimation();
+    }
+    
     // Show game container
     document.getElementById('game-container').style.display = 'block';
     
