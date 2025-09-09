@@ -2434,3 +2434,25 @@ span.control-emoji {
 .logout-everywhere-btn:hover {
     background: #e67e22;
 }
+
+/* Login Background Canvas */
+#login-background-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Behind everything else */
+    image-rendering: optimizeSpeed;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+/* Ensure login container is above the canvas */
+.login-container {
+    position: relative;
+    z-index: 1;
+}
