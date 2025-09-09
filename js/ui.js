@@ -596,9 +596,25 @@ createSelectableTaskElement(taskSlot, slotIndex) {
     const iconContainer = document.createElement('div');
     iconContainer.className = 'task-icon-container';
     
-    // Create all 3 skill icons
+    // Create all 3 skill icons + reroll button
     const iconsWrapper = document.createElement('div');
     iconsWrapper.className = 'task-icons-wrapper';
+    
+    // NEW: Add reroll button as the FIRST element (leftmost when expanded)
+    const rerollDiv = document.createElement('div');
+    rerollDiv.className = 'task-icon-option reroll-option';
+    rerollDiv.innerHTML = '↻';
+    rerollDiv.title = 'Reroll other options';
+    
+    // Add click handler for smart reroll (only reroll non-selected)
+    rerollDiv.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.taskManager) {
+            taskManager.rerollNonSelectedOptions(slotIndex);
+        }
+    });
+    
+    iconsWrapper.appendChild(rerollDiv);
     
     // Reorder options so selected is always last (rightmost)
     const reorderedOptions = [];
@@ -618,31 +634,31 @@ createSelectableTaskElement(taskSlot, slotIndex) {
     });
     
     // Create icons in reordered sequence
-reorderedOptions.forEach((option, displayIndex) => {
-    const iconDiv = document.createElement('div');
-    iconDiv.className = 'task-icon-option';
-    
-    // Mark if this is the selected one (will be last/rightmost)
-    if (option.originalIndex === selectedIndex) {
-        iconDiv.classList.add('selected');
-        iconDiv.classList.add(`skill-border-${option.task.skill}`);
-    }
-    
-    const skillIcon = loadingManager.getImage(`skill_${option.task.skill}`);
-    if (skillIcon) {
-        const icon = document.createElement('img');
-        icon.src = skillIcon.src;
-        iconDiv.appendChild(icon);
-    } else {
-        // Fallback text
-        iconDiv.textContent = option.task.skill.substring(0, 3).toUpperCase();
-    }
-    
-    // Add task quantity display
-    const quantityDiv = document.createElement('div');
-    quantityDiv.className = 'task-quantity-badge';
-    quantityDiv.textContent = option.task.targetCount;
-    iconDiv.appendChild(quantityDiv);
+    reorderedOptions.forEach((option, displayIndex) => {
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'task-icon-option';
+        
+        // Mark if this is the selected one (will be last/rightmost)
+        if (option.originalIndex === selectedIndex) {
+            iconDiv.classList.add('selected');
+            iconDiv.classList.add(`skill-border-${option.task.skill}`);
+        }
+        
+        const skillIcon = loadingManager.getImage(`skill_${option.task.skill}`);
+        if (skillIcon) {
+            const icon = document.createElement('img');
+            icon.src = skillIcon.src;
+            iconDiv.appendChild(icon);
+        } else {
+            // Fallback text
+            iconDiv.textContent = option.task.skill.substring(0, 3).toUpperCase();
+        }
+        
+        // Add task quantity display
+        const quantityDiv = document.createElement('div');
+        quantityDiv.className = 'task-quantity-badge';
+        quantityDiv.textContent = option.task.targetCount;
+        iconDiv.appendChild(quantityDiv);
         
         // Add hover handler to preview task
         iconDiv.addEventListener('mouseenter', () => {
@@ -678,7 +694,7 @@ reorderedOptions.forEach((option, displayIndex) => {
     const detailsDiv = document.createElement('div');
     detailsDiv.className = 'task-details';
     
-    // Header with description and reroll button
+    // Header with description (NO REROLL BUTTON HERE ANYMORE)
     const headerDiv = document.createElement('div');
     headerDiv.className = 'task-header';
     
@@ -687,19 +703,7 @@ reorderedOptions.forEach((option, displayIndex) => {
     descDiv.textContent = selectedTask.description;
     
     headerDiv.appendChild(descDiv);
-    
-    // Add reroll button
-    const rerollBtn = document.createElement('button');
-    rerollBtn.className = 'task-reroll';
-    rerollBtn.textContent = '↻';
-    rerollBtn.title = 'Reroll task';
-    rerollBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (window.taskManager) {
-            taskManager.rerollTask(slotIndex);
-        }
-    });
-    headerDiv.appendChild(rerollBtn);
+    // NO REROLL BUTTON ADDED HERE
     
     detailsDiv.appendChild(headerDiv);
     
