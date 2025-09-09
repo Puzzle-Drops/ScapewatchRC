@@ -47,6 +47,13 @@ class UIManager {
         
         btn.addEventListener('click', (e) => {
             const panel = btn.dataset.panel;
+
+            if (panel === 'hiscores') {
+                if (window.hiScoresManager) {
+                    hiScoresManager.open();
+                }
+                return;
+            }
             
             // Check if clicking the already active panel (to minimize/maximize)
             if (btn.classList.contains('active') && panel !== 'bank' && panel !== 'shop') {
