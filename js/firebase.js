@@ -104,9 +104,9 @@ class FirebaseManager {
         
         try {
             await this.db.collection('users').doc(this.currentUser.uid).update({
-                currentSessionId: this.sessionId,
                 lastLoginTime: firebase.firestore.FieldValue.serverTimestamp(),
-                lastActiveTime: firebase.firestore.FieldValue.serverTimestamp()
+                lastActiveTime: firebase.firestore.FieldValue.serverTimestamp(),
+                currentSessionId: this.sessionId
             });
         } catch (error) {
             console.error('Failed to update session:', error);
@@ -182,15 +182,23 @@ class FirebaseManager {
         this.sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('scapewatch_session_id', this.sessionId);
 
-        // Reserve username and create user document
+        // Reserve username and create user document with organized fields
         await this.reserveUsername(username, user.uid);
         await this.db.collection('users').doc(user.uid).set({
+            // Identity info at top
             username: username,
+            uid: user.uid,
             email: email,
+            
+            // Timestamps in logical order
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastLoginTime: firebase.firestore.FieldValue.serverTimestamp(),
+            lastActiveTime: firebase.firestore.FieldValue.serverTimestamp(),
+            lastLogoutTime: null,
             lastPlayed: firebase.firestore.FieldValue.serverTimestamp(),
-            currentSessionId: this.sessionId,
-            lastLoginTime: firebase.firestore.FieldValue.serverTimestamp()
+            
+            // Session info last
+            currentSessionId: this.sessionId
         });
 
         this.currentUser = user;
@@ -227,12 +235,12 @@ class FirebaseManager {
         this.sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('scapewatch_session_id', this.sessionId);
         
-        // Update user document with new session
+        // Update user document with new session (maintains field order)
         await this.db.collection('users').doc(userCredential.user.uid).update({
-            lastPlayed: firebase.firestore.FieldValue.serverTimestamp(),
-            currentSessionId: this.sessionId,
             lastLoginTime: firebase.firestore.FieldValue.serverTimestamp(),
-            lastActiveTime: firebase.firestore.FieldValue.serverTimestamp()
+            lastActiveTime: firebase.firestore.FieldValue.serverTimestamp(),
+            lastPlayed: firebase.firestore.FieldValue.serverTimestamp(),
+            currentSessionId: this.sessionId
         });
 
         this.currentUser = userCredential.user;
@@ -343,8 +351,8 @@ class FirebaseManager {
         if (this.currentUser) {
             try {
                 await this.db.collection('users').doc(this.currentUser.uid).update({
-                    currentSessionId: null,
-                    lastLogoutTime: firebase.firestore.FieldValue.serverTimestamp()
+                    lastLogoutTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    currentSessionId: null
                 });
             } catch (error) {
                 console.error('Failed to clear session:', error);
@@ -386,12 +394,18 @@ class FirebaseManager {
         try {
             const saveData = this.collectSaveData();
             
-            // Save to Firestore
+            // Save to Firestore with organized field order for readability
             await this.db.collection('saves').doc(this.currentUser.uid).set({
-                ...saveData,
+                // User info at the very top
                 username: this.username,
+                uid: this.currentUser.uid,
+                
+                // Timestamp info next
                 lastSaved: firebase.firestore.FieldValue.serverTimestamp(),
-                sessionId: this.sessionId // Include session ID in save
+                sessionId: this.sessionId,
+                
+                // Then all game data
+                ...saveData
             });
 
             this.lastSaveTime = now;
@@ -812,12 +826,18 @@ class FirebaseManager {
         try {
             const saveData = this.collectSaveData();
             
-            // Save to Firestore immediately
+            // Save to Firestore immediately with organized field order
             await this.db.collection('saves').doc(this.currentUser.uid).set({
-                ...saveData,
+                // User info at the very top
                 username: this.username,
+                uid: this.currentUser.uid,
+                
+                // Timestamp info next
                 lastSaved: firebase.firestore.FieldValue.serverTimestamp(),
-                sessionId: this.sessionId
+                sessionId: this.sessionId,
+                
+                // Then all game data
+                ...saveData
             });
 
             this.lastSaveTime = Date.now();
