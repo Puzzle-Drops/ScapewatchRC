@@ -224,23 +224,43 @@ class HiScoresManager {
     }
     
     // Load a category
-    async loadCategory(categoryId) {
-        this.currentCategory = categoryId;
-        this.currentPage = 0;
-        this.compareMode = false;
+async loadCategory(categoryId) {
+    this.currentCategory = categoryId;
+    this.currentPage = 0;
+    this.compareMode = false;
+    
+    // Update active state in categories
+    document.querySelectorAll('.hiscores-category-item').forEach((item, index) => {
+        item.classList.remove('active');
+        // Check if this item's text or data matches the category
+        const text = item.querySelector('span')?.textContent;
+        const categories = ['Overall', 'Tasks', 'Pets', 'Shiny Pets'];
+        const skillsData = loadingManager.getData('skills');
         
-        // Update active state in categories
-        document.querySelectorAll('.hiscores-category-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        const activeItem = document.querySelector(`.hiscores-category-item:nth-child(${this.getCategoryIndex(categoryId) + 2})`); // +2 for title
-        if (activeItem) {
-            activeItem.classList.add('active');
+        let itemCategoryId = null;
+        if (categories.includes(text)) {
+            if (text === 'Overall') itemCategoryId = 'overall';
+            else if (text === 'Tasks') itemCategoryId = 'tasks';
+            else if (text === 'Pets') itemCategoryId = 'pets';
+            else if (text === 'Shiny Pets') itemCategoryId = 'shinyPets';
+        } else {
+            // It's a skill
+            for (const skillId of Object.keys(skillsData)) {
+                if (skillsData[skillId].name === text) {
+                    itemCategoryId = `skill_${skillId}`;
+                    break;
+                }
+            }
         }
         
-        // Load and display data
-        await this.loadLeaderboard();
-    }
+        if (itemCategoryId === categoryId) {
+            item.classList.add('active');
+        }
+    });
+    
+    // Load and display data
+    await this.loadLeaderboard();
+}
     
     // Get category index
     getCategoryIndex(categoryId) {
@@ -270,45 +290,47 @@ class HiScoresManager {
     }
     
     // Fetch leaderboard data from Firebase
-    async fetchLeaderboardData(category, page) {
-        if (!firebaseManager.db) return [];
-        
-        const startAt = page * this.pageSize;
-        let query;
-        
+async fetchLeaderboardData(category, page) {
+    if (!firebaseManager.db) return [];
+    
+    const startAt = page * this.pageSize;
+    let query;
+    
+    try {
         if (category === 'overall') {
             query = firebaseManager.db.collection('hiscores')
                 .orderBy('totalLevel', 'desc')
                 .orderBy('totalXp', 'desc')
-                .orderBy('totalLevelFirstReached', 'asc')
-                .limit(this.pageSize)
-                .offset(startAt);
+                .limit(this.pageSize);
         } else if (category === 'tasks') {
             query = firebaseManager.db.collection('hiscores')
                 .orderBy('tasksCompleted', 'desc')
-                .orderBy('tasksFirstReached', 'asc')
-                .limit(this.pageSize)
-                .offset(startAt);
+                .limit(this.pageSize);
         } else if (category === 'pets') {
             query = firebaseManager.db.collection('hiscores')
                 .orderBy('petsTotal', 'desc')
-                .orderBy('petsFirstReached', 'asc')
-                .limit(this.pageSize)
-                .offset(startAt);
+                .limit(this.pageSize);
         } else if (category === 'shinyPets') {
             query = firebaseManager.db.collection('hiscores')
                 .orderBy('petsShiny', 'desc')
-                .orderBy('shinyPetsFirstReached', 'asc')
-                .limit(this.pageSize)
-                .offset(startAt);
+                .limit(this.pageSize);
         } else if (category.startsWith('skill_')) {
             const skillId = category.replace('skill_', '');
             query = firebaseManager.db.collection('hiscores')
                 .orderBy(`level_${skillId}`, 'desc')
                 .orderBy(`xp_${skillId}`, 'desc')
-                .orderBy(`levelFirst_${skillId}`, 'asc')
-                .limit(this.pageSize)
-                .offset(startAt);
+                .limit(this.pageSize);
+        } else {
+            return [];
+        }
+        
+        // Apply offset for pagination
+        if (startAt > 0) {
+            const previousPage = await query.limit(startAt).get();
+            if (previousPage.docs.length > 0) {
+                const lastDoc = previousPage.docs[previousPage.docs.length - 1];
+                query = query.startAfter(lastDoc);
+            }
         }
         
         const snapshot = await query.get();
@@ -316,7 +338,15 @@ class HiScoresManager {
             rank: startAt + index + 1,
             ...doc.data()
         }));
+    } catch (error) {
+        console.error('Failed to fetch leaderboard:', error);
+        // Check if it's an index error
+        if (error.code === 'failed-precondition' && error.message.includes('index')) {
+            console.error('Missing index for query. Check the Firebase console for a link to create it.');
+        }
+        return [];
     }
+}
     
     // Display leaderboard
     displayLeaderboard(data) {
@@ -617,60 +647,83 @@ class HiScoresManager {
     }
     
     // Get player rank for a category
-    async getPlayerRank(uid, category) {
-        try {
-            const playerDoc = await firebaseManager.db.collection('hiscores').doc(uid).get();
-            if (!playerDoc.exists) return 'Unranked';
+async getPlayerRank(uid, category) {
+    try {
+        const playerDoc = await firebaseManager.db.collection('hiscores').doc(uid).get();
+        if (!playerDoc.exists) return 'Unranked';
+        
+        const playerData = playerDoc.data();
+        let query;
+        
+        if (category === 'overall') {
+            const playerLevel = playerData.totalLevel;
+            const playerXp = playerData.totalXp;
+            // Count players with better stats
+            query = await firebaseManager.db.collection('hiscores')
+                .where('totalLevel', '>', playerLevel)
+                .get();
             
-            const playerData = playerDoc.data();
-            let query;
+            // Also count players with same level but more XP
+            const sameLevelQuery = await firebaseManager.db.collection('hiscores')
+                .where('totalLevel', '==', playerLevel)
+                .where('totalXp', '>', playerXp)
+                .get();
             
-            if (category === 'overall') {
-                const playerLevel = playerData.totalLevel;
-                const playerXp = playerData.totalXp;
-                query = firebaseManager.db.collection('hiscores')
-                    .where('totalLevel', '>', playerLevel);
-            } else if (category === 'tasks') {
-                const playerTasks = playerData.tasksCompleted || 0;
-                query = firebaseManager.db.collection('hiscores')
-                    .where('tasksCompleted', '>', playerTasks);
-            } else if (category === 'pets') {
-                const playerPets = playerData.petsTotal || 0;
-                query = firebaseManager.db.collection('hiscores')
-                    .where('petsTotal', '>', playerPets);
-            } else if (category === 'shinyPets') {
-                const playerShiny = playerData.petsShiny || 0;
-                query = firebaseManager.db.collection('hiscores')
-                    .where('petsShiny', '>', playerShiny);
-            }
-            
-            const snapshot = await query.count().get();
-            return snapshot.data().count + 1;
-        } catch (error) {
-            console.error('Failed to get player rank:', error);
-            return 'Error';
+            return query.size + sameLevelQuery.size + 1;
+        } else if (category === 'tasks') {
+            const playerTasks = playerData.tasksCompleted || 0;
+            query = await firebaseManager.db.collection('hiscores')
+                .where('tasksCompleted', '>', playerTasks)
+                .get();
+            return query.size + 1;
+        } else if (category === 'pets') {
+            const playerPets = playerData.petsTotal || 0;
+            query = await firebaseManager.db.collection('hiscores')
+                .where('petsTotal', '>', playerPets)
+                .get();
+            return query.size + 1;
+        } else if (category === 'shinyPets') {
+            const playerShiny = playerData.petsShiny || 0;
+            query = await firebaseManager.db.collection('hiscores')
+                .where('petsShiny', '>', playerShiny)
+                .get();
+            return query.size + 1;
         }
+        
+        return 'Error';
+    } catch (error) {
+        console.error('Failed to get player rank:', error);
+        return 'Error';
     }
+}
     
     // Get player rank for a specific skill
-    async getPlayerRankForSkill(uid, skillId) {
-        try {
-            const playerDoc = await firebaseManager.db.collection('hiscores').doc(uid).get();
-            if (!playerDoc.exists) return 'Unranked';
-            
-            const playerData = playerDoc.data();
-            const playerLevel = playerData[`level_${skillId}`] || 1;
-            
-            const query = firebaseManager.db.collection('hiscores')
-                .where(`level_${skillId}`, '>', playerLevel);
-            
-            const snapshot = await query.count().get();
-            return snapshot.data().count + 1;
-        } catch (error) {
-            console.error('Failed to get player skill rank:', error);
-            return 'Error';
-        }
+async getPlayerRankForSkill(uid, skillId) {
+    try {
+        const playerDoc = await firebaseManager.db.collection('hiscores').doc(uid).get();
+        if (!playerDoc.exists) return 'Unranked';
+        
+        const playerData = playerDoc.data();
+        const playerLevel = playerData[`level_${skillId}`] || 1;
+        const playerXp = playerData[`xp_${skillId}`] || 0;
+        
+        // Count players with higher level
+        const higherLevelQuery = await firebaseManager.db.collection('hiscores')
+            .where(`level_${skillId}`, '>', playerLevel)
+            .get();
+        
+        // Count players with same level but more XP
+        const sameLevelQuery = await firebaseManager.db.collection('hiscores')
+            .where(`level_${skillId}`, '==', playerLevel)
+            .where(`xp_${skillId}`, '>', playerXp)
+            .get();
+        
+        return higherLevelQuery.size + sameLevelQuery.size + 1;
+    } catch (error) {
+        console.error('Failed to get player skill rank:', error);
+        return 'Error';
     }
+}
     
     // Compare two users
     async compareUsersDisplay(user1, user2) {
