@@ -2230,12 +2230,14 @@ span.control-emoji {
     border-radius: 10px;
     padding: 30px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    width: 720px;
+    min-width: 720px;
 }
 
 .game-title {
     text-align: center;
     color: #f39c12;
-    font-size: 36px;
+    font-size: 72px;
     margin-bottom: 30px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
@@ -2252,7 +2254,7 @@ span.control-emoji {
     background: none;
     border: none;
     color: #888;
-    font-size: 16px;
+    font-size: 36px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -2278,7 +2280,7 @@ span.control-emoji {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 5px;
     color: #fff;
-    font-size: 14px;
+    font-size: 36px;
 }
 
 .form-group input::placeholder {
@@ -2304,7 +2306,7 @@ span.control-emoji {
     border: none;
     border-radius: 5px;
     color: #fff;
-    font-size: 16px;
+    font-size: 36px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -2341,7 +2343,7 @@ span.control-emoji {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 5px;
     color: #888;
-    font-size: 14px;
+    font-size: 24px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
