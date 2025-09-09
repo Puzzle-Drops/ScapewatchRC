@@ -67,23 +67,27 @@ class HiScoresManager {
         title.textContent = 'Hiscores';
         container.appendChild(title);
         
-        // Categories list
-        const categories = [
-            { id: 'overall', name: 'Overall', icon: 'skill_skills' },
-            { id: 'tasks', name: 'Tasks', icon: 'skill_quests' },
-            { id: 'pets', name: 'Pets', icon: null },
-            { id: 'shinyPets', name: 'Shiny Pets', icon: null }
-        ];
-        
-        // Add all skills
-        const skillsData = loadingManager.getData('skills');
-        for (const skillId of Object.keys(skillsData)) {
-            categories.push({
-                id: `skill_${skillId}`,
-                name: skillsData[skillId].name,
-                icon: `skill_${skillId}`
-            });
-        }
+        // Categories list - start with just Overall
+const categories = [
+    { id: 'overall', name: 'Overall', icon: 'skill_skills' }
+];
+
+// Add all skills next
+const skillsData = loadingManager.getData('skills');
+for (const skillId of Object.keys(skillsData)) {
+    categories.push({
+        id: `skill_${skillId}`,
+        name: skillsData[skillId].name,
+        icon: `skill_${skillId}`
+    });
+}
+
+// Add Tasks, Pets, and Shiny Pets at the end
+categories.push(
+    { id: 'tasks', name: 'Tasks', icon: 'skill_quests' },
+    { id: 'pets', name: 'Pets', icon: null },
+    { id: 'shinyPets', name: 'Shiny Pets', icon: null }
+);
         
         const list = document.createElement('div');
         list.className = 'hiscores-category-list';
