@@ -2078,6 +2078,29 @@ span.control-emoji {
     object-fit: contain;
 }
 
+/* Reroll button styling */
+.task-icon-option.reroll-option {
+    background-color: #555;
+    color: #fff;
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-color: #777;
+}
+
+.task-icon-option.reroll-option:hover {
+    background-color: #666;
+    border-color: #f39c12;
+    transform: scale(1.1);
+}
+
+/* Hide reroll button when not hovering (along with other non-selected) */
+.task-icon-container:not(:hover) .reroll-option {
+    display: none;
+}
+
 /* Task quantity badge */
 .task-quantity-badge {
     position: absolute;
