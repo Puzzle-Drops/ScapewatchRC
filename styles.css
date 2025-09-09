@@ -2070,7 +2070,6 @@ span.control-emoji {
     font-weight: bold;
     text-shadow: 1px 1px 2px #000;
     padding: 0 4px;
-    background: rgba(0, 0, 0, 0.7);
     border-radius: 3px;
     min-width: 20px;
     text-align: center;
@@ -2101,7 +2100,6 @@ span.control-emoji {
     font-weight: bold;
     text-shadow: 1px 1px 2px #000;
     padding: 0 4px;
-    background: rgba(0, 0, 0, 0.7);
     border-radius: 3px;
     min-width: 20px;
     text-align: center;
