@@ -298,7 +298,7 @@ async fetchLeaderboardData(category, page) {
     
     try {
         if (category === 'overall') {
-            query = firebaseManager.db.collectionGroup('hiscores')
+            query = firebaseManager.db.collection('hiscores')
                 .orderBy('totalLevel', 'desc')
                 .orderBy('totalXp', 'desc')
                 .limit(this.pageSize);
@@ -316,7 +316,7 @@ async fetchLeaderboardData(category, page) {
                 .limit(this.pageSize);
         } else if (category.startsWith('skill_')) {
             const skillId = category.replace('skill_', '');
-            query = firebaseManager.db.collectionGroup('hiscores')
+            query = firebaseManager.db.collection('hiscores')
                 .orderBy(`level_${skillId}`, 'desc')
                 .orderBy(`xp_${skillId}`, 'desc')
                 .limit(this.pageSize);
@@ -659,12 +659,12 @@ async getPlayerRank(uid, category) {
             const playerLevel = playerData.totalLevel;
             const playerXp = playerData.totalXp;
             // Count players with better stats
-            query = await firebaseManager.db.collectionGroup('hiscores')
+            query = await firebaseManager.db.collection('hiscores')
                 .where('totalLevel', '>', playerLevel)
                 .get();
             
             // Also count players with same level but more XP
-            const sameLevelQuery = await firebaseManager.db.collectionGroup('hiscores')
+            const sameLevelQuery = await firebaseManager.db.collection('hiscores')
                 .where('totalLevel', '==', playerLevel)
                 .where('totalXp', '>', playerXp)
                 .get();
@@ -708,12 +708,12 @@ async getPlayerRankForSkill(uid, skillId) {
         const playerXp = playerData[`xp_${skillId}`] || 0;
         
         // Count players with higher level
-        const higherLevelQuery = await firebaseManager.db.collectionGroup('hiscores')
+        const higherLevelQuery = await firebaseManager.db.collection('hiscores')
             .where(`level_${skillId}`, '>', playerLevel)
             .get();
         
         // Count players with same level but more XP
-        const sameLevelQuery = await firebaseManager.db.collectionGroup('hiscores')
+        const sameLevelQuery = await firebaseManager.db.collection('hiscores')
             .where(`level_${skillId}`, '==', playerLevel)
             .where(`xp_${skillId}`, '>', playerXp)
             .get();
