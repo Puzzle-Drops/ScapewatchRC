@@ -68,15 +68,28 @@ class TaskManager {
         }
 
         let attempts = 0;
-        const maxAttempts = count * 10; // Prevent infinite loops
+        const maxAttempts = count * 10; // Initial attempts with weighting
+        let useWeighting = true;
+        let weightedFailures = 0;
 
-        while (generatedTasks.length < count && attempts < maxAttempts) {
+        while (generatedTasks.length < count && attempts < maxAttempts + 50) { // Extra attempts for unweighted
             attempts++;
             
-            // Pick a skill using weighted selection
-            const skill = window.runeCreditManager ? 
-                runeCreditManager.getWeightedSkill(availableSkills) :
-                availableSkills[Math.floor(Math.random() * availableSkills.length)];
+            // After 10 consecutive failures with weighting, switch to unweighted
+            if (useWeighting && weightedFailures >= 10) {
+                console.warn('10 consecutive weighted task generation failures, switching to unweighted selection');
+                useWeighting = false;
+                weightedFailures = 0; // Reset counter
+            }
+            
+            // Pick a skill - use weighting or random based on flag
+            let skill;
+            if (useWeighting && window.runeCreditManager) {
+                skill = runeCreditManager.getWeightedSkill(availableSkills);
+            } else {
+                // Unweighted random selection
+                skill = availableSkills[Math.floor(Math.random() * availableSkills.length)];
+            }
             
             // Try to generate a task for this skill
             const task = skill.generateTask();
@@ -91,7 +104,18 @@ class TaskManager {
                 }
                 task.progress = 0;
                 generatedTasks.push(task);
-                console.log(`Generated task: ${task.description}`);
+                
+                // Log which method succeeded
+                const method = useWeighting ? 'weighted' : 'unweighted';
+                console.log(`Generated task (${method}): ${task.description}`);
+                
+                // Reset failure counter on success
+                weightedFailures = 0;
+            } else {
+                // Track failures only when using weighting
+                if (useWeighting) {
+                    weightedFailures++;
+                }
             }
         }
 
@@ -347,6 +371,44 @@ class TaskManager {
         }
         
         console.log(`Added ${tasksNeeded} task slots to queue, now have ${this.tasks.length} slots`);
+    }
+
+    // Reroll only the non-selected options for a task slot
+    rerollNonSelectedOptions(index) {
+        if (index < 0 || index >= this.tasks.length) {
+            console.error('Invalid task index');
+            return;
+        }
+
+        const taskSlot = this.tasks[index];
+        const selectedIndex = taskSlot.selectedIndex || 0;
+        const selectedTask = taskSlot.options[selectedIndex];
+        
+        console.log(`Keeping selected task: ${selectedTask.description}`);
+        console.log('Rerolling other 2 options...');
+
+        // Generate 2 new tasks to replace the non-selected ones
+        const newOptions = this.generateMultipleTasks(2);
+        
+        if (newOptions.length === 2) {
+            // Create new options array with selected task + 2 new ones
+            const updatedOptions = [selectedTask, ...newOptions];
+            
+            this.tasks[index] = {
+                options: updatedOptions,
+                selectedIndex: 0,  // Selected task is now at index 0
+                displayOrder: [0, 1, 2]  // Reset display order
+            };
+            
+            console.log('Generated 2 new alternative options');
+            
+            // Update UI
+            if (window.ui) {
+                window.ui.updateTasks();
+            }
+        } else {
+            console.error('Failed to generate replacement task options');
+        }
     }
 
     // Reroll a specific regular task (index 0-4)
