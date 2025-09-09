@@ -384,37 +384,40 @@ class FirebaseManager {
     }
 
     // Save game state
-    async saveGame() {
-        if (this.isOfflineMode || !this.currentUser) return;
+async saveGame() {
+    if (this.isOfflineMode || !this.currentUser) return;
 
-        // Prevent saving too frequently
-        const now = Date.now();
-        if (now - this.lastSaveTime < 5000) return; // Min 5 seconds between saves
+    // Prevent saving too frequently
+    const now = Date.now();
+    if (now - this.lastSaveTime < 5000) return; // Min 5 seconds between saves
+    
+    try {
+        const saveData = this.collectSaveData();
         
-        try {
-            const saveData = this.collectSaveData();
+        // Save to Firestore with organized field order for readability
+        await this.db.collection('saves').doc(this.currentUser.uid).set({
+            // User info at the very top
+            username: this.username,
+            uid: this.currentUser.uid,
             
-            // Save to Firestore with organized field order for readability
-            await this.db.collection('saves').doc(this.currentUser.uid).set({
-                // User info at the very top
-                username: this.username,
-                uid: this.currentUser.uid,
-                
-                // Timestamp info next
-                lastSaved: firebase.firestore.FieldValue.serverTimestamp(),
-                sessionId: this.sessionId,
-                
-                // Then all game data
-                ...saveData
-            });
+            // Timestamp info next
+            lastSaved: firebase.firestore.FieldValue.serverTimestamp(),
+            sessionId: this.sessionId,
+            
+            // Then all game data
+            ...saveData
+        });
 
-            this.lastSaveTime = now;
-            this.showSaveIndicator();
-            console.log('Game saved successfully');
-        } catch (error) {
-            console.error('Failed to save game:', error);
-        }
+        this.lastSaveTime = now;
+        this.showSaveIndicator();
+        console.log('Game saved successfully');
+        
+        // Update hi-scores
+        await this.updateHiscores();
+    } catch (error) {
+        console.error('Failed to save game:', error);
     }
+}
 
     // Load game state
     async loadGame() {
@@ -846,6 +849,79 @@ class FirebaseManager {
             console.error('Failed to force save:', error);
         }
     }
+
+    async updateHiscores(forceUpdate = false) {
+    if (this.isOfflineMode || !this.currentUser) return;
+    
+    // Throttle updates unless forced
+    const now = Date.now();
+    if (!forceUpdate && this.lastHiscoresUpdate && (now - this.lastHiscoresUpdate < 5 * 60 * 1000)) {
+        return; // Skip if updated within last 5 minutes
+    }
+    
+    try {
+        const hiscoreData = {
+            uid: this.currentUser.uid,
+            username: this.username,
+            
+            // Overall stats
+            totalLevel: skills.getTotalLevel(),
+            totalXp: this.calculateTotalXp(),
+            
+            // Track when milestones were first reached
+            totalLevelFirstReached: null, // Will be set by cloud function if new record
+            
+            // Tasks
+            tasksCompleted: window.runeCreditManager ? runeCreditManager.totalTasksCompleted : 0,
+            tasksFirstReached: null,
+            
+            // Pets
+            petsTotal: 0,
+            petsShiny: 0,
+            petsFirstReached: null,
+            shinyPetsFirstReached: null,
+            
+            // Update timestamp
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        // Calculate pet totals
+        if (window.runeCreditManager && runeCreditManager.petCounts) {
+            for (const skillCounts of Object.values(runeCreditManager.petCounts)) {
+                hiscoreData.petsTotal += (skillCounts.regular || 0) + (skillCounts.shiny || 0);
+                hiscoreData.petsShiny += (skillCounts.shiny || 0);
+            }
+        }
+        
+        // Add individual skill data
+        for (const [skillId, skill] of Object.entries(skills.skills)) {
+            hiscoreData[`level_${skillId}`] = skill.level;
+            hiscoreData[`xp_${skillId}`] = Math.floor(skill.xp);
+            hiscoreData[`levelFirst_${skillId}`] = null; // Will be set by cloud function if new record
+        }
+        
+        // Use merge to preserve "firstReached" timestamps
+        await this.db.collection('hiscores').doc(this.currentUser.uid).set(hiscoreData, { merge: true });
+        
+        this.lastHiscoresUpdate = now;
+        console.log('Hiscores updated');
+    } catch (error) {
+        console.error('Failed to update hiscores:', error);
+    }
+}
+
+// Helper to calculate total XP
+calculateTotalXp() {
+    let total = 0;
+    if (window.skills) {
+        for (const skill of Object.values(skills.skills)) {
+            total += Math.floor(skill.xp);
+        }
+    }
+    return total;
+}
+
+    
 }
 
 // Create global instance
