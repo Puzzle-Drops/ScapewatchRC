@@ -239,35 +239,55 @@ class TaskManager {
     }
 
     // Mark a task as complete and move to completed list
-    async completeTask(task) {
-        console.log(`Task complete: ${task.description}`);
-        task.progress = 1;
-        task.completedAt = Date.now();
+async completeTask(task) {
+    console.log(`Task complete: ${task.description}`);
+    task.progress = 1;
+    task.completedAt = Date.now();
+    
+    // Add to completed tasks
+    this.completedTasks.push(task);
+    
+    // Award credits - NOW PASSING THE TASK OBJECT
+    if (window.runeCreditManager) {
+        runeCreditManager.onTaskComplete(task);
+    }
+    
+    // Update speed bonuses based on current levels
+    if (window.runeCreditManager) {
+        runeCreditManager.updateSpeedBonuses();
+    }
+    
+    // If this was the current task, promote next task
+    if (task === this.currentTask) {
+        await this.promoteNextTask();
         
-        // Add to completed tasks
-        this.completedTasks.push(task);
+        // CRITICAL: Ensure task queue is fully populated before saving
+        this.ensureFullTaskQueue();
         
-        // Award credits - NOW PASSING THE TASK OBJECT
-        if (window.runeCreditManager) {
-            runeCreditManager.onTaskComplete(task);
+        // Double-check that we have valid current and next tasks
+        if (!this.currentTask) {
+            const emergencyTasks = this.generateMultipleTasks(1);
+            if (emergencyTasks.length > 0) {
+                this.currentTask = emergencyTasks[0];
+                console.log('Generated emergency current task');
+            }
         }
         
-        // Update speed bonuses based on current levels
-        if (window.runeCreditManager) {
-            runeCreditManager.updateSpeedBonuses();
-        }
-        
-        // If this was the current task, promote next task
-        if (task === this.currentTask) {
-            await this.promoteNextTask();
-        }
-        
-        // FORCE SAVE after ENTIRE task transition is complete
-        // This prevents pet roll exploitation and ensures consistent state
-        if (window.firebaseManager && !firebaseManager.isOfflineMode) {
-            await firebaseManager.forceSave();
+        if (!this.nextTask) {
+            const emergencyTasks = this.generateMultipleTasks(1);
+            if (emergencyTasks.length > 0) {
+                this.nextTask = emergencyTasks[0];
+                console.log('Generated emergency next task');
+            }
         }
     }
+    
+    // FORCE SAVE after ENTIRE task transition is complete
+    // This prevents pet roll exploitation and ensures consistent state
+    if (window.firebaseManager && !firebaseManager.isOfflineMode) {
+        await firebaseManager.forceSave();
+    }
+}
 
     // Skip the current task when it's impossible
     skipCurrentTask() {
