@@ -13,6 +13,8 @@ class FirebaseManager {
         this.sessionListener = null;
     }
 
+    SENTINEL_DATE = new Date('2099-12-31T23:59:59Z');
+
     // Initialize Firebase with your config
     initialize() {
         // Your Firebase configuration
@@ -868,18 +870,18 @@ async saveGame() {
             totalLevel: skills.getTotalLevel(),
             totalXp: this.calculateTotalXp(),
             
-            // Track when milestones were first reached
-            totalLevelFirstReached: null, // Will be set by cloud function if new record
-            
-            // Tasks
-            tasksCompleted: window.runeCreditManager ? runeCreditManager.totalTasksCompleted : 0,
-            tasksFirstReached: null,
-            
-            // Pets
-            petsTotal: 0,
-            petsShiny: 0,
-            petsFirstReached: null,
-            shinyPetsFirstReached: null,
+            // Track when milestones were first reached (using sentinel date for "not yet")
+totalLevelFirstReached: this.SENTINEL_DATE,
+
+// Tasks
+tasksCompleted: window.runeCreditManager ? runeCreditManager.totalTasksCompleted : 0,
+tasksFirstReached: this.SENTINEL_DATE,
+
+// Pets
+petsTotal: 0,
+petsShiny: 0,
+petsFirstReached: this.SENTINEL_DATE,
+shinyPetsFirstReached: this.SENTINEL_DATE,
             
             // Update timestamp
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
@@ -894,11 +896,11 @@ async saveGame() {
         }
         
         // Add individual skill data
-        for (const [skillId, skill] of Object.entries(skills.skills)) {
-            hiscoreData[`level_${skillId}`] = skill.level;
-            hiscoreData[`xp_${skillId}`] = Math.floor(skill.xp);
-            hiscoreData[`levelFirst_${skillId}`] = null; // Will be set by cloud function if new record
-        }
+for (const [skillId, skill] of Object.entries(skills.skills)) {
+    hiscoreData[`level_${skillId}`] = skill.level;
+    hiscoreData[`xp_${skillId}`] = Math.floor(skill.xp);
+    hiscoreData[`levelFirst_${skillId}`] = this.SENTINEL_DATE; // Sentinel date for "not yet"
+}
         
         // Use merge to preserve "firstReached" timestamps
         await this.db.collection('hiscores').doc(this.currentUser.uid).set(hiscoreData, { merge: true });
