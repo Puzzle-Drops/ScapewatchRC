@@ -27,6 +27,32 @@
     --skill-farming: #1E8449;
     --skill-sailing: #1E90FF;
 }
+/* Skill-specific progress bar colors */
+.task-progress-fill.skill-mining { background-color: var(--skill-mining); }
+.task-progress-fill.skill-fishing { background-color: var(--skill-fishing); }
+.task-progress-fill.skill-woodcutting { background-color: var(--skill-woodcutting); }
+.task-progress-fill.skill-cooking { background-color: var(--skill-cooking); }
+.task-progress-fill.skill-attack { background-color: var(--skill-attack); }
+.task-progress-fill.skill-strength { background-color: var(--skill-strength); }
+.task-progress-fill.skill-defence { background-color: var(--skill-defence); }
+.task-progress-fill.skill-magic { background-color: var(--skill-magic); }
+.task-progress-fill.skill-ranged { background-color: var(--skill-ranged); }
+.task-progress-fill.skill-prayer { background-color: var(--skill-prayer); }
+.task-progress-fill.skill-runecraft { background-color: var(--skill-runecraft); }
+.task-progress-fill.skill-construction { background-color: var(--skill-construction); }
+.task-progress-fill.skill-agility { background-color: var(--skill-agility); }
+.task-progress-fill.skill-herblore { background-color: var(--skill-herblore); }
+.task-progress-fill.skill-thieving { background-color: var(--skill-thieving); }
+.task-progress-fill.skill-crafting { background-color: var(--skill-crafting); }
+.task-progress-fill.skill-fletching { background-color: var(--skill-fletching); }
+.task-progress-fill.skill-slayer { background-color: var(--skill-slayer); }
+.task-progress-fill.skill-hunter { background-color: var(--skill-hunter); }
+.task-progress-fill.skill-smithing { background-color: var(--skill-smithing); }
+.task-progress-fill.skill-firemaking { background-color: var(--skill-firemaking); }
+.task-progress-fill.skill-farming { background-color: var(--skill-farming); }
+.task-progress-fill.skill-sailing { background-color: var(--skill-sailing); }
+/* Default for other skills */
+.task-progress-fill { background-color: var(--skill-default); }
 
 * {
     margin: 0;
@@ -574,14 +600,6 @@ body {
     height: 100%;
     transition: width 0.3s ease;
 }
-
-/* Skill-specific progress bar colors */
-.task-progress-fill.skill-mining { background-color: var(--skill-mining); }
-.task-progress-fill.skill-fishing { background-color: var(--skill-fishing); }
-.task-progress-fill.skill-woodcutting { background-color: var(--skill-woodcutting); }
-.task-progress-fill.skill-cooking { background-color: var(--skill-cooking); }
-/* Default for other skills */
-.task-progress-fill { background-color: var(--skill-default); }
 
 .task-count {
     font-size: 16px;
