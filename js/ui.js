@@ -638,6 +638,9 @@ createSelectableTaskElement(taskSlot, slotIndex) {
         const iconDiv = document.createElement('div');
         iconDiv.className = 'task-icon-option';
         
+        // Add skill class for hover styling (for ALL options, not just selected)
+        iconDiv.classList.add(`task-skill-${option.task.skill}`);
+        
         // Mark if this is the selected one (will be last/rightmost)
         if (option.originalIndex === selectedIndex) {
             iconDiv.classList.add('selected');
