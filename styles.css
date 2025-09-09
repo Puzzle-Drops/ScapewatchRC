@@ -2360,7 +2360,7 @@ span.control-emoji {
     padding: 8px 12px;
     border-radius: 5px;
     color: #fff;
-    font-size: 14px;
+    font-size: 50px;
     z-index: 1000;
     display: flex;
     align-items: center;
@@ -2370,6 +2370,7 @@ span.control-emoji {
 .account-username {
     color: #f39c12;
     font-weight: bold;
+    margin-right: 36px;
 }
 
 .logout-btn {
@@ -2379,7 +2380,7 @@ span.control-emoji {
     padding: 4px 8px;
     border-radius: 3px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 36px;
 }
 
 .logout-btn:hover {
@@ -2426,8 +2427,8 @@ span.control-emoji {
     padding: 4px 8px;
     border-radius: 3px;
     cursor: pointer;
-    font-size: 14px;
-    margin-right: 5px;
+    font-size: 32px;
+    margin-right: 6px;
 }
 
 .logout-everywhere-btn:hover {
