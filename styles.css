@@ -2064,9 +2064,35 @@ span.control-emoji {
 
 .task-icon-option:hover {
     background-color: #444;
-    border-color: #f39c12;
+    border-color: #f39c12; /* Default fallback */
     transform: scale(1.1);
 }
+
+/* Skill-specific hover colors for task options */
+.task-icon-option.task-skill-mining:hover { border-color: var(--skill-mining); }
+.task-icon-option.task-skill-fishing:hover { border-color: var(--skill-fishing); }
+.task-icon-option.task-skill-woodcutting:hover { border-color: var(--skill-woodcutting); }
+.task-icon-option.task-skill-cooking:hover { border-color: var(--skill-cooking); }
+.task-icon-option.task-skill-attack:hover { border-color: var(--skill-attack); }
+.task-icon-option.task-skill-strength:hover { border-color: var(--skill-strength); }
+.task-icon-option.task-skill-defence:hover { border-color: var(--skill-defence); }
+.task-icon-option.task-skill-magic:hover { border-color: var(--skill-magic); }
+.task-icon-option.task-skill-ranged:hover { border-color: var(--skill-ranged); }
+.task-icon-option.task-skill-prayer:hover { border-color: var(--skill-prayer); }
+.task-icon-option.task-skill-runecraft:hover { border-color: var(--skill-runecraft); }
+.task-icon-option.task-skill-construction:hover { border-color: var(--skill-construction); }
+.task-icon-option.task-skill-agility:hover { border-color: var(--skill-agility); }
+.task-icon-option.task-skill-herblore:hover { border-color: var(--skill-herblore); }
+.task-icon-option.task-skill-thieving:hover { border-color: var(--skill-thieving); }
+.task-icon-option.task-skill-crafting:hover { border-color: var(--skill-crafting); }
+.task-icon-option.task-skill-fletching:hover { border-color: var(--skill-fletching); }
+.task-icon-option.task-skill-slayer:hover { border-color: var(--skill-slayer); }
+.task-icon-option.task-skill-hunter:hover { border-color: var(--skill-hunter); }
+.task-icon-option.task-skill-smithing:hover { border-color: var(--skill-smithing); }
+.task-icon-option.task-skill-firemaking:hover { border-color: var(--skill-firemaking); }
+.task-icon-option.task-skill-farming:hover { border-color: var(--skill-farming); }
+.task-icon-option.task-skill-sailing:hover { border-color: var(--skill-sailing); }
+.task-icon-option.task-skill-hitpoints:hover { border-color: #e74c3c; }
 
 .task-icon-option.selected {
     background-color: #2a2a2a;
