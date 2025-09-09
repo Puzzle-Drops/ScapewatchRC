@@ -2221,7 +2221,8 @@ span.control-emoji {
 
 .login-container {
     width: 100%;
-    max-width: 400px;
+    max-width: 720px;
+    width: 720px;
     padding: 20px;
 }
 
