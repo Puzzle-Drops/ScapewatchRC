@@ -2163,7 +2163,7 @@ span.control-emoji {
 
 /* Ensure task details don't jump when icons expand */
 .selectable-task .task-details {
-    margin-left: 74px; /* Account for larger icon width + gap */
+    margin-left: 0px; /* Account for larger icon width + gap */
 }
 
 /* Smooth transition for description changes */
