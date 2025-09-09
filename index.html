@@ -123,6 +123,9 @@
     <button class="panel-btn" data-panel="shop" title="Shop">
         <img src="assets/ui/shop.png" alt="Shop">
     </button>
+    <button class="panel-btn" data-panel="hiscores" title="Hiscores">
+        <img src="assets/ui/hiscores.png" alt="Hiscores">
+    </button>
     <button id="pause-toggle" class="panel-btn pause-btn" title="Pause AI">
         <span class="pause-icon">⏸</span>
     </button>
@@ -158,13 +161,28 @@
                 </div>
 
                 <!-- Shop Modal -->
-                <div id="shop-modal" class="modal" style="display: none;">
-                    <div class="modal-content">
-                        <button class="modal-close-x" id="shop-close-x">×</button>
-                        <h2>Shop</h2>
-                        <div id="shop-items" class="shop-items"></div>
-                    </div>
-                </div>
+<div id="shop-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <button class="modal-close-x" id="shop-close-x">×</button>
+        <h2>Shop</h2>
+        <div id="shop-items" class="shop-items"></div>
+    </div>
+</div>
+
+<!-- ADD THIS: Hiscores Modal -->
+<div id="hiscores-modal" class="hiscores-modal" style="display: none;">
+    <div class="hiscores-content">
+        <button class="modal-close-x" id="hiscores-close-x">×</button>
+        <div class="hiscores-layout">
+            <!-- Left: Category list -->
+            <div class="hiscores-categories" id="hiscores-categories"></div>
+            <!-- Center: Leaderboard -->
+            <div class="hiscores-leaderboard" id="hiscores-leaderboard"></div>
+            <!-- Right: Search/Compare -->
+            <div class="hiscores-controls" id="hiscores-controls"></div>
+        </div>
+    </div>
+</div>
             </div>
         </div>
     </div>
@@ -216,6 +234,7 @@
     <script src="js/ai.js"></script>
     <script src="js/testScenario.js"></script>
     <script src="js/firebase.js"></script>
+    <script src="js/hiScores.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
