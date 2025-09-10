@@ -879,13 +879,9 @@ createShopItem(stockKey, stock) {
     const itemContainer = document.createElement('div');
     itemContainer.className = 'shop-item-container';
     
-    // LEFT COLUMN - Icon, price range, amount input
+    // LEFT COLUMN - Icon and amount input
     const leftColumn = document.createElement('div');
     leftColumn.className = 'shop-column-left';
-    
-    // Top section for icon and price
-    const leftTopSection = document.createElement('div');
-    leftTopSection.className = 'shop-left-top';
     
     // Icon
     const iconDiv = document.createElement('div');
@@ -903,16 +899,6 @@ createShopItem(stockKey, stock) {
     };
     iconDiv.appendChild(img);
     
-    // Price range
-    const priceRangeDiv = document.createElement('div');
-    priceRangeDiv.className = 'shop-price-range';
-    const minPrice = Math.ceil(stock.basePrice * 0.5);
-    const maxPrice = Math.floor(stock.basePrice * 2);
-    priceRangeDiv.textContent = `(${minPrice}-${maxPrice} gp)`;
-    
-    leftTopSection.appendChild(iconDiv);
-    leftTopSection.appendChild(priceRangeDiv);
-    
     // Amount input (at bottom)
     const quantityInput = document.createElement('input');
     quantityInput.type = 'number';
@@ -921,10 +907,10 @@ createShopItem(stockKey, stock) {
     quantityInput.min = '1';
     quantityInput.max = '10000';
     
-    leftColumn.appendChild(leftTopSection);
+    leftColumn.appendChild(iconDiv);
     leftColumn.appendChild(quantityInput);
     
-    // RIGHT COLUMN - Name, price, total cost, buy button
+    // RIGHT COLUMN - Name, price with range, total cost, buy button
     const rightColumn = document.createElement('div');
     rightColumn.className = 'shop-column-right';
     
@@ -937,10 +923,12 @@ createShopItem(stockKey, stock) {
     nameDiv.className = 'shop-item-name';
     nameDiv.textContent = itemData ? itemData.name : stock.itemId;
     
-    // Current price
+    // Current price with range
     const priceDiv = document.createElement('div');
     priceDiv.className = 'shop-item-price';
-    priceDiv.innerHTML = `Price: <span class="price-amount">${stock.currentPrice} gp</span> each`;
+    const minPrice = Math.ceil(stock.basePrice * 0.5);
+    const maxPrice = Math.floor(stock.basePrice * 2);
+    priceDiv.innerHTML = `Price: <span class="price-amount">${stock.currentPrice} gp</span> <span class="price-range">(${minPrice}-${maxPrice})</span>`;
     
     // Total cost display (initially hidden)
     const totalCostDiv = document.createElement('div');
