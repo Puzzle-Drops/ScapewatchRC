@@ -841,9 +841,13 @@ createShopCategory(category, stock) {
     headerDiv.className = 'shop-category-header';
     headerDiv.textContent = category.toUpperCase();
     
-    // Item display
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'shop-item-display';
+    // Item container with 2 columns
+    const itemContainer = document.createElement('div');
+    itemContainer.className = 'shop-item-container';
+    
+    // LEFT COLUMN - Icon, price range, amount input
+    const leftColumn = document.createElement('div');
+    leftColumn.className = 'shop-column-left';
     
     // Icon
     const iconDiv = document.createElement('div');
@@ -861,26 +865,14 @@ createShopCategory(category, stock) {
     };
     iconDiv.appendChild(img);
     
-    // Item name
-    const nameDiv = document.createElement('div');
-    nameDiv.className = 'shop-item-name';
-    nameDiv.textContent = itemData ? itemData.name : stock.itemId;
-    
-    // Price with range
-    const priceDiv = document.createElement('div');
-    priceDiv.className = 'shop-item-price';
-    const minPrice = Math.ceil(stock.basePrice * 0.5);
-    const maxPrice = Math.floor(stock.basePrice * 2);
-    priceDiv.innerHTML = `Price: <span class="price-amount">${stock.currentPrice} gp</span> each`;
-    
+    // Price range
     const priceRangeDiv = document.createElement('div');
     priceRangeDiv.className = 'shop-price-range';
+    const minPrice = Math.ceil(stock.basePrice * 0.5);
+    const maxPrice = Math.floor(stock.basePrice * 2);
     priceRangeDiv.textContent = `(${minPrice}-${maxPrice} gp)`;
     
-    // Buy controls
-    const buyDiv = document.createElement('div');
-    buyDiv.className = 'shop-buy-controls';
-    
+    // Amount input
     const quantityInput = document.createElement('input');
     quantityInput.type = 'number';
     quantityInput.className = 'shop-quantity-input';
@@ -888,10 +880,30 @@ createShopCategory(category, stock) {
     quantityInput.min = '1';
     quantityInput.max = '10000';
     
+    leftColumn.appendChild(iconDiv);
+    leftColumn.appendChild(priceRangeDiv);
+    leftColumn.appendChild(quantityInput);
+    
+    // RIGHT COLUMN - Name, price, buy button
+    const rightColumn = document.createElement('div');
+    rightColumn.className = 'shop-column-right';
+    
+    // Item name
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'shop-item-name';
+    nameDiv.textContent = itemData ? itemData.name : stock.itemId;
+    
+    // Current price
+    const priceDiv = document.createElement('div');
+    priceDiv.className = 'shop-item-price';
+    priceDiv.innerHTML = `Price: <span class="price-amount">${stock.currentPrice} gp</span> each`;
+    
+    // Total cost display (initially hidden)
     const totalCostDiv = document.createElement('div');
     totalCostDiv.className = 'shop-total-cost';
     totalCostDiv.style.display = 'none';
     
+    // Buy button
     const buyBtn = document.createElement('button');
     buyBtn.className = 'shop-buy-btn';
     buyBtn.textContent = 'Buy';
@@ -926,19 +938,17 @@ createShopCategory(category, stock) {
         }
     });
     
-    // Assemble
-    itemDiv.appendChild(iconDiv);
-    itemDiv.appendChild(nameDiv);
-    itemDiv.appendChild(priceDiv);
-    itemDiv.appendChild(priceRangeDiv);
+    rightColumn.appendChild(nameDiv);
+    rightColumn.appendChild(priceDiv);
+    rightColumn.appendChild(totalCostDiv);
+    rightColumn.appendChild(buyBtn);
     
-    buyDiv.appendChild(quantityInput);
-    buyDiv.appendChild(totalCostDiv);
-    buyDiv.appendChild(buyBtn);
+    // Assemble
+    itemContainer.appendChild(leftColumn);
+    itemContainer.appendChild(rightColumn);
     
     categoryDiv.appendChild(headerDiv);
-    categoryDiv.appendChild(itemDiv);
-    categoryDiv.appendChild(buyDiv);
+    categoryDiv.appendChild(itemContainer);
     
     return categoryDiv;
 }
