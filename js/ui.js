@@ -165,6 +165,11 @@ if (panel === 'shop') {
 
     switchPanel(panelName) {
         // Update button states
+        // Close shop if switching away from it
+        if (this.currentPanel === 'shop' && panelName !== 'shop' && window.shop) {
+            shop.isOpen = false;
+        }
+        
         document.querySelectorAll('.panel-btn').forEach(btn => {
             if (btn.dataset.panel === panelName) {
                 btn.classList.add('active');
@@ -197,6 +202,9 @@ switch (panelName) {
         this.updateTasks();
         break;
     case 'shop':
+        if (window.shop) {
+            shop.isOpen = true;
+        }
         this.updateShop();
         break;
 }
