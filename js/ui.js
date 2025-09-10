@@ -849,6 +849,10 @@ createShopCategory(category, stock) {
     const leftColumn = document.createElement('div');
     leftColumn.className = 'shop-column-left';
     
+    // Top section for icon and price
+    const leftTopSection = document.createElement('div');
+    leftTopSection.className = 'shop-left-top';
+    
     // Icon
     const iconDiv = document.createElement('div');
     iconDiv.className = 'shop-item-icon';
@@ -872,7 +876,10 @@ createShopCategory(category, stock) {
     const maxPrice = Math.floor(stock.basePrice * 2);
     priceRangeDiv.textContent = `(${minPrice}-${maxPrice} gp)`;
     
-    // Amount input
+    leftTopSection.appendChild(iconDiv);
+    leftTopSection.appendChild(priceRangeDiv);
+    
+    // Amount input (at bottom)
     const quantityInput = document.createElement('input');
     quantityInput.type = 'number';
     quantityInput.className = 'shop-quantity-input';
@@ -880,13 +887,16 @@ createShopCategory(category, stock) {
     quantityInput.min = '1';
     quantityInput.max = '10000';
     
-    leftColumn.appendChild(iconDiv);
-    leftColumn.appendChild(priceRangeDiv);
+    leftColumn.appendChild(leftTopSection);
     leftColumn.appendChild(quantityInput);
     
     // RIGHT COLUMN - Name, price, buy button
     const rightColumn = document.createElement('div');
     rightColumn.className = 'shop-column-right';
+    
+    // Top section for name and price
+    const rightTopSection = document.createElement('div');
+    rightTopSection.className = 'shop-right-top';
     
     // Item name
     const nameDiv = document.createElement('div');
@@ -897,6 +907,13 @@ createShopCategory(category, stock) {
     const priceDiv = document.createElement('div');
     priceDiv.className = 'shop-item-price';
     priceDiv.innerHTML = `Price: <span class="price-amount">${stock.currentPrice} gp</span> each`;
+    
+    rightTopSection.appendChild(nameDiv);
+    rightTopSection.appendChild(priceDiv);
+    
+    // Bottom section for total cost and buy button
+    const rightBottomSection = document.createElement('div');
+    rightBottomSection.className = 'shop-right-bottom';
     
     // Total cost display (initially hidden)
     const totalCostDiv = document.createElement('div');
@@ -938,10 +955,11 @@ createShopCategory(category, stock) {
         }
     });
     
-    rightColumn.appendChild(nameDiv);
-    rightColumn.appendChild(priceDiv);
-    rightColumn.appendChild(totalCostDiv);
-    rightColumn.appendChild(buyBtn);
+    rightBottomSection.appendChild(totalCostDiv);
+    rightBottomSection.appendChild(buyBtn);
+    
+    rightColumn.appendChild(rightTopSection);
+    rightColumn.appendChild(rightBottomSection);
     
     // Assemble
     itemContainer.appendChild(leftColumn);
@@ -952,7 +970,6 @@ createShopCategory(category, stock) {
     
     return categoryDiv;
 }
-
 
     // ==================== ITEM DISPLAY HELPERS ====================
 
