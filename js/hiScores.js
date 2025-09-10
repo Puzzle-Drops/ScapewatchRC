@@ -656,8 +656,8 @@ class HiScoresManager {
                 row.appendChild(nameCell);
                 row.innerHTML += `
                     <td>${skillRank}</td>
-                    <td>${userData[\`level_${skillId}\`] || 1}</td>
-                    <td>${formatNumber(userData[\`xp_${skillId}\`] || 0)}</td>
+                    <td>${userData[`level_${skillId}`] || 1}</td>
+                    <td>${formatNumber(userData[`xp_${skillId}`] || 0)}</td>
                 `;
                 skillsBody.appendChild(row);
             }
