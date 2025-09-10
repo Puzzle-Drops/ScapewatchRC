@@ -572,3 +572,6 @@ getAllPossibleTasksForUI() {
         this.clearBuildingState();
     }
 }
+
+// Make ConstructionSkill available globally
+window.ConstructionSkill = ConstructionSkill;
