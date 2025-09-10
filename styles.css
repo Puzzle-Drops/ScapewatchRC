@@ -2527,9 +2527,8 @@ span.control-emoji {
     background: #2c2416;
     border: 2px solid #5a4a3a;
     border-radius: 5px;
-    width: 90%;
-    max-width: 1200px;
-    height: 80%;
+    width: 60%;
+    height: 94%;
     position: relative;
     display: flex;
     flex-direction: column;
