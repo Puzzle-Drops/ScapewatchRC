@@ -2919,14 +2919,14 @@ span.control-emoji {
     font-weight: bold;
 }
 
-/* Comparison page title with tally */
-.hiscores-compare-title-container {
-    margin-bottom: 20px;
-}
-
+/* Comparison page styles */
 .compare-player {
     display: inline-block;
     margin: 0 15px;
+}
+
+.compare-name {
+    font-weight: bold;
 }
 
 .compare-tally {
@@ -2943,4 +2943,10 @@ span.control-emoji {
 .compare-vs {
     color: #999;
     margin: 0 10px;
+}
+
+.compare-loading {
+    color: #999;
+    font-size: 14px;
+    font-style: italic;
 }
