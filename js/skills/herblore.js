@@ -756,3 +756,6 @@ class HerbloreSkill extends BaseSkill {
         this.clearProcessingState();
     }
 }
+
+// Make HerbloreSkill available globally
+window.HerbloreSkill = HerbloreSkill;
