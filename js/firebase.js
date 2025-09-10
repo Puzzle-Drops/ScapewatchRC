@@ -420,6 +420,32 @@ class FirebaseManager {
         }
     }
 
+    // Clean undefined values from an object (convert to null)
+    cleanUndefinedValues(obj) {
+        if (obj === undefined) return null;
+        if (obj === null) return null;
+        if (typeof obj !== 'object') return obj;
+        if (obj instanceof Date) return obj;
+        
+        // Handle arrays
+        if (Array.isArray(obj)) {
+            return obj.map(item => this.cleanUndefinedValues(item));
+        }
+        
+        // Handle objects
+        const cleaned = {};
+        for (const [key, value] of Object.entries(obj)) {
+            if (value === undefined) {
+                cleaned[key] = null;
+            } else if (value !== null && typeof value === 'object' && !(value instanceof Date)) {
+                cleaned[key] = this.cleanUndefinedValues(value);
+            } else {
+                cleaned[key] = value;
+            }
+        }
+        return cleaned;
+    }
+
     // Logout
     async logout() {
         // Ensure tasks are fully populated, then save and update hi-scores
@@ -500,6 +526,9 @@ class FirebaseManager {
         try {
             const saveData = this.collectSaveData();
             
+            // Clean undefined values before saving
+            const cleanedSaveData = this.cleanUndefinedValues(saveData);
+            
             // Save to Firestore with organized field order for readability
             await setDoc(doc(this.db, 'saves', this.currentUser.uid), {
                 // User info at the very top
@@ -511,7 +540,7 @@ class FirebaseManager {
                 sessionId: this.sessionId,
                 
                 // Then all game data
-                ...saveData
+                ...cleanedSaveData
             });
 
             this.lastSaveTime = now;
@@ -926,6 +955,9 @@ class FirebaseManager {
         try {
             const saveData = this.collectSaveData();
             
+            // Clean undefined values before saving
+            const cleanedSaveData = this.cleanUndefinedValues(saveData);
+            
             // Save to Firestore immediately with organized field order
             await setDoc(doc(this.db, 'saves', this.currentUser.uid), {
                 // User info at the very top
@@ -937,7 +969,7 @@ class FirebaseManager {
                 sessionId: this.sessionId,
                 
                 // Then all game data
-                ...saveData
+                ...cleanedSaveData
             });
 
             console.log('Force save completed (logout/task completion)');
@@ -993,8 +1025,11 @@ class FirebaseManager {
                 hiscoreData[`levelFirst_${skillId}`] = this.SENTINEL_DATE; // Sentinel date for "not yet"
             }
             
+            // Clean undefined values before saving
+            const cleanedHiscoreData = this.cleanUndefinedValues(hiscoreData);
+            
             // Use merge to preserve "firstReached" timestamps
-            await setDoc(doc(this.db, 'hiscores', this.currentUser.uid), hiscoreData, { merge: true });
+            await setDoc(doc(this.db, 'hiscores', this.currentUser.uid), cleanedHiscoreData, { merge: true });
             
             console.log('Hiscores updated');
         } catch (error) {
