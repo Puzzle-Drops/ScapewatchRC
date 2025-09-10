@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Configuration Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Left Panel - All Items */
+        .left-panel {
+            width: 40%;
+            background: #2a2a2a;
+            border-right: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 20px;
+            background: #333;
+            border-bottom: 1px solid #444;
+        }
+
+        .panel-header h2 {
+            margin-bottom: 15px;
+            color: #f0f0f0;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .items-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin: 4px 0;
+            background: #333;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .item:hover {
+            background: #3a3a3a;
+            border-color: #555;
+        }
+
+        .item.selected {
+            background: #2a4a6a;
+            border-color: #4a9eff;
+        }
+
+        .item.in-shop {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .item.in-current-shop {
+            background: #3a5a3a;
+            border-color: #5a9a5a;
+            opacity: 1;
+        }
+
+        .item img {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            image-rendering: pixelated;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .item-category {
+            font-size: 11px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .item-shop-badge {
+            padding: 2px 8px;
+            background: #4a4a4a;
+            border-radius: 3px;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        /* Right Panel - Shop Configuration */
+        .right-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            background: #252525;
+        }
+
+        .shop-selector {
+            padding: 20px;
+            background: #333;
+            border-bottom: 1px solid #444;
+        }
+
+        .shop-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .shop-tab {
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: capitalize;
+        }
+
+        .shop-tab:hover {
+            background: #3a3a3a;
+        }
+
+        .shop-tab.active {
+            background: #4a9eff;
+            border-color: #4a9eff;
+            color: white;
+        }
+
+        .shop-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .shop-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+
+        .shop-item img {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            image-rendering: pixelated;
+        }
+
+        .shop-item-info {
+            flex: 1;
+        }
+
+        .price-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-input {
+            width: 100px;
+            padding: 6px;
+            background: #1a1a1a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #e0e0e0;
+            text-align: center;
+        }
+
+        .price-range {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .remove-btn {
+            padding: 6px 12px;
+            background: #d32f2f;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-btn:hover {
+            background: #f44336;
+        }
+
+        /* Action Buttons */
+        .actions {
+            padding: 20px;
+            background: #333;
+            border-top: 1px solid #444;
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #4a9eff;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #3a8eef;
+        }
+
+        .btn-success {
+            background: #4caf50;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .btn-load {
+            background: #ff9800;
+        }
+
+        .btn-load:hover {
+            background: #f57c00;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .stats {
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border-bottom: 1px solid #444;
+            font-size: 13px;
+            color: #999;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel - All Items -->
+        <div class="left-panel">
+            <div class="panel-header">
+                <h2>All Items</h2>
+                <input type="text" class="search-box" id="searchBox" placeholder="Search items...">
+            </div>
+            <div class="stats" id="itemStats">Loading items...</div>
+            <div class="items-container" id="itemsList">
+                <div class="loading">Loading items...</div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Shop Configuration -->
+        <div class="right-panel">
+            <div class="shop-selector">
+                <h2>Configure Shops</h2>
+                <div class="shop-tabs" id="shopTabs">
+                    <div class="shop-tab" data-shop="supplies">Supplies</div>
+                    <div class="shop-tab" data-shop="resources">Resources</div>
+                    <div class="shop-tab" data-shop="runes">Runes</div>
+                    <div class="shop-tab" data-shop="tools">Tools</div>
+                    <div class="shop-tab" data-shop="food">Food</div>
+                    <div class="shop-tab" data-shop="potions">Potions</div>
+                    <div class="shop-tab" data-shop="gems">Gems</div>
+                    <div class="shop-tab" data-shop="seeds">Seeds</div>
+                </div>
+            </div>
+            <div class="shop-items" id="shopItems">
+                <div class="empty-state">Select a shop to configure</div>
+            </div>
+            <div class="actions">
+                <div>
+                    <button class="btn btn-load" onclick="loadExistingShop()">Load Existing Shop</button>
+                    <button class="btn" onclick="addSelectedItems()">Add Selected Items</button>
+                </div>
+                <button class="btn btn-success" onclick="downloadShopJson()">Download shop.json</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allItems = {};
+        let shopData = {
+            supplies: [],
+            resources: [],
+            runes: [],
+            tools: [],
+            food: [],
+            potions: [],
+            gems: [],
+            seeds: []
+        };
+        let selectedItems = new Set();
+        let currentShop = null;
+        let lastSelectedIndex = -1;
+
+        // Initialize
+        async function init() {
+            await loadItems();
+            setupEventListeners();
+        }
+
+        // Load items from JSON
+        async function loadItems() {
+            try {
+                const response = await fetch('https://puzzle-drops.github.io/ScapewatchRC/data/items.json');
+                const data = await response.json();
+                allItems = data;
+                renderItems();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading items:', error);
+                document.getElementById('itemsList').innerHTML = '<div class="loading">Error loading items. Please try again.</div>';
+            }
+        }
+
+        // Render items list
+        function renderItems() {
+            const container = document.getElementById('itemsList');
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            container.innerHTML = '';
+            
+            let itemArray = Object.entries(allItems)
+                .filter(([id, item]) => item.category !== 'note')
+                .filter(([id, item]) => {
+                    if (!searchTerm) return true;
+                    return item.name.toLowerCase().includes(searchTerm) || 
+                           item.category.toLowerCase().includes(searchTerm);
+                });
+
+            itemArray.forEach(([id, item], index) => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.dataset.itemId = id;
+                div.dataset.index = index;
+                
+                // Check if item is in any shop
+                const inShop = getItemShop(id);
+                if (inShop) {
+                    div.classList.add('in-shop');
+                    if (inShop === currentShop) {
+                        div.classList.add('in-current-shop');
+                    }
+                }
+                
+                if (selectedItems.has(id)) {
+                    div.classList.add('selected');
+                }
+                
+                div.innerHTML = `
+                    <img src="https://puzzle-drops.github.io/ScapewatchRC/assets/items/${id}.png" 
+                         onerror="this.src='https://puzzle-drops.github.io/ScapewatchRC/assets/items/coins.png'">
+                    <div class="item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-category">${item.category}</div>
+                    </div>
+                    ${inShop ? `<div class="item-shop-badge">${inShop}</div>` : ''}
+                `;
+                
+                div.addEventListener('click', (e) => handleItemClick(e, id, index));
+                container.appendChild(div);
+            });
+        }
+
+        // Handle item selection
+        function handleItemClick(event, itemId, index) {
+            const inShop = getItemShop(itemId);
+            
+            // If item is in another shop, don't allow selection
+            if (inShop && inShop !== currentShop) {
+                return;
+            }
+            
+            // If item is in current shop, toggle selection
+            if (inShop === currentShop) {
+                removeItemFromShop(itemId);
+                return;
+            }
+            
+            const itemDiv = event.currentTarget;
+            
+            if (event.ctrlKey || event.metaKey) {
+                // Ctrl/Cmd click - toggle single item
+                if (selectedItems.has(itemId)) {
+                    selectedItems.delete(itemId);
+                    itemDiv.classList.remove('selected');
+                } else {
+                    selectedItems.add(itemId);
+                    itemDiv.classList.add('selected');
+                }
+                lastSelectedIndex = index;
+            } else if (event.shiftKey && lastSelectedIndex !== -1) {
+                // Shift click - select range
+                const start = Math.min(lastSelectedIndex, index);
+                const end = Math.max(lastSelectedIndex, index);
+                
+                const items = document.querySelectorAll('.item');
+                for (let i = start; i <= end; i++) {
+                    const item = items[i];
+                    if (item && !item.classList.contains('in-shop')) {
+                        const id = item.dataset.itemId;
+                        selectedItems.add(id);
+                        item.classList.add('selected');
+                    }
+                }
+            } else {
+                // Regular click - clear selection and select this item
+                clearSelection();
+                selectedItems.add(itemId);
+                itemDiv.classList.add('selected');
+                lastSelectedIndex = index;
+            }
+            
+            updateStats();
+        }
+
+        // Clear selection
+        function clearSelection() {
+            selectedItems.clear();
+            document.querySelectorAll('.item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+        }
+
+        // Get which shop an item is in
+        function getItemShop(itemId) {
+            for (const [shopName, items] of Object.entries(shopData)) {
+                if (items.some(item => item.itemId === itemId)) {
+                    return shopName;
+                }
+            }
+            return null;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search box
+            document.getElementById('searchBox').addEventListener('input', renderItems);
+            
+            // Shop tabs
+            document.querySelectorAll('.shop-tab').forEach(tab => {
+                tab.addEventListener('click', () => selectShop(tab.dataset.shop));
+            });
+        }
+
+        // Select shop
+        function selectShop(shopName) {
+            currentShop = shopName;
+            
+            // Update tab styling
+            document.querySelectorAll('.shop-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.shop === shopName);
+            });
+            
+            // Clear selection when switching shops
+            clearSelection();
+            
+            // Re-render items to update shop indicators
+            renderItems();
+            
+            // Render shop items
+            renderShopItems();
+        }
+
+        // Render shop items
+        function renderShopItems() {
+            const container = document.getElementById('shopItems');
+            
+            if (!currentShop) {
+                container.innerHTML = '<div class="empty-state">Select a shop to configure</div>';
+                return;
+            }
+            
+            const items = shopData[currentShop];
+            
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state">No items in this shop. Select items from the left panel and click "Add Selected Items".</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Sort items by their original order in items.json
+            const sortedItems = [...items].sort((a, b) => {
+                const aIndex = Object.keys(allItems).indexOf(a.itemId);
+                const bIndex = Object.keys(allItems).indexOf(b.itemId);
+                return aIndex - bIndex;
+            });
+            
+            sortedItems.forEach(shopItem => {
+                const item = allItems[shopItem.itemId];
+                const div = document.createElement('div');
+                div.className = 'shop-item';
+                
+                // Calculate price range (50% to 150% of base price)
+                const minPrice = Math.max(1, Math.floor(shopItem.basePrice * 0.5));
+                const maxPrice = Math.ceil(shopItem.basePrice * 1.5);
+                
+                div.innerHTML = `
+                    <img src="https://puzzle-drops.github.io/ScapewatchRC/assets/items/${shopItem.itemId}.png" 
+                         onerror="this.src='https://puzzle-drops.github.io/ScapewatchRC/assets/items/coins.png'">
+                    <div class="shop-item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-category">${item.category}</div>
+                    </div>
+                    <div class="price-controls">
+                        <span>Price:</span>
+                        <input type="number" class="price-input" value="${shopItem.basePrice}" 
+                               min="1" data-item-id="${shopItem.itemId}"
+                               onchange="updateItemPrice('${shopItem.itemId}', this.value)">
+                        <span class="price-range">(${minPrice}-${maxPrice} suggested)</span>
+                        <button class="remove-btn" onclick="removeItemFromShop('${shopItem.itemId}')">Remove</button>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Add selected items to current shop
+        function addSelectedItems() {
+            if (!currentShop) {
+                alert('Please select a shop first');
+                return;
+            }
+            
+            if (selectedItems.size === 0) {
+                alert('Please select items to add');
+                return;
+            }
+            
+            selectedItems.forEach(itemId => {
+                if (!shopData[currentShop].some(item => item.itemId === itemId)) {
+                    shopData[currentShop].push({
+                        itemId: itemId,
+                        basePrice: 10 // Default price
+                    });
+                }
+            });
+            
+            clearSelection();
+            renderItems();
+            renderShopItems();
+            updateStats();
+        }
+
+        // Update item price
+        function updateItemPrice(itemId, newPrice) {
+            const price = parseInt(newPrice);
+            if (price < 1) {
+                alert('Price must be at least 1');
+                return;
+            }
+            
+            const item = shopData[currentShop].find(i => i.itemId === itemId);
+            if (item) {
+                item.basePrice = price;
+            }
+        }
+
+        // Update price range display
+        function updatePriceRange(input) {
+            const price = parseInt(input.value) || 1;
+            const minPrice = Math.max(1, Math.floor(price * 0.5));
+            const maxPrice = Math.ceil(price * 2);
+            const itemId = input.dataset.itemId;
+            const rangeSpan = document.getElementById(`range-${itemId}`);
+            if (rangeSpan) {
+                rangeSpan.textContent = `(${minPrice}-${maxPrice})`;
+            }
+        }
+
+        // Remove item from shop
+        function removeItemFromShop(itemId) {
+            shopData[currentShop] = shopData[currentShop].filter(item => item.itemId !== itemId);
+            renderItems();
+            renderShopItems();
+            updateStats();
+        }
+
+        // Update stats
+        function updateStats() {
+            const totalItems = Object.keys(allItems).filter(id => allItems[id].category !== 'note').length;
+            const itemsInShops = Object.values(shopData).flat().length;
+            const selectedCount = selectedItems.size;
+            
+            document.getElementById('itemStats').innerHTML = `
+                Total Items: ${totalItems} | In Shops: ${itemsInShops} | Selected: ${selectedCount}
+            `;
+        }
+
+        // Load existing shop configuration
+        async function loadExistingShop() {
+            try {
+                const response = await fetch('https://puzzle-drops.github.io/ScapewatchRC/data/shop.json');
+                const data = await response.json();
+                
+                // Clear existing data
+                Object.keys(shopData).forEach(key => {
+                    shopData[key] = [];
+                });
+                
+                // Load new data
+                Object.entries(data).forEach(([shopName, items]) => {
+                    if (shopData.hasOwnProperty(shopName)) {
+                        shopData[shopName] = items;
+                    }
+                });
+                
+                alert('Shop configuration loaded successfully!');
+                renderItems();
+                if (currentShop) {
+                    renderShopItems();
+                }
+                updateStats();
+            } catch (error) {
+                alert('Error loading shop configuration. The file may not exist or there was a network error.');
+                console.error('Error:', error);
+            }
+        }
+
+        // Download shop JSON
+        function downloadShopJson() {
+            // Filter out empty shops
+            const exportData = {};
+            Object.entries(shopData).forEach(([shopName, items]) => {
+                if (items.length > 0) {
+                    exportData[shopName] = items;
+                }
+            });
+            
+            const json = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'shop.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
