@@ -140,6 +140,7 @@ async function continueGameStart() {
     window.inventory = new Inventory();
     window.bank = new Bank();
     window.shop = new ShopSystem();
+    shop.initialize();
     window.taskManager = new TaskManager();
     window.player = new Player();
     window.nodes = new NodeManager();
