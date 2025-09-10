@@ -144,3 +144,6 @@ class Inventory {
         }
     }
 }
+
+// Make Inventory available globally
+window.Inventory = Inventory;
