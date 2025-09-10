@@ -39,6 +39,11 @@ async function init() {
 
     loadingManager.addImage('bank_note', 'assets/items/bank_note.png');
 
+    // Add UI icons for hiscores
+    loadingManager.addImage('ui_tasks', 'assets/ui/tasks.png');
+    loadingManager.addImage('ui_pets', 'assets/ui/pets.png');
+    loadingManager.addImage('ui_pets_shiny', 'assets/ui/pets(s).png');
+
     // Add cape and pet images
     const skillsForAssets = [
         'agility', 'attack', 'construction', 'cooking', 
