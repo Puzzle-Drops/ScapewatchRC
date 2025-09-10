@@ -68,6 +68,7 @@ async function init() {
     loadingManager.addJSON('items', 'data/items.json');
     loadingManager.addJSON('nodes', 'data/nodes.json');
     loadingManager.addJSON('activities', 'data/activities.json');
+    loadingManager.addJSON('shop', 'data/shop.json');
 
     // Set completion callback
     loadingManager.onComplete = () => {
