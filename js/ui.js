@@ -820,27 +820,61 @@ updateShop() {
     headerDiv.appendChild(goldDiv);
     shopContainer.appendChild(headerDiv);
     
-    // Create category sections
-    const categories = ['supplies', 'resources', 'runes'];
+    // SUPPLIES category
+    const suppliesDiv = document.createElement('div');
+    suppliesDiv.className = 'shop-category';
     
-    for (const category of categories) {
-        const stock = shop.currentStock[category];
-        if (!stock) continue;
-        
-        const categoryDiv = this.createShopCategory(category, stock);
-        shopContainer.appendChild(categoryDiv);
+    const suppliesHeader = document.createElement('div');
+    suppliesHeader.className = 'shop-category-header';
+    suppliesHeader.textContent = 'SUPPLIES';
+    suppliesDiv.appendChild(suppliesHeader);
+    
+    if (shop.currentStock.supplies) {
+        const suppliesItem = this.createShopItem('supplies', shop.currentStock.supplies);
+        suppliesDiv.appendChild(suppliesItem);
     }
+    
+    shopContainer.appendChild(suppliesDiv);
+    
+    // RESOURCES category (with 2 items)
+    const resourcesDiv = document.createElement('div');
+    resourcesDiv.className = 'shop-category';
+    
+    const resourcesHeader = document.createElement('div');
+    resourcesHeader.className = 'shop-category-header';
+    resourcesHeader.textContent = 'RESOURCES';
+    resourcesDiv.appendChild(resourcesHeader);
+    
+    if (shop.currentStock.resources1) {
+        const resource1Item = this.createShopItem('resources1', shop.currentStock.resources1);
+        resourcesDiv.appendChild(resource1Item);
+    }
+    
+    if (shop.currentStock.resources2) {
+        const resource2Item = this.createShopItem('resources2', shop.currentStock.resources2);
+        resourcesDiv.appendChild(resource2Item);
+    }
+    
+    shopContainer.appendChild(resourcesDiv);
+    
+    // RUNES category
+    const runesDiv = document.createElement('div');
+    runesDiv.className = 'shop-category';
+    
+    const runesHeader = document.createElement('div');
+    runesHeader.className = 'shop-category-header';
+    runesHeader.textContent = 'RUNES';
+    runesDiv.appendChild(runesHeader);
+    
+    if (shop.currentStock.runes) {
+        const runesItem = this.createShopItem('runes', shop.currentStock.runes);
+        runesDiv.appendChild(runesItem);
+    }
+    
+    shopContainer.appendChild(runesDiv);
 }
 
-createShopCategory(category, stock) {
-    const categoryDiv = document.createElement('div');
-    categoryDiv.className = 'shop-category';
-    
-    // Category header
-    const headerDiv = document.createElement('div');
-    headerDiv.className = 'shop-category-header';
-    headerDiv.textContent = category.toUpperCase();
-    
+createShopItem(stockKey, stock) {
     // Item container with 2 columns
     const itemContainer = document.createElement('div');
     itemContainer.className = 'shop-item-container';
@@ -890,11 +924,11 @@ createShopCategory(category, stock) {
     leftColumn.appendChild(leftTopSection);
     leftColumn.appendChild(quantityInput);
     
-    // RIGHT COLUMN - Name, price, buy button
+    // RIGHT COLUMN - Name, price, total cost, buy button
     const rightColumn = document.createElement('div');
     rightColumn.className = 'shop-column-right';
     
-    // Top section for name and price
+    // Top section for name, price, and total cost
     const rightTopSection = document.createElement('div');
     rightTopSection.className = 'shop-right-top';
     
@@ -908,19 +942,16 @@ createShopCategory(category, stock) {
     priceDiv.className = 'shop-item-price';
     priceDiv.innerHTML = `Price: <span class="price-amount">${stock.currentPrice} gp</span> each`;
     
-    rightTopSection.appendChild(nameDiv);
-    rightTopSection.appendChild(priceDiv);
-    
-    // Bottom section for total cost and buy button
-    const rightBottomSection = document.createElement('div');
-    rightBottomSection.className = 'shop-right-bottom';
-    
     // Total cost display (initially hidden)
     const totalCostDiv = document.createElement('div');
     totalCostDiv.className = 'shop-total-cost';
     totalCostDiv.style.display = 'none';
     
-    // Buy button
+    rightTopSection.appendChild(nameDiv);
+    rightTopSection.appendChild(priceDiv);
+    rightTopSection.appendChild(totalCostDiv);
+    
+    // Buy button (aligned with amount input)
     const buyBtn = document.createElement('button');
     buyBtn.className = 'shop-buy-btn';
     buyBtn.textContent = 'Buy';
@@ -931,7 +962,7 @@ createShopCategory(category, stock) {
         const quantity = parseInt(quantityInput.value) || 0;
         if (quantity > 0) {
             const totalCost = quantity * stock.currentPrice;
-            totalCostDiv.textContent = `-${formatNumber(totalCost)} gold`;
+            totalCostDiv.textContent = `-${formatNumber(totalCost)} gp`;
             totalCostDiv.style.display = 'block';
             
             const bankGold = window.bank ? bank.getItemCount('coins') : 0;
@@ -946,7 +977,7 @@ createShopCategory(category, stock) {
     buyBtn.addEventListener('click', () => {
         const quantity = parseInt(quantityInput.value) || 0;
         if (quantity > 0) {
-            if (shop.buyItem(category, quantity)) {
+            if (shop.buyItem(stockKey, quantity)) {
                 quantityInput.value = '';
                 totalCostDiv.style.display = 'none';
                 buyBtn.disabled = true;
@@ -955,20 +986,14 @@ createShopCategory(category, stock) {
         }
     });
     
-    rightBottomSection.appendChild(totalCostDiv);
-    rightBottomSection.appendChild(buyBtn);
-    
     rightColumn.appendChild(rightTopSection);
-    rightColumn.appendChild(rightBottomSection);
+    rightColumn.appendChild(buyBtn);
     
     // Assemble
     itemContainer.appendChild(leftColumn);
     itemContainer.appendChild(rightColumn);
     
-    categoryDiv.appendChild(headerDiv);
-    categoryDiv.appendChild(itemContainer);
-    
-    return categoryDiv;
+    return itemContainer;
 }
 
     // ==================== ITEM DISPLAY HELPERS ====================
