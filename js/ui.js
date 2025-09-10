@@ -61,14 +61,21 @@ class UIManager {
                 return;
             }
             
-            // Handle bank and shop buttons (keep minimized state)
-            if (panel === 'bank') {
-                this.openBank();
-                return;
-            } else if (panel === 'shop') {
-                this.openShop();
-                return;
-            }
+            // Handle bank button (keep minimized state)
+if (panel === 'bank') {
+    this.openBank();
+    return;
+}
+
+// For shop, treat it like other panels
+if (panel === 'shop') {
+    // Restore if minimized
+    if (this.minimized) {
+        this.restore();
+    }
+    this.switchPanel(panel);
+    return;
+}
             
             // For regular panels, restore if minimized then switch
             if (this.minimized) {
@@ -138,18 +145,21 @@ class UIManager {
     }
 
     refreshCurrentPanel() {
-        switch (this.currentPanel) {
-            case 'inventory':
-                this.updateInventory();
-                break;
-            case 'skills':
-                this.updateSkillsList();
-                break;
-            case 'tasks':
-                this.updateTasks();
-                break;
-        }
+    switch (this.currentPanel) {
+        case 'inventory':
+            this.updateInventory();
+            break;
+        case 'skills':
+            this.updateSkillsList();
+            break;
+        case 'tasks':
+            this.updateTasks();
+            break;
+        case 'shop':
+            this.updateShop();
+            break;
     }
+}
 
     // ==================== PANEL MANAGEMENT ====================
 
@@ -176,17 +186,20 @@ class UIManager {
         this.currentPanel = panelName;
         
         // Update panel content
-        switch (panelName) {
-            case 'inventory':
-                this.updateInventory();
-                break;
-            case 'skills':
-                this.updateSkillsList();
-                break;
-            case 'tasks':
-                this.updateTasks();
-                break;
-        }
+switch (panelName) {
+    case 'inventory':
+        this.updateInventory();
+        break;
+    case 'skills':
+        this.updateSkillsList();
+        break;
+    case 'tasks':
+        this.updateTasks();
+        break;
+    case 'shop':
+        this.updateShop();
+        break;
+}
     }
 
     // ==================== INVENTORY DISPLAY ====================
@@ -772,19 +785,156 @@ createSelectableTaskElement(taskSlot, slotIndex) {
         }
     }
 
-    // ==================== SHOP DISPLAY ====================
+// ==================== SHOP DISPLAY ====================
 
-    openShop() {
-        if (window.shop) {
-            shop.open();
-        }
+updateShop() {
+    if (this.currentPanel !== 'shop' || this.minimized) return;
+    
+    const shopContainer = document.getElementById('shop-container');
+    if (!shopContainer || !window.shop) return;
+    
+    shopContainer.innerHTML = '';
+    
+    // Shop header with bank gold display
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'shop-header';
+    
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'shop-title';
+    titleDiv.textContent = 'SHOP';
+    
+    const goldDiv = document.createElement('div');
+    goldDiv.className = 'shop-gold';
+    const bankGold = window.bank ? bank.getItemCount('coins') : 0;
+    goldDiv.textContent = `Bank: ${formatNumber(bankGold)} gp`;
+    
+    headerDiv.appendChild(titleDiv);
+    headerDiv.appendChild(goldDiv);
+    shopContainer.appendChild(headerDiv);
+    
+    // Create category sections
+    const categories = ['supplies', 'resources', 'runes'];
+    
+    for (const category of categories) {
+        const stock = shop.currentStock[category];
+        if (!stock) continue;
+        
+        const categoryDiv = this.createShopCategory(category, stock);
+        shopContainer.appendChild(categoryDiv);
     }
+}
 
-    closeShop() {
-        if (window.shop) {
-            shop.close();
+createShopCategory(category, stock) {
+    const categoryDiv = document.createElement('div');
+    categoryDiv.className = 'shop-category';
+    
+    // Category header
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'shop-category-header';
+    headerDiv.textContent = category.toUpperCase();
+    
+    // Item display
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'shop-item-display';
+    
+    // Icon
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'shop-item-icon';
+    const itemData = loadingManager.getData('items')[stock.itemId];
+    
+    const img = document.createElement('img');
+    img.src = `assets/items/${stock.itemId}.png`;
+    img.onerror = function() {
+        this.style.display = 'none';
+        const textDiv = document.createElement('div');
+        textDiv.className = 'shop-icon-fallback';
+        textDiv.textContent = itemData ? itemData.name.substring(0, 3) : '?';
+        iconDiv.appendChild(textDiv);
+    };
+    iconDiv.appendChild(img);
+    
+    // Item name
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'shop-item-name';
+    nameDiv.textContent = itemData ? itemData.name : stock.itemId;
+    
+    // Price with range
+    const priceDiv = document.createElement('div');
+    priceDiv.className = 'shop-item-price';
+    const minPrice = Math.ceil(stock.basePrice * 0.5);
+    const maxPrice = Math.floor(stock.basePrice * 2);
+    priceDiv.innerHTML = `Price: <span class="price-amount">${stock.currentPrice} gp</span> each`;
+    
+    const priceRangeDiv = document.createElement('div');
+    priceRangeDiv.className = 'shop-price-range';
+    priceRangeDiv.textContent = `(${minPrice}-${maxPrice} gp)`;
+    
+    // Buy controls
+    const buyDiv = document.createElement('div');
+    buyDiv.className = 'shop-buy-controls';
+    
+    const quantityInput = document.createElement('input');
+    quantityInput.type = 'number';
+    quantityInput.className = 'shop-quantity-input';
+    quantityInput.placeholder = 'Amount';
+    quantityInput.min = '1';
+    quantityInput.max = '10000';
+    
+    const totalCostDiv = document.createElement('div');
+    totalCostDiv.className = 'shop-total-cost';
+    totalCostDiv.style.display = 'none';
+    
+    const buyBtn = document.createElement('button');
+    buyBtn.className = 'shop-buy-btn';
+    buyBtn.textContent = 'Buy';
+    buyBtn.disabled = true;
+    
+    // Update total cost on input
+    quantityInput.addEventListener('input', () => {
+        const quantity = parseInt(quantityInput.value) || 0;
+        if (quantity > 0) {
+            const totalCost = quantity * stock.currentPrice;
+            totalCostDiv.textContent = `-${formatNumber(totalCost)} gold`;
+            totalCostDiv.style.display = 'block';
+            
+            const bankGold = window.bank ? bank.getItemCount('coins') : 0;
+            buyBtn.disabled = bankGold < totalCost;
+        } else {
+            totalCostDiv.style.display = 'none';
+            buyBtn.disabled = true;
         }
-    }
+    });
+    
+    // Buy button handler
+    buyBtn.addEventListener('click', () => {
+        const quantity = parseInt(quantityInput.value) || 0;
+        if (quantity > 0) {
+            if (shop.buyItem(category, quantity)) {
+                quantityInput.value = '';
+                totalCostDiv.style.display = 'none';
+                buyBtn.disabled = true;
+                this.updateShop(); // Refresh display
+            }
+        }
+    });
+    
+    // Assemble
+    itemDiv.appendChild(iconDiv);
+    itemDiv.appendChild(nameDiv);
+    itemDiv.appendChild(priceDiv);
+    itemDiv.appendChild(priceRangeDiv);
+    
+    buyDiv.appendChild(quantityInput);
+    buyDiv.appendChild(totalCostDiv);
+    buyDiv.appendChild(buyBtn);
+    
+    categoryDiv.appendChild(headerDiv);
+    categoryDiv.appendChild(itemDiv);
+    categoryDiv.appendChild(buyDiv);
+    
+    return categoryDiv;
+}
+
 
     // ==================== ITEM DISPLAY HELPERS ====================
 
