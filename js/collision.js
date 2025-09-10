@@ -142,3 +142,6 @@ class CollisionSystem {
         ctx.restore();
     }
 }
+
+// Make CollisionSystem available globally
+window.CollisionSystem = CollisionSystem;
