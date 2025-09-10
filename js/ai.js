@@ -967,3 +967,6 @@ class AIManager {
         return `${this.currentTask.description} (${current}/${this.currentTask.targetCount})`;
     }
 }
+
+// Make AIManager available globally
+window.AIManager = AIManager;
