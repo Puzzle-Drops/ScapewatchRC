@@ -518,3 +518,6 @@ window.addEventListener('keydown', (e) => {
         }
     }
 });
+
+// Make MapRenderer available globally
+window.MapRenderer = MapRenderer;
