@@ -110,3 +110,6 @@ class Bank {
         return Object.keys(this.items).length;
     }
 }
+
+// Make Bank available globally
+window.Bank = Bank;
