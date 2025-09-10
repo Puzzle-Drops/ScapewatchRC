@@ -477,3 +477,6 @@ class ThievingSkill extends BaseSkill {
         return currentLevel >= requiredLevel && !this.isStunned;
     }
 }
+
+// Make ThievingSkill available globally
+window.ThievingSkill = ThievingSkill;
