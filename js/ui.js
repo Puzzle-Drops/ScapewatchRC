@@ -951,3 +951,6 @@ slotDiv.appendChild(imgElement);
         };
     }
 }
+
+// Make UIManager available globally
+window.UIManager = UIManager;
