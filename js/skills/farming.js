@@ -639,3 +639,6 @@ class FarmingSkill extends BaseSkill {
         this.clearPlantingState();
     }
 }
+
+// Make FarmingSkill available globally
+window.FarmingSkill = FarmingSkill;
