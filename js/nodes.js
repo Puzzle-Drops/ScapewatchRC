@@ -109,3 +109,6 @@ class NodeManager {
         return null;
     }
 }
+
+// Make NodeManager available globally
+window.NodeManager = NodeManager;
