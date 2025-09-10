@@ -799,7 +799,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    z-index: 1000;
+    z-index: 3000;
     font-weight: bold;
 }
 
@@ -2520,7 +2520,7 @@ span.control-emoji {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 2000;
 }
 
 .hiscores-content {
@@ -2528,7 +2528,7 @@ span.control-emoji {
     border: 2px solid #5a4a3a;
     border-radius: 5px;
     width: 60%;
-    height: 94%;
+    height: 98%;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -2539,6 +2539,7 @@ span.control-emoji {
     height: 100%;
     padding: 20px;
     gap: 20px;
+    font-size: 20px;
 }
 
 .hiscores-categories {
@@ -2660,7 +2661,7 @@ span.control-emoji {
 }
 
 .hiscores-search-section {
-    margin-bottom: 20px;
+    margin-top: 120px;
 }
 
 .hiscores-search-section label {
