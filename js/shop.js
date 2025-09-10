@@ -96,76 +96,49 @@ class ShopSystem {
     }
 
     // Buy an item
-    buyItem(category, quantity) {
-        const stock = this.currentStock[category];
-        if (!stock) {
-            console.error(`No stock in category: ${category}`);
-            return false;
-        }
-        
-        const totalCost = stock.currentPrice * quantity;
-        
-        // Check if player has enough gold in bank
-        const bankGold = window.bank ? bank.getItemCount('coins') : 0;
-        if (bankGold < totalCost) {
-            console.log(`Not enough gold in bank! Need ${totalCost}, have ${bankGold}`);
-            return false;
-        }
-        
-        // Check inventory space for non-stackable items
-        const itemData = loadingManager.getData('items')[stock.itemId];
-        if (!itemData) {
-            console.error(`Item data not found for ${stock.itemId}`);
-            return false;
-        }
-        
-        // Calculate slots needed
-        let slotsNeeded = 0;
-        if (!itemData.stackable) {
-            slotsNeeded = quantity;
-        } else {
-            // Check if we already have a stack
-            const currentCount = inventory.getItemCount(stock.itemId);
-            if (currentCount === 0) {
-                slotsNeeded = 1; // Need one new slot for the stack
-            }
-            // Otherwise it goes into existing stack
-        }
-        
-        const emptySlots = inventory.getEmptySlots();
-        if (slotsNeeded > emptySlots) {
-            console.log(`Not enough inventory space! Need ${slotsNeeded} slots, have ${emptySlots}`);
-            return false;
-        }
-        
-        // Perform the transaction - withdraw gold from bank
-        const withdrawn = bank.withdraw('coins', totalCost);
-        if (withdrawn !== totalCost) {
-            console.error('Failed to withdraw gold from bank!');
-            return false;
-        }
-        
-        // Add items to inventory
-        const added = inventory.addItem(stock.itemId, quantity);
-        
-        if (added < quantity) {
-            // Shouldn't happen due to our checks, but handle it
-            console.error(`Only added ${added} of ${quantity} items`);
-            // Refund the difference
-            const refund = (quantity - added) * stock.currentPrice;
-            bank.deposit('coins', refund);
-        }
-        
-        console.log(`Bought ${added} ${itemData.name} for ${totalCost} gold`);
-        
-        // Update displays
-        if (window.ui) {
-            window.ui.updateInventory();
-            window.ui.updateShop();
-        }
-        
-        return true;
+buyItem(category, quantity) {
+    const stock = this.currentStock[category];
+    if (!stock) {
+        console.error(`No stock in category: ${category}`);
+        return false;
     }
+    
+    const totalCost = stock.currentPrice * quantity;
+    
+    // Check if player has enough gold in bank
+    const bankGold = window.bank ? bank.getItemCount('coins') : 0;
+    if (bankGold < totalCost) {
+        console.log(`Not enough gold in bank! Need ${totalCost}, have ${bankGold}`);
+        return false;
+    }
+    
+    // Get item data
+    const itemData = loadingManager.getData('items')[stock.itemId];
+    if (!itemData) {
+        console.error(`Item data not found for ${stock.itemId}`);
+        return false;
+    }
+    
+    // Perform the transaction - withdraw gold from bank
+    const withdrawn = bank.withdraw('coins', totalCost);
+    if (withdrawn !== totalCost) {
+        console.error('Failed to withdraw gold from bank!');
+        return false;
+    }
+    
+    // Add items directly to bank
+    bank.deposit(stock.itemId, quantity);
+    
+    console.log(`Bought ${quantity} ${itemData.name} for ${totalCost} gold (sent to bank)`);
+    
+    // Update displays
+    if (window.ui) {
+        window.ui.updateBank();
+        window.ui.updateShop();
+    }
+    
+    return true;
+}
 
     // Get current stock for save/load
     getState() {
