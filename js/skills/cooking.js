@@ -658,3 +658,6 @@ class CookingSkill extends BaseSkill {
         this.clearCookingState();
     }
 }
+
+// Make CookingSkill available globally
+window.CookingSkill = CookingSkill;
