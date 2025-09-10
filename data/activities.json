@@ -1953,6 +1953,13 @@
     "requiredLevel": 10,
     "baseDuration": 600
 },
+"jewellery_making": {
+    "id": "jewellery_making",
+    "name": "Make Jewellery",
+    "skill": "crafting",
+    "requiredLevel": 25,
+    "baseDuration": 1200
+},
 "cleaning_herbs": {
     "id": "cleaning_herbs",
     "name": "Clean Herbs",
