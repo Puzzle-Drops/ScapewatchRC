@@ -674,6 +674,9 @@ class FirebaseManager {
             
             // Bank
             bank: bank.items,
+
+            // Shop
+            shop: window.shop ? shop.getState() : null,
             
             // Task system
             tasks: {
@@ -856,6 +859,12 @@ class FirebaseManager {
         // Load bank
         if (saveData.bank) {
             bank.items = saveData.bank;
+        }
+
+        // Load shop
+        if (saveData.shop && window.shop) {
+            shop.loadState(saveData.shop);
+            console.log('Shop state loaded');
         }
 
         // Load tasks
