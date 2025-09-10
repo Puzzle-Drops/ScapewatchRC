@@ -432,6 +432,12 @@
         "stackable": false,
         "category": "resource"
     },
+    "amethyst_bar": {
+        "id": "amethyst_bar",
+        "name": "Amethyst bar",
+        "stackable": false,
+        "category": "resource"
+    },
     "bronze_arrowtips": {
         "id": "bronze_arrowtips",
         "name": "Bronze arrowtips",
@@ -470,6 +476,13 @@
     "rune_arrowtips": {
         "id": "rune_arrowtips",
         "name": "Rune arrowtips",
+        "stackable": true,
+        "maxStack": 9999999999,
+        "category": "resource"
+    },
+    "amethyst_arrowtips": {
+        "id": "amethyst_arrowtips",
+        "name": "Amethyst arrowtips",
         "stackable": true,
         "maxStack": 9999999999,
         "category": "resource"
