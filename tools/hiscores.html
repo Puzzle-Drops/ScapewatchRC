@@ -1104,6 +1104,78 @@
                 }
             }
 
+            async addCategoryCompareRow(tbody, label, iconKey, rank1, value1, rank2, value2) {
+                const row = document.createElement('tr');
+                
+                // Name cell with icon
+                const labelCell = document.createElement('td');
+                labelCell.className = 'hiscores-skill-name-cell';
+                
+                if (iconKey && assets[iconKey]) {
+                    const iconImg = document.createElement('img');
+                    iconImg.className = 'hiscores-inline-icon';
+                    iconImg.src = assets[iconKey];
+                    labelCell.appendChild(iconImg);
+                }
+                const labelText = document.createElement('span');
+                labelText.textContent = label;
+                labelCell.appendChild(labelText);
+                
+                // User 1 data
+                const rank1Cell = document.createElement('td');
+                rank1Cell.className = 'hiscores-compare-rank';
+                rank1Cell.textContent = rank1;
+                
+                const value1Cell = document.createElement('td');
+                value1Cell.className = 'hiscores-compare-value';
+                value1Cell.textContent = this.formatNumber(value1);
+                
+                // User 2 data
+                const rank2Cell = document.createElement('td');
+                rank2Cell.className = 'hiscores-compare-rank';
+                rank2Cell.textContent = rank2;
+                
+                const value2Cell = document.createElement('td');
+                value2Cell.className = 'hiscores-compare-value';
+                value2Cell.textContent = this.formatNumber(value2);
+                
+                // Winner cell
+                const winnerCell = document.createElement('td');
+                winnerCell.className = 'hiscores-compare-winner';
+                
+                // Determine winner (lower rank number is better, unless it's "Unranked")
+                const rank1Num = rank1 === 'Unranked' ? Infinity : parseInt(rank1);
+                const rank2Num = rank2 === 'Unranked' ? Infinity : parseInt(rank2);
+                
+                if (rank1Num < rank2Num) {
+                    winnerCell.textContent = '←';
+                    winnerCell.style.color = '#2ecc71';
+                    rank1Cell.style.color = '#2ecc71';
+                    value1Cell.style.color = '#2ecc71';
+                    rank2Cell.style.color = '#e74c3c';
+                    value2Cell.style.color = '#e74c3c';
+                } else if (rank2Num < rank1Num) {
+                    winnerCell.textContent = '→';
+                    winnerCell.style.color = '#2ecc71';
+                    rank2Cell.style.color = '#2ecc71';
+                    value2Cell.style.color = '#2ecc71';
+                    rank1Cell.style.color = '#e74c3c';
+                    value1Cell.style.color = '#e74c3c';
+                } else {
+                    winnerCell.textContent = '=';
+                    winnerCell.style.color = '#f39c12';
+                }
+                
+                row.appendChild(labelCell);
+                row.appendChild(rank1Cell);
+                row.appendChild(value1Cell);
+                row.appendChild(rank2Cell);
+                row.appendChild(value2Cell);
+                row.appendChild(winnerCell);
+                
+                tbody.appendChild(row);
+            }
+
             async compareUsers(user1, user2) {
                 if (!user1 || !user2) {
                     alert('Please enter two usernames to compare');
