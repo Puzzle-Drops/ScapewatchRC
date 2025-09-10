@@ -56,28 +56,18 @@ class UIManager {
             }
             
             // Check if clicking the already active panel (to minimize/maximize)
-            if (btn.classList.contains('active') && panel !== 'bank' && panel !== 'shop') {
+            if (btn.classList.contains('active') && panel !== 'bank') {
                 this.toggleMinimize();
                 return;
             }
             
-            // Handle bank button (keep minimized state)
-if (panel === 'bank') {
-    this.openBank();
-    return;
-}
-
-// For shop, treat it like other panels
-if (panel === 'shop') {
-    // Restore if minimized
-    if (this.minimized) {
-        this.restore();
-    }
-    this.switchPanel(panel);
-    return;
-}
+            // Handle bank button (special case - opens modal)
+            if (panel === 'bank') {
+                this.openBank();
+                return;
+            }
             
-            // For regular panels, restore if minimized then switch
+            // For all regular panels (skills, tasks, shop, inventory), restore if minimized then switch
             if (this.minimized) {
                 this.restore();
             }
@@ -110,20 +100,27 @@ if (panel === 'shop') {
     }
 
     minimize() {
-        this.minimized = true;
-        const uiPanel = document.querySelector('.ui-panel');
-        const panelContent = document.querySelector('.panel-content');
-        
-        if (uiPanel) {
-            uiPanel.classList.add('minimized');
-        }
-        
-        if (panelContent) {
-            panelContent.style.display = 'none';
-        }
-        
-        console.log('UI Panel minimized');
+    this.minimized = true;
+    const uiPanel = document.querySelector('.ui-panel');
+    const panelContent = document.querySelector('.panel-content');
+    
+    if (uiPanel) {
+        uiPanel.classList.add('minimized');
     }
+    
+    if (panelContent) {
+        panelContent.style.display = 'none';
+    }
+    
+    // Remove active state from current panel button
+    document.querySelectorAll('.panel-btn').forEach(btn => {
+        if (btn.dataset.panel === this.currentPanel) {
+            btn.classList.remove('active');
+        }
+    });
+    
+    console.log('UI Panel minimized');
+}
 
     restore() {
         this.minimized = false;
@@ -164,19 +161,19 @@ if (panel === 'shop') {
     // ==================== PANEL MANAGEMENT ====================
 
     switchPanel(panelName) {
-        // Update button states
-        // Close shop if switching away from it
-        if (this.currentPanel === 'shop' && panelName !== 'shop' && window.shop) {
-            shop.isOpen = false;
+    // Update button states
+    // Close shop if switching away from it
+    if (this.currentPanel === 'shop' && panelName !== 'shop' && window.shop) {
+        shop.isOpen = false;
+    }
+    
+    document.querySelectorAll('.panel-btn').forEach(btn => {
+        if (btn.dataset.panel === panelName) {
+            btn.classList.add('active');
+        } else if (btn.dataset.panel !== 'bank') {
+            btn.classList.remove('active');
         }
-        
-        document.querySelectorAll('.panel-btn').forEach(btn => {
-            if (btn.dataset.panel === panelName) {
-                btn.classList.add('active');
-            } else if (btn.dataset.panel !== 'bank' && btn.dataset.panel !== 'shop') {
-                btn.classList.remove('active');
-            }
-        });
+    });
         
         // Update panel visibility
         document.querySelectorAll('.panel').forEach(panel => {
