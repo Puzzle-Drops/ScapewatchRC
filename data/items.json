@@ -535,6 +535,30 @@
         "stackable": false,
         "category": "gem"
     },
+    "sapphire_ring": {
+    "id": "sapphire_ring",
+    "name": "Sapphire ring",
+    "stackable": false,
+    "category": "jewellery"
+},
+"emerald_ring": {
+    "id": "emerald_ring",
+    "name": "Emerald ring",
+    "stackable": false,
+    "category": "jewellery"
+},
+"ruby_ring": {
+    "id": "ruby_ring",
+    "name": "Ruby ring",
+    "stackable": false,
+    "category": "jewellery"
+},
+"diamond_ring": {
+    "id": "diamond_ring",
+    "name": "Diamond ring",
+    "stackable": false,
+    "category": "jewellery"
+},
     "potato_seed": {
         "id": "potato_seed",
         "name": "Potato seed",
