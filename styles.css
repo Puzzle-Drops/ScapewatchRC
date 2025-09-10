@@ -717,6 +717,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    overflow-y: auto;
 }
 
 .shop-header {
@@ -763,7 +764,12 @@ body {
     display: flex;
     gap: 20px;
     align-items: stretch;
-    min-height: 120px;
+    min-height: 100px;
+    margin-bottom: 15px;
+}
+
+.shop-item-container:last-child {
+    margin-bottom: 0;
 }
 
 .shop-column-left {
@@ -791,13 +797,7 @@ body {
 .shop-right-top {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-}
-
-.shop-right-bottom {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+    gap: 6px;
 }
 
 .shop-item-icon {
@@ -865,7 +865,7 @@ body {
     font-size: 18px;
     color: #e74c3c;
     font-weight: bold;
-    flex: 1;
+    min-height: 22px;
 }
 
 .shop-buy-btn {
@@ -878,6 +878,7 @@ body {
     font-size: 16px;
     font-weight: bold;
     transition: all 0.3s;
+    align-self: flex-start;
 }
 
 .shop-buy-btn:hover:not(:disabled) {
