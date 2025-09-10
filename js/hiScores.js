@@ -1032,6 +1032,90 @@ class HiScoresManager {
         }
     }
 
+    // New helper method for comparison rows with ranks
+    async addCompareRowWithRank(tbody, label, iconKey, rank1, value1, rank2, value2) {
+        const row = document.createElement('tr');
+        
+        // Name cell with icon
+        const labelCell = document.createElement('td');
+        labelCell.className = 'hiscores-skill-name-cell';
+        
+        if (iconKey) {
+            const icon = loadingManager.getImage(iconKey);
+            if (icon) {
+                const iconImg = document.createElement('img');
+                iconImg.className = 'hiscores-inline-icon';
+                iconImg.src = icon.src;
+                labelCell.appendChild(iconImg);
+            }
+        }
+        const labelText = document.createElement('span');
+        labelText.textContent = label;
+        labelCell.appendChild(labelText);
+        
+        // User 1 data
+        const rank1Cell = document.createElement('td');
+        rank1Cell.className = 'hiscores-compare-rank';
+        rank1Cell.textContent = rank1;
+        
+        const value1Cell = document.createElement('td');
+        value1Cell.className = 'hiscores-compare-value';
+        value1Cell.textContent = typeof value1 === 'number' && value1 > 10000 ? 
+            formatNumber(value1) : value1;
+        
+        // User 2 data
+        const rank2Cell = document.createElement('td');
+        rank2Cell.className = 'hiscores-compare-rank';
+        rank2Cell.textContent = rank2;
+        
+        const value2Cell = document.createElement('td');
+        value2Cell.className = 'hiscores-compare-value';
+        value2Cell.textContent = typeof value2 === 'number' && value2 > 10000 ? 
+            formatNumber(value2) : value2;
+        
+        // Winner cell
+        const winnerCell = document.createElement('td');
+        winnerCell.className = 'hiscores-compare-winner';
+        
+        // Determine winner (lower rank number is better, unless it's "Unranked")
+        const rank1Num = rank1 === 'Unranked' ? Infinity : parseInt(rank1);
+        const rank2Num = rank2 === 'Unranked' ? Infinity : parseInt(rank2);
+        
+        let winner = 0; // 0 for tie, 1 for user1, 2 for user2
+        
+        if (rank1Num < rank2Num) {
+            winnerCell.textContent = '←';
+            winnerCell.style.color = '#2ecc71';
+            rank1Cell.style.color = '#2ecc71';
+            value1Cell.style.color = '#2ecc71';
+            rank2Cell.style.color = '#e74c3c';
+            value2Cell.style.color = '#e74c3c';
+            winner = 1;
+        } else if (rank2Num < rank1Num) {
+            winnerCell.textContent = '→';
+            winnerCell.style.color = '#2ecc71';
+            rank2Cell.style.color = '#2ecc71';
+            value2Cell.style.color = '#2ecc71';
+            rank1Cell.style.color = '#e74c3c';
+            value1Cell.style.color = '#e74c3c';
+            winner = 2;
+        } else {
+            winnerCell.textContent = '=';
+            winnerCell.style.color = '#f39c12';
+            winner = 0;
+        }
+        
+        row.appendChild(labelCell);
+        row.appendChild(rank1Cell);
+        row.appendChild(value1Cell);
+        row.appendChild(rank2Cell);
+        row.appendChild(value2Cell);
+        row.appendChild(winnerCell);
+        
+        tbody.appendChild(row);
+        
+        return winner; // Return the winner for tally tracking
+    }
     
     // Add a comparison row
     addCompareRow(tbody, label, value1, value2, format = false) {
@@ -1058,91 +1142,6 @@ class HiScoresManager {
         row.appendChild(labelCell);
         row.appendChild(value1Cell);
         row.appendChild(value2Cell);
-        tbody.appendChild(row);
-    }
-    
-    // Helper to determine winner from ranks
-    determineWinner(rank1, rank2) {
-        const rank1Num = rank1 === 'Unranked' ? Infinity : parseInt(rank1);
-        const rank2Num = rank2 === 'Unranked' ? Infinity : parseInt(rank2);
-        
-        if (rank1Num < rank2Num) return 1;
-        else if (rank2Num < rank1Num) return 2;
-        else return 0;
-    }
-    
-    // Helper to add a comparison row from collected data
-    addCompareRowFromData(tbody, data) {
-        const row = document.createElement('tr');
-        
-        // Name cell with icon
-        const labelCell = document.createElement('td');
-        labelCell.className = 'hiscores-skill-name-cell';
-        
-        if (data.icon) {
-            const icon = loadingManager.getImage(data.icon);
-            if (icon) {
-                const iconImg = document.createElement('img');
-                iconImg.className = 'hiscores-inline-icon';
-                iconImg.src = icon.src;
-                labelCell.appendChild(iconImg);
-            }
-        }
-        const labelText = document.createElement('span');
-        labelText.textContent = data.label;
-        labelCell.appendChild(labelText);
-        
-        // User 1 data
-        const rank1Cell = document.createElement('td');
-        rank1Cell.className = 'hiscores-compare-rank';
-        rank1Cell.textContent = data.rank1;
-        
-        const value1Cell = document.createElement('td');
-        value1Cell.className = 'hiscores-compare-value';
-        value1Cell.textContent = typeof data.value1 === 'number' && data.value1 > 10000 ? 
-            formatNumber(data.value1) : data.value1;
-        
-        // User 2 data
-        const rank2Cell = document.createElement('td');
-        rank2Cell.className = 'hiscores-compare-rank';
-        rank2Cell.textContent = data.rank2;
-        
-        const value2Cell = document.createElement('td');
-        value2Cell.className = 'hiscores-compare-value';
-        value2Cell.textContent = typeof data.value2 === 'number' && data.value2 > 10000 ? 
-            formatNumber(data.value2) : data.value2;
-        
-        // Winner cell
-        const winnerCell = document.createElement('td');
-        winnerCell.className = 'hiscores-compare-winner';
-        
-        // Apply colors based on winner
-        if (data.winner === 1) {
-            winnerCell.textContent = '←';
-            winnerCell.style.color = '#2ecc71';
-            rank1Cell.style.color = '#2ecc71';
-            value1Cell.style.color = '#2ecc71';
-            rank2Cell.style.color = '#e74c3c';
-            value2Cell.style.color = '#e74c3c';
-        } else if (data.winner === 2) {
-            winnerCell.textContent = '→';
-            winnerCell.style.color = '#2ecc71';
-            rank2Cell.style.color = '#2ecc71';
-            value2Cell.style.color = '#2ecc71';
-            rank1Cell.style.color = '#e74c3c';
-            value1Cell.style.color = '#e74c3c';
-        } else {
-            winnerCell.textContent = '=';
-            winnerCell.style.color = '#f39c12';
-        }
-        
-        row.appendChild(labelCell);
-        row.appendChild(rank1Cell);
-        row.appendChild(value1Cell);
-        row.appendChild(rank2Cell);
-        row.appendChild(value2Cell);
-        row.appendChild(winnerCell);
-        
         tbody.appendChild(row);
     }
 }
