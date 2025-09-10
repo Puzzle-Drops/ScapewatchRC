@@ -1,18 +1,3 @@
-// Add these imports from firebase.js
-import { 
-    query, 
-    collection, 
-    where, 
-    orderBy, 
-    limit, 
-    getDocs, 
-    getDoc, 
-    doc,
-    startAfter,
-    endBefore,
-    getCountFromServer 
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
 class HiScoresManager {
     constructor() {
         this.isOpen = false;
@@ -308,10 +293,11 @@ async loadCategory(categoryId) {
         }
     }
     
-    // Fetch leaderboard data from Firebase
+// Fetch leaderboard data from Firebase
 async fetchLeaderboardData(category, page) {
     if (!firebaseManager.db) return [];
     
+    const { query, collection, orderBy, limit, getDocs, startAfter } = window.firestoreHelpers;
     const startAt = page * this.pageSize;
     let queryConstraints = [];
     
@@ -514,6 +500,7 @@ async searchByName(username) {
     if (!username) return;
     
     try {
+        const { query, collection, where, limit, getDocs } = window.firestoreHelpers;
         const q = query(
             collection(firebaseManager.db, 'hiscores'),
             where('username', '==', username),
@@ -552,23 +539,24 @@ async searchByName(username) {
     
     // Show individual player stats
     async showPlayerStats(username) {
-        const container = document.getElementById('hiscores-leaderboard');
-        if (!container) return;
-        
-        container.innerHTML = '<div class="hiscores-loading">Loading player stats...</div>';
-        
-        try {
-    const q = query(
-        collection(firebaseManager.db, 'hiscores'),
-        where('username', '==', username),
-        limit(1)
-    );
-    const userQuery = await getDocs(q);
+    const container = document.getElementById('hiscores-leaderboard');
+    if (!container) return;
     
-    if (userQuery.empty) {
-        container.innerHTML = '<div class="hiscores-error">Player not found</div>';
-        return;
-    }
+    container.innerHTML = '<div class="hiscores-loading">Loading player stats...</div>';
+    
+    try {
+        const { query, collection, where, limit, getDocs } = window.firestoreHelpers;
+        const q = query(
+            collection(firebaseManager.db, 'hiscores'),
+            where('username', '==', username),
+            limit(1)
+        );
+        const userQuery = await getDocs(q);
+        
+        if (userQuery.empty) {
+            container.innerHTML = '<div class="hiscores-error">Player not found</div>';
+            return;
+        }
             
             const userData = userQuery.docs[0].data();
             const uid = userQuery.docs[0].id;
@@ -680,11 +668,11 @@ async searchByName(username) {
 // Get player rank for a category
 async getPlayerRank(uid, category) {
     try {
+        const { getDoc, doc, query, collection, where, orderBy, endBefore, getDocs, getCountFromServer } = window.firestoreHelpers;
         const playerDoc = await getDoc(doc(firebaseManager.db, 'hiscores', uid));
         if (!playerDoc.exists()) return 'Unranked';
         
         const playerData = playerDoc.data();
-        let query;
         
         if (category === 'overall') {
             const playerLevel = playerData.totalLevel;
@@ -692,40 +680,42 @@ async getPlayerRank(uid, category) {
             const playerFirstReached = playerData.totalLevelFirstReached || firebaseManager.SENTINEL_DATE;
             
             // Use ORDER BY with endBefore to count players ahead
-            query = firebaseManager.db.collection('hiscores')
-                .orderBy('totalLevel', 'desc')
-                .orderBy('totalXp', 'desc')
-                .orderBy('totalLevelFirstReached', 'asc')
-                .endBefore(playerLevel, playerXp, playerFirstReached);
+            const q = query(
+                collection(firebaseManager.db, 'hiscores'),
+                orderBy('totalLevel', 'desc'),
+                orderBy('totalXp', 'desc'),
+                orderBy('totalLevelFirstReached', 'asc'),
+                endBefore(playerLevel, playerXp, playerFirstReached)
+            );
             
-            const snapshot = await query.count().get();
+            const snapshot = await getCountFromServer(q);
             return snapshot.data().count + 1;
             
         } else if (category === 'tasks') {
-    const playerTasks = playerData.tasksCompleted || 0;
-    const q = query(
-        collection(firebaseManager.db, 'hiscores'),
-        where('tasksCompleted', '>', playerTasks)
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.size + 1;
-} else if (category === 'pets') {
-    const playerPets = playerData.petsTotal || 0;
-    const q = query(
-        collection(firebaseManager.db, 'hiscores'),
-        where('petsTotal', '>', playerPets)
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.size + 1;
-} else if (category === 'shinyPets') {
-    const playerShiny = playerData.petsShiny || 0;
-    const q = query(
-        collection(firebaseManager.db, 'hiscores'),
-        where('petsShiny', '>', playerShiny)
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.size + 1;
-}
+            const playerTasks = playerData.tasksCompleted || 0;
+            const q = query(
+                collection(firebaseManager.db, 'hiscores'),
+                where('tasksCompleted', '>', playerTasks)
+            );
+            const snapshot = await getDocs(q);
+            return snapshot.size + 1;
+        } else if (category === 'pets') {
+            const playerPets = playerData.petsTotal || 0;
+            const q = query(
+                collection(firebaseManager.db, 'hiscores'),
+                where('petsTotal', '>', playerPets)
+            );
+            const snapshot = await getDocs(q);
+            return snapshot.size + 1;
+        } else if (category === 'shinyPets') {
+            const playerShiny = playerData.petsShiny || 0;
+            const q = query(
+                collection(firebaseManager.db, 'hiscores'),
+                where('petsShiny', '>', playerShiny)
+            );
+            const snapshot = await getDocs(q);
+            return snapshot.size + 1;
+        }
         
         return 'Error';
     } catch (error) {
@@ -737,6 +727,7 @@ async getPlayerRank(uid, category) {
 // Get player rank for a specific skill
 async getPlayerRankForSkill(uid, skillId) {
     try {
+        const { getDoc, doc, query, collection, orderBy, endBefore, getCountFromServer } = window.firestoreHelpers;
         const playerDoc = await getDoc(doc(firebaseManager.db, 'hiscores', uid));
         if (!playerDoc.exists()) return 'Unranked';
         
@@ -765,36 +756,38 @@ async getPlayerRankForSkill(uid, skillId) {
     
     // Compare two users
     async compareUsersDisplay(user1, user2) {
-        if (!user1 || !user2) {
-            alert('Please enter two usernames to compare');
+    if (!user1 || !user2) {
+        alert('Please enter two usernames to compare');
+        return;
+    }
+    
+    const container = document.getElementById('hiscores-leaderboard');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="hiscores-loading">Loading comparison...</div>';
+    
+    try {
+        const { query, collection, where, limit, getDocs } = window.firestoreHelpers;
+        
+        // Fetch both users
+        const q1 = query(
+            collection(firebaseManager.db, 'hiscores'),
+            where('username', '==', user1),
+            limit(1)
+        );
+        const user1Query = await getDocs(q1);
+        
+        const q2 = query(
+            collection(firebaseManager.db, 'hiscores'),
+            where('username', '==', user2),
+            limit(1)
+        );
+        const user2Query = await getDocs(q2);
+        
+        if (user1Query.empty || user2Query.empty) {
+            container.innerHTML = '<div class="hiscores-error">One or both players not found</div>';
             return;
         }
-        
-        const container = document.getElementById('hiscores-leaderboard');
-        if (!container) return;
-        
-        container.innerHTML = '<div class="hiscores-loading">Loading comparison...</div>';
-        
-        try {
-    // Fetch both users
-    const q1 = query(
-        collection(firebaseManager.db, 'hiscores'),
-        where('username', '==', user1),
-        limit(1)
-    );
-    const user1Query = await getDocs(q1);
-    
-    const q2 = query(
-        collection(firebaseManager.db, 'hiscores'),
-        where('username', '==', user2),
-        limit(1)
-    );
-    const user2Query = await getDocs(q2);
-            
-            if (user1Query.empty || user2Query.empty) {
-                container.innerHTML = '<div class="hiscores-error">One or both players not found</div>';
-                return;
-            }
             
             const user1Data = user1Query.docs[0].data();
             const user2Data = user2Query.docs[0].data();
