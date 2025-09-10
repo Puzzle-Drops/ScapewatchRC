@@ -615,5 +615,8 @@ async completeTask(task) {
     }
 }
 
+// Make TaskManager available globally
+window.TaskManager = TaskManager;
+
 // Create global instance
 window.taskManager = new TaskManager();
