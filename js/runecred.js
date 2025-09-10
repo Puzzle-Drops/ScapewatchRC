@@ -666,3 +666,6 @@ class RuneCreditManager {
         }
     }
 }
+
+// Make RuneCreditManager available globally
+window.RuneCreditManager = RuneCreditManager;
