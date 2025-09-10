@@ -753,3 +753,6 @@ handleBanking(task) {
         this.clearProcessingState();
     }
 }
+
+// Make CraftingSkill available globally
+window.CraftingSkill = CraftingSkill;
