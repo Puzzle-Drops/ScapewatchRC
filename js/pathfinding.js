@@ -243,3 +243,6 @@ class PriorityQueue {
         );
     }
 }
+
+// Make Pathfinding available globally
+window.Pathfinding = Pathfinding;
