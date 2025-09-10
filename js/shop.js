@@ -13,7 +13,7 @@ class ShopSystem {
         };
         this.shopData = null;
     }
-
+ 
     initialize() {
         // Load shop data
         this.shopData = loadingManager.getData('shop');
