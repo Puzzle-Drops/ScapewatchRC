@@ -27,6 +27,12 @@ class CraftingSkill extends BaseSkill {
             { itemId: 'emerald',    name: 'Emeralds',    minCount: 20, maxCount: 40, level: 27 },
             { itemId: 'ruby',       name: 'Rubies',      minCount: 20, maxCount: 40, level: 34 },
             { itemId: 'diamond',    name: 'Diamonds',    minCount: 20, maxCount: 40, level: 43 },
+
+            // Ring making tasks
+            { itemId: 'sapphire_ring',   name: 'Sapphire rings',   minCount: 15, maxCount: 30, level: 25 },
+            { itemId: 'emerald_ring',    name: 'Emerald rings',    minCount: 15, maxCount: 30, level: 32 },
+            { itemId: 'ruby_ring',       name: 'Ruby rings',       minCount: 15, maxCount: 30, level: 45 },
+            { itemId: 'diamond_ring',    name: 'Diamond rings',    minCount: 15, maxCount: 30, level: 55 },
             
             // Plank making tasks
             { itemId: 'plank',          name: 'Planks',          minCount: 30, maxCount: 60, level: 10 },
@@ -138,12 +144,64 @@ class CraftingSkill extends BaseSkill {
                 activityType: 'plank_making'
             }
         };
+
+        // Ring making recipes
+this.ringMakingRecipes = {
+    // Silver rings (lower tier gems)
+    'sapphire_ring': {
+        inputs: [
+            { itemId: 'silver_bar', quantity: 1 },
+            { itemId: 'sapphire', quantity: 1 }
+        ],
+        output: { itemId: 'sapphire_ring', quantity: 1 },
+        level: 25,
+        xp: 40,
+        duration: 1200,
+        activityType: 'jewellery_making'
+    },
+    'emerald_ring': {
+        inputs: [
+            { itemId: 'silver_bar', quantity: 1 },
+            { itemId: 'emerald', quantity: 1 }
+        ],
+        output: { itemId: 'emerald_ring', quantity: 1 },
+        level: 32,
+        xp: 55,
+        duration: 1200,
+        activityType: 'jewellery_making'
+    },
+    
+    // Gold rings (higher tier gems)
+    'ruby_ring': {
+        inputs: [
+            { itemId: 'gold_bar', quantity: 1 },
+            { itemId: 'ruby', quantity: 1 }
+        ],
+        output: { itemId: 'ruby_ring', quantity: 1 },
+        level: 45,
+        xp: 85,
+        duration: 1200,
+        activityType: 'jewellery_making'
+    },
+    'diamond_ring': {
+        inputs: [
+            { itemId: 'gold_bar', quantity: 1 },
+            { itemId: 'diamond', quantity: 1 }
+        ],
+        output: { itemId: 'diamond_ring', quantity: 1 },
+        level: 55,
+        xp: 115,
+        duration: 1200,
+        activityType: 'jewellery_making'
+    }
+};
         
         // Combined recipes for easy lookup
         this.allRecipes = {
             ...this.glassBlowingRecipes,
             ...this.gemCuttingRecipes,
-            ...this.plankMakingRecipes
+            ...this.plankMakingRecipes,
+            ...this.ringMakingRecipes
         };
     }
     
@@ -511,30 +569,32 @@ class CraftingSkill extends BaseSkill {
     }
     
     findRecipeToProcess(activityData) {
-        const level = skills.getLevel('crafting');
-        const activityId = activityData.id || activityData.activityId;
-        
-        // Determine which recipe set to use based on activity
-        let recipeSet = null;
-        if (activityId === 'blowing_glass') {
-            recipeSet = this.glassBlowingRecipes;
-        } else if (activityId === 'cutting_gems') {
-            recipeSet = this.gemCuttingRecipes;
-        } else if (activityId === 'plank_making') {
-            recipeSet = this.plankMakingRecipes;
-        }
-        
-        if (!recipeSet) return null;
-        
-        // Find first recipe we can do
-        for (const recipe of Object.values(recipeSet)) {
-            if (level >= recipe.level && this.hasIngredientsInInventory(recipe)) {
-                return recipe;
-            }
-        }
-        
-        return null;
+    const level = skills.getLevel('crafting');
+    const activityId = activityData.id || activityData.activityId;
+    
+    // Determine which recipe set to use based on activity
+    let recipeSet = null;
+    if (activityId === 'blowing_glass') {
+        recipeSet = this.glassBlowingRecipes;
+    } else if (activityId === 'cutting_gems') {
+        recipeSet = this.gemCuttingRecipes;
+    } else if (activityId === 'plank_making') {
+        recipeSet = this.plankMakingRecipes;
+    } else if (activityId === 'jewellery_making') {
+        recipeSet = this.ringMakingRecipes;
     }
+    
+    if (!recipeSet) return null;
+    
+    // Find first recipe we can do
+    for (const recipe of Object.values(recipeSet)) {
+        if (level >= recipe.level && this.hasIngredientsInInventory(recipe)) {
+            return recipe;
+        }
+    }
+    
+    return null;
+}
     
     hasIngredientsInInventory(recipe) {
         for (const input of recipe.inputs) {
