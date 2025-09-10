@@ -718,3 +718,6 @@ class RunecraftingSkill extends BaseSkill {
         this.clearCraftingState();
     }
 }
+
+// Make RunecraftingSkill available globally
+window.RunecraftingSkill = RunecraftingSkill;
