@@ -510,25 +510,27 @@ async fetchLeaderboardData(category, page) {
     }
     
     // Search by username
-    async searchByName(username) {
-        if (!username) return;
+async searchByName(username) {
+    if (!username) return;
+    
+    try {
+        const q = query(
+            collection(firebaseManager.db, 'hiscores'),
+            where('username', '==', username),
+            limit(1)
+        );
+        const userQuery = await getDocs(q);
         
-        try {
-            const userQuery = await firebaseManager.db.collection('hiscores')
-                .where('username', '==', username)
-                .limit(1)
-                .get();
-            
-            if (!userQuery.empty) {
-                const userData = userQuery.docs[0].data();
-                this.showPlayerStats(username);
-            } else {
-                alert('Player not found');
-            }
-        } catch (error) {
-            console.error('Failed to search player:', error);
+        if (!userQuery.empty) {
+            const userData = userQuery.docs[0].data();
+            this.showPlayerStats(username);
+        } else {
+            alert('Player not found');
         }
+    } catch (error) {
+        console.error('Failed to search player:', error);
     }
+}
     
     // Search by rank
     async searchByRank(rank) {
@@ -556,15 +558,17 @@ async fetchLeaderboardData(category, page) {
         container.innerHTML = '<div class="hiscores-loading">Loading player stats...</div>';
         
         try {
-            const userQuery = await firebaseManager.db.collection('hiscores')
-                .where('username', '==', username)
-                .limit(1)
-                .get();
-            
-            if (userQuery.empty) {
-                container.innerHTML = '<div class="hiscores-error">Player not found</div>';
-                return;
-            }
+    const q = query(
+        collection(firebaseManager.db, 'hiscores'),
+        where('username', '==', username),
+        limit(1)
+    );
+    const userQuery = await getDocs(q);
+    
+    if (userQuery.empty) {
+        container.innerHTML = '<div class="hiscores-error">Player not found</div>';
+        return;
+    }
             
             const userData = userQuery.docs[0].data();
             const uid = userQuery.docs[0].id;
@@ -676,8 +680,8 @@ async fetchLeaderboardData(category, page) {
 // Get player rank for a category
 async getPlayerRank(uid, category) {
     try {
-        const playerDoc = await firebaseManager.db.collection('hiscores').doc(uid).get();
-        if (!playerDoc.exists) return 'Unranked';
+        const playerDoc = await getDoc(doc(firebaseManager.db, 'hiscores', uid));
+        if (!playerDoc.exists()) return 'Unranked';
         
         const playerData = playerDoc.data();
         let query;
@@ -698,25 +702,30 @@ async getPlayerRank(uid, category) {
             return snapshot.data().count + 1;
             
         } else if (category === 'tasks') {
-            const playerTasks = playerData.tasksCompleted || 0;
-            // Simple categories can keep using WHERE
-            query = await firebaseManager.db.collection('hiscores')
-                .where('tasksCompleted', '>', playerTasks)
-                .get();
-            return query.size + 1;
-        } else if (category === 'pets') {
-            const playerPets = playerData.petsTotal || 0;
-            query = await firebaseManager.db.collection('hiscores')
-                .where('petsTotal', '>', playerPets)
-                .get();
-            return query.size + 1;
-        } else if (category === 'shinyPets') {
-            const playerShiny = playerData.petsShiny || 0;
-            query = await firebaseManager.db.collection('hiscores')
-                .where('petsShiny', '>', playerShiny)
-                .get();
-            return query.size + 1;
-        }
+    const playerTasks = playerData.tasksCompleted || 0;
+    const q = query(
+        collection(firebaseManager.db, 'hiscores'),
+        where('tasksCompleted', '>', playerTasks)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.size + 1;
+} else if (category === 'pets') {
+    const playerPets = playerData.petsTotal || 0;
+    const q = query(
+        collection(firebaseManager.db, 'hiscores'),
+        where('petsTotal', '>', playerPets)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.size + 1;
+} else if (category === 'shinyPets') {
+    const playerShiny = playerData.petsShiny || 0;
+    const q = query(
+        collection(firebaseManager.db, 'hiscores'),
+        where('petsShiny', '>', playerShiny)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.size + 1;
+}
         
         return 'Error';
     } catch (error) {
@@ -728,8 +737,8 @@ async getPlayerRank(uid, category) {
 // Get player rank for a specific skill
 async getPlayerRankForSkill(uid, skillId) {
     try {
-        const playerDoc = await firebaseManager.db.collection('hiscores').doc(uid).get();
-        if (!playerDoc.exists) return 'Unranked';
+        const playerDoc = await getDoc(doc(firebaseManager.db, 'hiscores', uid));
+        if (!playerDoc.exists()) return 'Unranked';
         
         const playerData = playerDoc.data();
         const playerLevel = playerData[`level_${skillId}`] || 1;
@@ -737,13 +746,15 @@ async getPlayerRankForSkill(uid, skillId) {
         const playerFirstReached = playerData[`levelFirst_${skillId}`] || firebaseManager.SENTINEL_DATE;
         
         // Use ORDER BY with endBefore to count players ahead
-        const query = firebaseManager.db.collection('hiscores')
-            .orderBy(`level_${skillId}`, 'desc')
-            .orderBy(`xp_${skillId}`, 'desc')
-            .orderBy(`levelFirst_${skillId}`, 'asc')
-            .endBefore(playerLevel, playerXp, playerFirstReached);
+        const q = query(
+            collection(firebaseManager.db, 'hiscores'),
+            orderBy(`level_${skillId}`, 'desc'),
+            orderBy(`xp_${skillId}`, 'desc'),
+            orderBy(`levelFirst_${skillId}`, 'asc'),
+            endBefore(playerLevel, playerXp, playerFirstReached)
+        );
         
-        const snapshot = await query.count().get();
+        const snapshot = await getCountFromServer(q);
         return snapshot.data().count + 1;
         
     } catch (error) {
@@ -765,16 +776,20 @@ async getPlayerRankForSkill(uid, skillId) {
         container.innerHTML = '<div class="hiscores-loading">Loading comparison...</div>';
         
         try {
-            // Fetch both users
-            const user1Query = await firebaseManager.db.collection('hiscores')
-                .where('username', '==', user1)
-                .limit(1)
-                .get();
-            
-            const user2Query = await firebaseManager.db.collection('hiscores')
-                .where('username', '==', user2)
-                .limit(1)
-                .get();
+    // Fetch both users
+    const q1 = query(
+        collection(firebaseManager.db, 'hiscores'),
+        where('username', '==', user1),
+        limit(1)
+    );
+    const user1Query = await getDocs(q1);
+    
+    const q2 = query(
+        collection(firebaseManager.db, 'hiscores'),
+        where('username', '==', user2),
+        limit(1)
+    );
+    const user2Query = await getDocs(q2);
             
             if (user1Query.empty || user2Query.empty) {
                 container.innerHTML = '<div class="hiscores-error">One or both players not found</div>';
