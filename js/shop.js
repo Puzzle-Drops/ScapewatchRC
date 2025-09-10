@@ -244,5 +244,8 @@ class ShopSystem {
     }
 }
 
+// Make ShopSystem available globally
+window.ShopSystem = ShopSystem;
+
 // Create global instance
 window.shop = new ShopSystem();
