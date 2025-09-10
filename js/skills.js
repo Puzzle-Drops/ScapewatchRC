@@ -121,3 +121,7 @@ hasAllMaxXp() {
         return this.skills;
     }
 }
+
+// Make SkillsManager available globally
+window.SkillsManager = SkillsManager;
+
