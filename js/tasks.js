@@ -251,6 +251,11 @@ async completeTask(task) {
     if (window.runeCreditManager) {
         runeCreditManager.onTaskComplete(task);
     }
+
+    // Rotate shop stock on task completion
+    if (window.shop) {
+        shop.rotateStock();
+    }
     
     // Update speed bonuses based on current levels
     if (window.runeCreditManager) {
