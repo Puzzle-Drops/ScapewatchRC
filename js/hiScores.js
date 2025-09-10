@@ -1081,6 +1081,8 @@ class HiScoresManager {
         const rank1Num = rank1 === 'Unranked' ? Infinity : parseInt(rank1);
         const rank2Num = rank2 === 'Unranked' ? Infinity : parseInt(rank2);
         
+        let winner = 0; // 0 for tie, 1 for user1, 2 for user2
+        
         if (rank1Num < rank2Num) {
             winnerCell.textContent = '←';
             winnerCell.style.color = '#2ecc71';
@@ -1088,6 +1090,7 @@ class HiScoresManager {
             value1Cell.style.color = '#2ecc71';
             rank2Cell.style.color = '#e74c3c';
             value2Cell.style.color = '#e74c3c';
+            winner = 1;
         } else if (rank2Num < rank1Num) {
             winnerCell.textContent = '→';
             winnerCell.style.color = '#2ecc71';
@@ -1095,9 +1098,11 @@ class HiScoresManager {
             value2Cell.style.color = '#2ecc71';
             rank1Cell.style.color = '#e74c3c';
             value1Cell.style.color = '#e74c3c';
+            winner = 2;
         } else {
             winnerCell.textContent = '=';
             winnerCell.style.color = '#f39c12';
+            winner = 0;
         }
         
         row.appendChild(labelCell);
@@ -1108,6 +1113,8 @@ class HiScoresManager {
         row.appendChild(winnerCell);
         
         tbody.appendChild(row);
+        
+        return winner; // Return the winner for tally tracking
     }
     
     // Add a comparison row
