@@ -2860,6 +2860,7 @@ span.control-emoji {
 .hiscores-title-icon {
     width: 32px;
     height: 32px;
+    vertical-align: middle;
 }
 
 /* Inline icons in tables */
@@ -2916,4 +2917,30 @@ span.control-emoji {
     text-align: center;
     font-size: 20px;
     font-weight: bold;
+}
+
+/* Comparison page title with tally */
+.hiscores-compare-title-container {
+    margin-bottom: 20px;
+}
+
+.compare-player {
+    display: inline-block;
+    margin: 0 15px;
+}
+
+.compare-tally {
+    margin-left: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.compare-wins-losses {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.compare-vs {
+    color: #999;
+    margin: 0 10px;
 }
