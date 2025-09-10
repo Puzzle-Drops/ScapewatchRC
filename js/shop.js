@@ -1,202 +1,131 @@
 class ShopSystem {
     constructor() {
-        this.shopItems = [
-            {
-                itemId: 'fishing_bait',
-                name: 'Fishing Bait',
-                price: 1,
-                stock: -1 // Infinite stock
-            },
-            {
-                itemId: 'feather',
-                name: 'Feather',
-                price: 1,
-                stock: -1 // Infinite stock
-            }
-        ];
-        
         this.isOpen = false;
-        this.setupCloseButton();
+        this.currentStock = {
+            supplies: null,
+            resources: null,
+            runes: null
+        };
+        this.previousStock = {
+            supplies: null,
+            resources: null,
+            runes: null
+        };
+        this.shopData = null;
     }
 
-    // Set up the X close button handler
-    setupCloseButton() {
-        // Wait for DOM to be ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.setupCloseButton());
+    initialize() {
+        // Load shop data
+        this.shopData = loadingManager.getData('shop');
+        if (!this.shopData) {
+            console.error('Shop data not loaded!');
             return;
         }
         
-        const shopCloseX = document.getElementById('shop-close-x');
-        if (shopCloseX) {
-            shopCloseX.addEventListener('click', () => this.close());
+        // Generate initial random stock
+        this.rotateStock();
+        
+        console.log('Shop system initialized with stock:', this.currentStock);
+    }
+
+    // Rotate stock for all categories (called on task completion)
+    rotateStock() {
+        for (const category of ['supplies', 'resources', 'runes']) {
+            this.rotateCategory(category);
+        }
+        
+        // Update display if shop is open
+        if (this.isOpen && window.ui) {
+            window.ui.updateShop();
         }
     }
 
-    // Open the shop modal
+    // Rotate a single category, ensuring no repeat
+    rotateCategory(category) {
+        const items = this.shopData[category];
+        if (!items || items.length === 0) return;
+        
+        // If only one item in category, can't rotate
+        if (items.length === 1) {
+            const item = items[0];
+            this.currentStock[category] = {
+                itemId: item.itemId,
+                basePrice: item.basePrice,
+                currentPrice: this.rollPrice(item.basePrice)
+            };
+            return;
+        }
+        
+        // Get available items (exclude previous if it exists)
+        let availableItems = items;
+        if (this.currentStock[category]) {
+            availableItems = items.filter(item => 
+                item.itemId !== this.currentStock[category].itemId
+            );
+        }
+        
+        // Pick random item from available
+        const randomIndex = Math.floor(Math.random() * availableItems.length);
+        const selectedItem = availableItems[randomIndex];
+        
+        // Store previous and set new
+        this.previousStock[category] = this.currentStock[category];
+        this.currentStock[category] = {
+            itemId: selectedItem.itemId,
+            basePrice: selectedItem.basePrice,
+            currentPrice: this.rollPrice(selectedItem.basePrice)
+        };
+    }
+
+    // Roll a random price between 0.5x and 2x base price (whole numbers only)
+    rollPrice(basePrice) {
+        const min = Math.ceil(basePrice * 0.5);
+        const max = Math.floor(basePrice * 2);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Open the shop panel
     open() {
         this.isOpen = true;
-        const modal = document.getElementById('shop-modal');
-        if (modal) {
-            modal.style.display = 'flex';
-            this.updateDisplay();
-        }
+        // Panel switching is handled by UI
     }
 
-    // Close the shop modal
+    // Close the shop panel
     close() {
         this.isOpen = false;
-        const modal = document.getElementById('shop-modal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
     }
 
-    // Toggle shop open/closed
-    toggle() {
-        if (this.isOpen) {
-            this.close();
-        } else {
-            this.open();
-        }
-    }
-
-    // Update the shop display
-    updateDisplay() {
-        const container = document.getElementById('shop-items');
-        if (!container) return;
-        
-        container.innerHTML = '';
-        
-        // Show player's coins at top
-        const coinsDiv = document.createElement('div');
-        coinsDiv.style.gridColumn = '1 / -1';
-        coinsDiv.style.textAlign = 'center';
-        coinsDiv.style.marginBottom = '20px';
-        coinsDiv.style.fontSize = '18px';
-        coinsDiv.style.color = '#f39c12';
-        
-        const playerCoins = window.inventory ? inventory.getItemCount('coins') : 0;
-        coinsDiv.textContent = `Your coins: ${formatNumber(playerCoins)}`;
-        container.appendChild(coinsDiv);
-        
-        // Create shop items
-        for (const shopItem of this.shopItems) {
-            const itemDiv = this.createShopItemElement(shopItem);
-            container.appendChild(itemDiv);
-        }
-    }
-
-    // Create a shop item element
-    createShopItemElement(shopItem) {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'shop-item';
-        
-        // Item icon
-        const icon = document.createElement('img');
-        icon.className = 'shop-item-icon';
-        icon.src = `assets/items/${shopItem.itemId}.png`;
-        icon.onerror = function() {
-            this.style.display = 'none';
-            const textDiv = document.createElement('div');
-            textDiv.style.fontSize = '24px';
-            textDiv.textContent = shopItem.name.substring(0, 3);
-            itemDiv.insertBefore(textDiv, itemDiv.firstChild);
-        };
-        
-        // Item name
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'shop-item-name';
-        nameDiv.textContent = shopItem.name;
-        
-        // Item price
-        const priceDiv = document.createElement('div');
-        priceDiv.className = 'shop-item-price';
-        priceDiv.textContent = `${shopItem.price} gp each`;
-        
-        // Controls
-        const controlsDiv = document.createElement('div');
-        controlsDiv.className = 'shop-item-controls';
-        
-        // Quantity input
-        const quantityInput = document.createElement('input');
-        quantityInput.type = 'number';
-        quantityInput.className = 'shop-quantity';
-        quantityInput.value = '1';
-        quantityInput.min = '1';
-        quantityInput.max = '10000';
-        
-        // Buy button
-        const buyBtn = document.createElement('button');
-        buyBtn.className = 'shop-buy-btn';
-        buyBtn.textContent = 'Buy';
-        
-        // Check if player can afford at least 1
-        const playerCoins = window.inventory ? inventory.getItemCount('coins') : 0;
-        if (playerCoins < shopItem.price) {
-            buyBtn.disabled = true;
-        }
-        
-        // Buy button click handler
-        buyBtn.addEventListener('click', () => {
-            const quantity = parseInt(quantityInput.value) || 1;
-            this.buyItem(shopItem.itemId, quantity);
-        });
-        
-        // Update button state when quantity changes
-        quantityInput.addEventListener('input', () => {
-            const quantity = parseInt(quantityInput.value) || 1;
-            const totalCost = quantity * shopItem.price;
-            const playerCoins = window.inventory ? inventory.getItemCount('coins') : 0;
-            
-            buyBtn.disabled = playerCoins < totalCost;
-            buyBtn.textContent = `Buy (${formatNumber(totalCost)} gp)`;
-        });
-        
-        controlsDiv.appendChild(quantityInput);
-        controlsDiv.appendChild(buyBtn);
-        
-        itemDiv.appendChild(icon);
-        itemDiv.appendChild(nameDiv);
-        itemDiv.appendChild(priceDiv);
-        itemDiv.appendChild(controlsDiv);
-        
-        return itemDiv;
-    }
-
-    // Buy an item from the shop
-    buyItem(itemId, quantity) {
-        // Find the shop item
-        const shopItem = this.shopItems.find(item => item.itemId === itemId);
-        if (!shopItem) {
-            console.error(`Item ${itemId} not found in shop`);
+    // Buy an item
+    buyItem(category, quantity) {
+        const stock = this.currentStock[category];
+        if (!stock) {
+            console.error(`No stock in category: ${category}`);
             return false;
         }
         
-        // Calculate total cost
-        const totalCost = shopItem.price * quantity;
+        const totalCost = stock.currentPrice * quantity;
         
-        // Check if player has enough coins
-        const playerCoins = window.inventory ? inventory.getItemCount('coins') : 0;
-        if (playerCoins < totalCost) {
-            console.log(`Not enough coins! Need ${totalCost}, have ${playerCoins}`);
+        // Check if player has enough gold in bank
+        const bankGold = window.bank ? bank.getItemCount('coins') : 0;
+        if (bankGold < totalCost) {
+            console.log(`Not enough gold in bank! Need ${totalCost}, have ${bankGold}`);
             return false;
         }
         
-        // Check if inventory has space (coins are stackable, items might not be)
-        const itemData = loadingManager.getData('items')[itemId];
+        // Check inventory space for non-stackable items
+        const itemData = loadingManager.getData('items')[stock.itemId];
         if (!itemData) {
-            console.error(`Item data not found for ${itemId}`);
+            console.error(`Item data not found for ${stock.itemId}`);
             return false;
         }
         
-        // Calculate how many slots needed
+        // Calculate slots needed
         let slotsNeeded = 0;
         if (!itemData.stackable) {
             slotsNeeded = quantity;
         } else {
             // Check if we already have a stack
-            const currentCount = inventory.getItemCount(itemId);
+            const currentCount = inventory.getItemCount(stock.itemId);
             if (currentCount === 0) {
                 slotsNeeded = 1; // Need one new slot for the stack
             }
@@ -209,43 +138,53 @@ class ShopSystem {
             return false;
         }
         
-        // Perform the transaction
-        inventory.removeItem('coins', totalCost);
-        const added = inventory.addItem(itemId, quantity);
+        // Perform the transaction - withdraw gold from bank
+        const withdrawn = bank.withdraw('coins', totalCost);
+        if (withdrawn !== totalCost) {
+            console.error('Failed to withdraw gold from bank!');
+            return false;
+        }
+        
+        // Add items to inventory
+        const added = inventory.addItem(stock.itemId, quantity);
         
         if (added < quantity) {
             // Shouldn't happen due to our checks, but handle it
             console.error(`Only added ${added} of ${quantity} items`);
             // Refund the difference
-            const refund = (quantity - added) * shopItem.price;
-            inventory.addItem('coins', refund);
+            const refund = (quantity - added) * stock.currentPrice;
+            bank.deposit('coins', refund);
         }
         
-        console.log(`Bought ${added} ${shopItem.name} for ${totalCost} gp`);
+        console.log(`Bought ${added} ${itemData.name} for ${totalCost} gold`);
         
         // Update displays
-        this.updateDisplay();
         if (window.ui) {
             window.ui.updateInventory();
+            window.ui.updateShop();
         }
         
         return true;
     }
 
-    // Get the price of an item
-    getPrice(itemId) {
-        const shopItem = this.shopItems.find(item => item.itemId === itemId);
-        return shopItem ? shopItem.price : null;
+    // Get current stock for save/load
+    getState() {
+        return {
+            currentStock: this.currentStock,
+            previousStock: this.previousStock
+        };
     }
 
-    // Check if shop sells an item
-    sellsItem(itemId) {
-        return this.shopItems.some(item => item.itemId === itemId);
+    // Load saved stock state
+    loadState(state) {
+        if (state.currentStock) {
+            this.currentStock = state.currentStock;
+        }
+        if (state.previousStock) {
+            this.previousStock = state.previousStock;
+        }
     }
 }
 
 // Make ShopSystem available globally
 window.ShopSystem = ShopSystem;
-
-// Create global instance
-window.shop = new ShopSystem();
