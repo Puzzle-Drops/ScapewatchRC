@@ -769,3 +769,6 @@ class SmithingSkill extends BaseSkill {
         this.clearProcessingState();
     }
 }
+
+// Make SmithingSkill available globally
+window.SmithingSkill = SmithingSkill;
