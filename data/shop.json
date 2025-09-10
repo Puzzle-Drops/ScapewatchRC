@@ -244,7 +244,7 @@
     },
     {
       "itemId": "amethyst",
-      "basePrice": 12000
+      "basePrice": 16000
     },
     {
       "itemId": "bronze_bar",
@@ -645,6 +645,14 @@
     {
       "itemId": "chinchompa",
       "basePrice": 626
+    },
+    {
+      "itemId": "amethyst_bar",
+      "basePrice": 25200
+    },
+    {
+      "itemId": "amethyst_arrowtips",
+      "basePrice": 528
     }
   ],
   "runes": [
