@@ -27,6 +27,7 @@ class SmithingSkill extends BaseSkill {
             { itemId: 'mithril_bar',    name: 'Mithril bars',    minCount: 20, maxCount: 40, level: 50 },
             { itemId: 'adamantite_bar', name: 'Adamantite bars', minCount: 20, maxCount: 40, level: 70 },
             { itemId: 'runite_bar',     name: 'Runite bars',     minCount: 20, maxCount: 40, level: 85 },
+            { itemId: 'amethyst_bar',   name: 'Amethyst bars',   minCount: 20, maxCount: 40, level: 92 },
             
             // Smithing (arrowtips) tasks - larger counts since we get 15 per bar
             { itemId: 'bronze_arrowtips',   name: 'Bronze arrowtips',   minCount: 150, maxCount: 300, level: 5  },
@@ -34,7 +35,8 @@ class SmithingSkill extends BaseSkill {
             { itemId: 'steel_arrowtips',    name: 'Steel arrowtips',    minCount: 150, maxCount: 300, level: 35 },
             { itemId: 'mithril_arrowtips',  name: 'Mithril arrowtips',  minCount: 150, maxCount: 300, level: 55 },
             { itemId: 'adamant_arrowtips',  name: 'Adamant arrowtips',  minCount: 150, maxCount: 300, level: 75 },
-            { itemId: 'rune_arrowtips',     name: 'Rune arrowtips',     minCount: 150, maxCount: 300, level: 90 }
+            { itemId: 'rune_arrowtips',     name: 'Rune arrowtips',     minCount: 150, maxCount: 300, level: 90 },
+            { itemId: 'amethyst_arrowtips', name: 'Amethyst arrowtips', minCount: 150, maxCount: 300, level: 96 }
         ];
         
         // Smelting recipes
@@ -102,6 +104,14 @@ class SmithingSkill extends BaseSkill {
                 xp: 50,
                 duration: 2400,
                 successRate: 1.0
+            },
+            'amethyst_bar': {
+                inputs: [{ itemId: 'amethyst', quantity: 1 }],
+                output: { itemId: 'amethyst_bar', quantity: 1 },
+                level: 92,
+                xp: 150,
+                duration: 2400,
+                successRate: 1.0
             }
         };
         
@@ -152,6 +162,14 @@ class SmithingSkill extends BaseSkill {
                 output: { itemId: 'rune_arrowtips', quantity: 15 },
                 level: 90,
                 xp: 75,
+                duration: 2400,
+                successRate: 1.0
+            },
+            'amethyst_arrowtips': {
+                inputs: [{ itemId: 'amethyst_bar', quantity: 1 }],
+                output: { itemId: 'amethyst_arrowtips', quantity: 15 },
+                level: 96,
+                xp: 100,
                 duration: 2400,
                 successRate: 1.0
             }
