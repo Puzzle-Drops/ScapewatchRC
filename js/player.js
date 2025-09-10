@@ -757,3 +757,6 @@ class Player {
         return required;
     }
 }
+
+// Make Player available globally
+window.Player = Player;
