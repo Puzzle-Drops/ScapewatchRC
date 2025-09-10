@@ -759,12 +759,25 @@ body {
     letter-spacing: 1px;
 }
 
-.shop-item-display {
+.shop-item-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.shop-column-left {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
+    flex: 0 0 120px;
+}
+
+.shop-column-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
 }
 
 .shop-item-icon {
@@ -790,6 +803,29 @@ body {
     font-weight: bold;
 }
 
+.shop-price-range {
+    font-size: 14px;
+    color: #888;
+    font-style: italic;
+    text-align: center;
+}
+
+.shop-quantity-input {
+    width: 100px;
+    padding: 6px;
+    background: #333;
+    border: 1px solid #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.shop-quantity-input:focus {
+    outline: none;
+    border-color: #f39c12;
+}
+
 .shop-item-name {
     font-size: 18px;
     color: #fff;
@@ -804,35 +840,6 @@ body {
 .shop-item-price .price-amount {
     color: #FFD700;
     font-weight: bold;
-}
-
-.shop-price-range {
-    font-size: 14px;
-    color: #888;
-    font-style: italic;
-}
-
-.shop-buy-controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.shop-quantity-input {
-    width: 120px;
-    padding: 6px;
-    background: #333;
-    border: 1px solid #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-.shop-quantity-input:focus {
-    outline: none;
-    border-color: #f39c12;
 }
 
 .shop-total-cost {
@@ -851,6 +858,7 @@ body {
     font-size: 16px;
     font-weight: bold;
     transition: all 0.3s;
+    align-self: flex-start;
 }
 
 .shop-buy-btn:hover:not(:disabled) {
