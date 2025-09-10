@@ -510,3 +510,6 @@ class BaseSkill {
         return rewards;
     }
 }
+
+// Make BaseSkill available globally for other skill modules
+window.BaseSkill = BaseSkill;
