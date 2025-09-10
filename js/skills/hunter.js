@@ -390,3 +390,6 @@ class HunterSkill extends BaseSkill {
         return tasks;
     }
 }
+
+// Make HunterSkill available globally
+window.HunterSkill = HunterSkill;
