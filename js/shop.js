@@ -3,17 +3,19 @@ class ShopSystem {
         this.isOpen = false;
         this.currentStock = {
             supplies: null,
-            resources: null,
+            resources1: null,
+            resources2: null,
             runes: null
         };
         this.previousStock = {
             supplies: null,
-            resources: null,
+            resources1: null,
+            resources2: null,
             runes: null
         };
         this.shopData = null;
     }
- 
+
     initialize() {
         // Load shop data
         this.shopData = loadingManager.getData('shop');
@@ -30,9 +32,14 @@ class ShopSystem {
 
     // Rotate stock for all categories (called on task completion)
     rotateStock() {
-        for (const category of ['supplies', 'resources', 'runes']) {
-            this.rotateCategory(category);
-        }
+        // Rotate supplies
+        this.rotateCategory('supplies', 'supplies');
+        
+        // Rotate resources - ensure both are different from each other and previous
+        this.rotateResources();
+        
+        // Rotate runes
+        this.rotateCategory('runes', 'runes');
         
         // Update display if shop is open
         if (this.isOpen && window.ui) {
@@ -40,15 +47,72 @@ class ShopSystem {
         }
     }
 
+    // Special rotation for resources to ensure both slots are unique
+    rotateResources() {
+        const items = this.shopData['resources'];
+        if (!items || items.length < 2) {
+            console.error('Not enough resource items for shop!');
+            return;
+        }
+        
+        // Get list of items to exclude (previous resources1 and resources2)
+        const excludeItems = [];
+        if (this.currentStock.resources1) {
+            excludeItems.push(this.currentStock.resources1.itemId);
+        }
+        if (this.currentStock.resources2) {
+            excludeItems.push(this.currentStock.resources2.itemId);
+        }
+        
+        // Filter available items
+        let availableItems = items.filter(item => 
+            !excludeItems.includes(item.itemId)
+        );
+        
+        // If not enough items available, just exclude duplicates within current rotation
+        if (availableItems.length < 2) {
+            availableItems = items;
+        }
+        
+        // Pick first resource
+        const firstIndex = Math.floor(Math.random() * availableItems.length);
+        const firstItem = availableItems[firstIndex];
+        
+        // Store previous and set new resources1
+        this.previousStock.resources1 = this.currentStock.resources1;
+        this.currentStock.resources1 = {
+            itemId: firstItem.itemId,
+            basePrice: firstItem.basePrice,
+            currentPrice: this.rollPrice(firstItem.basePrice)
+        };
+        
+        // Remove first item from available for second selection
+        availableItems = availableItems.filter(item => item.itemId !== firstItem.itemId);
+        
+        // Pick second resource
+        if (availableItems.length > 0) {
+            const secondIndex = Math.floor(Math.random() * availableItems.length);
+            const secondItem = availableItems[secondIndex];
+            
+            // Store previous and set new resources2
+            this.previousStock.resources2 = this.currentStock.resources2;
+            this.currentStock.resources2 = {
+                itemId: secondItem.itemId,
+                basePrice: secondItem.basePrice,
+                currentPrice: this.rollPrice(secondItem.basePrice)
+            };
+        }
+    }
+
     // Rotate a single category, ensuring no repeat
-    rotateCategory(category) {
+    rotateCategory(category, stockKey) {
         const items = this.shopData[category];
         if (!items || items.length === 0) return;
         
         // If only one item in category, can't rotate
         if (items.length === 1) {
             const item = items[0];
-            this.currentStock[category] = {
+            this.currentStock[stockKey] = {
                 itemId: item.itemId,
                 basePrice: item.basePrice,
                 currentPrice: this.rollPrice(item.basePrice)
@@ -58,9 +122,9 @@ class ShopSystem {
         
         // Get available items (exclude previous if it exists)
         let availableItems = items;
-        if (this.currentStock[category]) {
+        if (this.currentStock[stockKey]) {
             availableItems = items.filter(item => 
-                item.itemId !== this.currentStock[category].itemId
+                item.itemId !== this.currentStock[stockKey].itemId
             );
         }
         
@@ -69,8 +133,8 @@ class ShopSystem {
         const selectedItem = availableItems[randomIndex];
         
         // Store previous and set new
-        this.previousStock[category] = this.currentStock[category];
-        this.currentStock[category] = {
+        this.previousStock[stockKey] = this.currentStock[stockKey];
+        this.currentStock[stockKey] = {
             itemId: selectedItem.itemId,
             basePrice: selectedItem.basePrice,
             currentPrice: this.rollPrice(selectedItem.basePrice)
@@ -95,50 +159,50 @@ class ShopSystem {
         this.isOpen = false;
     }
 
-    // Buy an item
-buyItem(category, quantity) {
-    const stock = this.currentStock[category];
-    if (!stock) {
-        console.error(`No stock in category: ${category}`);
-        return false;
+    // Buy an item - now takes stockKey instead of category
+    buyItem(stockKey, quantity) {
+        const stock = this.currentStock[stockKey];
+        if (!stock) {
+            console.error(`No stock in slot: ${stockKey}`);
+            return false;
+        }
+        
+        const totalCost = stock.currentPrice * quantity;
+        
+        // Check if player has enough gold in bank
+        const bankGold = window.bank ? bank.getItemCount('coins') : 0;
+        if (bankGold < totalCost) {
+            console.log(`Not enough gold in bank! Need ${totalCost}, have ${bankGold}`);
+            return false;
+        }
+        
+        // Get item data
+        const itemData = loadingManager.getData('items')[stock.itemId];
+        if (!itemData) {
+            console.error(`Item data not found for ${stock.itemId}`);
+            return false;
+        }
+        
+        // Perform the transaction - withdraw gold from bank
+        const withdrawn = bank.withdraw('coins', totalCost);
+        if (withdrawn !== totalCost) {
+            console.error('Failed to withdraw gold from bank!');
+            return false;
+        }
+        
+        // Add items directly to bank
+        bank.deposit(stock.itemId, quantity);
+        
+        console.log(`Bought ${quantity} ${itemData.name} for ${totalCost} gold (sent to bank)`);
+        
+        // Update displays
+        if (window.ui) {
+            window.ui.updateBank();
+            window.ui.updateShop();
+        }
+        
+        return true;
     }
-    
-    const totalCost = stock.currentPrice * quantity;
-    
-    // Check if player has enough gold in bank
-    const bankGold = window.bank ? bank.getItemCount('coins') : 0;
-    if (bankGold < totalCost) {
-        console.log(`Not enough gold in bank! Need ${totalCost}, have ${bankGold}`);
-        return false;
-    }
-    
-    // Get item data
-    const itemData = loadingManager.getData('items')[stock.itemId];
-    if (!itemData) {
-        console.error(`Item data not found for ${stock.itemId}`);
-        return false;
-    }
-    
-    // Perform the transaction - withdraw gold from bank
-    const withdrawn = bank.withdraw('coins', totalCost);
-    if (withdrawn !== totalCost) {
-        console.error('Failed to withdraw gold from bank!');
-        return false;
-    }
-    
-    // Add items directly to bank
-    bank.deposit(stock.itemId, quantity);
-    
-    console.log(`Bought ${quantity} ${itemData.name} for ${totalCost} gold (sent to bank)`);
-    
-    // Update displays
-    if (window.ui) {
-        window.ui.updateBank();
-        window.ui.updateShop();
-    }
-    
-    return true;
-}
 
     // Get current stock for save/load
     getState() {
