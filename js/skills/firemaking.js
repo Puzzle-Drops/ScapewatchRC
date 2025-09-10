@@ -622,3 +622,6 @@ class FiremakingSkill extends BaseSkill {
         this.clearBurningState();
     }
 }
+
+// Make FiremakingSkill available globally
+window.FiremakingSkill = FiremakingSkill;
