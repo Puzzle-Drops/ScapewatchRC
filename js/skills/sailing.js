@@ -328,3 +328,6 @@ class SailingSkill extends BaseSkill {
         return true;
     }
 }
+
+// Make SailingSkill available globally
+window.SailingSkill = SailingSkill;
