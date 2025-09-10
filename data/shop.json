@@ -1,0 +1,24 @@
+{
+  "supplies": [
+    { "itemId": "feather", "basePrice": 2 },
+    { "itemId": "fishing_bait", "basePrice": 3 },
+    { "itemId": "ashes", "basePrice": 5 },
+    { "itemId": "blown_glass", "basePrice": 25 },
+    { "itemId": "vial_of_water", "basePrice": 10 },
+    { "itemId": "raw_meat", "basePrice": 8 }
+  ],
+  "resources": [
+    { "itemId": "raw_shrimps", "basePrice": 15 },
+    { "itemId": "raw_sardine", "basePrice": 20 },
+    { "itemId": "logs", "basePrice": 30 },
+    { "itemId": "oak_logs", "basePrice": 45 },
+    { "itemId": "willow_logs", "basePrice": 60 },
+    { "itemId": "copper_ore", "basePrice": 25 }
+  ],
+  "runes": [
+    { "itemId": "air_rune", "basePrice": 10 },
+    { "itemId": "water_rune", "basePrice": 10 },
+    { "itemId": "earth_rune", "basePrice": 10 },
+    { "itemId": "fire_rune", "basePrice": 10 }
+  ]
+}
