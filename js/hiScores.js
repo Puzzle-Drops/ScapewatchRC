@@ -652,7 +652,7 @@ async fetchLeaderboardData(category, page) {
         }
     }
     
-    // Get player rank for a category
+// Get player rank for a category
 async getPlayerRank(uid, category) {
     try {
         const playerDoc = await firebaseManager.db.collection('hiscores').doc(uid).get();
@@ -662,31 +662,23 @@ async getPlayerRank(uid, category) {
         let query;
         
         if (category === 'overall') {
-    const playerLevel = playerData.totalLevel;
-    const playerXp = playerData.totalXp;
-    const playerFirstReached = playerData.totalLevelFirstReached || firebaseManager.SENTINEL_DATE;
-    
-    // Count players with better stats
-    query = await firebaseManager.db.collection('hiscores')
-        .where('totalLevel', '>', playerLevel)
-        .get();
-    
-    // Also count players with same level but more XP
-    const sameLevelQuery = await firebaseManager.db.collection('hiscores')
-        .where('totalLevel', '==', playerLevel)
-        .where('totalXp', '>', playerXp)
-        .get();
-    
-    // Count players with same level, same XP, but reached it earlier
-    const sameXpQuery = await firebaseManager.db.collection('hiscores')
-        .where('totalLevel', '==', playerLevel)
-        .where('totalXp', '==', playerXp)
-        .where('totalLevelFirstReached', '<', playerFirstReached)
-        .get();
-    
-    return query.size + sameLevelQuery.size + sameXpQuery.size + 1;
-} else if (category === 'tasks') {
+            const playerLevel = playerData.totalLevel;
+            const playerXp = playerData.totalXp;
+            const playerFirstReached = playerData.totalLevelFirstReached || firebaseManager.SENTINEL_DATE;
+            
+            // Use ORDER BY with endBefore to count players ahead
+            query = firebaseManager.db.collection('hiscores')
+                .orderBy('totalLevel', 'desc')
+                .orderBy('totalXp', 'desc')
+                .orderBy('totalLevelFirstReached', 'asc')
+                .endBefore(playerLevel, playerXp, playerFirstReached);
+            
+            const snapshot = await query.count().get();
+            return snapshot.data().count + 1;
+            
+        } else if (category === 'tasks') {
             const playerTasks = playerData.tasksCompleted || 0;
+            // Simple categories can keep using WHERE
             query = await firebaseManager.db.collection('hiscores')
                 .where('tasksCompleted', '>', playerTasks)
                 .get();
@@ -711,8 +703,8 @@ async getPlayerRank(uid, category) {
         return 'Error';
     }
 }
-    
-    // Get player rank for a specific skill
+
+// Get player rank for a specific skill
 async getPlayerRankForSkill(uid, skillId) {
     try {
         const playerDoc = await firebaseManager.db.collection('hiscores').doc(uid).get();
@@ -723,25 +715,16 @@ async getPlayerRankForSkill(uid, skillId) {
         const playerXp = playerData[`xp_${skillId}`] || 0;
         const playerFirstReached = playerData[`levelFirst_${skillId}`] || firebaseManager.SENTINEL_DATE;
         
-        // Count players with higher level
-        const higherLevelQuery = await firebaseManager.db.collection('hiscores')
-            .where(`level_${skillId}`, '>', playerLevel)
-            .get();
+        // Use ORDER BY with endBefore to count players ahead
+        const query = firebaseManager.db.collection('hiscores')
+            .orderBy(`level_${skillId}`, 'desc')
+            .orderBy(`xp_${skillId}`, 'desc')
+            .orderBy(`levelFirst_${skillId}`, 'asc')
+            .endBefore(playerLevel, playerXp, playerFirstReached);
         
-        // Count players with same level but more XP
-        const sameLevelQuery = await firebaseManager.db.collection('hiscores')
-            .where(`level_${skillId}`, '==', playerLevel)
-            .where(`xp_${skillId}`, '>', playerXp)
-            .get();
+        const snapshot = await query.count().get();
+        return snapshot.data().count + 1;
         
-        // Count players with same level, same XP, but reached it earlier
-        const sameXpQuery = await firebaseManager.db.collection('hiscores')
-            .where(`level_${skillId}`, '==', playerLevel)
-            .where(`xp_${skillId}`, '==', playerXp)
-            .where(`levelFirst_${skillId}`, '<', playerFirstReached)
-            .get();
-        
-        return higherLevelQuery.size + sameLevelQuery.size + sameXpQuery.size + 1;
     } catch (error) {
         console.error('Failed to get player skill rank:', error);
         return 'Error';
