@@ -298,32 +298,71 @@ class FirebaseManager {
     }
     
     // Handle being logged out by another session
-    handleForcedLogout() {
-        // Stop monitoring
-        if (this.sessionListener) {
-            this.sessionListener();
-            this.sessionListener = null;
+handleForcedLogout() {
+    // Save game state before forced logout
+    if (!this.isOfflineMode) {
+        // Ensure task queue is complete before saving
+        if (window.taskManager) {
+            taskManager.ensureFullTaskQueue();
+            
+            // Generate emergency tasks if needed
+            if (!taskManager.currentTask) {
+                const emergencyTasks = taskManager.generateMultipleTasks(1);
+                if (emergencyTasks.length > 0) {
+                    taskManager.currentTask = emergencyTasks[0];
+                    console.log('Generated emergency current task before forced logout');
+                }
+            }
+            
+            if (!taskManager.nextTask) {
+                const emergencyTasks = taskManager.generateMultipleTasks(1);
+                if (emergencyTasks.length > 0) {
+                    taskManager.nextTask = emergencyTasks[0];
+                    console.log('Generated emergency next task before forced logout');
+                }
+            }
         }
         
-        // Stop activity timer
-        if (this.activityTimer) {
-            clearInterval(this.activityTimer);
-            this.activityTimer = null;
-        }
+        // Try to save current progress
+        this.saveGame().then(() => {
+            console.log('Game saved before forced logout');
+        }).catch(error => {
+            console.error('Failed to save before forced logout:', error);
+        });
         
-        // Stop auto-save
-        this.stopAutoSave();
-        
-        // Clear session
-        this.currentUser = null;
-        this.username = null;
-        this.sessionId = null;
-        localStorage.removeItem('scapewatch_session_id');
-        
-        // Show alert and redirect to login
-        alert('You have been logged in from another location. You will be logged out from this session.');
-        location.reload();
+        // Try to update hi-scores
+        this.updateHiscores(true).then(() => {
+            console.log('Hi-scores updated before forced logout');
+        }).catch(error => {
+            console.error('Failed to update hi-scores before forced logout:', error);
+        });
     }
+    
+    // Stop monitoring
+    if (this.sessionListener) {
+        this.sessionListener();
+        this.sessionListener = null;
+    }
+    
+    // Stop activity timer
+    if (this.activityTimer) {
+        clearInterval(this.activityTimer);
+        this.activityTimer = null;
+    }
+    
+    // Stop auto-save
+    this.stopAutoSave();
+    
+    // Clear session
+    this.currentUser = null;
+    this.username = null;
+    this.sessionId = null;
+    localStorage.removeItem('scapewatch_session_id');
+    
+    // Show alert and redirect to login
+    alert('You have been logged in from another location. You will be logged out from this session.');
+    location.reload();
+}
 
     // Force logout all sessions
     async forceLogoutAllSessions() {
@@ -343,47 +382,71 @@ class FirebaseManager {
     }
 
     // Logout
-    async logout() {
-        // Save before logout
-        if (!this.isOfflineMode) {
-            await this.saveGame();
-        }
-        
-        // Clear session in database
-        if (this.currentUser) {
-            try {
-                await this.db.collection('users').doc(this.currentUser.uid).update({
-                    lastLogoutTime: firebase.firestore.FieldValue.serverTimestamp(),
-                    currentSessionId: null
-                });
-            } catch (error) {
-                console.error('Failed to clear session:', error);
+async logout() {
+    // Ensure tasks are fully populated, then save and update hi-scores
+    if (!this.isOfflineMode) {
+        // Ensure task queue is complete before saving
+        if (window.taskManager) {
+            taskManager.ensureFullTaskQueue();
+            
+            // Generate emergency tasks if needed
+            if (!taskManager.currentTask) {
+                const emergencyTasks = taskManager.generateMultipleTasks(1);
+                if (emergencyTasks.length > 0) {
+                    taskManager.currentTask = emergencyTasks[0];
+                    console.log('Generated emergency current task before logout');
+                }
+            }
+            
+            if (!taskManager.nextTask) {
+                const emergencyTasks = taskManager.generateMultipleTasks(1);
+                if (emergencyTasks.length > 0) {
+                    taskManager.nextTask = emergencyTasks[0];
+                    console.log('Generated emergency next task before logout');
+                }
             }
         }
         
-        // Stop monitoring
-        if (this.sessionListener) {
-            this.sessionListener();
-            this.sessionListener = null;
-        }
-        
-        // Stop activity timer
-        if (this.activityTimer) {
-            clearInterval(this.activityTimer);
-            this.activityTimer = null;
-        }
-        
-        // Clear local session
-        localStorage.removeItem('scapewatch_session_id');
-        
-        await this.auth.signOut();
-        this.currentUser = null;
-        this.username = null;
-        this.sessionId = null;
-        
-        // Redirect to login
-        location.reload();
+        // Now save with complete task queue
+        await this.saveGame();
+        await this.updateHiscores(true); // Force update hi-scores on logout
     }
+    
+    // Clear session in database
+    if (this.currentUser) {
+        try {
+            await this.db.collection('users').doc(this.currentUser.uid).update({
+                lastLogoutTime: firebase.firestore.FieldValue.serverTimestamp(),
+                currentSessionId: null
+            });
+        } catch (error) {
+            console.error('Failed to clear session:', error);
+        }
+    }
+    
+    // Stop monitoring
+    if (this.sessionListener) {
+        this.sessionListener();
+        this.sessionListener = null;
+    }
+    
+    // Stop activity timer
+    if (this.activityTimer) {
+        clearInterval(this.activityTimer);
+        this.activityTimer = null;
+    }
+    
+    // Clear local session
+    localStorage.removeItem('scapewatch_session_id');
+    
+    await this.auth.signOut();
+    this.currentUser = null;
+    this.username = null;
+    this.sessionId = null;
+    
+    // Redirect to login
+    location.reload();
+}
 
     // Save game state
 async saveGame() {
