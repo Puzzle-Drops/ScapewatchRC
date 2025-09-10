@@ -64,3 +64,7 @@ class WoodcuttingSkill extends BaseSkill {
         return rewards.length > 0 ? (activityData.xpPerAction || 0) : 0;
     }
 }
+
+// Make WoodcuttingSkill available globally
+window.WoodcuttingSkill = WoodcuttingSkill;
+
