@@ -27,6 +27,21 @@ import {
     getCountFromServer
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
+// Export Firestore functions for use in other modules
+window.firestoreHelpers = {
+    query,
+    collection,
+    where,
+    orderBy,
+    limit,
+    getDocs,
+    getDoc,
+    doc,
+    startAfter,
+    endBefore,
+    getCountFromServer
+};
+
 class FirebaseManager {
     constructor() {
         this.app = null;
