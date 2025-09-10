@@ -708,18 +708,55 @@ handleBanking(task) {
                 }
             }
         } else {
-            // Non-plank making recipes (glass blowing, gem cutting)
+            // Non-plank making recipes (glass blowing, gem cutting, ring making)
             const itemsData = loadingManager.getData('items');
+            const totalSlots = 28;
+            
+            // Check if this is a recipe with multiple non-stackable inputs (like rings)
+            let hasMultipleNonStackable = false;
+            let nonStackableCount = 0;
+            
+            for (const input of recipe.inputs) {
+                const itemData = itemsData[input.itemId];
+                if (!itemData.stackable) {
+                    nonStackableCount++;
+                    if (nonStackableCount > 1) {
+                        hasMultipleNonStackable = true;
+                        break;
+                    }
+                }
+            }
+            
             let toMake = maxCraftable;
             
-            // For gem cutting and glass blowing, materials might not be stackable
-            if (recipe.inputs.length === 1) {
-                const input = recipe.inputs[0];
-                const itemData = itemsData[input.itemId];
+            if (hasMultipleNonStackable) {
+                // For recipes with multiple non-stackable inputs (like ring making)
+                // Calculate total ratio units (e.g., for rings: 1 bar + 1 gem = 2 units)
+                let totalRatioUnits = 0;
+                for (const input of recipe.inputs) {
+                    totalRatioUnits += input.quantity;
+                }
                 
-                if (!itemData.stackable) {
-                    // Non-stackable single input - limit to 28 inventory slots
-                    toMake = Math.min(toMake, Math.floor(28 / input.quantity));
+                // Calculate how many complete sets we can fit in inventory
+                const setsPerInventory = Math.floor(totalSlots / totalRatioUnits);
+                
+                // Limit to what we can actually make and what we need
+                toMake = Math.min(maxCraftable, setsPerInventory);
+                
+                if (toMake === 0) {
+                    console.log('Recipe requires too many items per craft for inventory');
+                    return false;
+                }
+            } else {
+                // For single non-stackable input recipes
+                if (recipe.inputs.length === 1) {
+                    const input = recipe.inputs[0];
+                    const itemData = itemsData[input.itemId];
+                    
+                    if (!itemData.stackable) {
+                        // Non-stackable single input - limit to 28 inventory slots
+                        toMake = Math.min(toMake, Math.floor(28 / input.quantity));
+                    }
                 }
             }
             
@@ -728,7 +765,7 @@ handleBanking(task) {
                 return false;
             }
             
-            // Withdraw materials for non-plank recipes
+            // Withdraw materials
             for (const input of recipe.inputs) {
                 const needed = input.quantity * toMake;
                 const withdrawn = bank.withdrawUpTo(input.itemId, needed);
