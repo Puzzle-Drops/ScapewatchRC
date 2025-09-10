@@ -55,6 +55,7 @@ class FirebaseManager {
         this.saveDebounceTimer = null;
         this.sessionId = null;
         this.sessionListener = null;
+        this.SAVE_INTERVAL = 10 * 60 * 1000; // 10 minutes in milliseconds
     }
 
     SENTINEL_DATE = new Date('2099-12-31T23:59:59Z');
@@ -368,18 +369,11 @@ class FirebaseManager {
                 }
             }
             
-            // Try to save current progress
-            this.saveGame().then(() => {
+            // Force save (bypass throttle)
+            this.forceSave().then(() => {
                 console.log('Game saved before forced logout');
             }).catch(error => {
                 console.error('Failed to save before forced logout:', error);
-            });
-            
-            // Try to update hi-scores
-            this.updateHiscores(true).then(() => {
-                console.log('Hi-scores updated before forced logout');
-            }).catch(error => {
-                console.error('Failed to update hi-scores before forced logout:', error);
             });
         }
         
@@ -452,9 +446,8 @@ class FirebaseManager {
                 }
             }
             
-            // Now save with complete task queue
-            await this.saveGame();
-            await this.updateHiscores(true); // Force update hi-scores on logout
+            // Force save on logout (bypass throttle)
+            await this.forceSave();
         }
         
         // Clear session in database
@@ -497,9 +490,12 @@ class FirebaseManager {
     async saveGame() {
         if (this.isOfflineMode || !this.currentUser) return;
 
-        // Prevent saving too frequently
+        // Prevent saving too frequently (10 minutes throttle for normal saves)
         const now = Date.now();
-        if (now - this.lastSaveTime < 5000) return; // Min 5 seconds between saves
+        if (now - this.lastSaveTime < this.SAVE_INTERVAL) {
+            console.log(`Save throttled. Next save in ${Math.ceil((this.SAVE_INTERVAL - (now - this.lastSaveTime)) / 1000)} seconds`);
+            return;
+        }
         
         try {
             const saveData = this.collectSaveData();
@@ -522,7 +518,7 @@ class FirebaseManager {
             this.showSaveIndicator();
             console.log('Game saved successfully');
             
-            // Update hi-scores
+            // Update hi-scores after successful save
             await this.updateHiscores();
         } catch (error) {
             console.error('Failed to save game:', error);
@@ -558,14 +554,6 @@ class FirebaseManager {
         }
     }
 
-    // [Keep all the other methods exactly as they are in the original file...]
-    // validateSaveData, validateTask, collectSaveData, applySaveData, showSaveIndicator,
-    // startAutoSave, stopAutoSave, saveNow, forceSave, updateHiscores, calculateTotalXp
-    // (These remain unchanged, just include them all here)
-
-    // Copy all remaining methods from the original file here...
-    // I'm not repeating them to save space, but they all stay the same
-    
     validateSaveData(saveData) {
         if (!saveData) return false;
         
@@ -904,14 +892,14 @@ class FirebaseManager {
     }
 
     startAutoSave() {
-        // Save every 30 seconds
+        // Save every 10 minutes
         this.saveTimer = setInterval(() => {
             this.saveGame();
-        }, 30000);
+        }, this.SAVE_INTERVAL);
 
-        // Also save on important events
+        // Also save on important events (force save, bypasses throttle)
         window.addEventListener('beforeunload', () => {
-            this.saveGame();
+            this.forceSave();
         });
     }
 
@@ -952,8 +940,10 @@ class FirebaseManager {
                 ...saveData
             });
 
-            this.lastSaveTime = Date.now();
-            console.log('Force save completed (task completion)');
+            console.log('Force save completed (logout/task completion)');
+            
+            // Update hi-scores after force save too
+            await this.updateHiscores(true);
         } catch (error) {
             console.error('Failed to force save:', error);
         }
@@ -961,12 +951,6 @@ class FirebaseManager {
 
     async updateHiscores(forceUpdate = false) {
         if (this.isOfflineMode || !this.currentUser) return;
-        
-        // Throttle updates unless forced
-        const now = Date.now();
-        if (!forceUpdate && this.lastHiscoresUpdate && (now - this.lastHiscoresUpdate < 5 * 60 * 1000)) {
-            return; // Skip if updated within last 5 minutes
-        }
         
         try {
             const hiscoreData = {
@@ -1012,7 +996,6 @@ class FirebaseManager {
             // Use merge to preserve "firstReached" timestamps
             await setDoc(doc(this.db, 'hiscores', this.currentUser.uid), hiscoreData, { merge: true });
             
-            this.lastHiscoresUpdate = now;
             console.log('Hiscores updated');
         } catch (error) {
             console.error('Failed to update hiscores:', error);
