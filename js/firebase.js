@@ -1,3 +1,32 @@
+// Import Firebase modules from CDN
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { 
+    getAuth, 
+    onAuthStateChanged, 
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    signOut
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { 
+    getFirestore, 
+    doc, 
+    setDoc, 
+    getDoc, 
+    updateDoc, 
+    collection,
+    query,
+    where,
+    orderBy,
+    limit,
+    getDocs,
+    onSnapshot,
+    serverTimestamp,
+    startAfter,
+    endBefore,
+    getCountFromServer
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
 class FirebaseManager {
     constructor() {
         this.app = null;
@@ -29,15 +58,15 @@ class FirebaseManager {
         };
 
         // Initialize Firebase
-        this.app = firebase.initializeApp(firebaseConfig);
-        this.auth = firebase.auth();
-        this.db = firebase.firestore();
+        this.app = initializeApp(firebaseConfig);
+        this.auth = getAuth(this.app);
+        this.db = getFirestore(this.app);
 
         // Restore session ID from localStorage if it exists
         this.sessionId = localStorage.getItem('scapewatch_session_id');
 
         // Set up auth state listener
-        this.auth.onAuthStateChanged(async (user) => {
+        onAuthStateChanged(this.auth, async (user) => {
             if (user) {
                 this.currentUser = user;
                 await this.loadUsername();
@@ -61,8 +90,8 @@ class FirebaseManager {
         if (!this.currentUser || !this.sessionId) return;
         
         try {
-            const userDoc = await this.db.collection('users').doc(this.currentUser.uid).get();
-            if (userDoc.exists) {
+            const userDoc = await getDoc(doc(this.db, 'users', this.currentUser.uid));
+            if (userDoc.exists()) {
                 const data = userDoc.data();
                 
                 // Check if our session is still the current one
@@ -105,9 +134,9 @@ class FirebaseManager {
         }
         
         try {
-            await this.db.collection('users').doc(this.currentUser.uid).update({
-                lastLoginTime: firebase.firestore.FieldValue.serverTimestamp(),
-                lastActiveTime: firebase.firestore.FieldValue.serverTimestamp(),
+            await updateDoc(doc(this.db, 'users', this.currentUser.uid), {
+                lastLoginTime: serverTimestamp(),
+                lastActiveTime: serverTimestamp(),
                 currentSessionId: this.sessionId
             });
         } catch (error) {
@@ -117,16 +146,16 @@ class FirebaseManager {
 
     // Check if username is available
     async isUsernameAvailable(username) {
-        const usernameDoc = await this.db.collection('usernames').doc(username.toLowerCase()).get();
-        return !usernameDoc.exists;
+        const usernameDoc = await getDoc(doc(this.db, 'usernames', username.toLowerCase()));
+        return !usernameDoc.exists();
     }
 
     // Reserve username during signup
     async reserveUsername(username, uid) {
-        await this.db.collection('usernames').doc(username.toLowerCase()).set({
+        await setDoc(doc(this.db, 'usernames', username.toLowerCase()), {
             uid: uid,
             username: username,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: serverTimestamp()
         });
     }
 
@@ -134,24 +163,24 @@ class FirebaseManager {
     async loadUsername() {
         if (!this.currentUser) return;
         
-        const userDoc = await this.db.collection('users').doc(this.currentUser.uid).get();
-        if (userDoc.exists) {
+        const userDoc = await getDoc(doc(this.db, 'users', this.currentUser.uid));
+        if (userDoc.exists()) {
             this.username = userDoc.data().username;
         }
     }
 
     // Get email from username (for password reset)
     async getEmailFromUsername(username) {
-        const usernameDoc = await this.db.collection('usernames').doc(username.toLowerCase()).get();
+        const usernameDoc = await getDoc(doc(this.db, 'usernames', username.toLowerCase()));
         
-        if (!usernameDoc.exists) {
+        if (!usernameDoc.exists()) {
             throw new Error('Username not found');
         }
         
         const uid = usernameDoc.data().uid;
-        const userDoc = await this.db.collection('users').doc(uid).get();
+        const userDoc = await getDoc(doc(this.db, 'users', uid));
         
-        if (!userDoc.exists) {
+        if (!userDoc.exists()) {
             throw new Error('User data not found');
         }
         
@@ -160,7 +189,7 @@ class FirebaseManager {
 
     // Reset password
     async resetPassword(email) {
-        await this.auth.sendPasswordResetEmail(email);
+        await sendPasswordResetEmail(this.auth, email);
     }
 
     // Sign up new user
@@ -177,7 +206,7 @@ class FirebaseManager {
         }
 
         // Create auth account
-        const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
+        const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
         const user = userCredential.user;
 
         // Generate session ID
@@ -186,18 +215,18 @@ class FirebaseManager {
 
         // Reserve username and create user document with organized fields
         await this.reserveUsername(username, user.uid);
-        await this.db.collection('users').doc(user.uid).set({
+        await setDoc(doc(this.db, 'users', user.uid), {
             // Identity info at top
             username: username,
             uid: user.uid,
             email: email,
             
             // Timestamps in logical order
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            lastLoginTime: firebase.firestore.FieldValue.serverTimestamp(),
-            lastActiveTime: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt: serverTimestamp(),
+            lastLoginTime: serverTimestamp(),
+            lastActiveTime: serverTimestamp(),
             lastLogoutTime: null,
-            lastPlayed: firebase.firestore.FieldValue.serverTimestamp(),
+            lastPlayed: serverTimestamp(),
             
             // Session info last
             currentSessionId: this.sessionId
@@ -215,33 +244,33 @@ class FirebaseManager {
     // Login existing user
     async login(username, password) {
         // Get email from username
-        const usernameDoc = await this.db.collection('usernames').doc(username.toLowerCase()).get();
+        const usernameDoc = await getDoc(doc(this.db, 'usernames', username.toLowerCase()));
         
-        if (!usernameDoc.exists) {
+        if (!usernameDoc.exists()) {
             throw new Error('Username not found');
         }
 
         const uid = usernameDoc.data().uid;
-        const userDoc = await this.db.collection('users').doc(uid).get();
+        const userDoc = await getDoc(doc(this.db, 'users', uid));
         
-        if (!userDoc.exists) {
+        if (!userDoc.exists()) {
             throw new Error('User data not found');
         }
 
         const email = userDoc.data().email;
         
         // Sign in with email
-        const userCredential = await this.auth.signInWithEmailAndPassword(email, password);
+        const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
         
         // Generate a unique session ID for this login
         this.sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('scapewatch_session_id', this.sessionId);
         
         // Update user document with new session (maintains field order)
-        await this.db.collection('users').doc(userCredential.user.uid).update({
-            lastLoginTime: firebase.firestore.FieldValue.serverTimestamp(),
-            lastActiveTime: firebase.firestore.FieldValue.serverTimestamp(),
-            lastPlayed: firebase.firestore.FieldValue.serverTimestamp(),
+        await updateDoc(doc(this.db, 'users', userCredential.user.uid), {
+            lastLoginTime: serverTimestamp(),
+            lastActiveTime: serverTimestamp(),
+            lastPlayed: serverTimestamp(),
             currentSessionId: this.sessionId
         });
 
@@ -265,10 +294,10 @@ class FirebaseManager {
         }
         
         // Listen for changes to the user document
-        this.sessionListener = this.db.collection('users')
-            .doc(this.currentUser.uid)
-            .onSnapshot((doc) => {
-                if (doc.exists) {
+        this.sessionListener = onSnapshot(
+            doc(this.db, 'users', this.currentUser.uid),
+            (doc) => {
+                if (doc.exists()) {
                     const data = doc.data();
                     // Check if another session has taken over
                     if (data.currentSessionId && data.currentSessionId !== this.sessionId) {
@@ -276,7 +305,8 @@ class FirebaseManager {
                         this.handleForcedLogout();
                     }
                 }
-            });
+            }
+        );
             
         // Also update last active time periodically (every 2 minutes)
         this.activityTimer = setInterval(() => {
@@ -289,8 +319,8 @@ class FirebaseManager {
         if (!this.currentUser || this.isOfflineMode) return;
         
         try {
-            await this.db.collection('users').doc(this.currentUser.uid).update({
-                lastActiveTime: firebase.firestore.FieldValue.serverTimestamp()
+            await updateDoc(doc(this.db, 'users', this.currentUser.uid), {
+                lastActiveTime: serverTimestamp()
             });
         } catch (error) {
             console.error('Failed to update last active time:', error);
@@ -298,71 +328,71 @@ class FirebaseManager {
     }
     
     // Handle being logged out by another session
-handleForcedLogout() {
-    // Save game state before forced logout
-    if (!this.isOfflineMode) {
-        // Ensure task queue is complete before saving
-        if (window.taskManager) {
-            taskManager.ensureFullTaskQueue();
-            
-            // Generate emergency tasks if needed
-            if (!taskManager.currentTask) {
-                const emergencyTasks = taskManager.generateMultipleTasks(1);
-                if (emergencyTasks.length > 0) {
-                    taskManager.currentTask = emergencyTasks[0];
-                    console.log('Generated emergency current task before forced logout');
+    handleForcedLogout() {
+        // Save game state before forced logout
+        if (!this.isOfflineMode) {
+            // Ensure task queue is complete before saving
+            if (window.taskManager) {
+                taskManager.ensureFullTaskQueue();
+                
+                // Generate emergency tasks if needed
+                if (!taskManager.currentTask) {
+                    const emergencyTasks = taskManager.generateMultipleTasks(1);
+                    if (emergencyTasks.length > 0) {
+                        taskManager.currentTask = emergencyTasks[0];
+                        console.log('Generated emergency current task before forced logout');
+                    }
+                }
+                
+                if (!taskManager.nextTask) {
+                    const emergencyTasks = taskManager.generateMultipleTasks(1);
+                    if (emergencyTasks.length > 0) {
+                        taskManager.nextTask = emergencyTasks[0];
+                        console.log('Generated emergency next task before forced logout');
+                    }
                 }
             }
             
-            if (!taskManager.nextTask) {
-                const emergencyTasks = taskManager.generateMultipleTasks(1);
-                if (emergencyTasks.length > 0) {
-                    taskManager.nextTask = emergencyTasks[0];
-                    console.log('Generated emergency next task before forced logout');
-                }
-            }
+            // Try to save current progress
+            this.saveGame().then(() => {
+                console.log('Game saved before forced logout');
+            }).catch(error => {
+                console.error('Failed to save before forced logout:', error);
+            });
+            
+            // Try to update hi-scores
+            this.updateHiscores(true).then(() => {
+                console.log('Hi-scores updated before forced logout');
+            }).catch(error => {
+                console.error('Failed to update hi-scores before forced logout:', error);
+            });
         }
         
-        // Try to save current progress
-        this.saveGame().then(() => {
-            console.log('Game saved before forced logout');
-        }).catch(error => {
-            console.error('Failed to save before forced logout:', error);
-        });
+        // Stop monitoring
+        if (this.sessionListener) {
+            this.sessionListener();
+            this.sessionListener = null;
+        }
         
-        // Try to update hi-scores
-        this.updateHiscores(true).then(() => {
-            console.log('Hi-scores updated before forced logout');
-        }).catch(error => {
-            console.error('Failed to update hi-scores before forced logout:', error);
-        });
+        // Stop activity timer
+        if (this.activityTimer) {
+            clearInterval(this.activityTimer);
+            this.activityTimer = null;
+        }
+        
+        // Stop auto-save
+        this.stopAutoSave();
+        
+        // Clear session
+        this.currentUser = null;
+        this.username = null;
+        this.sessionId = null;
+        localStorage.removeItem('scapewatch_session_id');
+        
+        // Show alert and redirect to login
+        alert('You have been logged in from another location. You will be logged out from this session.');
+        location.reload();
     }
-    
-    // Stop monitoring
-    if (this.sessionListener) {
-        this.sessionListener();
-        this.sessionListener = null;
-    }
-    
-    // Stop activity timer
-    if (this.activityTimer) {
-        clearInterval(this.activityTimer);
-        this.activityTimer = null;
-    }
-    
-    // Stop auto-save
-    this.stopAutoSave();
-    
-    // Clear session
-    this.currentUser = null;
-    this.username = null;
-    this.sessionId = null;
-    localStorage.removeItem('scapewatch_session_id');
-    
-    // Show alert and redirect to login
-    alert('You have been logged in from another location. You will be logged out from this session.');
-    location.reload();
-}
 
     // Force logout all sessions
     async forceLogoutAllSessions() {
@@ -370,9 +400,9 @@ handleForcedLogout() {
         
         try {
             // Clear the session ID in the database
-            await this.db.collection('users').doc(this.currentUser.uid).update({
+            await updateDoc(doc(this.db, 'users', this.currentUser.uid), {
                 currentSessionId: null,
-                lastLogoutTime: firebase.firestore.FieldValue.serverTimestamp()
+                lastLogoutTime: serverTimestamp()
             });
             
             console.log('All sessions have been logged out');
@@ -382,116 +412,116 @@ handleForcedLogout() {
     }
 
     // Logout
-async logout() {
-    // Ensure tasks are fully populated, then save and update hi-scores
-    if (!this.isOfflineMode) {
-        // Ensure task queue is complete before saving
-        if (window.taskManager) {
-            taskManager.ensureFullTaskQueue();
-            
-            // Generate emergency tasks if needed
-            if (!taskManager.currentTask) {
-                const emergencyTasks = taskManager.generateMultipleTasks(1);
-                if (emergencyTasks.length > 0) {
-                    taskManager.currentTask = emergencyTasks[0];
-                    console.log('Generated emergency current task before logout');
+    async logout() {
+        // Ensure tasks are fully populated, then save and update hi-scores
+        if (!this.isOfflineMode) {
+            // Ensure task queue is complete before saving
+            if (window.taskManager) {
+                taskManager.ensureFullTaskQueue();
+                
+                // Generate emergency tasks if needed
+                if (!taskManager.currentTask) {
+                    const emergencyTasks = taskManager.generateMultipleTasks(1);
+                    if (emergencyTasks.length > 0) {
+                        taskManager.currentTask = emergencyTasks[0];
+                        console.log('Generated emergency current task before logout');
+                    }
+                }
+                
+                if (!taskManager.nextTask) {
+                    const emergencyTasks = taskManager.generateMultipleTasks(1);
+                    if (emergencyTasks.length > 0) {
+                        taskManager.nextTask = emergencyTasks[0];
+                        console.log('Generated emergency next task before logout');
+                    }
                 }
             }
             
-            if (!taskManager.nextTask) {
-                const emergencyTasks = taskManager.generateMultipleTasks(1);
-                if (emergencyTasks.length > 0) {
-                    taskManager.nextTask = emergencyTasks[0];
-                    console.log('Generated emergency next task before logout');
-                }
+            // Now save with complete task queue
+            await this.saveGame();
+            await this.updateHiscores(true); // Force update hi-scores on logout
+        }
+        
+        // Clear session in database
+        if (this.currentUser) {
+            try {
+                await updateDoc(doc(this.db, 'users', this.currentUser.uid), {
+                    lastLogoutTime: serverTimestamp(),
+                    currentSessionId: null
+                });
+            } catch (error) {
+                console.error('Failed to clear session:', error);
             }
         }
         
-        // Now save with complete task queue
-        await this.saveGame();
-        await this.updateHiscores(true); // Force update hi-scores on logout
-    }
-    
-    // Clear session in database
-    if (this.currentUser) {
-        try {
-            await this.db.collection('users').doc(this.currentUser.uid).update({
-                lastLogoutTime: firebase.firestore.FieldValue.serverTimestamp(),
-                currentSessionId: null
-            });
-        } catch (error) {
-            console.error('Failed to clear session:', error);
+        // Stop monitoring
+        if (this.sessionListener) {
+            this.sessionListener();
+            this.sessionListener = null;
         }
+        
+        // Stop activity timer
+        if (this.activityTimer) {
+            clearInterval(this.activityTimer);
+            this.activityTimer = null;
+        }
+        
+        // Clear local session
+        localStorage.removeItem('scapewatch_session_id');
+        
+        await signOut(this.auth);
+        this.currentUser = null;
+        this.username = null;
+        this.sessionId = null;
+        
+        // Redirect to login
+        location.reload();
     }
-    
-    // Stop monitoring
-    if (this.sessionListener) {
-        this.sessionListener();
-        this.sessionListener = null;
-    }
-    
-    // Stop activity timer
-    if (this.activityTimer) {
-        clearInterval(this.activityTimer);
-        this.activityTimer = null;
-    }
-    
-    // Clear local session
-    localStorage.removeItem('scapewatch_session_id');
-    
-    await this.auth.signOut();
-    this.currentUser = null;
-    this.username = null;
-    this.sessionId = null;
-    
-    // Redirect to login
-    location.reload();
-}
 
     // Save game state
-async saveGame() {
-    if (this.isOfflineMode || !this.currentUser) return;
+    async saveGame() {
+        if (this.isOfflineMode || !this.currentUser) return;
 
-    // Prevent saving too frequently
-    const now = Date.now();
-    if (now - this.lastSaveTime < 5000) return; // Min 5 seconds between saves
-    
-    try {
-        const saveData = this.collectSaveData();
+        // Prevent saving too frequently
+        const now = Date.now();
+        if (now - this.lastSaveTime < 5000) return; // Min 5 seconds between saves
         
-        // Save to Firestore with organized field order for readability
-        await this.db.collection('saves').doc(this.currentUser.uid).set({
-            // User info at the very top
-            username: this.username,
-            uid: this.currentUser.uid,
+        try {
+            const saveData = this.collectSaveData();
             
-            // Timestamp info next
-            lastSaved: firebase.firestore.FieldValue.serverTimestamp(),
-            sessionId: this.sessionId,
-            
-            // Then all game data
-            ...saveData
-        });
+            // Save to Firestore with organized field order for readability
+            await setDoc(doc(this.db, 'saves', this.currentUser.uid), {
+                // User info at the very top
+                username: this.username,
+                uid: this.currentUser.uid,
+                
+                // Timestamp info next
+                lastSaved: serverTimestamp(),
+                sessionId: this.sessionId,
+                
+                // Then all game data
+                ...saveData
+            });
 
-        this.lastSaveTime = now;
-        this.showSaveIndicator();
-        console.log('Game saved successfully');
-        
-        // Update hi-scores
-        await this.updateHiscores();
-    } catch (error) {
-        console.error('Failed to save game:', error);
+            this.lastSaveTime = now;
+            this.showSaveIndicator();
+            console.log('Game saved successfully');
+            
+            // Update hi-scores
+            await this.updateHiscores();
+        } catch (error) {
+            console.error('Failed to save game:', error);
+        }
     }
-}
 
     // Load game state
     async loadGame() {
         if (this.isOfflineMode || !this.currentUser) return false;
 
         try {
-            const saveDoc = await this.db.collection('saves').doc(this.currentUser.uid).get();
+            const saveDoc = await getDoc(doc(this.db, 'saves', this.currentUser.uid));
             
-            if (!saveDoc.exists) {
+            if (!saveDoc.exists()) {
                 console.log('No save data found, starting fresh');
                 return false;
             }
@@ -513,7 +543,14 @@ async saveGame() {
         }
     }
 
-    // Validate save data integrity
+    // [Keep all the other methods exactly as they are in the original file...]
+    // validateSaveData, validateTask, collectSaveData, applySaveData, showSaveIndicator,
+    // startAutoSave, stopAutoSave, saveNow, forceSave, updateHiscores, calculateTotalXp
+    // (These remain unchanged, just include them all here)
+
+    // Copy all remaining methods from the original file here...
+    // I'm not repeating them to save space, but they all stay the same
+    
     validateSaveData(saveData) {
         if (!saveData) return false;
         
@@ -553,7 +590,6 @@ async saveGame() {
         return true;
     }
     
-    // Validate individual task
     validateTask(task) {
         if (!task) return false;
         
@@ -576,7 +612,6 @@ async saveGame() {
         return true;
     }
 
-    // Collect all game data for saving
     collectSaveData() {
         const saveData = {
             // Player data
@@ -651,7 +686,6 @@ async saveGame() {
         return saveData;
     }
 
-    // Apply loaded save data to game
     applySaveData(saveData) {
         // Load player state
         if (saveData.player) {
@@ -838,7 +872,6 @@ async saveGame() {
         }
     }
 
-    // Show save indicator
     showSaveIndicator() {
         let indicator = document.getElementById('save-indicator');
         if (!indicator) {
@@ -855,7 +888,6 @@ async saveGame() {
         }, 2000);
     }
 
-    // Set up auto-save
     startAutoSave() {
         // Save every 30 seconds
         this.saveTimer = setInterval(() => {
@@ -868,7 +900,6 @@ async saveGame() {
         });
     }
 
-    // Stop auto-save
     stopAutoSave() {
         if (this.saveTimer) {
             clearInterval(this.saveTimer);
@@ -881,13 +912,11 @@ async saveGame() {
         }
     }
 
-    // Manual save trigger (for dev console or save button)
     async saveNow() {
         this.lastSaveTime = 0; // Reset timer to force save
         await this.saveGame();
     }
 
-    // Force save (bypasses cooldown for critical moments)
     async forceSave() {
         if (this.isOfflineMode || !this.currentUser) return;
 
@@ -895,13 +924,13 @@ async saveGame() {
             const saveData = this.collectSaveData();
             
             // Save to Firestore immediately with organized field order
-            await this.db.collection('saves').doc(this.currentUser.uid).set({
+            await setDoc(doc(this.db, 'saves', this.currentUser.uid), {
                 // User info at the very top
                 username: this.username,
                 uid: this.currentUser.uid,
                 
                 // Timestamp info next
-                lastSaved: firebase.firestore.FieldValue.serverTimestamp(),
+                lastSaved: serverTimestamp(),
                 sessionId: this.sessionId,
                 
                 // Then all game data
@@ -916,77 +945,74 @@ async saveGame() {
     }
 
     async updateHiscores(forceUpdate = false) {
-    if (this.isOfflineMode || !this.currentUser) return;
-    
-    // Throttle updates unless forced
-    const now = Date.now();
-    if (!forceUpdate && this.lastHiscoresUpdate && (now - this.lastHiscoresUpdate < 5 * 60 * 1000)) {
-        return; // Skip if updated within last 5 minutes
-    }
-    
-    try {
-        const hiscoreData = {
-            uid: this.currentUser.uid,
-            username: this.username,
-            
-            // Overall stats
-            totalLevel: skills.getTotalLevel(),
-            totalXp: this.calculateTotalXp(),
-            
-            // Track when milestones were first reached (using sentinel date for "not yet")
-totalLevelFirstReached: this.SENTINEL_DATE,
-
-// Tasks
-tasksCompleted: window.runeCreditManager ? runeCreditManager.totalTasksCompleted : 0,
-tasksFirstReached: this.SENTINEL_DATE,
-
-// Pets
-petsTotal: 0,
-petsShiny: 0,
-petsFirstReached: this.SENTINEL_DATE,
-shinyPetsFirstReached: this.SENTINEL_DATE,
-            
-            // Update timestamp
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        };
+        if (this.isOfflineMode || !this.currentUser) return;
         
-        // Calculate pet totals
-        if (window.runeCreditManager && runeCreditManager.petCounts) {
-            for (const skillCounts of Object.values(runeCreditManager.petCounts)) {
-                hiscoreData.petsTotal += (skillCounts.regular || 0) + (skillCounts.shiny || 0);
-                hiscoreData.petsShiny += (skillCounts.shiny || 0);
+        // Throttle updates unless forced
+        const now = Date.now();
+        if (!forceUpdate && this.lastHiscoresUpdate && (now - this.lastHiscoresUpdate < 5 * 60 * 1000)) {
+            return; // Skip if updated within last 5 minutes
+        }
+        
+        try {
+            const hiscoreData = {
+                uid: this.currentUser.uid,
+                username: this.username,
+                
+                // Overall stats
+                totalLevel: skills.getTotalLevel(),
+                totalXp: this.calculateTotalXp(),
+                
+                // Track when milestones were first reached (using sentinel date for "not yet")
+                totalLevelFirstReached: this.SENTINEL_DATE,
+                
+                // Tasks
+                tasksCompleted: window.runeCreditManager ? runeCreditManager.totalTasksCompleted : 0,
+                tasksFirstReached: this.SENTINEL_DATE,
+                
+                // Pets
+                petsTotal: 0,
+                petsShiny: 0,
+                petsFirstReached: this.SENTINEL_DATE,
+                shinyPetsFirstReached: this.SENTINEL_DATE,
+                
+                // Update timestamp
+                lastUpdated: serverTimestamp()
+            };
+            
+            // Calculate pet totals
+            if (window.runeCreditManager && runeCreditManager.petCounts) {
+                for (const skillCounts of Object.values(runeCreditManager.petCounts)) {
+                    hiscoreData.petsTotal += (skillCounts.regular || 0) + (skillCounts.shiny || 0);
+                    hiscoreData.petsShiny += (skillCounts.shiny || 0);
+                }
+            }
+            
+            // Add individual skill data
+            for (const [skillId, skill] of Object.entries(skills.skills)) {
+                hiscoreData[`level_${skillId}`] = skill.level;
+                hiscoreData[`xp_${skillId}`] = Math.floor(skill.xp);
+                hiscoreData[`levelFirst_${skillId}`] = this.SENTINEL_DATE; // Sentinel date for "not yet"
+            }
+            
+            // Use merge to preserve "firstReached" timestamps
+            await setDoc(doc(this.db, 'hiscores', this.currentUser.uid), hiscoreData, { merge: true });
+            
+            this.lastHiscoresUpdate = now;
+            console.log('Hiscores updated');
+        } catch (error) {
+            console.error('Failed to update hiscores:', error);
+        }
+    }
+
+    calculateTotalXp() {
+        let total = 0;
+        if (window.skills) {
+            for (const skill of Object.values(skills.skills)) {
+                total += Math.floor(skill.xp);
             }
         }
-        
-        // Add individual skill data
-for (const [skillId, skill] of Object.entries(skills.skills)) {
-    hiscoreData[`level_${skillId}`] = skill.level;
-    hiscoreData[`xp_${skillId}`] = Math.floor(skill.xp);
-    hiscoreData[`levelFirst_${skillId}`] = this.SENTINEL_DATE; // Sentinel date for "not yet"
-}
-        
-        // Use merge to preserve "firstReached" timestamps
-        await this.db.collection('hiscores').doc(this.currentUser.uid).set(hiscoreData, { merge: true });
-        
-        this.lastHiscoresUpdate = now;
-        console.log('Hiscores updated');
-    } catch (error) {
-        console.error('Failed to update hiscores:', error);
+        return total;
     }
-}
-
-// Helper to calculate total XP
-calculateTotalXp() {
-    let total = 0;
-    if (window.skills) {
-        for (const skill of Object.values(skills.skills)) {
-            total += Math.floor(skill.xp);
-        }
-    }
-    return total;
-}
-
-    
 }
 
 // Create global instance
