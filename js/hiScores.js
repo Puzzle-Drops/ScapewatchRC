@@ -84,9 +84,9 @@ for (const skillId of Object.keys(skillsData)) {
 
 // Add Tasks, Pets, and Shiny Pets at the end
 categories.push(
-    { id: 'tasks', name: 'Tasks', icon: 'skill_quests' },
-    { id: 'pets', name: 'Pets', icon: null },
-    { id: 'shinyPets', name: 'Shiny Pets', icon: null }
+    { id: 'tasks', name: 'Tasks', icon: 'ui_tasks' },
+    { id: 'pets', name: 'Pets', icon: 'ui_pets' },
+    { id: 'shinyPets', name: 'Shiny Pets', icon: 'ui_pets_shiny' }
 );
         
         const list = document.createElement('div');
@@ -368,11 +368,40 @@ async fetchLeaderboardData(category, page) {
         
         container.innerHTML = '';
         
-        // Title
-        const title = document.createElement('h2');
-        title.className = 'hiscores-leaderboard-title';
-        title.textContent = this.getLeaderboardTitle();
-        container.appendChild(title);
+        // Title with icon
+const titleContainer = document.createElement('div');
+titleContainer.className = 'hiscores-leaderboard-title-container';
+
+const title = document.createElement('h2');
+title.className = 'hiscores-leaderboard-title';
+
+// Add icon based on category
+let iconKey = null;
+if (this.currentCategory === 'overall') {
+    iconKey = 'skill_skills';
+} else if (this.currentCategory === 'tasks') {
+    iconKey = 'ui_tasks';
+} else if (this.currentCategory === 'pets') {
+    iconKey = 'ui_pets';
+} else if (this.currentCategory === 'shinyPets') {
+    iconKey = 'ui_pets_shiny';
+} else if (this.currentCategory.startsWith('skill_')) {
+    iconKey = this.currentCategory;
+}
+
+if (iconKey) {
+    const icon = loadingManager.getImage(iconKey);
+    if (icon) {
+        const iconImg = document.createElement('img');
+        iconImg.className = 'hiscores-title-icon';
+        iconImg.src = icon.src;
+        titleContainer.appendChild(iconImg);
+    }
+}
+
+title.textContent = this.getLeaderboardTitle();
+titleContainer.appendChild(title);
+container.appendChild(titleContainer);
         
         // Table
         const table = document.createElement('table');
@@ -570,39 +599,68 @@ async searchByName(username) {
             container.appendChild(title);
             
             // Skills table
-            const skillsTable = document.createElement('table');
-            skillsTable.className = 'hiscores-table';
-            
-            const skillsHead = document.createElement('thead');
-            skillsHead.innerHTML = '<tr><th>Skill</th><th>Rank</th><th>Level</th><th>XP</th></tr>';
-            skillsTable.appendChild(skillsHead);
-            
-            const skillsBody = document.createElement('tbody');
-            
-            // Overall
-            const overallRank = await this.getPlayerRank(uid, 'overall');
-            const overallRow = document.createElement('tr');
-            overallRow.innerHTML = `
-                <td>Overall</td>
-                <td>${overallRank}</td>
-                <td>${userData.totalLevel}</td>
-                <td>${formatNumber(userData.totalXp)}</td>
-            `;
-            skillsBody.appendChild(overallRow);
-            
-            // Individual skills
-            const skillsData = loadingManager.getData('skills');
-            for (const skillId of Object.keys(skillsData)) {
-                const skillRank = await this.getPlayerRankForSkill(uid, skillId);
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${skillsData[skillId].name}</td>
-                    <td>${skillRank}</td>
-                    <td>${userData[`level_${skillId}`] || 1}</td>
-                    <td>${formatNumber(userData[`xp_${skillId}`] || 0)}</td>
-                `;
-                skillsBody.appendChild(row);
-            }
+const skillsTable = document.createElement('table');
+skillsTable.className = 'hiscores-table';
+
+const skillsHead = document.createElement('thead');
+skillsHead.innerHTML = '<tr><th>Skill</th><th>Rank</th><th>Level</th><th>XP</th></tr>';
+skillsTable.appendChild(skillsHead);
+
+const skillsBody = document.createElement('tbody');
+
+// Overall with icon
+const overallRank = await this.getPlayerRank(uid, 'overall');
+const overallRow = document.createElement('tr');
+const overallNameCell = document.createElement('td');
+overallNameCell.className = 'hiscores-skill-name-cell';
+
+const overallIcon = loadingManager.getImage('skill_skills');
+if (overallIcon) {
+    const iconImg = document.createElement('img');
+    iconImg.className = 'hiscores-inline-icon';
+    iconImg.src = overallIcon.src;
+    overallNameCell.appendChild(iconImg);
+}
+const overallText = document.createElement('span');
+overallText.textContent = 'Overall';
+overallNameCell.appendChild(overallText);
+
+overallRow.appendChild(overallNameCell);
+overallRow.innerHTML += `
+    <td>${overallRank}</td>
+    <td>${userData.totalLevel}</td>
+    <td>${formatNumber(userData.totalXp)}</td>
+`;
+skillsBody.appendChild(overallRow);
+
+// Individual skills with icons
+const skillsData = loadingManager.getData('skills');
+for (const skillId of Object.keys(skillsData)) {
+    const skillRank = await this.getPlayerRankForSkill(uid, skillId);
+    const row = document.createElement('tr');
+    
+    const nameCell = document.createElement('td');
+    nameCell.className = 'hiscores-skill-name-cell';
+    
+    const skillIcon = loadingManager.getImage(`skill_${skillId}`);
+    if (skillIcon) {
+        const iconImg = document.createElement('img');
+        iconImg.className = 'hiscores-inline-icon';
+        iconImg.src = skillIcon.src;
+        nameCell.appendChild(iconImg);
+    }
+    const skillText = document.createElement('span');
+    skillText.textContent = skillsData[skillId].name;
+    nameCell.appendChild(skillText);
+    
+    row.appendChild(nameCell);
+    row.innerHTML += `
+        <td>${skillRank}</td>
+        <td>${userData[\`level_${skillId}\`] || 1}</td>
+        <td>${formatNumber(userData[\`xp_${skillId}\`] || 0)}</td>
+    `;
+    skillsBody.appendChild(row);
+}
             
             skillsTable.appendChild(skillsBody);
             container.appendChild(skillsTable);
@@ -617,35 +675,77 @@ async searchByName(username) {
             
             const catBody = document.createElement('tbody');
             
-            // Tasks
-            const tasksRank = await this.getPlayerRank(uid, 'tasks');
-            const tasksRow = document.createElement('tr');
-            tasksRow.innerHTML = `
-                <td>Tasks</td>
-                <td>${tasksRank}</td>
-                <td>${formatNumber(userData.tasksCompleted || 0)}</td>
-            `;
-            catBody.appendChild(tasksRow);
-            
-            // Pets
-            const petsRank = await this.getPlayerRank(uid, 'pets');
-            const petsRow = document.createElement('tr');
-            petsRow.innerHTML = `
-                <td>Pets</td>
-                <td>${petsRank}</td>
-                <td>${userData.petsTotal || 0}</td>
-            `;
-            catBody.appendChild(petsRow);
-            
-            // Shiny Pets
-            const shinyRank = await this.getPlayerRank(uid, 'shinyPets');
-            const shinyRow = document.createElement('tr');
-            shinyRow.innerHTML = `
-                <td>Shiny Pets</td>
-                <td>${shinyRank}</td>
-                <td>${userData.petsShiny || 0}</td>
-            `;
-            catBody.appendChild(shinyRow);
+            // Tasks with icon
+const tasksRank = await this.getPlayerRank(uid, 'tasks');
+const tasksRow = document.createElement('tr');
+const tasksNameCell = document.createElement('td');
+tasksNameCell.className = 'hiscores-skill-name-cell';
+
+const tasksIcon = loadingManager.getImage('ui_tasks');
+if (tasksIcon) {
+    const iconImg = document.createElement('img');
+    iconImg.className = 'hiscores-inline-icon';
+    iconImg.src = tasksIcon.src;
+    tasksNameCell.appendChild(iconImg);
+}
+const tasksText = document.createElement('span');
+tasksText.textContent = 'Tasks';
+tasksNameCell.appendChild(tasksText);
+
+tasksRow.appendChild(tasksNameCell);
+tasksRow.innerHTML += `
+    <td>${tasksRank}</td>
+    <td>${formatNumber(userData.tasksCompleted || 0)}</td>
+`;
+catBody.appendChild(tasksRow);
+
+// Pets with icon
+const petsRank = await this.getPlayerRank(uid, 'pets');
+const petsRow = document.createElement('tr');
+const petsNameCell = document.createElement('td');
+petsNameCell.className = 'hiscores-skill-name-cell';
+
+const petsIcon = loadingManager.getImage('ui_pets');
+if (petsIcon) {
+    const iconImg = document.createElement('img');
+    iconImg.className = 'hiscores-inline-icon';
+    iconImg.src = petsIcon.src;
+    petsNameCell.appendChild(iconImg);
+}
+const petsText = document.createElement('span');
+petsText.textContent = 'Pets';
+petsNameCell.appendChild(petsText);
+
+petsRow.appendChild(petsNameCell);
+petsRow.innerHTML += `
+    <td>${petsRank}</td>
+    <td>${userData.petsTotal || 0}</td>
+`;
+catBody.appendChild(petsRow);
+
+// Shiny Pets with icon
+const shinyRank = await this.getPlayerRank(uid, 'shinyPets');
+const shinyRow = document.createElement('tr');
+const shinyNameCell = document.createElement('td');
+shinyNameCell.className = 'hiscores-skill-name-cell';
+
+const shinyIcon = loadingManager.getImage('ui_pets_shiny');
+if (shinyIcon) {
+    const iconImg = document.createElement('img');
+    iconImg.className = 'hiscores-inline-icon';
+    iconImg.src = shinyIcon.src;
+    shinyNameCell.appendChild(iconImg);
+}
+const shinyText = document.createElement('span');
+shinyText.textContent = 'Shiny Pets';
+shinyNameCell.appendChild(shinyText);
+
+shinyRow.appendChild(shinyNameCell);
+shinyRow.innerHTML += `
+    <td>${shinyRank}</td>
+    <td>${userData.petsShiny || 0}</td>
+`;
+catBody.appendChild(shinyRow);
             
             catTable.appendChild(catBody);
             container.appendChild(catTable);
@@ -788,71 +888,227 @@ async getPlayerRankForSkill(uid, skillId) {
             container.innerHTML = '<div class="hiscores-error">One or both players not found</div>';
             return;
         }
-            
-            const user1Data = user1Query.docs[0].data();
-            const user2Data = user2Query.docs[0].data();
-            
-            container.innerHTML = '';
-            
-            // Title
-            const title = document.createElement('h2');
-            title.className = 'hiscores-leaderboard-title';
-            title.textContent = `Comparing ${user1} vs ${user2}`;
-            container.appendChild(title);
-            
-            // Comparison table
-            const table = document.createElement('table');
-            table.className = 'hiscores-compare-table';
-            
-            const thead = document.createElement('thead');
-            thead.innerHTML = `
-                <tr>
-                    <th>Stat</th>
-                    <th>${user1}</th>
-                    <th>${user2}</th>
-                </tr>
-            `;
-            table.appendChild(thead);
-            
-            const tbody = document.createElement('tbody');
-            
-            // Overall
-            this.addCompareRow(tbody, 'Overall Level', user1Data.totalLevel, user2Data.totalLevel);
-            this.addCompareRow(tbody, 'Total XP', user1Data.totalXp, user2Data.totalXp, true);
-            
-            // Skills
-            const skillsData = loadingManager.getData('skills');
-            for (const skillId of Object.keys(skillsData)) {
-                this.addCompareRow(
-                    tbody,
-                    skillsData[skillId].name,
-                    user1Data[`level_${skillId}`] || 1,
-                    user2Data[`level_${skillId}`] || 1
-                );
-            }
-            
-            // Other stats
-            this.addCompareRow(tbody, 'Tasks', user1Data.tasksCompleted || 0, user2Data.tasksCompleted || 0);
-            this.addCompareRow(tbody, 'Pets', user1Data.petsTotal || 0, user2Data.petsTotal || 0);
-            this.addCompareRow(tbody, 'Shiny Pets', user1Data.petsShiny || 0, user2Data.petsShiny || 0);
-            
-            table.appendChild(tbody);
-            container.appendChild(table);
-            
-            // Back button
-            const backBtn = document.createElement('button');
-            backBtn.className = 'hiscores-back-btn';
-            backBtn.textContent = '← Back to Leaderboard';
-            backBtn.addEventListener('click', () => {
-                this.loadLeaderboard();
-            });
-            container.appendChild(backBtn);
-            
-        } catch (error) {
-            console.error('Failed to compare users:', error);
-            container.innerHTML = '<div class="hiscores-error">Failed to compare users</div>';
+        
+        const user1Data = user1Query.docs[0].data();
+        const user2Data = user2Query.docs[0].data();
+        const user1Id = user1Query.docs[0].id;
+        const user2Id = user2Query.docs[0].id;
+        
+        container.innerHTML = '';
+        
+        // Title
+        const title = document.createElement('h2');
+        title.className = 'hiscores-leaderboard-title';
+        title.textContent = `Comparing ${user1} vs ${user2}`;
+        container.appendChild(title);
+        
+        // Skills comparison table
+        const skillsTable = document.createElement('table');
+        skillsTable.className = 'hiscores-compare-table';
+        
+        const skillsHead = document.createElement('thead');
+        skillsHead.innerHTML = `
+            <tr>
+                <th>Skill</th>
+                <th colspan="2">${user1}</th>
+                <th colspan="2">${user2}</th>
+                <th>Winner</th>
+            </tr>
+            <tr class="hiscores-subheader">
+                <th></th>
+                <th>Rank</th>
+                <th>Level</th>
+                <th>Rank</th>
+                <th>Level</th>
+                <th></th>
+            </tr>
+        `;
+        skillsTable.appendChild(skillsHead);
+        
+        const skillsBody = document.createElement('tbody');
+        
+        // Overall comparison with icon
+        const overallRank1 = await this.getPlayerRank(user1Id, 'overall');
+        const overallRank2 = await this.getPlayerRank(user2Id, 'overall');
+        await this.addCompareRowWithRank(
+            skillsBody, 
+            'Overall', 
+            'skill_skills',
+            overallRank1, user1Data.totalLevel,
+            overallRank2, user2Data.totalLevel
+        );
+        
+        // Individual skills comparison with icons
+        const skillsData = loadingManager.getData('skills');
+        for (const skillId of Object.keys(skillsData)) {
+            const rank1 = await this.getPlayerRankForSkill(user1Id, skillId);
+            const rank2 = await this.getPlayerRankForSkill(user2Id, skillId);
+            await this.addCompareRowWithRank(
+                skillsBody,
+                skillsData[skillId].name,
+                `skill_${skillId}`,
+                rank1, user1Data[`level_${skillId}`] || 1,
+                rank2, user2Data[`level_${skillId}`] || 1
+            );
+        }
+        
+        skillsTable.appendChild(skillsBody);
+        container.appendChild(skillsTable);
+        
+        // Categories comparison table
+        const catTable = document.createElement('table');
+        catTable.className = 'hiscores-compare-table';
+        catTable.style.marginTop = '20px';
+        
+        const catHead = document.createElement('thead');
+        catHead.innerHTML = `
+            <tr>
+                <th>Category</th>
+                <th colspan="2">${user1}</th>
+                <th colspan="2">${user2}</th>
+                <th>Winner</th>
+            </tr>
+            <tr class="hiscores-subheader">
+                <th></th>
+                <th>Rank</th>
+                <th>Score</th>
+                <th>Rank</th>
+                <th>Score</th>
+                <th></th>
+            </tr>
+        `;
+        catTable.appendChild(catHead);
+        
+        const catBody = document.createElement('tbody');
+        
+        // Tasks comparison
+        const tasksRank1 = await this.getPlayerRank(user1Id, 'tasks');
+        const tasksRank2 = await this.getPlayerRank(user2Id, 'tasks');
+        await this.addCompareRowWithRank(
+            catBody,
+            'Tasks',
+            'ui_tasks',
+            tasksRank1, user1Data.tasksCompleted || 0,
+            tasksRank2, user2Data.tasksCompleted || 0
+        );
+        
+        // Pets comparison
+        const petsRank1 = await this.getPlayerRank(user1Id, 'pets');
+        const petsRank2 = await this.getPlayerRank(user2Id, 'pets');
+        await this.addCompareRowWithRank(
+            catBody,
+            'Pets',
+            'ui_pets',
+            petsRank1, user1Data.petsTotal || 0,
+            petsRank2, user2Data.petsTotal || 0
+        );
+        
+        // Shiny Pets comparison
+        const shinyRank1 = await this.getPlayerRank(user1Id, 'shinyPets');
+        const shinyRank2 = await this.getPlayerRank(user2Id, 'shinyPets');
+        await this.addCompareRowWithRank(
+            catBody,
+            'Shiny Pets',
+            'ui_pets_shiny',
+            shinyRank1, user1Data.petsShiny || 0,
+            shinyRank2, user2Data.petsShiny || 0
+        );
+        
+        catTable.appendChild(catBody);
+        container.appendChild(catTable);
+        
+        // Back button
+        const backBtn = document.createElement('button');
+        backBtn.className = 'hiscores-back-btn';
+        backBtn.textContent = '← Back to Leaderboard';
+        backBtn.addEventListener('click', () => {
+            this.loadLeaderboard();
+        });
+        container.appendChild(backBtn);
+        
+    } catch (error) {
+        console.error('Failed to compare users:', error);
+        container.innerHTML = '<div class="hiscores-error">Failed to compare users</div>';
+    }
+}
+
+// New helper method for comparison rows with ranks
+async addCompareRowWithRank(tbody, label, iconKey, rank1, value1, rank2, value2) {
+    const row = document.createElement('tr');
+    
+    // Name cell with icon
+    const labelCell = document.createElement('td');
+    labelCell.className = 'hiscores-skill-name-cell';
+    
+    if (iconKey) {
+        const icon = loadingManager.getImage(iconKey);
+        if (icon) {
+            const iconImg = document.createElement('img');
+            iconImg.className = 'hiscores-inline-icon';
+            iconImg.src = icon.src;
+            labelCell.appendChild(iconImg);
         }
     }
+    const labelText = document.createElement('span');
+    labelText.textContent = label;
+    labelCell.appendChild(labelText);
+    
+    // User 1 data
+    const rank1Cell = document.createElement('td');
+    rank1Cell.className = 'hiscores-compare-rank';
+    rank1Cell.textContent = rank1;
+    
+    const value1Cell = document.createElement('td');
+    value1Cell.className = 'hiscores-compare-value';
+    value1Cell.textContent = typeof value1 === 'number' && value1 > 10000 ? 
+        formatNumber(value1) : value1;
+    
+    // User 2 data
+    const rank2Cell = document.createElement('td');
+    rank2Cell.className = 'hiscores-compare-rank';
+    rank2Cell.textContent = rank2;
+    
+    const value2Cell = document.createElement('td');
+    value2Cell.className = 'hiscores-compare-value';
+    value2Cell.textContent = typeof value2 === 'number' && value2 > 10000 ? 
+        formatNumber(value2) : value2;
+    
+    // Winner cell
+    const winnerCell = document.createElement('td');
+    winnerCell.className = 'hiscores-compare-winner';
+    
+    // Determine winner (lower rank number is better, unless it's "Unranked")
+    const rank1Num = rank1 === 'Unranked' ? Infinity : parseInt(rank1);
+    const rank2Num = rank2 === 'Unranked' ? Infinity : parseInt(rank2);
+    
+    if (rank1Num < rank2Num) {
+        winnerCell.textContent = '←';
+        winnerCell.style.color = '#2ecc71';
+        rank1Cell.style.color = '#2ecc71';
+        value1Cell.style.color = '#2ecc71';
+        rank2Cell.style.color = '#e74c3c';
+        value2Cell.style.color = '#e74c3c';
+    } else if (rank2Num < rank1Num) {
+        winnerCell.textContent = '→';
+        winnerCell.style.color = '#2ecc71';
+        rank2Cell.style.color = '#2ecc71';
+        value2Cell.style.color = '#2ecc71';
+        rank1Cell.style.color = '#e74c3c';
+        value1Cell.style.color = '#e74c3c';
+    } else {
+        winnerCell.textContent = '=';
+        winnerCell.style.color = '#f39c12';
+    }
+    
+    row.appendChild(labelCell);
+    row.appendChild(rank1Cell);
+    row.appendChild(value1Cell);
+    row.appendChild(rank2Cell);
+    row.appendChild(value2Cell);
+    row.appendChild(winnerCell);
+    
+    tbody.appendChild(row);
+}
     
     // Add a comparison row
     addCompareRow(tbody, label, value1, value2, format = false) {
