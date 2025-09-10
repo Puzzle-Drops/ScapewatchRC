@@ -882,3 +882,6 @@ initializeSkillData() {
         this.clearProcessingState();
     }
 }
+
+// Make FletchingSkill available globally
+window.FletchingSkill = FletchingSkill;
