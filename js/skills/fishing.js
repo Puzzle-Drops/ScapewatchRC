@@ -181,3 +181,6 @@ class FishingSkill extends BaseSkill {
         return true;
     }
 }
+
+// Make FishingSkill available globally
+window.FishingSkill = FishingSkill;
