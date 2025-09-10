@@ -84,3 +84,16 @@ function findPath(startNode, endNode, allNodes) {
 function deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
+
+// Make utility functions available globally
+window.distance = distance;
+window.lerp = lerp;
+window.formatNumber = formatNumber;
+window.getXpForLevel = getXpForLevel;
+window.getLevelFromXp = getLevelFromXp;
+window.getActionDuration = getActionDuration;
+window.getScaledChance = getScaledChance;
+window.randomFloat = randomFloat;
+window.pointInRect = pointInRect;
+window.findPath = findPath;
+window.deepClone = deepClone;
