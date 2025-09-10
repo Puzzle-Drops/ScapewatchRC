@@ -1,3 +1,18 @@
+// Add these imports from firebase.js
+import { 
+    query, 
+    collection, 
+    where, 
+    orderBy, 
+    limit, 
+    getDocs, 
+    getDoc, 
+    doc,
+    startAfter,
+    endBefore,
+    getCountFromServer 
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
 class HiScoresManager {
     constructor() {
         this.isOpen = false;
@@ -298,55 +313,61 @@ async fetchLeaderboardData(category, page) {
     if (!firebaseManager.db) return [];
     
     const startAt = page * this.pageSize;
-    let query;
+    let queryConstraints = [];
     
     try {
         if (category === 'overall') {
-            query = firebaseManager.db.collection('hiscores')
-                .orderBy('totalLevel', 'desc')
-                .orderBy('totalXp', 'desc')
-                .orderBy('totalLevelFirstReached', 'asc')
-                .limit(this.pageSize);
+            queryConstraints = [
+                orderBy('totalLevel', 'desc'),
+                orderBy('totalXp', 'desc'),
+                orderBy('totalLevelFirstReached', 'asc'),
+                limit(this.pageSize)
+            ];
         } else if (category === 'tasks') {
-            query = firebaseManager.db.collection('hiscores')
-                .orderBy('tasksCompleted', 'desc')
-                .limit(this.pageSize);
+            queryConstraints = [
+                orderBy('tasksCompleted', 'desc'),
+                limit(this.pageSize)
+            ];
         } else if (category === 'pets') {
-            query = firebaseManager.db.collection('hiscores')
-                .orderBy('petsTotal', 'desc')
-                .limit(this.pageSize);
+            queryConstraints = [
+                orderBy('petsTotal', 'desc'),
+                limit(this.pageSize)
+            ];
         } else if (category === 'shinyPets') {
-            query = firebaseManager.db.collection('hiscores')
-                .orderBy('petsShiny', 'desc')
-                .limit(this.pageSize);
+            queryConstraints = [
+                orderBy('petsShiny', 'desc'),
+                limit(this.pageSize)
+            ];
         } else if (category.startsWith('skill_')) {
             const skillId = category.replace('skill_', '');
-            query = firebaseManager.db.collection('hiscores')
-                .orderBy(`level_${skillId}`, 'desc')
-                .orderBy(`xp_${skillId}`, 'desc')
-                .orderBy(`levelFirst_${skillId}`, 'asc')
-                .limit(this.pageSize);
+            queryConstraints = [
+                orderBy(`level_${skillId}`, 'desc'),
+                orderBy(`xp_${skillId}`, 'desc'),
+                orderBy(`levelFirst_${skillId}`, 'asc'),
+                limit(this.pageSize)
+            ];
         } else {
             return [];
         }
         
         // Apply offset for pagination
         if (startAt > 0) {
-            const previousPage = await query.limit(startAt).get();
+            const previousQuery = query(collection(firebaseManager.db, 'hiscores'), ...queryConstraints);
+            const previousPage = await getDocs(previousQuery);
             if (previousPage.docs.length > 0) {
                 const lastDoc = previousPage.docs[previousPage.docs.length - 1];
-                query = query.startAfter(lastDoc);
+                queryConstraints.push(startAfter(lastDoc));
             }
         }
         
-        const snapshot = await query.get();
+        const q = query(collection(firebaseManager.db, 'hiscores'), ...queryConstraints);
+        const snapshot = await getDocs(q);
         return snapshot.docs.map((doc, index) => ({
             rank: startAt + index + 1,
             ...doc.data()
         }));
     } catch (error) {
         console.error('Failed to fetch leaderboard:', error);
-        // Check if it's an index error
         if (error.code === 'failed-precondition' && error.message.includes('index')) {
             console.error('Missing index for query. Check the Firebase console for a link to create it.');
         }
