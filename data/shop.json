@@ -1,24 +1,728 @@
 {
   "supplies": [
-    { "itemId": "feather", "basePrice": 2 },
-    { "itemId": "fishing_bait", "basePrice": 3 },
-    { "itemId": "ashes", "basePrice": 5 },
-    { "itemId": "blown_glass", "basePrice": 25 },
-    { "itemId": "vial_of_water", "basePrice": 10 },
-    { "itemId": "raw_meat", "basePrice": 8 }
+    {
+      "itemId": "mark_of_grace",
+      "basePrice": 2000
+    },
+    {
+      "itemId": "feather",
+      "basePrice": 2
+    },
+    {
+      "itemId": "fishing_bait",
+      "basePrice": 2
+    },
+    {
+      "itemId": "ashes",
+      "basePrice": 40
+    },
+    {
+      "itemId": "blown_glass",
+      "basePrice": 140
+    },
+    {
+      "itemId": "vial_of_water",
+      "basePrice": 5
+    },
+    {
+      "itemId": "burnt_food",
+      "basePrice": 10
+    },
+    {
+      "itemId": "rune_essence",
+      "basePrice": 5
+    }
   ],
   "resources": [
-    { "itemId": "raw_shrimps", "basePrice": 15 },
-    { "itemId": "raw_sardine", "basePrice": 20 },
-    { "itemId": "logs", "basePrice": 30 },
-    { "itemId": "oak_logs", "basePrice": 45 },
-    { "itemId": "willow_logs", "basePrice": 60 },
-    { "itemId": "copper_ore", "basePrice": 25 }
+    {
+      "itemId": "raw_meat",
+      "basePrice": 75
+    },
+    {
+      "itemId": "raw_shrimps",
+      "basePrice": 75
+    },
+    {
+      "itemId": "raw_sardine",
+      "basePrice": 100
+    },
+    {
+      "itemId": "raw_herring",
+      "basePrice": 125
+    },
+    {
+      "itemId": "raw_anchovies",
+      "basePrice": 25
+    },
+    {
+      "itemId": "raw_mackerel",
+      "basePrice": 150
+    },
+    {
+      "itemId": "raw_trout",
+      "basePrice": 175
+    },
+    {
+      "itemId": "raw_cod",
+      "basePrice": 175
+    },
+    {
+      "itemId": "raw_pike",
+      "basePrice": 200
+    },
+    {
+      "itemId": "raw_salmon",
+      "basePrice": 225
+    },
+    {
+      "itemId": "raw_tuna",
+      "basePrice": 250
+    },
+    {
+      "itemId": "raw_lobster",
+      "basePrice": 300
+    },
+    {
+      "itemId": "raw_bass",
+      "basePrice": 325
+    },
+    {
+      "itemId": "raw_swordfish",
+      "basePrice": 350
+    },
+    {
+      "itemId": "raw_shark",
+      "basePrice": 500
+    },
+    {
+      "itemId": "meat",
+      "basePrice": 120
+    },
+    {
+      "itemId": "shrimps",
+      "basePrice": 120
+    },
+    {
+      "itemId": "sardine",
+      "basePrice": 160
+    },
+    {
+      "itemId": "anchovies",
+      "basePrice": 40
+    },
+    {
+      "itemId": "herring",
+      "basePrice": 200
+    },
+    {
+      "itemId": "mackerel",
+      "basePrice": 240
+    },
+    {
+      "itemId": "trout",
+      "basePrice": 280
+    },
+    {
+      "itemId": "cod",
+      "basePrice": 280
+    },
+    {
+      "itemId": "pike",
+      "basePrice": 320
+    },
+    {
+      "itemId": "salmon",
+      "basePrice": 360
+    },
+    {
+      "itemId": "tuna",
+      "basePrice": 400
+    },
+    {
+      "itemId": "lobster",
+      "basePrice": 480
+    },
+    {
+      "itemId": "bass",
+      "basePrice": 520
+    },
+    {
+      "itemId": "swordfish",
+      "basePrice": 560
+    },
+    {
+      "itemId": "shark",
+      "basePrice": 750
+    },
+    {
+      "itemId": "logs",
+      "basePrice": 20
+    },
+    {
+      "itemId": "oak_logs",
+      "basePrice": 40
+    },
+    {
+      "itemId": "willow_logs",
+      "basePrice": 60
+    },
+    {
+      "itemId": "teak_logs",
+      "basePrice": 200
+    },
+    {
+      "itemId": "maple_logs",
+      "basePrice": 80
+    },
+    {
+      "itemId": "mahogany_logs",
+      "basePrice": 320
+    },
+    {
+      "itemId": "yew_logs",
+      "basePrice": 280
+    },
+    {
+      "itemId": "magic_logs",
+      "basePrice": 1000
+    },
+    {
+      "itemId": "redwood_logs",
+      "basePrice": 1200
+    },
+    {
+      "itemId": "plank",
+      "basePrice": 320
+    },
+    {
+      "itemId": "oak_plank",
+      "basePrice": 400
+    },
+    {
+      "itemId": "teak_plank",
+      "basePrice": 880
+    },
+    {
+      "itemId": "mahogany_plank",
+      "basePrice": 2100
+    },
+    {
+      "itemId": "copper_ore",
+      "basePrice": 20
+    },
+    {
+      "itemId": "tin_ore",
+      "basePrice": 20
+    },
+    {
+      "itemId": "iron_ore",
+      "basePrice": 120
+    },
+    {
+      "itemId": "silver_ore",
+      "basePrice": 50
+    },
+    {
+      "itemId": "coal",
+      "basePrice": 200
+    },
+    {
+      "itemId": "gold_ore",
+      "basePrice": 120
+    },
+    {
+      "itemId": "mithril_ore",
+      "basePrice": 180
+    },
+    {
+      "itemId": "adamantite_ore",
+      "basePrice": 820
+    },
+    {
+      "itemId": "runite_ore",
+      "basePrice": 11000
+    },
+    {
+      "itemId": "amethyst",
+      "basePrice": 12000
+    },
+    {
+      "itemId": "bronze_bar",
+      "basePrice": 100
+    },
+    {
+      "itemId": "iron_bar",
+      "basePrice": 200
+    },
+    {
+      "itemId": "silver_bar",
+      "basePrice": 110
+    },
+    {
+      "itemId": "steel_bar",
+      "basePrice": 460
+    },
+    {
+      "itemId": "gold_bar",
+      "basePrice": 260
+    },
+    {
+      "itemId": "mithril_bar",
+      "basePrice": 740
+    },
+    {
+      "itemId": "adamantite_bar",
+      "basePrice": 1800
+    },
+    {
+      "itemId": "runite_bar",
+      "basePrice": 12600
+    },
+    {
+      "itemId": "bronze_arrowtips",
+      "basePrice": 4
+    },
+    {
+      "itemId": "iron_arrowtips",
+      "basePrice": 18
+    },
+    {
+      "itemId": "steel_arrowtips",
+      "basePrice": 38
+    },
+    {
+      "itemId": "mithril_arrowtips",
+      "basePrice": 50
+    },
+    {
+      "itemId": "adamant_arrowtips",
+      "basePrice": 100
+    },
+    {
+      "itemId": "rune_arrowtips",
+      "basePrice": 264
+    },
+    {
+      "itemId": "uncut_sapphire",
+      "basePrice": 208
+    },
+    {
+      "itemId": "uncut_emerald",
+      "basePrice": 460
+    },
+    {
+      "itemId": "uncut_ruby",
+      "basePrice": 1050
+    },
+    {
+      "itemId": "uncut_diamond",
+      "basePrice": 2440
+    },
+    {
+      "itemId": "sapphire",
+      "basePrice": 192
+    },
+    {
+      "itemId": "emerald",
+      "basePrice": 360
+    },
+    {
+      "itemId": "ruby",
+      "basePrice": 800
+    },
+    {
+      "itemId": "diamond",
+      "basePrice": 1800
+    },
+    {
+      "itemId": "potato_seed",
+      "basePrice": 2
+    },
+    {
+      "itemId": "snape_grass_seed",
+      "basePrice": 7100
+    },
+    {
+      "itemId": "limpwurt_seed",
+      "basePrice": 24
+    },
+    {
+      "itemId": "potato_cactus_seed",
+      "basePrice": 16
+    },
+    {
+      "itemId": "potato",
+      "basePrice": 2
+    },
+    {
+      "itemId": "snape_grass",
+      "basePrice": 390
+    },
+    {
+      "itemId": "limpwurt_root",
+      "basePrice": 300
+    },
+    {
+      "itemId": "potato_cactus",
+      "basePrice": 38
+    },
+    {
+      "itemId": "guam_seed",
+      "basePrice": 50
+    },
+    {
+      "itemId": "marrentill_seed",
+      "basePrice": 45
+    },
+    {
+      "itemId": "tarromin_seed",
+      "basePrice": 19
+    },
+    {
+      "itemId": "harralander_seed",
+      "basePrice": 35
+    },
+    {
+      "itemId": "ranarr_seed",
+      "basePrice": 32000
+    },
+    {
+      "itemId": "toadflax_seed",
+      "basePrice": 860
+    },
+    {
+      "itemId": "irit_seed",
+      "basePrice": 100
+    },
+    {
+      "itemId": "avantoe_seed",
+      "basePrice": 700
+    },
+    {
+      "itemId": "kwuarm_seed",
+      "basePrice": 2400
+    },
+    {
+      "itemId": "snapdragon_seed",
+      "basePrice": 73000
+    },
+    {
+      "itemId": "cadantine_seed",
+      "basePrice": 3300
+    },
+    {
+      "itemId": "lantadyme_seed",
+      "basePrice": 146
+    },
+    {
+      "itemId": "dwarf_weed_seed",
+      "basePrice": 600
+    },
+    {
+      "itemId": "torstol_seed",
+      "basePrice": 8500
+    },
+    {
+      "itemId": "grimy_guam_leaf",
+      "basePrice": 272
+    },
+    {
+      "itemId": "grimy_marrentill",
+      "basePrice": 387
+    },
+    {
+      "itemId": "grimy_tarromin",
+      "basePrice": 400
+    },
+    {
+      "itemId": "grimy_harralander",
+      "basePrice": 460
+    },
+    {
+      "itemId": "grimy_ranarr_weed",
+      "basePrice": 7400
+    },
+    {
+      "itemId": "grimy_toadflax",
+      "basePrice": 3840
+    },
+    {
+      "itemId": "grimy_irit_leaf",
+      "basePrice": 2340
+    },
+    {
+      "itemId": "grimy_avantoe",
+      "basePrice": 4160
+    },
+    {
+      "itemId": "grimy_kwuarm",
+      "basePrice": 4100
+    },
+    {
+      "itemId": "grimy_snapdragon",
+      "basePrice": 11600
+    },
+    {
+      "itemId": "grimy_cadantine",
+      "basePrice": 3840
+    },
+    {
+      "itemId": "grimy_lantadyme",
+      "basePrice": 2980
+    },
+    {
+      "itemId": "grimy_dwarf_weed",
+      "basePrice": 3460
+    },
+    {
+      "itemId": "grimy_torstol",
+      "basePrice": 4600
+    },
+    {
+      "itemId": "guam_leaf",
+      "basePrice": 272
+    },
+    {
+      "itemId": "marrentill",
+      "basePrice": 387
+    },
+    {
+      "itemId": "tarromin",
+      "basePrice": 400
+    },
+    {
+      "itemId": "harralander",
+      "basePrice": 460
+    },
+    {
+      "itemId": "ranarr_weed",
+      "basePrice": 7400
+    },
+    {
+      "itemId": "toadflax",
+      "basePrice": 3840
+    },
+    {
+      "itemId": "irit_leaf",
+      "basePrice": 2340
+    },
+    {
+      "itemId": "avantoe",
+      "basePrice": 4160
+    },
+    {
+      "itemId": "kwuarm",
+      "basePrice": 4100
+    },
+    {
+      "itemId": "snapdragon",
+      "basePrice": 11600
+    },
+    {
+      "itemId": "cadantine",
+      "basePrice": 3840
+    },
+    {
+      "itemId": "lantadyme",
+      "basePrice": 2980
+    },
+    {
+      "itemId": "dwarf_weed",
+      "basePrice": 3460
+    },
+    {
+      "itemId": "torstol",
+      "basePrice": 4600
+    },
+    {
+      "itemId": "attack_potion",
+      "basePrice": 28
+    },
+    {
+      "itemId": "antipoison",
+      "basePrice": 460
+    },
+    {
+      "itemId": "strength_potion",
+      "basePrice": 108
+    },
+    {
+      "itemId": "energy_potion",
+      "basePrice": 190
+    },
+    {
+      "itemId": "defence_potion",
+      "basePrice": 730
+    },
+    {
+      "itemId": "prayer_potion",
+      "basePrice": 11000
+    },
+    {
+      "itemId": "super_attack_potion",
+      "basePrice": 2700
+    },
+    {
+      "itemId": "superantipoison",
+      "basePrice": 2970
+    },
+    {
+      "itemId": "super_energy",
+      "basePrice": 5840
+    },
+    {
+      "itemId": "super_strength",
+      "basePrice": 5866
+    },
+    {
+      "itemId": "super_restore",
+      "basePrice": 15000
+    },
+    {
+      "itemId": "super_defence",
+      "basePrice": 5160
+    },
+    {
+      "itemId": "antifire_potion",
+      "basePrice": 2280
+    },
+    {
+      "itemId": "ranging_potion",
+      "basePrice": 4100
+    },
+    {
+      "itemId": "magic_potion",
+      "basePrice": 300
+    },
+    {
+      "itemId": "stamina_potion",
+      "basePrice": 8100
+    },
+    {
+      "itemId": "saradomin_brew",
+      "basePrice": 9650
+    },
+    {
+      "itemId": "super_combat_potion",
+      "basePrice": 21000
+    },
+    {
+      "itemId": "arrow_shaft",
+      "basePrice": 2
+    },
+    {
+      "itemId": "headless_arrow",
+      "basePrice": 12
+    },
+    {
+      "itemId": "bronze_arrow",
+      "basePrice": 3
+    },
+    {
+      "itemId": "iron_arrow",
+      "basePrice": 14
+    },
+    {
+      "itemId": "steel_arrow",
+      "basePrice": 32
+    },
+    {
+      "itemId": "mithril_arrow",
+      "basePrice": 40
+    },
+    {
+      "itemId": "adamant_arrow",
+      "basePrice": 80
+    },
+    {
+      "itemId": "rune_arrow",
+      "basePrice": 200
+    },
+    {
+      "itemId": "amethyst_arrow",
+      "basePrice": 400
+    },
+    {
+      "itemId": "chinchompa",
+      "basePrice": 626
+    }
   ],
   "runes": [
-    { "itemId": "air_rune", "basePrice": 10 },
-    { "itemId": "water_rune", "basePrice": 10 },
-    { "itemId": "earth_rune", "basePrice": 10 },
-    { "itemId": "fire_rune", "basePrice": 10 }
+    {
+      "itemId": "air_rune",
+      "basePrice": 5
+    },
+    {
+      "itemId": "water_rune",
+      "basePrice": 5
+    },
+    {
+      "itemId": "earth_rune",
+      "basePrice": 5
+    },
+    {
+      "itemId": "fire_rune",
+      "basePrice": 5
+    },
+    {
+      "itemId": "nature_rune",
+      "basePrice": 94
+    },
+    {
+      "itemId": "law_rune",
+      "basePrice": 120
+    },
+    {
+      "itemId": "astral_rune",
+      "basePrice": 64
+    },
+    {
+      "itemId": "cosmic_rune",
+      "basePrice": 74
+    },
+    {
+      "itemId": "mind_rune",
+      "basePrice": 3
+    },
+    {
+      "itemId": "body_rune",
+      "basePrice": 4
+    },
+    {
+      "itemId": "chaos_rune",
+      "basePrice": 72
+    },
+    {
+      "itemId": "death_rune",
+      "basePrice": 140
+    },
+    {
+      "itemId": "soul_rune",
+      "basePrice": 380
+    },
+    {
+      "itemId": "blood_rune",
+      "basePrice": 210
+    },
+    {
+      "itemId": "wrath_rune",
+      "basePrice": 270
+    },
+    {
+      "itemId": "small_pouch",
+      "basePrice": 1000
+    },
+    {
+      "itemId": "medium_pouch",
+      "basePrice": 10000
+    },
+    {
+      "itemId": "large_pouch",
+      "basePrice": 100000
+    },
+    {
+      "itemId": "giant_pouch",
+      "basePrice": 5000000
+    }
   ]
 }
