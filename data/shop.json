@@ -653,6 +653,22 @@
     {
       "itemId": "amethyst_arrowtips",
       "basePrice": 528
+    },
+    {
+      "itemId": "sapphire_ring",
+      "basePrice": 600
+    },
+    {
+      "itemId": "emerald_ring",
+      "basePrice": 720
+    },
+    {
+      "itemId": "ruby_ring",
+      "basePrice": 1020
+    },
+    {
+      "itemId": "diamond_ring",
+      "basePrice": 1850
     }
   ],
   "runes": [
