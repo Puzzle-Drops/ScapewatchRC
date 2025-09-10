@@ -134,3 +134,7 @@ class MiningSkill extends BaseSkill {
         }
     }
 }
+
+// Make MiningSkill available globally
+window.MiningSkill = MiningSkill;
+
