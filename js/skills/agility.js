@@ -291,3 +291,6 @@ class AgilitySkill extends BaseSkill {
         return true;
     }
 }
+
+// Make AgilitySkill available globally
+window.AgilitySkill = AgilitySkill;
