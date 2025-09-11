@@ -3059,3 +3059,64 @@ span.control-emoji {
     left: 50% !important;
     transform: translateX(-50%) !important;
 }
+
+/* XP Drops */
+.xp-drops-container {
+    position: fixed;
+    top: 34%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 34%;
+    pointer-events: none;
+    z-index: 100;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 4px;
+}
+
+.xp-drop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: xpDropAnimation 1.8s ease-out forwards;
+    position: relative;
+}
+
+.xp-drop-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.xp-drop-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: #FFD700;
+    text-shadow: 
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        0 -1px 0 #000,
+        0 1px 0 #000,
+        -1px 0 0 #000,
+        1px 0 0 #000;
+    white-space: nowrap;
+}
+
+@keyframes xpDropAnimation {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    66.67% {
+        /* 1.2s of 1.8s = 66.67% */
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-300px);
+        opacity: 0;
+    }
+}
