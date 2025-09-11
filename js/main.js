@@ -164,7 +164,12 @@ if (window.hiScoresManager) {
     hiScoresManager.initialize();
 }
 
-    // Load saved game data if logged in
+// Initialize XP drops
+if (window.xpDropManager) {
+    xpDropManager.initialize();
+}
+
+// Load saved game data if logged in
 if (firebaseManager.currentUser) {
     const loadSuccess = await firebaseManager.loadGame();
 
