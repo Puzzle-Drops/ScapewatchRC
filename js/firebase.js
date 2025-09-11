@@ -56,6 +56,16 @@ class FirebaseManager {
         this.sessionId = null;
         this.sessionListener = null;
         this.SAVE_INTERVAL = 10 * 60 * 1000; // 10 minutes in milliseconds
+        
+        // New properties for connection management
+        this.connectionRetryCount = 0;
+        this.maxRetries = 3;
+        this.retryDelay = 5000; // Start with 5 seconds
+        this.maxRetryDelay = 60000; // Max 60 seconds
+        this.connectionHealthy = true;
+        this.tokenRefreshTimer = null;
+        this.lastTokenRefresh = 0;
+        this.TOKEN_REFRESH_INTERVAL = 30 * 60 * 1000; // Refresh token every 30 minutes
     }
 
     SENTINEL_DATE = new Date('2099-12-31T23:59:59Z');
@@ -81,24 +91,186 @@ class FirebaseManager {
         // Restore session ID from localStorage if it exists
         this.sessionId = localStorage.getItem('scapewatch_session_id');
 
-        // Set up auth state listener
+        // Set up auth state listener with error handling
         onAuthStateChanged(this.auth, async (user) => {
-            if (user) {
-                this.currentUser = user;
-                await this.loadUsername();
-                console.log('User logged in:', this.username);
-                
-                // Validate session if we have a stored sessionId
-                if (this.sessionId) {
-                    await this.validateSession();
+            try {
+                if (user) {
+                    this.currentUser = user;
+                    await this.loadUsername();
+                    console.log('User logged in:', this.username);
+                    
+                    // Reset connection state
+                    this.connectionHealthy = true;
+                    this.connectionRetryCount = 0;
+                    
+                    // Validate session if we have a stored sessionId
+                    if (this.sessionId) {
+                        await this.validateSession();
+                    }
+                    
+                    // Start token refresh timer
+                    this.startTokenRefreshTimer();
+                } else {
+                    this.currentUser = null;
+                    this.username = null;
+                    this.sessionId = null;
+                    localStorage.removeItem('scapewatch_session_id');
+                    
+                    // Clean up timers and listeners
+                    this.cleanup();
                 }
-            } else {
-                this.currentUser = null;
-                this.username = null;
-                this.sessionId = null;
-                localStorage.removeItem('scapewatch_session_id');
+            } catch (error) {
+                console.error('Error in auth state change handler:', error);
+                this.handleConnectionError(error);
             }
+        }, (error) => {
+            console.error('Auth state listener error:', error);
+            this.handleConnectionError(error);
         });
+    }
+
+    // Start token refresh timer
+    startTokenRefreshTimer() {
+        // Clear existing timer
+        if (this.tokenRefreshTimer) {
+            clearInterval(this.tokenRefreshTimer);
+        }
+        
+        // Set up periodic token refresh
+        this.tokenRefreshTimer = setInterval(async () => {
+            await this.refreshAuthToken();
+        }, this.TOKEN_REFRESH_INTERVAL);
+        
+        // Also refresh immediately if it's been a while
+        const timeSinceLastRefresh = Date.now() - this.lastTokenRefresh;
+        if (timeSinceLastRefresh > this.TOKEN_REFRESH_INTERVAL) {
+            this.refreshAuthToken();
+        }
+    }
+
+    // Refresh authentication token
+    async refreshAuthToken() {
+        if (!this.currentUser || this.isOfflineMode) return;
+        
+        try {
+            console.log('Refreshing authentication token...');
+            // Force token refresh
+            await this.currentUser.getIdToken(true);
+            this.lastTokenRefresh = Date.now();
+            this.connectionHealthy = true;
+            this.connectionRetryCount = 0;
+            console.log('Token refreshed successfully');
+        } catch (error) {
+            console.error('Failed to refresh token:', error);
+            this.handleConnectionError(error);
+        }
+    }
+
+    // Handle connection errors
+    handleConnectionError(error) {
+        console.error('Connection error detected:', error);
+        
+        this.connectionHealthy = false;
+        this.connectionRetryCount++;
+        
+        // Check if we've exceeded max retries
+        if (this.connectionRetryCount >= this.maxRetries) {
+            console.error('Max connection retries exceeded, entering offline mode');
+            this.enterTemporaryOfflineMode();
+            return;
+        }
+        
+        // Calculate exponential backoff
+        const delay = Math.min(
+            this.retryDelay * Math.pow(2, this.connectionRetryCount - 1),
+            this.maxRetryDelay
+        );
+        
+        console.log(`Retrying connection in ${delay / 1000} seconds (attempt ${this.connectionRetryCount}/${this.maxRetries})`);
+        
+        // Schedule retry
+        setTimeout(async () => {
+            if (this.currentUser) {
+                try {
+                    await this.refreshAuthToken();
+                    // If successful, restart session monitoring
+                    if (this.connectionHealthy) {
+                        this.restartSessionMonitoring();
+                    }
+                } catch (retryError) {
+                    console.error('Retry failed:', retryError);
+                    this.handleConnectionError(retryError);
+                }
+            }
+        }, delay);
+    }
+
+    // Enter temporary offline mode
+    enterTemporaryOfflineMode() {
+        console.warn('Entering temporary offline mode due to connection issues');
+        
+        // Clean up listeners
+        this.cleanup();
+        
+        // Try to reconnect after a longer delay
+        setTimeout(async () => {
+            console.log('Attempting to reconnect...');
+            if (this.currentUser) {
+                this.connectionRetryCount = 0; // Reset retry count
+                try {
+                    await this.refreshAuthToken();
+                    if (this.connectionHealthy) {
+                        console.log('Reconnection successful');
+                        await this.validateSession();
+                    }
+                } catch (error) {
+                    console.error('Reconnection failed:', error);
+                    // Try again later
+                    this.enterTemporaryOfflineMode();
+                }
+            }
+        }, 5 * 60 * 1000); // Try again in 5 minutes
+    }
+
+    // Restart session monitoring after connection recovery
+    restartSessionMonitoring() {
+        console.log('Restarting session monitoring...');
+        
+        // Clean up old listener first
+        if (this.sessionListener) {
+            this.sessionListener();
+            this.sessionListener = null;
+        }
+        
+        // Restart monitoring
+        this.startSessionMonitoring();
+    }
+
+    // Clean up listeners and timers
+    cleanup() {
+        // Stop session listener
+        if (this.sessionListener) {
+            this.sessionListener();
+            this.sessionListener = null;
+        }
+        
+        // Stop activity timer
+        if (this.activityTimer) {
+            clearInterval(this.activityTimer);
+            this.activityTimer = null;
+        }
+        
+        // Stop token refresh timer
+        if (this.tokenRefreshTimer) {
+            clearInterval(this.tokenRefreshTimer);
+            this.tokenRefreshTimer = null;
+        }
+        
+        // Stop auto-save timer
+        if (this.saveTimer) {
+            clearInterval(this.saveTimer);
+            this.saveTimer = null;
+        }
     }
 
     // Validate current session
@@ -136,6 +308,7 @@ class FirebaseManager {
             }
         } catch (error) {
             console.error('Failed to validate session:', error);
+            this.handleConnectionError(error);
         }
     }
 
@@ -157,55 +330,81 @@ class FirebaseManager {
             });
         } catch (error) {
             console.error('Failed to update session:', error);
+            this.handleConnectionError(error);
         }
     }
 
     // Check if username is available
     async isUsernameAvailable(username) {
-        const usernameDoc = await getDoc(doc(this.db, 'usernames', username.toLowerCase()));
-        return !usernameDoc.exists();
+        try {
+            const usernameDoc = await getDoc(doc(this.db, 'usernames', username.toLowerCase()));
+            return !usernameDoc.exists();
+        } catch (error) {
+            console.error('Failed to check username availability:', error);
+            throw error;
+        }
     }
 
     // Reserve username during signup
     async reserveUsername(username, uid) {
-        await setDoc(doc(this.db, 'usernames', username.toLowerCase()), {
-            uid: uid,
-            username: username,
-            createdAt: serverTimestamp()
-        });
+        try {
+            await setDoc(doc(this.db, 'usernames', username.toLowerCase()), {
+                uid: uid,
+                username: username,
+                createdAt: serverTimestamp()
+            });
+        } catch (error) {
+            console.error('Failed to reserve username:', error);
+            throw error;
+        }
     }
 
     // Load username for current user
     async loadUsername() {
         if (!this.currentUser) return;
         
-        const userDoc = await getDoc(doc(this.db, 'users', this.currentUser.uid));
-        if (userDoc.exists()) {
-            this.username = userDoc.data().username;
+        try {
+            const userDoc = await getDoc(doc(this.db, 'users', this.currentUser.uid));
+            if (userDoc.exists()) {
+                this.username = userDoc.data().username;
+            }
+        } catch (error) {
+            console.error('Failed to load username:', error);
+            this.handleConnectionError(error);
         }
     }
 
     // Get email from username (for password reset)
     async getEmailFromUsername(username) {
-        const usernameDoc = await getDoc(doc(this.db, 'usernames', username.toLowerCase()));
-        
-        if (!usernameDoc.exists()) {
-            throw new Error('Username not found');
+        try {
+            const usernameDoc = await getDoc(doc(this.db, 'usernames', username.toLowerCase()));
+            
+            if (!usernameDoc.exists()) {
+                throw new Error('Username not found');
+            }
+            
+            const uid = usernameDoc.data().uid;
+            const userDoc = await getDoc(doc(this.db, 'users', uid));
+            
+            if (!userDoc.exists()) {
+                throw new Error('User data not found');
+            }
+            
+            return userDoc.data().email;
+        } catch (error) {
+            console.error('Failed to get email from username:', error);
+            throw error;
         }
-        
-        const uid = usernameDoc.data().uid;
-        const userDoc = await getDoc(doc(this.db, 'users', uid));
-        
-        if (!userDoc.exists()) {
-            throw new Error('User data not found');
-        }
-        
-        return userDoc.data().email;
     }
 
     // Reset password
     async resetPassword(email) {
-        await sendPasswordResetEmail(this.auth, email);
+        try {
+            await sendPasswordResetEmail(this.auth, email);
+        } catch (error) {
+            console.error('Failed to send password reset email:', error);
+            throw error;
+        }
     }
 
     // Sign up new user
@@ -253,6 +452,9 @@ class FirebaseManager {
         
         // Start session monitoring
         this.startSessionMonitoring();
+        
+        // Start token refresh timer
+        this.startTokenRefreshTimer();
 
         return user;
     }
@@ -295,11 +497,14 @@ class FirebaseManager {
         
         // Start session monitoring
         this.startSessionMonitoring();
+        
+        // Start token refresh timer
+        this.startTokenRefreshTimer();
 
         return userCredential.user;
     }
     
-    // Monitor for session conflicts
+    // Monitor for session conflicts with improved error handling
     startSessionMonitoring() {
         if (!this.currentUser) return;
         
@@ -309,7 +514,7 @@ class FirebaseManager {
             this.sessionListener = null;
         }
         
-        // Listen for changes to the user document
+        // Listen for changes to the user document with error handling
         this.sessionListener = onSnapshot(
             doc(this.db, 'users', this.currentUser.uid),
             (doc) => {
@@ -321,18 +526,39 @@ class FirebaseManager {
                         this.handleForcedLogout();
                     }
                 }
+                
+                // Reset connection health on successful snapshot
+                this.connectionHealthy = true;
+                this.connectionRetryCount = 0;
+            },
+            (error) => {
+                console.error('Session monitoring error:', error);
+                
+                // Don't retry on permission errors
+                if (error.code === 'permission-denied') {
+                    console.error('Permission denied for session monitoring');
+                    this.cleanup();
+                    return;
+                }
+                
+                // Handle other errors with retry logic
+                this.handleConnectionError(error);
             }
         );
             
         // Also update last active time periodically (every 2 minutes)
+        if (this.activityTimer) {
+            clearInterval(this.activityTimer);
+        }
+        
         this.activityTimer = setInterval(() => {
             this.updateLastActive();
         }, 2 * 60 * 1000);
     }
     
-    // Update last active time
+    // Update last active time with error handling
     async updateLastActive() {
-        if (!this.currentUser || this.isOfflineMode) return;
+        if (!this.currentUser || this.isOfflineMode || !this.connectionHealthy) return;
         
         try {
             await updateDoc(doc(this.db, 'users', this.currentUser.uid), {
@@ -340,6 +566,8 @@ class FirebaseManager {
             });
         } catch (error) {
             console.error('Failed to update last active time:', error);
+            // Don't trigger full connection error handling for activity updates
+            // Just log and continue
         }
     }
     
@@ -377,20 +605,8 @@ class FirebaseManager {
             });
         }
         
-        // Stop monitoring
-        if (this.sessionListener) {
-            this.sessionListener();
-            this.sessionListener = null;
-        }
-        
-        // Stop activity timer
-        if (this.activityTimer) {
-            clearInterval(this.activityTimer);
-            this.activityTimer = null;
-        }
-        
-        // Stop auto-save
-        this.stopAutoSave();
+        // Clean up everything
+        this.cleanup();
         
         // Clear session
         this.currentUser = null;
@@ -488,17 +704,8 @@ class FirebaseManager {
             }
         }
         
-        // Stop monitoring
-        if (this.sessionListener) {
-            this.sessionListener();
-            this.sessionListener = null;
-        }
-        
-        // Stop activity timer
-        if (this.activityTimer) {
-            clearInterval(this.activityTimer);
-            this.activityTimer = null;
-        }
+        // Clean up everything
+        this.cleanup();
         
         // Clear local session
         localStorage.removeItem('scapewatch_session_id');
@@ -512,9 +719,9 @@ class FirebaseManager {
         location.reload();
     }
 
-    // Save game state
+    // Save game state with connection checking
     async saveGame() {
-        if (this.isOfflineMode || !this.currentUser) return;
+        if (this.isOfflineMode || !this.currentUser || !this.connectionHealthy) return;
 
         // Prevent saving too frequently (10 minutes throttle for normal saves)
         const now = Date.now();
@@ -551,6 +758,7 @@ class FirebaseManager {
             await this.updateHiscores();
         } catch (error) {
             console.error('Failed to save game:', error);
+            this.handleConnectionError(error);
         }
     }
 
@@ -991,7 +1199,7 @@ class FirebaseManager {
     }
 
     async updateHiscores(forceUpdate = false) {
-        if (this.isOfflineMode || !this.currentUser) return;
+        if (this.isOfflineMode || !this.currentUser || !this.connectionHealthy) return;
         
         try {
             const hiscoreData = {
@@ -1043,6 +1251,7 @@ class FirebaseManager {
             console.log('Hiscores updated');
         } catch (error) {
             console.error('Failed to update hiscores:', error);
+            // Don't trigger connection error handling for hiscores updates
         }
     }
 
