@@ -146,40 +146,46 @@ class RuneCreditManager {
         const petRoll = Math.random();
         if (petRoll < 1/1000) {
             // We got a pet! Now check if it's shiny (1/10 chance)
-            const shinyRoll = Math.random();
-            const isShiny = shinyRoll < 1/10;
-            
-            // Get skill name for display
-            const skillsData = loadingManager.getData('skills');
-            const skillName = skillsData[skillId] ? skillsData[skillId].name : skillId;
-            
-            // Initialize pet counts if needed
-            if (!this.petCounts[skillId]) {
-                this.petCounts[skillId] = { regular: 0, shiny: 0 };
-            }
-            
-            if (isShiny) {
-                this.petCounts[skillId].shiny++;
-                this.totalShinyPetsObtained++;
-                this.totalPetsObtained++;
-                
-                // Set speed bonus flag
-                this.speedBonuses.shinyPets[skillId] = true;
-                
-                console.log(`🌟✨ SHINY PET DROP! ✨🌟 You received a SHINY ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
-                console.log(`Total ${skillName} pets: ${this.petCounts[skillId].regular} regular, ${this.petCounts[skillId].shiny} shiny`);
-                console.log(`Total pets across all skills: ${this.totalPetsObtained} (${this.totalShinyPetsObtained} shiny)`);
-            } else {
-                this.petCounts[skillId].regular++;
-                this.totalPetsObtained++;
-                
-                // Set speed bonus flag
-                this.speedBonuses.pets[skillId] = true;
-                
-                console.log(`🎉 PET DROP! 🎉 You received a ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
-                console.log(`Total ${skillName} pets: ${this.petCounts[skillId].regular} regular, ${this.petCounts[skillId].shiny} shiny`);
-                console.log(`Total pets across all skills: ${this.totalPetsObtained} (${this.totalShinyPetsObtained} shiny)`);
-            }
+const shinyRoll = Math.random();
+const isShiny = shinyRoll < 1/10;
+
+// Get skill name for display
+const skillsData = loadingManager.getData('skills');
+const skillName = skillsData[skillId] ? skillsData[skillId].name : skillId;
+
+// Initialize pet counts if needed
+if (!this.petCounts[skillId]) {
+    this.petCounts[skillId] = { regular: 0, shiny: 0 };
+}
+
+if (isShiny) {
+    this.petCounts[skillId].shiny++;
+    this.totalShinyPetsObtained++;
+    this.totalPetsObtained++;
+    
+    // Set speed bonus flag
+    this.speedBonuses.shinyPets[skillId] = true;
+    
+    console.log(`🌟✨ SHINY PET DROP! ✨🌟 You received a SHINY ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
+    
+    // Show pet celebration
+    if (window.xpDropManager) {
+        xpDropManager.showPetObtained(skillId, true);
+    }
+} else {
+    this.petCounts[skillId].regular++;
+    this.totalPetsObtained++;
+    
+    // Set speed bonus flag
+    this.speedBonuses.pets[skillId] = true;
+    
+    console.log(`🎉 PET DROP! 🎉 You received a ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
+    
+    // Show pet celebration
+    if (window.xpDropManager) {
+        xpDropManager.showPetObtained(skillId, false);
+    }
+}
             
             // Save immediately
             this.saveData();
