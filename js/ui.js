@@ -555,26 +555,26 @@ switch (panelName) {
         taskContent.className = 'task-content';
         
         // Skill icon
-const iconDiv = document.createElement('div');
-iconDiv.className = 'task-icon';
-// Add skill-colored border for current and next tasks
-iconDiv.classList.add(`skill-border-${task.skill}`);
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'task-icon';
+        // Add skill-colored border for current and next tasks
+        iconDiv.classList.add(`skill-border-${task.skill}`);
 
-const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
-if (skillIcon) {
-    const icon = document.createElement('img');
-    icon.src = skillIcon.src;
-    iconDiv.appendChild(icon);
-} else {
-    // Fallback text
-    iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
-}
+        const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
+        if (skillIcon) {
+            const icon = document.createElement('img');
+            icon.src = skillIcon.src;
+            iconDiv.appendChild(icon);
+        } else {
+            // Fallback text
+            iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
+        }
 
-// Add task quantity badge
-const quantityBadge = document.createElement('div');
-quantityBadge.className = 'task-quantity-badge';
-quantityBadge.textContent = task.targetCount;
-iconDiv.appendChild(quantityBadge);
+        // Add task quantity badge
+        const quantityBadge = document.createElement('div');
+        quantityBadge.className = 'task-quantity-badge';
+        quantityBadge.textContent = task.targetCount;
+        iconDiv.appendChild(quantityBadge);
         
         // Task details container
         const detailsDiv = document.createElement('div');
@@ -611,6 +611,7 @@ iconDiv.appendChild(quantityBadge);
             const progressDiv = document.createElement('div');
             progressDiv.className = 'task-progress';
             
+            // Task progress bar
             const progressBar = document.createElement('div');
             progressBar.className = 'task-progress-bar';
             
@@ -620,15 +621,75 @@ iconDiv.appendChild(quantityBadge);
             
             progressBar.appendChild(progressFill);
             
-            const countDiv = document.createElement('div');
-            countDiv.className = 'task-count';
+            // Add text overlay for task progress
+            const progressText = document.createElement('div');
+            progressText.className = 'progress-bar-text';
             
-            // All tasks now properly track their own progress
             const current = Math.floor(task.progress * task.targetCount);
-            countDiv.textContent = `${current}/${task.targetCount}`;
+            const percentage = (task.progress * 100).toFixed(2);
             
+            progressText.innerHTML = `
+                <span class="progress-text-left">${current}</span>
+                <span class="progress-text-center">${percentage}%</span>
+                <span class="progress-text-right">${task.targetCount}</span>
+            `;
+            
+            progressBar.appendChild(progressText);
             progressDiv.appendChild(progressBar);
-            progressDiv.appendChild(countDiv);
+            
+            // Add level progress bar if we're in the floating display
+            const isFloating = taskDiv.closest('.floating-current-task');
+            if (isFloating && window.skills) {
+                const skillData = skills.getSkill(task.skill);
+                if (skillData) {
+                    // Level progress bar
+                    const levelBar = document.createElement('div');
+                    levelBar.className = 'level-progress-bar';
+                    
+                    // Calculate level progress
+                    const currentLevel = skillData.level;
+                    const nextLevel = Math.min(currentLevel + 1, 99);
+                    let levelProgress = 0;
+                    
+                    if (currentLevel < 99) {
+                        const currentLevelXp = getXpForLevel(currentLevel);
+                        const nextLevelXp = getXpForLevel(nextLevel);
+                        const xpIntoLevel = skillData.xp - currentLevelXp;
+                        const xpNeeded = nextLevelXp - currentLevelXp;
+                        levelProgress = (xpIntoLevel / xpNeeded) * 100;
+                    } else {
+                        levelProgress = 100;
+                    }
+                    
+                    const levelFill = document.createElement('div');
+                    levelFill.className = 'level-progress-fill';
+                    levelFill.style.width = `${levelProgress}%`;
+                    
+                    levelBar.appendChild(levelFill);
+                    
+                    // Add text overlay for level progress
+                    const levelText = document.createElement('div');
+                    levelText.className = 'progress-bar-text';
+                    
+                    const levelPercentage = levelProgress.toFixed(2);
+                    
+                    levelText.innerHTML = `
+                        <span class="progress-text-left">Lv ${currentLevel}</span>
+                        <span class="progress-text-center">${levelPercentage}%</span>
+                        <span class="progress-text-right">Lv ${nextLevel}</span>
+                    `;
+                    
+                    levelBar.appendChild(levelText);
+                    progressDiv.appendChild(levelBar);
+                    
+                    // Add XP text below level bar
+                    const xpText = document.createElement('div');
+                    xpText.className = 'level-xp-text';
+                    xpText.textContent = `${formatNumber(Math.floor(skillData.xp))} xp`;
+                    progressDiv.appendChild(xpText);
+                }
+            }
+            
             detailsDiv.appendChild(progressDiv);
         }
         
