@@ -37,6 +37,7 @@ async function init() {
         loadingManager.addImage(`skill_${icon}`, `assets/skills/${icon}.png`);
     }
 
+    loadingManager.addImage('furnace', 'assets/skills/furnace.png');
     loadingManager.addImage('bank_note', 'assets/items/bank_note.png');
 
     // Add UI icons for hiscores
