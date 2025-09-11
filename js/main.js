@@ -168,6 +168,11 @@ if (window.hiScoresManager) {
 if (firebaseManager.currentUser) {
     const loadSuccess = await firebaseManager.loadGame();
 
+    // Update speed bonuses after loading
+    if (window.runeCreditManager) {
+        runeCreditManager.updateSpeedBonuses();
+    }
+
     // IMPORTANT: Give AI a grace period after loading
     if (window.ai) {
         ai.decisionCooldown = 2000; // 2 second grace period
