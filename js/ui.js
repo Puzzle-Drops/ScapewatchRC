@@ -24,6 +24,7 @@ class UIManager {
         this.updateInventory();
         this.updateSkillsList();
         this.updateTasks();
+        this.updateFloatingCurrentTask();
     }
 
     initializeItemOrder() {
@@ -142,6 +143,7 @@ class UIManager {
     }
 
     refreshCurrentPanel() {
+    this.updateFloatingCurrentTask();
     switch (this.currentPanel) {
         case 'inventory':
             this.updateInventory();
@@ -435,72 +437,111 @@ switch (panelName) {
     // ==================== TASKS DISPLAY ====================
 
     updateTasks() {
-    if (this.currentPanel !== 'tasks' || this.minimized) return;
-    
-    const tasksList = document.getElementById('tasks-list');
-    if (!tasksList || !window.taskManager) return;
+        // Update floating current task display (always)
+        this.updateFloatingCurrentTask();
+        
+        // Update task panel (only if visible)
+        if (this.currentPanel !== 'tasks' || this.minimized) return;
+        
+        const tasksList = document.getElementById('tasks-list');
+        if (!tasksList || !window.taskManager) return;
 
-    // Update all task progress first to ensure accuracy
-    taskManager.updateAllProgress();
-    
-    tasksList.innerHTML = '';
-    
-    // Create sections for current, next, and regular tasks
-    
-    // Current Task Section
-    if (taskManager.currentTask) {
-        const currentSection = document.createElement('div');
-        currentSection.className = 'task-section';
+        // Update all task progress first to ensure accuracy
+        taskManager.updateAllProgress();
         
-        const currentHeader = document.createElement('div');
-        currentHeader.className = 'task-section-header';
-        currentHeader.textContent = 'Current Task';
+        tasksList.innerHTML = '';
         
-        const currentTaskDiv = this.createTaskElement(taskManager.currentTask, -1, true); // -1 means no reroll
+        // Create sections for current, next, and regular tasks
         
-        currentSection.appendChild(currentHeader);
-        currentSection.appendChild(currentTaskDiv);
-        tasksList.appendChild(currentSection);
+        // Current Task Section
+        if (taskManager.currentTask) {
+            const currentSection = document.createElement('div');
+            currentSection.className = 'task-section';
+            
+            const currentHeader = document.createElement('div');
+            currentHeader.className = 'task-section-header';
+            currentHeader.textContent = 'Current Task';
+            
+            const currentTaskDiv = this.createTaskElement(taskManager.currentTask, -1, true); // -1 means no reroll
+            
+            currentSection.appendChild(currentHeader);
+            currentSection.appendChild(currentTaskDiv);
+            tasksList.appendChild(currentSection);
+        }
+        
+        // Next Task Section
+        if (taskManager.nextTask) {
+            const nextSection = document.createElement('div');
+            nextSection.className = 'task-section';
+            
+            const nextHeader = document.createElement('div');
+            nextHeader.className = 'task-section-header';
+            nextHeader.textContent = 'Next Task';
+            
+            const nextTaskDiv = this.createTaskElement(taskManager.nextTask, -1, false); // No reroll, no progress
+            
+            nextSection.appendChild(nextHeader);
+            nextSection.appendChild(nextTaskDiv);
+            tasksList.appendChild(nextSection);
+        }
+        
+        // Regular Tasks Section
+        if (taskManager.tasks.length > 0) {
+            const regularSection = document.createElement('div');
+            regularSection.className = 'task-section';
+            
+            const regularHeader = document.createElement('div');
+            regularHeader.className = 'task-section-header';
+            regularHeader.textContent = 'Tasks';
+            
+            const regularTasksContainer = document.createElement('div');
+            regularTasksContainer.className = 'regular-tasks-container';
+            
+            taskManager.tasks.forEach((taskSlot, index) => {
+                const taskDiv = this.createSelectableTaskElement(taskSlot, index);
+                regularTasksContainer.appendChild(taskDiv);
+            });
+            
+            regularSection.appendChild(regularHeader);
+            regularSection.appendChild(regularTasksContainer);
+            tasksList.appendChild(regularSection);
+        }
     }
-    
-    // Next Task Section
-    if (taskManager.nextTask) {
-        const nextSection = document.createElement('div');
-        nextSection.className = 'task-section';
+
+    updateFloatingCurrentTask() {
+        const floatingContainer = document.getElementById('floating-current-task');
+        const floatingContent = floatingContainer?.querySelector('.floating-task-content');
         
-        const nextHeader = document.createElement('div');
-        nextHeader.className = 'task-section-header';
-        nextHeader.textContent = 'Next Task';
+        if (!floatingContainer || !floatingContent || !window.taskManager) return;
         
-        const nextTaskDiv = this.createTaskElement(taskManager.nextTask, -1, false); // No reroll, no progress
+        // Update task progress
+        if (taskManager.currentTask) {
+            taskManager.updateAllProgress();
+        }
         
-        nextSection.appendChild(nextHeader);
-        nextSection.appendChild(nextTaskDiv);
-        tasksList.appendChild(nextSection);
+        // Clear content
+        floatingContent.innerHTML = '';
+        
+        if (taskManager.currentTask) {
+            // Show the container
+            floatingContainer.style.display = 'block';
+            
+            // Create header
+            const header = document.createElement('div');
+            header.className = 'task-section-header';
+            header.textContent = 'Current Task';
+            
+            // Create task element (reusing the same method for consistency)
+            const taskDiv = this.createTaskElement(taskManager.currentTask, -1, true);
+            
+            // Add to floating container
+            floatingContent.appendChild(header);
+            floatingContent.appendChild(taskDiv);
+        } else {
+            // Hide if no current task
+            floatingContainer.style.display = 'none';
+        }
     }
-    
-    // Regular Tasks Section
-    if (taskManager.tasks.length > 0) {
-        const regularSection = document.createElement('div');
-        regularSection.className = 'task-section';
-        
-        const regularHeader = document.createElement('div');
-        regularHeader.className = 'task-section-header';
-        regularHeader.textContent = 'Tasks';
-        
-        const regularTasksContainer = document.createElement('div');
-        regularTasksContainer.className = 'regular-tasks-container';
-        
-        taskManager.tasks.forEach((taskSlot, index) => {
-            const taskDiv = this.createSelectableTaskElement(taskSlot, index);
-            regularTasksContainer.appendChild(taskDiv);
-        });
-        
-        regularSection.appendChild(regularHeader);
-        regularSection.appendChild(regularTasksContainer);
-        tasksList.appendChild(regularSection);
-    }
-}
 
     createTaskElement(task, rerollIndex, showProgress) {
         const taskDiv = document.createElement('div');
