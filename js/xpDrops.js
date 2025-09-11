@@ -9,6 +9,10 @@ class XPDropManager {
         this.celebrationQueue = [];
         this.currentCelebration = null;
         this.celebrationInProgress = false;
+        
+        // Track XP milestones to avoid duplicate celebrations
+        this.xpMilestones = {}; // skillId -> highest milestone reached
+        this.totalLevelMilestone = 0; // Highest total level milestone reached
     }
     
     initialize() {
@@ -81,6 +85,125 @@ class XPDropManager {
         this.cleanupOldDrops();
     }
     
+    // Check for XP milestones
+    checkXPMilestones(skillId, newXP) {
+        // Initialize milestone tracking for this skill if needed
+        if (!this.xpMilestones[skillId]) {
+            this.xpMilestones[skillId] = 0;
+        }
+        
+        // Check every 10M milestone
+        const newMilestone = Math.floor(newXP / 10000000) * 10000000;
+        const oldMilestone = this.xpMilestones[skillId];
+        
+        if (newMilestone > oldMilestone && newMilestone > 0) {
+            this.xpMilestones[skillId] = newMilestone;
+            
+            // Queue the milestone celebration
+            this.queueCelebration({
+                type: 'xpMilestone',
+                skillId: skillId,
+                milestone: newMilestone,
+                duration: 3000
+            });
+            
+            // Check for 50M trimmed cape
+            if (newMilestone === 50000000) {
+                this.queueCelebration({
+                    type: 'trimmedCape',
+                    skillId: skillId,
+                    duration: 3500
+                });
+            }
+            
+            // Check for 200M
+            if (newMilestone === 200000000) {
+                this.checkFor200MAll();
+            }
+        }
+    }
+    
+    // Check total level milestones
+    checkTotalLevel(totalLevel) {
+        const milestone = Math.floor(totalLevel / 100) * 100;
+        
+        if (milestone > this.totalLevelMilestone && milestone > 0) {
+            this.totalLevelMilestone = milestone;
+            
+            this.queueCelebration({
+                type: 'totalLevel',
+                level: milestone,
+                duration: 3000
+            });
+        }
+    }
+    
+    // Check if all skills are 99
+    checkMaxCape() {
+        if (!window.skills) return;
+        
+        const allSkills = skills.getAllSkills();
+        let allMaxed = true;
+        
+        for (const skill of Object.values(allSkills)) {
+            if (skill.level < 99) {
+                allMaxed = false;
+                break;
+            }
+        }
+        
+        if (allMaxed) {
+            this.queueCelebration({
+                type: 'maxCape',
+                duration: 5000
+            });
+        }
+    }
+    
+    // Check if all skills are 50M XP
+    checkTrimmedMaxCape() {
+        if (!window.skills) return;
+        
+        const allSkills = skills.getAllSkills();
+        let allTrimmed = true;
+        
+        for (const skill of Object.values(allSkills)) {
+            if (skill.xp < 50000000) {
+                allTrimmed = false;
+                break;
+            }
+        }
+        
+        if (allTrimmed) {
+            this.queueCelebration({
+                type: 'trimmedMaxCape',
+                duration: 5000
+            });
+        }
+    }
+    
+    // Check if all skills are 200M XP
+    checkFor200MAll() {
+        if (!window.skills) return;
+        
+        const allSkills = skills.getAllSkills();
+        let all200M = true;
+        
+        for (const skill of Object.values(allSkills)) {
+            if (skill.xp < 200000000) {
+                all200M = false;
+                break;
+            }
+        }
+        
+        if (all200M) {
+            this.queueCelebration({
+                type: 'all200M',
+                duration: 6000
+            });
+        }
+    }
+    
     // Queue a level up celebration
     showLevelUp(skillId, newLevel) {
         this.queueCelebration({
@@ -89,6 +212,18 @@ class XPDropManager {
             newLevel: newLevel,
             duration: 3000
         });
+        
+        // Check for level 99 skill cape
+        if (newLevel === 99) {
+            this.queueCelebration({
+                type: 'skillCape',
+                skillId: skillId,
+                duration: 3500
+            });
+            
+            // Check if this completes max cape
+            this.checkMaxCape();
+        }
     }
     
     // Queue a task completion celebration
@@ -97,6 +232,16 @@ class XPDropManager {
             type: 'taskComplete',
             task: task,
             duration: 2500
+        });
+    }
+    
+    // Queue a pet obtained celebration
+    showPetObtained(skillId, isShiny = false) {
+        this.queueCelebration({
+            type: 'petObtained',
+            skillId: skillId,
+            isShiny: isShiny,
+            duration: 4000
         });
     }
     
@@ -119,10 +264,37 @@ class XPDropManager {
         this.currentCelebration = nextCelebration;
         
         // Show the appropriate celebration
-        if (nextCelebration.type === 'levelup') {
-            this.displayLevelUp(nextCelebration);
-        } else if (nextCelebration.type === 'taskComplete') {
-            this.displayTaskComplete(nextCelebration);
+        switch(nextCelebration.type) {
+            case 'levelup':
+                this.displayLevelUp(nextCelebration);
+                break;
+            case 'taskComplete':
+                this.displayTaskComplete(nextCelebration);
+                break;
+            case 'xpMilestone':
+                this.displayXPMilestone(nextCelebration);
+                break;
+            case 'skillCape':
+                this.displaySkillCape(nextCelebration);
+                break;
+            case 'trimmedCape':
+                this.displayTrimmedCape(nextCelebration);
+                break;
+            case 'totalLevel':
+                this.displayTotalLevel(nextCelebration);
+                break;
+            case 'petObtained':
+                this.displayPetObtained(nextCelebration);
+                break;
+            case 'maxCape':
+                this.displayMaxCape(nextCelebration);
+                break;
+            case 'trimmedMaxCape':
+                this.displayTrimmedMaxCape(nextCelebration);
+                break;
+            case 'all200M':
+                this.displayAll200M(nextCelebration);
+                break;
         }
         
         // Schedule next celebration after this one finishes
@@ -136,20 +308,16 @@ class XPDropManager {
     
     // Display level up celebration
     displayLevelUp(data) {
-        // Create celebration element
         const celebration = document.createElement('div');
         celebration.className = 'level-up-celebration';
         
-        // Create LEVEL UP text
         const levelUpText = document.createElement('div');
         levelUpText.className = 'celebration-title';
         levelUpText.textContent = 'LEVEL UP!';
         
-        // Create skill info row
         const skillInfo = document.createElement('div');
         skillInfo.className = 'celebration-skill-info';
         
-        // Create icon
         const iconElement = document.createElement('img');
         const skillIcon = loadingManager.getImage(`skill_${data.skillId}`);
         if (skillIcon) {
@@ -157,26 +325,296 @@ class XPDropManager {
             iconElement.className = 'celebration-icon';
         }
         
-        // Create level text
         const levelText = document.createElement('span');
         levelText.className = 'celebration-level';
         levelText.textContent = `Lv ${data.newLevel}`;
         
-        // Assemble skill info
         skillInfo.appendChild(iconElement);
         skillInfo.appendChild(levelText);
         
-        // Assemble celebration
         celebration.appendChild(levelUpText);
         celebration.appendChild(skillInfo);
         
-        // Add fireworks
         this.createFireworks();
-        
-        // Add to container
         this.celebrationContainer.appendChild(celebration);
         
-        // Remove after animation
+        setTimeout(() => {
+            if (celebration.parentNode) {
+                celebration.parentNode.removeChild(celebration);
+            }
+        }, data.duration);
+    }
+    
+    // Display XP milestone (10M, 20M, 30M, etc.)
+    displayXPMilestone(data) {
+        const celebration = document.createElement('div');
+        celebration.className = 'level-up-celebration';
+        
+        const millions = data.milestone / 1000000;
+        const titleText = document.createElement('div');
+        titleText.className = 'celebration-title';
+        titleText.textContent = `${millions} MILLION!`;
+        
+        const skillInfo = document.createElement('div');
+        skillInfo.className = 'celebration-skill-info';
+        
+        const iconElement = document.createElement('img');
+        const skillIcon = loadingManager.getImage(`skill_${data.skillId}`);
+        if (skillIcon) {
+            iconElement.src = skillIcon.src;
+            iconElement.className = 'celebration-icon';
+        }
+        
+        const xpText = document.createElement('span');
+        xpText.className = 'celebration-level';
+        xpText.textContent = `${millions}M`;
+        
+        skillInfo.appendChild(iconElement);
+        skillInfo.appendChild(xpText);
+        
+        celebration.appendChild(titleText);
+        celebration.appendChild(skillInfo);
+        
+        this.createFireworks();
+        this.celebrationContainer.appendChild(celebration);
+        
+        setTimeout(() => {
+            if (celebration.parentNode) {
+                celebration.parentNode.removeChild(celebration);
+            }
+        }, data.duration);
+    }
+    
+    // Display skill cape unlock
+    displaySkillCape(data) {
+        const celebration = document.createElement('div');
+        celebration.className = 'cape-unlock-celebration';
+        
+        const skillInfo = document.createElement('div');
+        skillInfo.className = 'celebration-skill-info';
+        
+        const iconElement = document.createElement('img');
+        const capeIcon = loadingManager.getImage(`cape_${data.skillId}`);
+        if (capeIcon) {
+            iconElement.src = capeIcon.src;
+            iconElement.className = 'celebration-cape-icon';
+        }
+        
+        const unlockText = document.createElement('span');
+        unlockText.className = 'celebration-unlock';
+        unlockText.textContent = 'Skill Cape Unlocked!';
+        
+        skillInfo.appendChild(iconElement);
+        celebration.appendChild(skillInfo);
+        celebration.appendChild(unlockText);
+        
+        this.createFireworks(false, true); // Special cape fireworks
+        this.celebrationContainer.appendChild(celebration);
+        
+        setTimeout(() => {
+            if (celebration.parentNode) {
+                celebration.parentNode.removeChild(celebration);
+            }
+        }, data.duration);
+    }
+    
+    // Display trimmed cape unlock
+    displayTrimmedCape(data) {
+        const celebration = document.createElement('div');
+        celebration.className = 'cape-unlock-celebration';
+        
+        const skillInfo = document.createElement('div');
+        skillInfo.className = 'celebration-skill-info';
+        
+        const iconElement = document.createElement('img');
+        const capeIcon = loadingManager.getImage(`cape_${data.skillId}_t`);
+        if (capeIcon) {
+            iconElement.src = capeIcon.src;
+            iconElement.className = 'celebration-cape-icon';
+        }
+        
+        const unlockText = document.createElement('span');
+        unlockText.className = 'celebration-unlock-gold';
+        unlockText.textContent = 'Trimmed Cape Unlocked!';
+        
+        skillInfo.appendChild(iconElement);
+        celebration.appendChild(skillInfo);
+        celebration.appendChild(unlockText);
+        
+        this.createFireworks(false, true); // Special cape fireworks
+        this.celebrationContainer.appendChild(celebration);
+        
+        setTimeout(() => {
+            if (celebration.parentNode) {
+                celebration.parentNode.removeChild(celebration);
+            }
+        }, data.duration);
+    }
+    
+    // Display total level milestone
+    displayTotalLevel(data) {
+        const celebration = document.createElement('div');
+        celebration.className = 'level-up-celebration';
+        
+        const skillInfo = document.createElement('div');
+        skillInfo.className = 'celebration-skill-info';
+        
+        const iconElement = document.createElement('img');
+        const skillsIcon = loadingManager.getImage('skill_skills');
+        if (skillsIcon) {
+            iconElement.src = skillsIcon.src;
+            iconElement.className = 'celebration-icon';
+        }
+        
+        const levelText = document.createElement('span');
+        levelText.className = 'celebration-level';
+        levelText.textContent = `${data.level} Total Level!`;
+        
+        skillInfo.appendChild(iconElement);
+        skillInfo.appendChild(levelText);
+        
+        celebration.appendChild(skillInfo);
+        
+        this.createFireworks();
+        this.celebrationContainer.appendChild(celebration);
+        
+        setTimeout(() => {
+            if (celebration.parentNode) {
+                celebration.parentNode.removeChild(celebration);
+            }
+        }, data.duration);
+    }
+    
+    // Display pet obtained
+    displayPetObtained(data) {
+        const celebration = document.createElement('div');
+        celebration.className = 'pet-obtained-celebration';
+        
+        const skillInfo = document.createElement('div');
+        skillInfo.className = 'celebration-skill-info';
+        
+        const iconElement = document.createElement('img');
+        const petIcon = loadingManager.getImage(`pet_${data.skillId}${data.isShiny ? '_s' : ''}`);
+        if (petIcon) {
+            iconElement.src = petIcon.src;
+            iconElement.className = 'celebration-pet-icon';
+        }
+        
+        const petText = document.createElement('span');
+        petText.className = data.isShiny ? 'celebration-pet-shiny' : 'celebration-pet';
+        petText.textContent = data.isShiny ? 'SHINY Pet Obtained!' : 'Pet Obtained!';
+        
+        skillInfo.appendChild(iconElement);
+        celebration.appendChild(skillInfo);
+        celebration.appendChild(petText);
+        
+        this.createFireworks(false, false, data.isShiny);
+        this.celebrationContainer.appendChild(celebration);
+        
+        setTimeout(() => {
+            if (celebration.parentNode) {
+                celebration.parentNode.removeChild(celebration);
+            }
+        }, data.duration);
+    }
+    
+    // Display max cape
+    displayMaxCape(data) {
+        const celebration = document.createElement('div');
+        celebration.className = 'max-cape-celebration';
+        
+        const congratsText = document.createElement('div');
+        congratsText.className = 'celebration-congrats';
+        congratsText.textContent = 'Congratulations!';
+        
+        const skillInfo = document.createElement('div');
+        skillInfo.className = 'celebration-skill-info';
+        
+        const iconElement = document.createElement('img');
+        const maxCapeIcon = loadingManager.getImage('cape_max');
+        if (maxCapeIcon) {
+            iconElement.src = maxCapeIcon.src;
+            iconElement.className = 'celebration-max-cape-icon';
+        }
+        
+        const maxText = document.createElement('span');
+        maxText.className = 'celebration-max';
+        maxText.textContent = 'YOU MAXED!';
+        
+        skillInfo.appendChild(iconElement);
+        skillInfo.appendChild(maxText);
+        
+        celebration.appendChild(congratsText);
+        celebration.appendChild(skillInfo);
+        
+        this.createFireworks(false, false, false, true); // Epic fireworks
+        this.celebrationContainer.appendChild(celebration);
+        
+        setTimeout(() => {
+            if (celebration.parentNode) {
+                celebration.parentNode.removeChild(celebration);
+            }
+        }, data.duration);
+    }
+    
+    // Display trimmed max cape
+    displayTrimmedMaxCape(data) {
+        const celebration = document.createElement('div');
+        celebration.className = 'max-cape-celebration';
+        
+        const congratsText = document.createElement('div');
+        congratsText.className = 'celebration-congrats-big';
+        congratsText.textContent = 'CONGRATULATIONS!';
+        
+        const skillInfo = document.createElement('div');
+        skillInfo.className = 'celebration-skill-info';
+        
+        const iconElement = document.createElement('img');
+        const maxCapeIcon = loadingManager.getImage('cape_max_t');
+        if (maxCapeIcon) {
+            iconElement.src = maxCapeIcon.src;
+            iconElement.className = 'celebration-max-cape-icon';
+        }
+        
+        const maxText = document.createElement('span');
+        maxText.className = 'celebration-max-gold';
+        maxText.textContent = 'YOU MAXED AGAIN!';
+        
+        skillInfo.appendChild(iconElement);
+        skillInfo.appendChild(maxText);
+        
+        celebration.appendChild(congratsText);
+        celebration.appendChild(skillInfo);
+        
+        this.createFireworks(false, false, false, true); // Epic fireworks
+        this.celebrationContainer.appendChild(celebration);
+        
+        setTimeout(() => {
+            if (celebration.parentNode) {
+                celebration.parentNode.removeChild(celebration);
+            }
+        }, data.duration);
+    }
+    
+    // Display 200M all skills
+    displayAll200M(data) {
+        const celebration = document.createElement('div');
+        celebration.className = 'max-cape-celebration';
+        
+        const congratsText = document.createElement('div');
+        congratsText.className = 'celebration-congrats-rainbow';
+        congratsText.textContent = 'OMG CONGRATULATIONS!';
+        
+        const whyText = document.createElement('div');
+        whyText.className = 'celebration-why';
+        whyText.textContent = '..but why did you do that?';
+        
+        celebration.appendChild(congratsText);
+        celebration.appendChild(whyText);
+        
+        this.createFireworks(false, false, false, true); // Epic fireworks
+        this.celebrationContainer.appendChild(celebration);
+        
         setTimeout(() => {
             if (celebration.parentNode) {
                 celebration.parentNode.removeChild(celebration);
@@ -186,15 +624,12 @@ class XPDropManager {
     
     // Display task completion celebration
     displayTaskComplete(data) {
-        // Create celebration element
         const celebration = document.createElement('div');
         celebration.className = 'task-complete-celebration';
         
-        // Create skill info row
         const skillInfo = document.createElement('div');
         skillInfo.className = 'celebration-skill-info';
         
-        // Create icon
         const iconElement = document.createElement('img');
         const skillIcon = loadingManager.getImage(`skill_${data.task.skill}`);
         if (skillIcon) {
@@ -202,23 +637,17 @@ class XPDropManager {
             iconElement.className = 'celebration-icon';
         }
         
-        // Create text
         const completeText = document.createElement('span');
         completeText.className = 'celebration-complete';
         completeText.textContent = 'Task Complete!';
         
-        // Assemble
         skillInfo.appendChild(iconElement);
         skillInfo.appendChild(completeText);
         celebration.appendChild(skillInfo);
         
-        // Add smaller fireworks for task completion
         this.createFireworks(true);
-        
-        // Add to container
         this.celebrationContainer.appendChild(celebration);
         
-        // Remove after animation
         setTimeout(() => {
             if (celebration.parentNode) {
                 celebration.parentNode.removeChild(celebration);
@@ -227,12 +656,19 @@ class XPDropManager {
     }
     
     // Create fireworks effect
-    createFireworks(isSmall = false) {
+    createFireworks(isSmall = false, isCape = false, isShiny = false, isEpic = false) {
         const fireworksContainer = document.createElement('div');
         fireworksContainer.className = isSmall ? 'fireworks-small' : 'fireworks';
         
-        // Create multiple firework bursts
-        const burstCount = isSmall ? 3 : 5;
+        if (isEpic) {
+            fireworksContainer.className = 'fireworks-epic';
+        } else if (isShiny) {
+            fireworksContainer.className = 'fireworks-shiny';
+        } else if (isCape) {
+            fireworksContainer.className = 'fireworks-cape';
+        }
+        
+        const burstCount = isEpic ? 8 : (isSmall ? 3 : 5);
         for (let i = 0; i < burstCount; i++) {
             const burst = document.createElement('div');
             burst.className = 'firework-burst';
@@ -240,7 +676,6 @@ class XPDropManager {
             burst.style.top = `${20 + Math.random() * 60}%`;
             burst.style.animationDelay = `${Math.random() * 0.5}s`;
             
-            // Create particles for each burst
             for (let j = 0; j < 12; j++) {
                 const particle = document.createElement('div');
                 particle.className = 'firework-particle';
@@ -253,7 +688,6 @@ class XPDropManager {
         
         this.celebrationContainer.appendChild(fireworksContainer);
         
-        // Remove fireworks after animation
         setTimeout(() => {
             if (fireworksContainer.parentNode) {
                 fireworksContainer.parentNode.removeChild(fireworksContainer);
@@ -264,18 +698,8 @@ class XPDropManager {
     cleanupOldDrops() {
         const now = Date.now();
         this.drops = this.drops.filter(drop => {
-            // Remove from tracking after 2 seconds
             return now - drop.timestamp < 2000;
         });
-    }
-    
-    // Debug method to see queue status
-    getQueueStatus() {
-        return {
-            queueLength: this.celebrationQueue.length,
-            inProgress: this.celebrationInProgress,
-            current: this.currentCelebration
-        };
     }
 }
 
