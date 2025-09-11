@@ -2459,7 +2459,7 @@ span.control-emoji {
 }
 
 .username-hint {
-    font-size: 12px;
+    font-size: 24px;
     color: #888;
     margin-top: 5px;
 }
@@ -2792,6 +2792,7 @@ span.control-emoji {
     border: 1px solid #3a3025;
     color: #ccc;
     margin-bottom: 5px;
+    font-size: 20px;
 }
 
 .hiscores-search-btn {
