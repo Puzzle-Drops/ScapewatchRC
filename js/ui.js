@@ -510,33 +510,26 @@ switch (panelName) {
 
     updateFloatingCurrentTask() {
         const floatingContainer = document.getElementById('floating-current-task');
-        const floatingContent = floatingContainer?.querySelector('.floating-task-content');
         
-        if (!floatingContainer || !floatingContent || !window.taskManager) return;
+        if (!floatingContainer || !window.taskManager) return;
         
         // Update task progress
         if (taskManager.currentTask) {
             taskManager.updateAllProgress();
         }
         
-        // Clear content
-        floatingContent.innerHTML = '';
+        // Clear container directly (no inner content div)
+        floatingContainer.innerHTML = '';
         
         if (taskManager.currentTask) {
             // Show the container
             floatingContainer.style.display = 'block';
             
-            // Create header
-            const header = document.createElement('div');
-            header.className = 'task-section-header';
-            header.textContent = 'Current Task';
-            
             // Create task element (reusing the same method for consistency)
             const taskDiv = this.createTaskElement(taskManager.currentTask, -1, true, true);
             
-            // Add to floating container
-            floatingContent.appendChild(header);
-            floatingContent.appendChild(taskDiv);
+            // Add task directly to floating container (no header, no wrapper)
+            floatingContainer.appendChild(taskDiv);
         } else {
             // Hide if no current task
             floatingContainer.style.display = 'none';
