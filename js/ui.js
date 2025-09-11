@@ -532,7 +532,7 @@ switch (panelName) {
             header.textContent = 'Current Task';
             
             // Create task element (reusing the same method for consistency)
-            const taskDiv = this.createTaskElement(taskManager.currentTask, -1, true);
+            const taskDiv = this.createTaskElement(taskManager.currentTask, -1, true, true);
             
             // Add to floating container
             floatingContent.appendChild(header);
@@ -543,7 +543,7 @@ switch (panelName) {
         }
     }
 
-    createTaskElement(task, rerollIndex, showProgress) {
+    createTaskElement(task, rerollIndex, showProgress, isFloating = false) {
         const taskDiv = document.createElement('div');
         taskDiv.className = 'task-item';
         
@@ -638,7 +638,6 @@ switch (panelName) {
             progressDiv.appendChild(progressBar);
             
             // Add level progress bar if we're in the floating display
-            const isFloating = taskDiv.closest('.floating-current-task');
             if (isFloating && window.skills) {
                 const skillData = skills.getSkill(task.skill);
                 if (skillData) {
