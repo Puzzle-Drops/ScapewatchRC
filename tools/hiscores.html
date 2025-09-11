@@ -89,33 +89,75 @@
             'slayer': { name: 'Slayer' }
         };
 
-        // Create minimal loadingManager for hiScores.js
-        window.loadingManager = {
-            getData: function(type) {
-                if (type === 'skills') return skillsData;
-                return {};
-            },
-            getImage: function(key) {
-                // Map keys to image paths
-                const imagePaths = {
-                    'skill_skills': 'assets/skills/skills.png',
-                    'ui_tasks': 'assets/ui/tasks.png',
-                    'ui_pets': 'assets/ui/pets.png',
-                    'ui_pets_shiny': 'assets/ui/pets(s).png',
-                    'skill_combat': 'assets/skills/combat.png'
+        // Create a simple LoadingManager for this tool
+        class SimpleLoadingManager {
+            constructor() {
+                this.assets = {
+                    images: {},
+                    data: { skills: skillsData }
                 };
-                
-                // Add all skill images
-                Object.keys(skillsData).forEach(skillId => {
-                    imagePaths[`skill_${skillId}`] = `assets/skills/${skillId}.png`;
-                });
-                
-                if (imagePaths[key]) {
-                    return { src: imagePaths[key] };
-                }
-                return null;
+                this.loadQueue = [];
+                this.loaded = 0;
+                this.total = 0;
             }
-        };
+
+            addImage(key, path) {
+                this.loadQueue.push({ type: 'image', key, path });
+                this.total++;
+            }
+
+            loadImage(key, path) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.assets.images[key] = img;
+                        this.loaded++;
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        console.warn(`Failed to load image: ${path}`);
+                        this.loaded++;
+                        resolve(); // Continue even if image fails
+                    };
+                    img.src = path;
+                });
+            }
+
+            async loadAll() {
+                const promises = this.loadQueue.map(item => {
+                    if (item.type === 'image') {
+                        return this.loadImage(item.key, item.path);
+                    }
+                });
+                await Promise.all(promises);
+            }
+
+            getImage(key) {
+                return this.assets.images[key];
+            }
+
+            getData(key) {
+                return this.assets.data[key];
+            }
+        }
+
+        // Create loading manager instance
+        const loadingManager = new SimpleLoadingManager();
+
+        // Add all required images
+        loadingManager.addImage('skill_skills', '../assets/skills/skills.png');
+        loadingManager.addImage('ui_tasks', '../assets/ui/tasks.png');
+        loadingManager.addImage('ui_pets', '../assets/ui/pets.png');
+        loadingManager.addImage('ui_pets_shiny', '../assets/ui/pets(s).png');
+        loadingManager.addImage('skill_combat', '../assets/skills/combat.png');
+
+        // Add all skill icons
+        Object.keys(skillsData).forEach(skillId => {
+            loadingManager.addImage(`skill_${skillId}`, `../assets/skills/${skillId}.png`);
+        });
+
+        // Make loadingManager available globally
+        window.loadingManager = loadingManager;
 
         // Utility function
         window.formatNumber = function(num) {
@@ -1303,7 +1345,18 @@
         window.hiScoresManager = new HiScoresManager();
 
         // Initialize when ready
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Show loading
+            const loading = document.getElementById('loading-overlay');
+            if (loading) loading.style.display = 'flex';
+            
+            // Load all assets first
+            await loadingManager.loadAll();
+            
+            // Hide loading
+            if (loading) loading.style.display = 'none';
+            
+            // Initialize and open hiscores
             hiScoresManager.initialize();
             hiScoresManager.open();
         });
@@ -1324,6 +1377,44 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        /* Loading Screen */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-content h2 {
+            color: #f39c12;
+            margin-bottom: 20px;
+        }
+
+        .loading-spinner {
+            border: 3px solid #333;
+            border-top: 3px solid #f39c12;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Hiscores Modal */
@@ -1532,6 +1623,23 @@
             background: #4a3530;
         }
 
+        .hiscores-your-rank-btn {
+            width: 100%;
+            padding: 10px;
+            background: #f39c12;
+            border: none;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .hiscores-your-rank-btn:hover {
+            background: #e67e22;
+        }
+
         .hiscores-back-btn {
             margin-top: 20px;
             padding: 10px 20px;
@@ -1655,6 +1763,14 @@
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loading-overlay">
+        <div class="loading-content">
+            <h2>Loading Hiscores...</h2>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
     <!-- Hiscores Modal -->
     <div id="hiscores-modal" class="hiscores-modal">
         <div class="hiscores-content">
