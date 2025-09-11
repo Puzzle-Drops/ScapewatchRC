@@ -43,6 +43,9 @@ class SkillsManager {
     // Trigger XP drop animation
     if (window.xpDropManager && actualGained > 0) {
         xpDropManager.addDrop(skillId, actualGained);
+        
+        // Check for XP milestones (10M, 20M, etc.)
+        xpDropManager.checkXPMilestones(skillId, newXp);
     }
     
     // Check for level up
@@ -51,6 +54,12 @@ class SkillsManager {
     
     if (skill.level !== oldLevel) {
         this.onLevelUp(skillId, skill.level);
+        
+        // Check total level milestones
+        if (window.xpDropManager) {
+            const totalLevel = this.getTotalLevel();
+            xpDropManager.checkTotalLevel(totalLevel);
+        }
     }
 
     // Only set xpForNextLevel if not at max XP
@@ -58,6 +67,11 @@ class SkillsManager {
         skill.xpForNextLevel = getXpForLevel(skill.level + 1);
     } else {
         skill.xpForNextLevel = maxXp; // Already at max
+    }
+    
+    // Check for trimmed max cape at 50M
+    if (newXp >= 50000000 && window.xpDropManager) {
+        xpDropManager.checkTrimmedMaxCape();
     }
     
     return actualGained; // Return actual XP gained (useful for tracking)
