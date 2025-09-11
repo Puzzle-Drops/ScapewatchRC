@@ -293,73 +293,101 @@ class HiScoresManager {
         }
     }
     
-    // Fetch leaderboard data from Firebase
-    async fetchLeaderboardData(category, page) {
-        if (!firebaseManager.db) return [];
+    // Fetch leaderboard data from Firebase with improved error handling
+async fetchLeaderboardData(category, page) {
+    if (!firebaseManager.db) {
+        console.error('Firebase database not initialized');
+        return [];
+    }
+    
+    // Check connection health before making queries
+    if (!firebaseManager.connectionHealthy) {
+        console.warn('Firebase connection unhealthy, skipping hiscores query');
+        return [];
+    }
+    
+    const { query, collection, orderBy, limit, getDocs, startAfter } = window.firestoreHelpers;
+    const startAt = page * this.pageSize;
+    let queryConstraints = [];
+    
+    try {
+        if (category === 'overall') {
+            queryConstraints = [
+                orderBy('totalLevel', 'desc'),
+                orderBy('totalXp', 'desc'),
+                orderBy('totalLevelFirstReached', 'asc'),
+                limit(this.pageSize)
+            ];
+        } else if (category === 'tasks') {
+            queryConstraints = [
+                orderBy('tasksCompleted', 'desc'),
+                limit(this.pageSize)
+            ];
+        } else if (category === 'pets') {
+            queryConstraints = [
+                orderBy('petsTotal', 'desc'),
+                limit(this.pageSize)
+            ];
+        } else if (category === 'shinyPets') {
+            queryConstraints = [
+                orderBy('petsShiny', 'desc'),
+                limit(this.pageSize)
+            ];
+        } else if (category.startsWith('skill_')) {
+            const skillId = category.replace('skill_', '');
+            queryConstraints = [
+                orderBy(`level_${skillId}`, 'desc'),
+                orderBy(`xp_${skillId}`, 'desc'),
+                orderBy(`levelFirst_${skillId}`, 'asc'),
+                limit(this.pageSize)
+            ];
+        } else {
+            return [];
+        }
         
-        const { query, collection, orderBy, limit, getDocs, startAfter } = window.firestoreHelpers;
-        const startAt = page * this.pageSize;
-        let queryConstraints = [];
-        
-        try {
-            if (category === 'overall') {
-                queryConstraints = [
-                    orderBy('totalLevel', 'desc'),
-                    orderBy('totalXp', 'desc'),
-                    orderBy('totalLevelFirstReached', 'asc'),
-                    limit(this.pageSize)
-                ];
-            } else if (category === 'tasks') {
-                queryConstraints = [
-                    orderBy('tasksCompleted', 'desc'),
-                    limit(this.pageSize)
-                ];
-            } else if (category === 'pets') {
-                queryConstraints = [
-                    orderBy('petsTotal', 'desc'),
-                    limit(this.pageSize)
-                ];
-            } else if (category === 'shinyPets') {
-                queryConstraints = [
-                    orderBy('petsShiny', 'desc'),
-                    limit(this.pageSize)
-                ];
-            } else if (category.startsWith('skill_')) {
-                const skillId = category.replace('skill_', '');
-                queryConstraints = [
-                    orderBy(`level_${skillId}`, 'desc'),
-                    orderBy(`xp_${skillId}`, 'desc'),
-                    orderBy(`levelFirst_${skillId}`, 'asc'),
-                    limit(this.pageSize)
-                ];
-            } else {
-                return [];
-            }
-            
-            // Apply offset for pagination
-            if (startAt > 0) {
+        // Apply offset for pagination
+        if (startAt > 0) {
+            try {
                 const previousQuery = query(collection(firebaseManager.db, 'hiscores'), ...queryConstraints);
                 const previousPage = await getDocs(previousQuery);
                 if (previousPage.docs.length > 0) {
                     const lastDoc = previousPage.docs[previousPage.docs.length - 1];
                     queryConstraints.push(startAfter(lastDoc));
                 }
+            } catch (paginationError) {
+                console.error('Failed to apply pagination:', paginationError);
+                // Continue without pagination rather than failing entirely
             }
-            
-            const q = query(collection(firebaseManager.db, 'hiscores'), ...queryConstraints);
-            const snapshot = await getDocs(q);
-            return snapshot.docs.map((doc, index) => ({
-                rank: startAt + index + 1,
-                ...doc.data()
-            }));
-        } catch (error) {
-            console.error('Failed to fetch leaderboard:', error);
-            if (error.code === 'failed-precondition' && error.message.includes('index')) {
-                console.error('Missing index for query. Check the Firebase console for a link to create it.');
-            }
-            return [];
         }
+        
+        const q = query(collection(firebaseManager.db, 'hiscores'), ...queryConstraints);
+        const snapshot = await getDocs(q);
+        
+        return snapshot.docs.map((doc, index) => ({
+            rank: startAt + index + 1,
+            ...doc.data()
+        }));
+    } catch (error) {
+        console.error('Failed to fetch leaderboard:', error);
+        
+        // Handle specific error types
+        if (error.code === 'failed-precondition' && error.message.includes('index')) {
+            console.error('Missing index for query. Check the Firebase console for a link to create it.');
+            // Could show user a message about index creation needed
+        } else if (error.code === 'permission-denied') {
+            console.error('Permission denied for hiscores access');
+            // Could show user they need to be logged in
+        } else if (error.code === 'unavailable') {
+            console.error('Firebase service temporarily unavailable');
+            // Network issue - could retry later
+        } else if (error.message && error.message.includes('Failed to get document from cache')) {
+            console.error('Cache read failed, likely due to connection issues');
+        }
+        
+        // Return empty array so UI can handle gracefully
+        return [];
     }
+}
     
     // Display leaderboard
     displayLeaderboard(data) {
