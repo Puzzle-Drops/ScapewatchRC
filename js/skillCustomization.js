@@ -79,6 +79,9 @@ class SkillCustomizationUI {
     }
     
     render() {
+        if (window.runeCreditManager) {
+            runeCreditManager.updateSpeedBonuses();
+        }
         // Determine if we're in global mode or skill-specific mode
         if (this.currentSkillId === null) {
             // Global Skill Customization mode
