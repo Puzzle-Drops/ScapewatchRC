@@ -282,6 +282,13 @@ zoomCamera(newZoom) {
                 // Draw icon centered on the pixel center
                 this.ctx.drawImage(questIcon, x - 2, y - 2, 4, 4);
             }
+        } else if (node.id && node.id.includes('furnace')) {
+            // Special case for furnace nodes
+            const furnaceIcon = loadingManager.getImage('furnace');
+            if (furnaceIcon) {
+                // Draw furnace icon centered on the pixel center
+                this.ctx.drawImage(furnaceIcon, x - 2, y - 2, 4, 4);
+            }
         } else if (node.type === 'skill' && node.activities) {
             // Get unique skills from activities
             const skillSet = new Set();
