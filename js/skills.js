@@ -40,6 +40,11 @@ class SkillsManager {
     
     skill.xp = newXp;
     
+    // Trigger XP drop animation
+    if (window.xpDropManager && actualGained > 0) {
+        xpDropManager.addDrop(skillId, actualGained);
+    }
+    
     // Check for level up
     const oldLevel = skill.level;
     skill.level = getLevelFromXp(skill.xp);
