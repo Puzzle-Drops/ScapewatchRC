@@ -120,6 +120,11 @@ hasAllMaxXp() {
     getAllSkills() {
         return this.skills;
     }
+
+        getSkill(skillId) {
+        return this.skills[skillId] || null;
+    }
+    
 }
 
 // Make SkillsManager available globally
