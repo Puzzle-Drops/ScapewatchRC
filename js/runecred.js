@@ -30,9 +30,9 @@ class RuneCreditManager {
             pets: {}, // skillId -> true/false (has at least one pet)
             shinyPets: {}, // skillId -> true/false (has at least one shiny pet)
             skillCapes: {}, // skillId -> true/false
-            trimmedCapes: {}, // skillId -> true/false (200M XP in that skill)
+            trimmedCapes: {}, // skillId -> true/false (50M XP in that skill)
             maxCape: false, // All skills 99
-            trimmedMaxCape: false // All skills 200M XP
+            trimmedMaxCape: false // All skills 50M XP
         };
         
         // Pet tracking - Track multiple pets
@@ -509,7 +509,7 @@ class RuneCreditManager {
             bonus += 0.05; // 5% for skill cape
         }
         
-        // Trimmed skill cape bonus (200M XP in that skill)
+        // Trimmed skill cape bonus (50M XP in that skill)
         if (this.speedBonuses.trimmedCapes[skillId]) {
             bonus += 0.10; // 10% for trimmed cape
         }
@@ -519,7 +519,7 @@ class RuneCreditManager {
             bonus += 0.05; // 5% global
         }
         
-        // Trimmed max cape bonus (all skills 200M XP)
+        // Trimmed max cape bonus (all skills 50M XP)
         if (this.speedBonuses.trimmedMaxCape) {
             bonus += 0.10; // 10% global
         }
@@ -534,7 +534,7 @@ class RuneCreditManager {
         if (!window.skills) return;
         
         let allMaxed = true; // For regular max cape (all 99s)
-        let allTrimmed = true; // For trimmed max cape (all 200M XP)
+        let allTrimmed = true; // For trimmed max cape (all 50M XP)
         
         // Check for skill capes (99) and trimmed capes (50M XP)
         for (const [skillId, skill] of Object.entries(skills.skills)) {
@@ -545,7 +545,7 @@ class RuneCreditManager {
                 allMaxed = false;
             }
             
-            // Trimmed cape at 200M XP
+            // Trimmed cape at 50M XP
             if (skill.xp >= 50000000) {
                 this.speedBonuses.trimmedCapes[skillId] = true;
             } else {
