@@ -15,7 +15,7 @@ class MapRenderer {
         zoomSpeed: 1 // How much to zoom per wheel tick
     };
     this.worldMap = loadingManager.getImage('worldMap');
-    this.showNodeText = false; // Flag for showing node text
+    this.showNodeText = true; // Flag for showing node text
     this.showCollisionDebug = false; // Flag for showing collision areas
     this.mapCache = null; // Cached map canvas
     this.initMapCache();
@@ -192,10 +192,6 @@ zoomCamera(newZoom) {
 
         // Restore context state
         this.ctx.restore();
-
-        // Draw UI elements (not affected by camera)
-        this.drawFPS();
-        this.drawDebugInfo();
     }
 
     updateCamera() {
@@ -270,14 +266,14 @@ zoomCamera(newZoom) {
 
         // Node name (only if flag is set)
         if (this.showNodeText) {
-            this.ctx.font = '2px Arial'; // reduced from 8px
+            this.ctx.font = '2px Arial';
             this.ctx.fillStyle = '#fff';
             this.ctx.strokeStyle = '#000';
-            this.ctx.lineWidth = 0.25; // reduced from 1
+            this.ctx.lineWidth = 0.25;
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'bottom';
-            this.ctx.strokeText(node.name, x, y - 5); // adjusted for smaller icons
-            this.ctx.fillText(node.name, x, y - 5);
+            this.ctx.strokeText(node.name, x, y - 2.5); // adjusted for smaller icons
+            this.ctx.fillText(node.name, x, y - 2.5);
         }
     }
 
@@ -436,51 +432,6 @@ const dashSize = Math.max(0.5, Math.min(20, 1 * inverseZoomScale));
         this.ctx.arc(point.x, point.y, dotRadius, 0, Math.PI * 2);
         this.ctx.fill();
     }
-}
-
-    drawFPS() {
-        // Draw FPS counter in top-left corner
-        this.ctx.font = '16px Arial';
-        this.ctx.strokeStyle = '#000';
-        this.ctx.lineWidth = 3;
-        this.ctx.textAlign = 'left';
-        this.ctx.textBaseline = 'top';
-        
-        // Color code based on FPS
-        if (gameState.fps >= 60) {
-            this.ctx.fillStyle = '#0f0'; // Green for 60+ FPS
-        } else if (gameState.fps >= 30) {
-            this.ctx.fillStyle = '#ff0'; // Yellow for 30-59 FPS
-        } else {
-            this.ctx.fillStyle = '#f00'; // Red for under 30 FPS
-        }
-        
-        const fpsText = `${gameState.fps} FPS`;
-        this.ctx.strokeText(fpsText, 10, 10);
-        this.ctx.fillText(fpsText, 10, 10);
-    }
-
-    drawDebugInfo() {
-    // Draw debug info in top-right corner
-    this.ctx.font = '14px Arial';
-    this.ctx.fillStyle = '#ff0';
-    this.ctx.strokeStyle = '#000';
-    this.ctx.lineWidth = 2;
-    this.ctx.textAlign = 'right';
-    this.ctx.textBaseline = 'top';
-    
-    const debugInfo = [
-        `Pos: ${Math.round(player.position.x)}, ${Math.round(player.position.y)}`,
-        `Zoom: ${this.camera.zoom.toFixed(1)}x (Scroll or +/- to zoom)`,
-        `Collision: ${this.showCollisionDebug ? 'ON' : 'OFF'} (Press C)`,
-        `Node Text: ${this.showNodeText ? 'ON' : 'OFF'} (Press N)`
-    ];
-    
-    debugInfo.forEach((text, index) => {
-        const y = 10 + index * 20;
-        this.ctx.strokeText(text, this.canvas.width - 10, y);
-        this.ctx.fillText(text, this.canvas.width - 10, y);
-    });
 }
 
     handleClick(screenX, screenY) {
