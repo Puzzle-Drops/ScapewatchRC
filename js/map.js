@@ -17,12 +17,54 @@ class MapRenderer {
     this.worldMap = loadingManager.getImage('worldMap');
     this.showNodeText = true; // Flag for showing node text
     this.showCollisionDebug = false; // Flag for showing collision areas
+
+    // Add mouse tracking for node tooltips
+    this.mouseWorldPos = { x: 0, y: 0 };
+    this.hoveredNode = null;
+    this.setupMouseTracking();
+    
     this.mapCache = null; // Cached map canvas
     this.initMapCache();
     
     // Set up zoom controls
     this.setupZoomControls();
 }
+
+    setupMouseTracking() {
+        this.canvas.addEventListener('mousemove', (e) => {
+            // Get game coordinates from screen coordinates
+            const rect = this.canvas.getBoundingClientRect();
+            const screenX = e.clientX - rect.left;
+            const screenY = e.clientY - rect.top;
+            
+            // Convert to game coordinates using scaling system
+            const gameCoords = scalingSystem.screenToGame(e.clientX, e.clientY);
+            
+            // Convert to world coordinates
+            this.mouseWorldPos.x = (gameCoords.x - this.canvas.width / 2) / this.camera.zoom + this.camera.x;
+            this.mouseWorldPos.y = (gameCoords.y - this.canvas.height / 2) / this.camera.zoom + this.camera.y;
+            
+            // Check if hovering over a node
+            this.hoveredNode = this.getNodeAtPosition(this.mouseWorldPos.x, this.mouseWorldPos.y);
+        });
+        
+        this.canvas.addEventListener('mouseleave', () => {
+            this.hoveredNode = null;
+        });
+    }
+    
+    getNodeAtPosition(x, y) {
+        const allNodes = nodes.getAllNodes();
+        const hoverRadius = 3; // Slightly larger than icon size for easier hovering
+        
+        for (const [id, node] of Object.entries(allNodes)) {
+            const dist = distance(x, y, node.position.x, node.position.y);
+            if (dist <= hoverRadius) {
+                return node;
+            }
+        }
+        return null;
+    }
 
     isWaterPosition(x, y) {
         // Check if a position is water based on map color
@@ -192,6 +234,10 @@ zoomCamera(newZoom) {
 
         // Restore context state
         this.ctx.restore();
+
+        // Draw node tooltip if hovering
+        this.drawNodeTooltip();
+        
     }
 
     updateCamera() {
@@ -433,6 +479,86 @@ const dashSize = Math.max(0.5, Math.min(20, 1 * inverseZoomScale));
         this.ctx.fill();
     }
 }
+
+    drawNodeTooltip() {
+        if (!this.hoveredNode || !this.hoveredNode.activities || this.hoveredNode.activities.length === 0) {
+            return;
+        }
+        
+        // Get activity names
+        const activities = loadingManager.getData('activities');
+        const activityNames = [];
+        
+        for (const activityId of this.hoveredNode.activities) {
+            const activity = activities[activityId];
+            if (activity) {
+                activityNames.push(activity.name);
+            }
+        }
+        
+        if (activityNames.length === 0) return;
+        
+        // Convert node position to screen coordinates
+        const screenX = (this.hoveredNode.position.x - this.camera.x) * this.camera.zoom + this.canvas.width / 2;
+        const screenY = (this.hoveredNode.position.y - this.camera.y) * this.camera.zoom + this.canvas.height / 2;
+        
+        // Tooltip configuration
+        const padding = 8;
+        const lineHeight = 20;
+        const fontSize = 14;
+        const tooltipWidth = 200;
+        const tooltipHeight = (activityNames.length * lineHeight) + (padding * 2);
+        
+        // Position tooltip to the right of the node, offset by zoom
+        const offsetX = 5 * this.camera.zoom;
+        const offsetY = -tooltipHeight / 2;
+        let tooltipX = screenX + offsetX;
+        let tooltipY = screenY + offsetY;
+        
+        // Keep tooltip on screen
+        if (tooltipX + tooltipWidth > this.canvas.width - 10) {
+            tooltipX = screenX - tooltipWidth - offsetX; // Show on left instead
+        }
+        if (tooltipY < 10) {
+            tooltipY = 10;
+        }
+        if (tooltipY + tooltipHeight > this.canvas.height - 10) {
+            tooltipY = this.canvas.height - tooltipHeight - 10;
+        }
+        
+        // Draw tooltip background
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+        this.ctx.strokeStyle = '#f39c12';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.roundRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 5);
+        this.ctx.fill();
+        this.ctx.stroke();
+        
+        // Draw node name as header
+        this.ctx.fillStyle = '#f39c12';
+        this.ctx.font = `bold ${fontSize}px Arial`;
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'top';
+        this.ctx.fillText(this.hoveredNode.name, tooltipX + padding, tooltipY + padding);
+        
+        // Draw separator line
+        this.ctx.strokeStyle = '#555';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.moveTo(tooltipX + padding, tooltipY + padding + lineHeight);
+        this.ctx.lineTo(tooltipX + tooltipWidth - padding, tooltipY + padding + lineHeight);
+        this.ctx.stroke();
+        
+        // Draw activity names
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = `${fontSize}px Arial`;
+        
+        activityNames.forEach((name, index) => {
+            const y = tooltipY + padding + ((index + 1) * lineHeight);
+            this.ctx.fillText(`• ${name}`, tooltipX + padding, y);
+        });
+    }
 
     handleClick(screenX, screenY) {
         // Convert screen coordinates to game coordinates using scaling system
