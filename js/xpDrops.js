@@ -4,6 +4,11 @@ class XPDropManager {
         this.celebrationContainer = null;
         this.drops = [];
         this.dropId = 0;
+        
+        // Celebration queue system
+        this.celebrationQueue = [];
+        this.currentCelebration = null;
+        this.celebrationInProgress = false;
     }
     
     initialize() {
@@ -76,8 +81,61 @@ class XPDropManager {
         this.cleanupOldDrops();
     }
     
-    // Level up celebration
+    // Queue a level up celebration
     showLevelUp(skillId, newLevel) {
+        this.queueCelebration({
+            type: 'levelup',
+            skillId: skillId,
+            newLevel: newLevel,
+            duration: 3000
+        });
+    }
+    
+    // Queue a task completion celebration
+    showTaskComplete(task) {
+        this.queueCelebration({
+            type: 'taskComplete',
+            task: task,
+            duration: 2500
+        });
+    }
+    
+    // Add celebration to queue and process
+    queueCelebration(celebrationData) {
+        this.celebrationQueue.push(celebrationData);
+        this.processCelebrationQueue();
+    }
+    
+    // Process the celebration queue
+    processCelebrationQueue() {
+        // If already showing a celebration, wait
+        if (this.celebrationInProgress || this.celebrationQueue.length === 0) {
+            return;
+        }
+        
+        // Get next celebration from queue
+        const nextCelebration = this.celebrationQueue.shift();
+        this.celebrationInProgress = true;
+        this.currentCelebration = nextCelebration;
+        
+        // Show the appropriate celebration
+        if (nextCelebration.type === 'levelup') {
+            this.displayLevelUp(nextCelebration);
+        } else if (nextCelebration.type === 'taskComplete') {
+            this.displayTaskComplete(nextCelebration);
+        }
+        
+        // Schedule next celebration after this one finishes
+        setTimeout(() => {
+            this.celebrationInProgress = false;
+            this.currentCelebration = null;
+            // Process next celebration in queue if any
+            this.processCelebrationQueue();
+        }, nextCelebration.duration);
+    }
+    
+    // Display level up celebration
+    displayLevelUp(data) {
         // Create celebration element
         const celebration = document.createElement('div');
         celebration.className = 'level-up-celebration';
@@ -93,7 +151,7 @@ class XPDropManager {
         
         // Create icon
         const iconElement = document.createElement('img');
-        const skillIcon = loadingManager.getImage(`skill_${skillId}`);
+        const skillIcon = loadingManager.getImage(`skill_${data.skillId}`);
         if (skillIcon) {
             iconElement.src = skillIcon.src;
             iconElement.className = 'celebration-icon';
@@ -102,7 +160,7 @@ class XPDropManager {
         // Create level text
         const levelText = document.createElement('span');
         levelText.className = 'celebration-level';
-        levelText.textContent = `Lv ${newLevel}`;
+        levelText.textContent = `Lv ${data.newLevel}`;
         
         // Assemble skill info
         skillInfo.appendChild(iconElement);
@@ -118,16 +176,16 @@ class XPDropManager {
         // Add to container
         this.celebrationContainer.appendChild(celebration);
         
-        // Remove after animation (3 seconds for celebrations)
+        // Remove after animation
         setTimeout(() => {
             if (celebration.parentNode) {
                 celebration.parentNode.removeChild(celebration);
             }
-        }, 3000);
+        }, data.duration);
     }
     
-    // Task completion celebration
-    showTaskComplete(task) {
+    // Display task completion celebration
+    displayTaskComplete(data) {
         // Create celebration element
         const celebration = document.createElement('div');
         celebration.className = 'task-complete-celebration';
@@ -138,7 +196,7 @@ class XPDropManager {
         
         // Create icon
         const iconElement = document.createElement('img');
-        const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
+        const skillIcon = loadingManager.getImage(`skill_${data.task.skill}`);
         if (skillIcon) {
             iconElement.src = skillIcon.src;
             iconElement.className = 'celebration-icon';
@@ -160,12 +218,12 @@ class XPDropManager {
         // Add to container
         this.celebrationContainer.appendChild(celebration);
         
-        // Remove after animation (2.5 seconds for task completions)
+        // Remove after animation
         setTimeout(() => {
             if (celebration.parentNode) {
                 celebration.parentNode.removeChild(celebration);
             }
-        }, 2500);
+        }, data.duration);
     }
     
     // Create fireworks effect
@@ -209,6 +267,15 @@ class XPDropManager {
             // Remove from tracking after 2 seconds
             return now - drop.timestamp < 2000;
         });
+    }
+    
+    // Debug method to see queue status
+    getQueueStatus() {
+        return {
+            queueLength: this.celebrationQueue.length,
+            inProgress: this.celebrationInProgress,
+            current: this.currentCelebration
+        };
     }
 }
 
