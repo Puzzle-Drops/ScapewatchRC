@@ -64,13 +64,17 @@ class SkillsManager {
 }
 
     onLevelUp(skillId, newLevel) {
-        console.log(`Level up! ${this.skills[skillId].name} is now level ${newLevel}`);
-        // Could add visual/audio feedback here
-
-        if (window.runeCreditManager) {
-            runeCreditManager.updateSpeedBonuses();
-        }
+    console.log(`Level up! ${this.skills[skillId].name} is now level ${newLevel}`);
+    
+    // Show level up celebration
+    if (window.xpDropManager) {
+        xpDropManager.showLevelUp(skillId, newLevel);
     }
+
+    if (window.runeCreditManager) {
+        runeCreditManager.updateSpeedBonuses();
+    }
+}
 
     getLevel(skillId) {
         return this.skills[skillId]?.level || 1;
