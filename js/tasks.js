@@ -247,6 +247,11 @@ async completeTask(task) {
     // Add to completed tasks
     this.completedTasks.push(task);
     
+    // Show task completion celebration
+    if (window.xpDropManager) {
+        xpDropManager.showTaskComplete(task);
+    }
+    
     // Award credits - NOW PASSING THE TASK OBJECT
     if (window.runeCreditManager) {
         runeCreditManager.onTaskComplete(task);
