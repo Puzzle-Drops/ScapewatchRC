@@ -510,10 +510,10 @@ const dashSize = Math.max(0.5, Math.min(20, 1 * inverseZoomScale));
         const screenY = (this.hoveredNode.position.y - this.camera.y) * this.camera.zoom + this.canvas.height / 2;
         
         // Tooltip configuration
-        const padding = 8;
-        const lineHeight = 26;
+        const padding = 12;
+        const lineHeight = 28;
         const fontSize = 20;
-        const tooltipWidth = 220;
+        const tooltipWidth = 320;
         const tooltipHeight = (lineHeight * 2) + (activityNames.length * lineHeight) + (padding * 2);
         
         // Position tooltip to the right of the node, offset by zoom
