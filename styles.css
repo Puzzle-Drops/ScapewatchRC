@@ -2951,3 +2951,40 @@ span.control-emoji {
     font-size: 14px;
     font-style: italic;
 }
+
+/* Floating Current Task Display */
+.floating-current-task {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 500;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    border: 2px solid #444;
+    padding: 10px;
+    min-width: 400px;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.floating-task-content {
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #333;
+}
+
+/* Make sure all task styles work for floating task too */
+.floating-current-task .task-item {
+    margin: 0;
+}
+
+.floating-current-task .task-section-header {
+    font-size: 18px;
+    font-weight: bold;
+    color: #f39c12;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
