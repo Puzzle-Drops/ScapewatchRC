@@ -563,11 +563,13 @@ switch (panelName) {
             iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
         }
 
-        // Add task quantity badge
-        const quantityBadge = document.createElement('div');
-        quantityBadge.className = 'task-quantity-badge';
-        quantityBadge.textContent = task.targetCount;
-        iconDiv.appendChild(quantityBadge);
+        // Add task quantity badge (but not for floating display)
+        if (!isFloating) {
+            const quantityBadge = document.createElement('div');
+            quantityBadge.className = 'task-quantity-badge';
+            quantityBadge.textContent = task.targetCount;
+            iconDiv.appendChild(quantityBadge);
+        }
         
         // Task details container
         const detailsDiv = document.createElement('div');
@@ -632,7 +634,8 @@ switch (panelName) {
             
             // Add level progress bar if we're in the floating display
             if (isFloating && window.skills) {
-                const skillData = skills.getSkill(task.skill);
+                const allSkills = skills.getAllSkills();
+                const skillData = allSkills[task.skill];
                 if (skillData) {
                     // Level progress bar
                     const levelBar = document.createElement('div');
@@ -640,17 +643,38 @@ switch (panelName) {
                     
                     // Calculate level progress
                     const currentLevel = skillData.level;
-                    const nextLevel = Math.min(currentLevel + 1, 99);
                     let levelProgress = 0;
+                    let leftLabel = '';
+                    let rightLabel = '';
                     
                     if (currentLevel < 99) {
+                        // Normal level progression
+                        const nextLevel = currentLevel + 1;
                         const currentLevelXp = getXpForLevel(currentLevel);
                         const nextLevelXp = getXpForLevel(nextLevel);
                         const xpIntoLevel = skillData.xp - currentLevelXp;
                         const xpNeeded = nextLevelXp - currentLevelXp;
                         levelProgress = (xpIntoLevel / xpNeeded) * 100;
+                        leftLabel = `Lv ${currentLevel}`;
+                        rightLabel = `Lv ${nextLevel}`;
+                    } else if (skillData.xp < 50000000) {
+                        // Level 99 but under 50M - show progress to 50M
+                        const level99Xp = 13034431; // XP at level 99
+                        const targetXp = 50000000;
+                        const xpProgress = skillData.xp - level99Xp;
+                        const xpNeeded = targetXp - level99Xp;
+                        levelProgress = (xpProgress / xpNeeded) * 100;
+                        leftLabel = 'Lv 99';
+                        rightLabel = '50M';
                     } else {
-                        levelProgress = 100;
+                        // 50M or above - show progress to 200M
+                        const startXp = 50000000;
+                        const targetXp = 200000000;
+                        const xpProgress = skillData.xp - startXp;
+                        const xpNeeded = targetXp - startXp;
+                        levelProgress = Math.min((xpProgress / xpNeeded) * 100, 100);
+                        leftLabel = '50M';
+                        rightLabel = '200M';
                     }
                     
                     const levelFill = document.createElement('div');
@@ -666,19 +690,14 @@ switch (panelName) {
                     const levelPercentage = levelProgress.toFixed(2);
                     
                     levelText.innerHTML = `
-                        <span class="progress-text-left">Lv ${currentLevel}</span>
+                        <span class="progress-text-left">${leftLabel}</span>
                         <span class="progress-text-center">${levelPercentage}%</span>
-                        <span class="progress-text-right">Lv ${nextLevel}</span>
+                        <span class="progress-text-right">${rightLabel}</span>
                     `;
                     
                     levelBar.appendChild(levelText);
                     progressDiv.appendChild(levelBar);
                     
-                    // Add XP text below level bar
-                    const xpText = document.createElement('div');
-                    xpText.className = 'level-xp-text';
-                    xpText.textContent = `${formatNumber(Math.floor(skillData.xp))} xp`;
-                    progressDiv.appendChild(xpText);
                 }
             }
             
