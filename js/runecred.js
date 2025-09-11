@@ -653,6 +653,7 @@ class RuneCreditManager {
         
         // Always update Skill Cred after loading
         this.updateSkillCred();
+        this.updateSpeedBonuses();
     }
     
     // Toggle persistence on/off
