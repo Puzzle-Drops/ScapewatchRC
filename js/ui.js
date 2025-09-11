@@ -639,7 +639,7 @@ switch (panelName) {
             
             // Add level progress bar if we're in the floating display
             if (isFloating && window.skills) {
-                const skillData = skills.getSkill(task.skill);
+                const skillData = skills.skills(task.skill);
                 if (skillData) {
                     // Level progress bar
                     const levelBar = document.createElement('div');
