@@ -3016,8 +3016,9 @@ span.control-emoji {
     border-radius: 8px;
     border: 2px solid #444;
     padding: 10px;
-    min-width: 400px;
+    min-width: 500px;
     max-width: 500px;
+    height: 400px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
