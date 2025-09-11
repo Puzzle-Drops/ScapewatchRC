@@ -5,7 +5,7 @@ class RuneCreditManager {
         
         // Three-tier credit system
         this.skillCredits = {}; // skillId -> amount (start at 10)
-        this.skillCred = 0; // 100 + total level (calculated dynamically)
+        this.skillCred = 0; // total level (calculated dynamically)
         this.runeCred = 5; // Universal currency (start at 5)
         
         // Track Skill Cred spent separately
@@ -83,9 +83,9 @@ class RuneCreditManager {
     updateSkillCred() {
         if (window.skills) {
             const totalLevel = skills.getTotalLevel();
-            this.skillCred = 100 + totalLevel;
+            this.skillCred = totalLevel;
         } else {
-            this.skillCred = 100;
+            this.skillCred = 0;
         }
     }
     
