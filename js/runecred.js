@@ -227,7 +227,7 @@ if (isShiny) {
                 return this.speedBonuses.pets[skillId] || false;
             case 'shinyPet':
                 return this.speedBonuses.shinyPets[skillId] || false;
-            case 'skillCape':
+            case 'cape':
                 return this.speedBonuses.skillCapes[skillId] || false;
             case 'trimmedCape':
                 return this.speedBonuses.trimmedCapes[skillId] || false;
