@@ -448,6 +448,64 @@ switch (panelName) {
         }
     }
 
+    // Update total level display and tooltip
+    updateTotalLevelDisplay() {
+        // Only update if skills panel is visible
+        if (this.currentPanel !== 'skills' || this.minimized) return;
+        
+        const skillsList = document.getElementById('skills-list');
+        if (!skillsList) return;
+        
+        // Find the level-total container (it's the last child)
+        const levelTotalDiv = skillsList.querySelector('.level-total');
+        if (!levelTotalDiv) return;
+        
+        // Update total level
+        const totalLevelItem = levelTotalDiv.children[0]; // First child is total level
+        if (totalLevelItem) {
+            const totalLevelText = totalLevelItem.querySelector('div[style*="font-size: 34px"]');
+            if (totalLevelText) {
+                totalLevelText.textContent = skills.getTotalLevel();
+            }
+            
+            // Update tooltip with new total exp
+            const tooltip = totalLevelItem.querySelector('.skill-tooltip');
+            if (tooltip) {
+                const allSkills = skills.getAllSkills();
+                const totalExp = this.calculateTotalExp(allSkills);
+                tooltip.innerHTML = `Total Level: ${skills.getTotalLevel()}<br>Total Exp: ${formatNumber(totalExp)}`;
+            }
+        }
+    }
+    
+    // Update combat level display
+    updateCombatLevelDisplay() {
+        // Only update if skills panel is visible
+        if (this.currentPanel !== 'skills' || this.minimized) return;
+        
+        const skillsList = document.getElementById('skills-list');
+        if (!skillsList) return;
+        
+        // Find the level-total container
+        const levelTotalDiv = skillsList.querySelector('.level-total');
+        if (!levelTotalDiv) return;
+        
+        // Update combat level (second child)
+        const combatLevelItem = levelTotalDiv.children[1]; // Second child is combat level
+        if (combatLevelItem) {
+            const combatLevelText = combatLevelItem.querySelector('div[style*="font-size: 34px"]');
+            if (combatLevelText) {
+                combatLevelText.textContent = skills.getCombatLevel();
+            }
+            
+            // Update tooltip
+            const tooltip = combatLevelItem.querySelector('.skill-tooltip');
+            if (tooltip) {
+                tooltip.innerHTML = `Combat Level: ${skills.getCombatLevel()}`;
+            }
+        }
+    }
+
     createSkillElement(skillId, skill) {
         const skillDiv = document.createElement('div');
         skillDiv.className = 'skill-item';
