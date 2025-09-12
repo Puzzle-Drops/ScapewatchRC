@@ -900,6 +900,9 @@ class FirebaseManager {
                 queue: taskManager.tasks,
                 completed: taskManager.completedTasks
             },
+
+            // Clue system
+            clues: window.clueManager ? clueManager.clues : {}
             
             // RuneCred system
             runeCred: null
@@ -1093,6 +1096,11 @@ class FirebaseManager {
             console.log('Validating task queue after load...');
             taskManager.ensureFullTaskQueue();
         }
+
+            // Load clues
+            if (saveData.clues && window.clueManager) {
+                clueManager.loadClueData({ clues: saveData.clues });
+            }
 
         // Load RuneCred data
         if (saveData.runeCred && window.runeCreditManager) {
