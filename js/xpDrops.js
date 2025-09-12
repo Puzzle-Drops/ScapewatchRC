@@ -253,6 +253,24 @@ showClueObtained(tier) {
         duration: 3000
     });
 }
+
+    // Show clue step completion
+showClueStepComplete(tier) {
+    this.queueCelebration({
+        type: 'clueStep',
+        tier: tier,
+        duration: 2000
+    });
+}
+
+// Show full clue completion
+showClueComplete(tier) {
+    this.queueCelebration({
+        type: 'clueComplete',
+        tier: tier,
+        duration: 3000
+    });
+}
     
     // Add celebration to queue and process
     queueCelebration(celebrationData) {
@@ -282,6 +300,12 @@ showClueObtained(tier) {
                 break;
             case 'clueObtained':
                 this.displayClueObtained(nextCelebration);
+                break;
+            case 'clueStep':
+                this.displayClueStep(nextCelebration);
+                break;
+            case 'clueComplete':
+                this.displayClueComplete(nextCelebration);
                 break;
             case 'xpMilestone':
                 this.displayXPMilestone(nextCelebration);
@@ -554,6 +578,74 @@ showClueObtained(tier) {
     celebration.appendChild(clueText);
     
     // Small fireworks for clues
+    this.createFireworks(true);
+    this.celebrationContainer.appendChild(celebration);
+    
+    setTimeout(() => {
+        if (celebration.parentNode) {
+            celebration.parentNode.removeChild(celebration);
+        }
+    }, data.duration);
+}
+
+    // Display clue step completion
+displayClueStep(data) {
+    const celebration = document.createElement('div');
+    celebration.className = 'clue-step-celebration';
+    
+    const clueInfo = document.createElement('div');
+    clueInfo.className = 'celebration-skill-info';
+    
+    // Create clue icon
+    const iconElement = document.createElement('img');
+    iconElement.src = `assets/items/${data.tier}_clue.png`;
+    iconElement.className = 'celebration-clue-icon';
+    
+    // Format tier name
+    const tierName = data.tier.charAt(0).toUpperCase() + data.tier.slice(1);
+    
+    const stepText = document.createElement('span');
+    stepText.className = 'celebration-clue-step';
+    stepText.textContent = `${tierName} Step!`;
+    
+    clueInfo.appendChild(iconElement);
+    celebration.appendChild(clueInfo);
+    celebration.appendChild(stepText);
+    
+    this.celebrationContainer.appendChild(celebration);
+    
+    setTimeout(() => {
+        if (celebration.parentNode) {
+            celebration.parentNode.removeChild(celebration);
+        }
+    }, data.duration);
+}
+
+// Display full clue completion
+displayClueComplete(data) {
+    const celebration = document.createElement('div');
+    celebration.className = 'clue-complete-celebration';
+    
+    const clueInfo = document.createElement('div');
+    clueInfo.className = 'celebration-skill-info';
+    
+    // Create casket icon
+    const iconElement = document.createElement('img');
+    iconElement.src = `assets/items/${data.tier}_casket.png`;
+    iconElement.className = 'celebration-casket-icon';
+    
+    // Format tier name
+    const tierName = data.tier.charAt(0).toUpperCase() + data.tier.slice(1);
+    
+    const completeText = document.createElement('span');
+    completeText.className = 'celebration-clue-complete';
+    completeText.textContent = `${tierName} Complete!`;
+    
+    clueInfo.appendChild(iconElement);
+    celebration.appendChild(clueInfo);
+    celebration.appendChild(completeText);
+    
+    // Add small fireworks for completion
     this.createFireworks(true);
     this.celebrationContainer.appendChild(celebration);
     
