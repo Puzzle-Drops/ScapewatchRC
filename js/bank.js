@@ -9,9 +9,24 @@ class Bank {
         }
         this.items[itemId] += quantity;
         
+        // Invalidate task cache
+        if (window.taskManager) {
+            taskManager.invalidateCache();
+        }
+        
         // Notify UI - using new UI system
         if (window.ui) {
             window.ui.updateBank();
+        }
+        
+        // Check if this affects current task
+        if (window.taskManager && taskManager.currentTask && 
+            !taskManager.currentTask.isCookingTask && 
+            taskManager.currentTask.itemId === itemId) {
+            taskManager.updateTaskProgress(taskManager.currentTask);
+            if (window.ui) {
+                window.ui.updateTaskProgressBarsOnly();
+            }
         }
     }
 
@@ -23,6 +38,11 @@ class Bank {
         this.items[itemId] -= quantity;
         if (this.items[itemId] <= 0) {
             delete this.items[itemId];
+        }
+
+        // Invalidate task cache
+        if (window.taskManager) {
+            taskManager.invalidateCache();
         }
 
         // Notify UI - using new UI system
