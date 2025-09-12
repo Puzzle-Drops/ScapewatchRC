@@ -853,288 +853,288 @@ class FirebaseManager {
     }
 
     collectSaveData() {
-        // Invalidate any caches to ensure fresh data
-        if (window.taskManager) {
-            taskManager.invalidateCache();
-            // Force update task progress one final time before saving
-            taskManager.updateAllProgress();
-        }
-        
-        const saveData = {
-            // Player data
-            player: {
-                position: player.position,
-                currentNode: player.currentNode,
-                targetNode: player.targetNode,
-                path: player.path,
-                pathIndex: player.pathIndex,
-                segmentProgress: player.segmentProgress,
-                targetPosition: player.targetPosition,
-                currentActivity: player.currentActivity,
-                activityProgress: player.activityProgress,
-                activityStartTime: player.activityStartTime
-            },
-            
-            // AI state
-            ai: {
-                hasBankedForCurrentTask: window.ai ? ai.hasBankedForCurrentTask : false,
-                failedNodes: window.ai && ai.failedNodes ? Array.from(ai.failedNodes) : []
-            },
-            
-            // Skills
-            skills: {},
-            
-            // Inventory
-            inventory: inventory.slots,
-            
-            // Bank
-            bank: bank.items,
-
-            // Shop
-            shop: window.shop ? shop.getState() : null,
-            
-            // Task system
-            tasks: {
-                current: taskManager.currentTask,
-                next: taskManager.nextTask,
-                queue: taskManager.tasks,
-                completed: taskManager.completedTasks
-            },
-
-            // Clue system
-            clues: window.clueManager ? clueManager.clues : {}
-            
-            // RuneCred system
-            runeCred: null
-        };
-
-        // Collect skill data
-        for (const [skillId, skill] of Object.entries(skills.skills)) {
-            saveData.skills[skillId] = {
-                level: skill.level,
-                xp: skill.xp
-            };
-        }
-
-        // Save RuneCred data (always save it now for accounts)
-        if (window.runeCreditManager) {
-            saveData.runeCred = {
-                skillCredits: runeCreditManager.skillCredits,
-                skillCredSpent: runeCreditManager.skillCredSpent,
-                runeCred: runeCreditManager.runeCred,
-                totalTasksCompleted: runeCreditManager.totalTasksCompleted,
-                tasksPerSkill: runeCreditManager.tasksPerSkill,
-                creditsSpentPerSkill: runeCreditManager.creditsSpentPerSkill,
-                skillModLevels: runeCreditManager.skillModLevels,
-                taskModLevels: runeCreditManager.taskModLevels,
-                nodeModLevels: runeCreditManager.nodeModLevels,
-                quantityModLevels: runeCreditManager.quantityModLevels,
-                speedBonuses: runeCreditManager.speedBonuses,
-                petCounts: runeCreditManager.petCounts,
-                totalPetsObtained: runeCreditManager.totalPetsObtained,
-                totalShinyPetsObtained: runeCreditManager.totalShinyPetsObtained
-            };
-        }
-
-        return saveData;
+    // Invalidate any caches to ensure fresh data
+    if (window.taskManager) {
+        taskManager.invalidateCache();
+        // Force update task progress one final time before saving
+        taskManager.updateAllProgress();
     }
+    
+    const saveData = {
+        // Player data
+        player: {
+            position: player.position,
+            currentNode: player.currentNode,
+            targetNode: player.targetNode,
+            path: player.path,
+            pathIndex: player.pathIndex,
+            segmentProgress: player.segmentProgress,
+            targetPosition: player.targetPosition,
+            currentActivity: player.currentActivity,
+            activityProgress: player.activityProgress,
+            activityStartTime: player.activityStartTime
+        },
+        
+        // AI state
+        ai: {
+            hasBankedForCurrentTask: window.ai ? ai.hasBankedForCurrentTask : false,
+            failedNodes: window.ai && ai.failedNodes ? Array.from(ai.failedNodes) : []
+        },
+        
+        // Skills
+        skills: {},
+        
+        // Inventory
+        inventory: inventory.slots,
+        
+        // Bank
+        bank: bank.items,
+
+        // Shop
+        shop: window.shop ? shop.getState() : null,
+        
+        // Task system
+        tasks: {
+            current: taskManager.currentTask,
+            next: taskManager.nextTask,
+            queue: taskManager.tasks,
+            completed: taskManager.completedTasks
+        },
+        
+        // Clue system
+        clues: window.clueManager ? clueManager.clues : {},
+        
+        // RuneCred system
+        runeCred: null
+    };
+
+    // Collect skill data
+    for (const [skillId, skill] of Object.entries(skills.skills)) {
+        saveData.skills[skillId] = {
+            level: skill.level,
+            xp: skill.xp
+        };
+    }
+
+    // Save RuneCred data (always save it now for accounts)
+    if (window.runeCreditManager) {
+        saveData.runeCred = {
+            skillCredits: runeCreditManager.skillCredits,
+            skillCredSpent: runeCreditManager.skillCredSpent,
+            runeCred: runeCreditManager.runeCred,
+            totalTasksCompleted: runeCreditManager.totalTasksCompleted,
+            tasksPerSkill: runeCreditManager.tasksPerSkill,
+            creditsSpentPerSkill: runeCreditManager.creditsSpentPerSkill,
+            skillModLevels: runeCreditManager.skillModLevels,
+            taskModLevels: runeCreditManager.taskModLevels,
+            nodeModLevels: runeCreditManager.nodeModLevels,
+            quantityModLevels: runeCreditManager.quantityModLevels,
+            speedBonuses: runeCreditManager.speedBonuses,
+            petCounts: runeCreditManager.petCounts,
+            totalPetsObtained: runeCreditManager.totalPetsObtained,
+            totalShinyPetsObtained: runeCreditManager.totalShinyPetsObtained
+        };
+    }
+
+    return saveData;
+}
 
     applySaveData(saveData) {
-        // Load player state
-        if (saveData.player) {
-            // First, restore node information
-            player.currentNode = saveData.player.currentNode;
-            player.targetNode = saveData.player.targetNode;
+    // Load player state
+    if (saveData.player) {
+        // First, restore node information
+        player.currentNode = saveData.player.currentNode;
+        player.targetNode = saveData.player.targetNode;
+        
+        // Check if we have a saved path in progress
+        if (saveData.player.path && saveData.player.path.length > 0 && 
+            saveData.player.pathIndex !== undefined && 
+            saveData.player.pathIndex < saveData.player.path.length) {
             
-            // Check if we have a saved path in progress
-            if (saveData.player.path && saveData.player.path.length > 0 && 
-                saveData.player.pathIndex !== undefined && 
-                saveData.player.pathIndex < saveData.player.path.length) {
+            console.log(`Restoring path: waypoint ${saveData.player.pathIndex}/${saveData.player.path.length}, progress: ${(saveData.player.segmentProgress * 100).toFixed(1)}%`);
+            
+            // Restore path data
+            player.path = saveData.player.path;
+            player.pathIndex = saveData.player.pathIndex;
+            player.segmentProgress = saveData.player.segmentProgress || 0;
+            player.targetPosition = saveData.player.targetPosition;
+            
+            // CRITICAL: Recalculate position from path data to avoid drift
+            if (player.pathIndex > 0 && player.pathIndex < player.path.length) {
+                // We're between two waypoints
+                const prevWaypoint = player.path[player.pathIndex - 1];
+                const nextWaypoint = player.path[player.pathIndex];
                 
-                console.log(`Restoring path: waypoint ${saveData.player.pathIndex}/${saveData.player.path.length}, progress: ${(saveData.player.segmentProgress * 100).toFixed(1)}%`);
+                // Interpolate position based on segment progress
+                const dx = nextWaypoint.x - prevWaypoint.x;
+                const dy = nextWaypoint.y - prevWaypoint.y;
                 
-                // Restore path data
-                player.path = saveData.player.path;
-                player.pathIndex = saveData.player.pathIndex;
-                player.segmentProgress = saveData.player.segmentProgress || 0;
-                player.targetPosition = saveData.player.targetPosition;
+                player.position = {
+                    x: prevWaypoint.x + (dx * player.segmentProgress),
+                    y: prevWaypoint.y + (dy * player.segmentProgress)
+                };
                 
-                // CRITICAL: Recalculate position from path data to avoid drift
-                if (player.pathIndex > 0 && player.pathIndex < player.path.length) {
-                    // We're between two waypoints
-                    const prevWaypoint = player.path[player.pathIndex - 1];
-                    const nextWaypoint = player.path[player.pathIndex];
-                    
-                    // Interpolate position based on segment progress
-                    const dx = nextWaypoint.x - prevWaypoint.x;
-                    const dy = nextWaypoint.y - prevWaypoint.y;
-                    
-                    player.position = {
-                        x: prevWaypoint.x + (dx * player.segmentProgress),
-                        y: prevWaypoint.y + (dy * player.segmentProgress)
-                    };
-                    
-                    console.log(`Restored position from path: (${player.position.x.toFixed(1)}, ${player.position.y.toFixed(1)})`);
-                    
-                    // Clear current node since we're mid-path
-                    player.currentNode = null;
-                } else if (player.pathIndex === 0) {
-                    // At the very start of path
-                    player.position = saveData.player.position;
-                    player.segmentProgress = 0;
-                } else {
-                    // Path index out of bounds, use saved position
-                    player.position = saveData.player.position;
-                }
+                console.log(`Restored position from path: (${player.position.x.toFixed(1)}, ${player.position.y.toFixed(1)})`);
                 
-            } else if (saveData.player.position) {
-                // No active path, just restore position
+                // Clear current node since we're mid-path
+                player.currentNode = null;
+            } else if (player.pathIndex === 0) {
+                // At the very start of path
                 player.position = saveData.player.position;
-                
-                // Clear any invalid path data
-                player.path = [];
-                player.pathIndex = 0;
                 player.segmentProgress = 0;
-                player.targetPosition = null;
+            } else {
+                // Path index out of bounds, use saved position
+                player.position = saveData.player.position;
+            }
+            
+        } else if (saveData.player.position) {
+            // No active path, just restore position
+            player.position = saveData.player.position;
+            
+            // Clear any invalid path data
+            player.path = [];
+            player.pathIndex = 0;
+            player.segmentProgress = 0;
+            player.targetPosition = null;
+            
+            // Check if we're at a node
+            if (!player.currentNode && window.nodes) {
+                const tolerance = 2;
+                const allNodes = nodes.getAllNodes();
                 
-                // Check if we're at a node
-                if (!player.currentNode && window.nodes) {
-                    const tolerance = 2;
-                    const allNodes = nodes.getAllNodes();
+                for (const [nodeId, node] of Object.entries(allNodes)) {
+                    const dist = window.distance ? 
+                        distance(player.position.x, player.position.y, node.position.x, node.position.y) : 
+                        Math.sqrt(Math.pow(node.position.x - player.position.x, 2) + 
+                                 Math.pow(node.position.y - player.position.y, 2));
                     
-                    for (const [nodeId, node] of Object.entries(allNodes)) {
-                        const dist = window.distance ? 
-                            distance(player.position.x, player.position.y, node.position.x, node.position.y) : 
-                            Math.sqrt(Math.pow(node.position.x - player.position.x, 2) + 
-                                     Math.pow(node.position.y - player.position.y, 2));
-                        
-                        if (dist <= tolerance) {
-                            player.currentNode = nodeId;
-                            console.log(`Found player at node: ${nodeId}`);
-                            break;
-                        }
-                    }
-                }
-                
-                // If still no current node but we had one saved, teleport there
-                if (!player.currentNode && saveData.player.currentNode) {
-                    console.log(`Restoring player to last known node: ${saveData.player.currentNode}`);
-                    const nodeData = nodes.getNode(saveData.player.currentNode);
-                    if (nodeData) {
-                        player.position = { x: nodeData.position.x, y: nodeData.position.y };
-                        player.currentNode = saveData.player.currentNode;
+                    if (dist <= tolerance) {
+                        player.currentNode = nodeId;
+                        console.log(`Found player at node: ${nodeId}`);
+                        break;
                     }
                 }
             }
             
-            // Activity state
-            if (saveData.player.currentActivity) {
-                player.currentActivity = saveData.player.currentActivity;
-                player.activityProgress = saveData.player.activityProgress || 0;
-                // Adjust activity start time to account for time passed
-                if (saveData.player.activityStartTime) {
-                    // Calculate how much time should have elapsed
-                    const elapsed = player.activityProgress * 
-                        (window.loadingManager && loadingManager.getData('activities')[player.currentActivity] ? 
-                         loadingManager.getData('activities')[player.currentActivity].baseDuration : 3000);
-                    player.activityStartTime = Date.now() - elapsed;
-                }
-            }
-            
-            // Animation states (reset these)
-            player.isPreparingPath = false;
-            player.isBanking = false;
-            player.pathPrepEndTime = 0;
-            player.bankingEndTime = 0;
-        }
-
-        // Load AI state
-        if (saveData.ai && window.ai) {
-            ai.hasBankedForCurrentTask = saveData.ai.hasBankedForCurrentTask || false;
-            if (saveData.ai.failedNodes) {
-                ai.failedNodes = new Set(saveData.ai.failedNodes);
-            }
-            // Reset decision cooldown on login
-            ai.decisionCooldown = 0;
-        }
-
-        // Load skills
-        if (saveData.skills) {
-            for (const [skillId, skillData] of Object.entries(saveData.skills)) {
-                if (skills.skills[skillId]) {
-                    skills.skills[skillId].level = skillData.level;
-                    skills.skills[skillId].xp = skillData.xp;
-                    skills.skills[skillId].xpForNextLevel = getXpForLevel(skillData.level + 1);
+            // If still no current node but we had one saved, teleport there
+            if (!player.currentNode && saveData.player.currentNode) {
+                console.log(`Restoring player to last known node: ${saveData.player.currentNode}`);
+                const nodeData = nodes.getNode(saveData.player.currentNode);
+                if (nodeData) {
+                    player.position = { x: nodeData.position.x, y: nodeData.position.y };
+                    player.currentNode = saveData.player.currentNode;
                 }
             }
         }
-
-        // Load inventory
-        if (saveData.inventory) {
-            inventory.slots = saveData.inventory;
-        }
-
-        // Load bank
-        if (saveData.bank) {
-            bank.items = saveData.bank;
-        }
-
-        // Load shop
-        if (saveData.shop && window.shop) {
-            shop.loadState(saveData.shop);
-            console.log('Shop state loaded');
-        }
-
-        // Load tasks
-        if (saveData.tasks) {
-            taskManager.currentTask = saveData.tasks.current;
-            taskManager.nextTask = saveData.tasks.next;
-            taskManager.tasks = saveData.tasks.queue || [];
-            taskManager.completedTasks = saveData.tasks.completed || [];
-            
-            // CRITICAL: Ensure we have a full task queue
-            console.log('Validating task queue after load...');
-            taskManager.ensureFullTaskQueue();
-        }
-
-            // Load clues
-            if (saveData.clues && window.clueManager) {
-                clueManager.loadClueData({ clues: saveData.clues });
+        
+        // Activity state
+        if (saveData.player.currentActivity) {
+            player.currentActivity = saveData.player.currentActivity;
+            player.activityProgress = saveData.player.activityProgress || 0;
+            // Adjust activity start time to account for time passed
+            if (saveData.player.activityStartTime) {
+                // Calculate how much time should have elapsed
+                const elapsed = player.activityProgress * 
+                    (window.loadingManager && loadingManager.getData('activities')[player.currentActivity] ? 
+                     loadingManager.getData('activities')[player.currentActivity].baseDuration : 3000);
+                player.activityStartTime = Date.now() - elapsed;
             }
-
-        // Load RuneCred data
-        if (saveData.runeCred && window.runeCreditManager) {
-            // Enable persistence for online accounts
-            runeCreditManager.enablePersistence = true;
-            
-            // Load all the RuneCred data
-            if (saveData.runeCred.skillCredits) runeCreditManager.skillCredits = saveData.runeCred.skillCredits;
-            if (saveData.runeCred.skillCredSpent) runeCreditManager.skillCredSpent = saveData.runeCred.skillCredSpent;
-            if (saveData.runeCred.runeCred) runeCreditManager.runeCred = saveData.runeCred.runeCred;
-            if (saveData.runeCred.totalTasksCompleted) runeCreditManager.totalTasksCompleted = saveData.runeCred.totalTasksCompleted;
-            if (saveData.runeCred.tasksPerSkill) runeCreditManager.tasksPerSkill = saveData.runeCred.tasksPerSkill;
-            if (saveData.runeCred.creditsSpentPerSkill) runeCreditManager.creditsSpentPerSkill = saveData.runeCred.creditsSpentPerSkill;
-            if (saveData.runeCred.skillModLevels) runeCreditManager.skillModLevels = saveData.runeCred.skillModLevels;
-            if (saveData.runeCred.taskModLevels) runeCreditManager.taskModLevels = saveData.runeCred.taskModLevels;
-            if (saveData.runeCred.nodeModLevels) runeCreditManager.nodeModLevels = saveData.runeCred.nodeModLevels;
-            if (saveData.runeCred.quantityModLevels) runeCreditManager.quantityModLevels = saveData.runeCred.quantityModLevels;
-            if (saveData.runeCred.speedBonuses) runeCreditManager.speedBonuses = saveData.runeCred.speedBonuses;
-            if (saveData.runeCred.petCounts) runeCreditManager.petCounts = saveData.runeCred.petCounts;
-            if (saveData.runeCred.totalPetsObtained) runeCreditManager.totalPetsObtained = saveData.runeCred.totalPetsObtained;
-            if (saveData.runeCred.totalShinyPetsObtained) runeCreditManager.totalShinyPetsObtained = saveData.runeCred.totalShinyPetsObtained;
-            
-            // Update Skill Cred based on total level
-            runeCreditManager.updateSkillCred();
         }
+        
+        // Animation states (reset these)
+        player.isPreparingPath = false;
+        player.isBanking = false;
+        player.pathPrepEndTime = 0;
+        player.bankingEndTime = 0;
+    }
 
-        // Update UI
-        if (window.ui) {
-            ui.updateInventory();
-            ui.updateSkillsList();
-            ui.updateTasks();
-            ui.updateBank();
+    // Load AI state
+    if (saveData.ai && window.ai) {
+        ai.hasBankedForCurrentTask = saveData.ai.hasBankedForCurrentTask || false;
+        if (saveData.ai.failedNodes) {
+            ai.failedNodes = new Set(saveData.ai.failedNodes);
+        }
+        // Reset decision cooldown on login
+        ai.decisionCooldown = 0;
+    }
+
+    // Load skills
+    if (saveData.skills) {
+        for (const [skillId, skillData] of Object.entries(saveData.skills)) {
+            if (skills.skills[skillId]) {
+                skills.skills[skillId].level = skillData.level;
+                skills.skills[skillId].xp = skillData.xp;
+                skills.skills[skillId].xpForNextLevel = getXpForLevel(skillData.level + 1);
+            }
         }
     }
+
+    // Load inventory
+    if (saveData.inventory) {
+        inventory.slots = saveData.inventory;
+    }
+
+    // Load bank
+    if (saveData.bank) {
+        bank.items = saveData.bank;
+    }
+
+    // Load shop
+    if (saveData.shop && window.shop) {
+        shop.loadState(saveData.shop);
+        console.log('Shop state loaded');
+    }
+
+    // Load tasks
+    if (saveData.tasks) {
+        taskManager.currentTask = saveData.tasks.current;
+        taskManager.nextTask = saveData.tasks.next;
+        taskManager.tasks = saveData.tasks.queue || [];
+        taskManager.completedTasks = saveData.tasks.completed || [];
+        
+        // CRITICAL: Ensure we have a full task queue
+        console.log('Validating task queue after load...');
+        taskManager.ensureFullTaskQueue();
+    }
+
+    // Load clues
+    if (saveData.clues && window.clueManager) {
+        clueManager.loadClueData({ clues: saveData.clues });
+    }
+
+    // Load RuneCred data
+    if (saveData.runeCred && window.runeCreditManager) {
+        // Enable persistence for online accounts
+        runeCreditManager.enablePersistence = true;
+        
+        // Load all the RuneCred data
+        if (saveData.runeCred.skillCredits) runeCreditManager.skillCredits = saveData.runeCred.skillCredits;
+        if (saveData.runeCred.skillCredSpent) runeCreditManager.skillCredSpent = saveData.runeCred.skillCredSpent;
+        if (saveData.runeCred.runeCred) runeCreditManager.runeCred = saveData.runeCred.runeCred;
+        if (saveData.runeCred.totalTasksCompleted) runeCreditManager.totalTasksCompleted = saveData.runeCred.totalTasksCompleted;
+        if (saveData.runeCred.tasksPerSkill) runeCreditManager.tasksPerSkill = saveData.runeCred.tasksPerSkill;
+        if (saveData.runeCred.creditsSpentPerSkill) runeCreditManager.creditsSpentPerSkill = saveData.runeCred.creditsSpentPerSkill;
+        if (saveData.runeCred.skillModLevels) runeCreditManager.skillModLevels = saveData.runeCred.skillModLevels;
+        if (saveData.runeCred.taskModLevels) runeCreditManager.taskModLevels = saveData.runeCred.taskModLevels;
+        if (saveData.runeCred.nodeModLevels) runeCreditManager.nodeModLevels = saveData.runeCred.nodeModLevels;
+        if (saveData.runeCred.quantityModLevels) runeCreditManager.quantityModLevels = saveData.runeCred.quantityModLevels;
+        if (saveData.runeCred.speedBonuses) runeCreditManager.speedBonuses = saveData.runeCred.speedBonuses;
+        if (saveData.runeCred.petCounts) runeCreditManager.petCounts = saveData.runeCred.petCounts;
+        if (saveData.runeCred.totalPetsObtained) runeCreditManager.totalPetsObtained = saveData.runeCred.totalPetsObtained;
+        if (saveData.runeCred.totalShinyPetsObtained) runeCreditManager.totalShinyPetsObtained = saveData.runeCred.totalShinyPetsObtained;
+        
+        // Update Skill Cred based on total level
+        runeCreditManager.updateSkillCred();
+    }
+
+    // Update UI
+    if (window.ui) {
+        ui.updateInventory();
+        ui.updateSkillsList();
+        ui.updateTasks();
+        ui.updateBank();
+    }
+}
 
     showSaveIndicator() {
         let indicator = document.getElementById('save-indicator');
