@@ -728,9 +728,10 @@ body {
     border-radius: 10px;
     max-width: 1000px;
     width: 1000px;
-    max-height: 1325px;
-    height: 1325px;
+    max-height: 1280px;
+    height: 1280px;
     overflow-y: auto;
+    top: 140px;
 }
 
 .modal-content h2 {
@@ -3128,7 +3129,7 @@ span.control-emoji {
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 200;
-    width: 600px;
+    width: 1000px;
     height: 400px;
     display: flex;
     align-items: center;
@@ -3654,13 +3655,13 @@ span.control-emoji {
     background: rgba(0, 0, 0, 0.95);
     border: 2px solid #5a4a3a;
     padding: 10px;
-    min-width: 200px;
+    min-width: 400px;
     border-radius: 5px;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s;
     z-index: 1000;
-    font-size: 14px;
+    font-size: 24px;
     margin-bottom: 5px;
 }
 
@@ -3789,25 +3790,21 @@ span.control-emoji {
 }
 
 .clue-step-indicator {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 14px;
     font-weight: bold;
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.7);
 }
 
 .step-indicator-complete {
     color: #4CAF50;
-    border: 1px solid #4CAF50;
 }
 
 .step-indicator-incomplete {
     color: #f44336;
-    border: 1px solid #f44336;
 }
 
 /* Clue Celebrations */
