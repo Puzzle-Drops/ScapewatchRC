@@ -3713,3 +3713,42 @@ span.control-emoji {
 .casket-slot:hover {
     border-color: #f39c12;
 }
+
+/* Clue obtained celebration */
+.clue-obtained-celebration {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10000;
+    animation: celebrationFadeIn 0.5s ease-out;
+}
+
+.celebration-clue-icon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 20px rgba(243, 156, 18, 0.6));
+    animation: bounce 0.5s ease-out;
+}
+
+.celebration-clue {
+    font-size: 28px;
+    font-weight: bold;
+    color: #f39c12;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    display: block;
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes bounce {
+    0% { transform: scale(0) rotate(0deg); }
+    50% { transform: scale(1.2) rotate(180deg); }
+    100% { transform: scale(1) rotate(360deg); }
+}
+
+@keyframes slideUp {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
