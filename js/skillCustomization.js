@@ -931,7 +931,7 @@ class SkillCustomizationUI {
         const bonusTypes = [
             { type: 'pet', bonus: '+5%', tooltip: 'Pet' },
             { type: 'shinyPet', bonus: '+10%', tooltip: 'Shiny Pet' },
-            { type: 'skillCape', bonus: '+5%', tooltip: 'Skill Cape' },
+            { type: 'cape', bonus: '+5%', tooltip: 'Skill Cape' },
             { type: 'trimmedCape', bonus: '+10%', tooltip: 'Trimmed Skill Cape' },
             { type: 'maxCape', bonus: '+5%', tooltip: 'Max Cape' },
             { type: 'trimmedMaxCape', bonus: '+10%', tooltip: 'Trimmed Max Cape' }
