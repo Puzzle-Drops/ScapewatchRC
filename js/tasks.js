@@ -6,6 +6,8 @@ class TaskManager {
         this.maxTasks = 5;
         this.completedTasks = []; // Track completed tasks
         this.skillWeights = null; // For future weighted distribution
+        this.itemCountCache = {}; // Cache for item counts
+        this.cacheValid = false; // Track if cache needs update
     }
 
     // Initialize with first set of tasks
@@ -137,8 +139,13 @@ class TaskManager {
         );
     }
 
-    // Get current count of an item (inventory + bank)
+    // Get current count of an item (inventory + bank) with caching
     getCurrentItemCount(itemId) {
+        // If cache is valid and item is cached, return cached value
+        if (this.cacheValid && this.itemCountCache.hasOwnProperty(itemId)) {
+            return this.itemCountCache[itemId];
+        }
+        
         let count = 0;
         
         if (window.inventory) {
@@ -149,7 +156,17 @@ class TaskManager {
             count += bank.getItemCount(itemId);
         }
         
+        // Update cache
+        this.itemCountCache[itemId] = count;
+        this.cacheValid = true;
+        
         return count;
+    }
+    
+    // Invalidate the cache when items change
+    invalidateCache() {
+        this.cacheValid = false;
+        this.itemCountCache = {};
     }
 
     // Generic method to set task progress directly
