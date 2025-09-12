@@ -234,6 +234,11 @@ class Player {
                 }
             }
         }
+
+        // Roll for clue scrolls
+if (window.clueManager) {
+    clueManager.rollForClue();
+}
         
         // Let skill handle post-activity logic
         if (skill.onActivityComplete) {
@@ -427,6 +432,12 @@ class Player {
                 window.ai.decisionCooldown = 0;
             }
         }
+
+        // Check clue progress when arriving at node
+if (window.clueManager && this.currentNode) {
+    clueManager.onNodeVisit(this.currentNode);
+}
+
     }
 
     checkCurrentNode() {
