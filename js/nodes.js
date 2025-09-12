@@ -99,7 +99,7 @@ class NodeManager {
         return this.nodes;
     }
 
-    getNodeAt(x, y, radius = 2) {  // Adjusted to match icon size (half of 4x4 icon)
+    getNodeAt(x, y, radius = 2) {
         for (const [id, node] of Object.entries(this.nodes)) {
             const dist = distance(x, y, node.position.x, node.position.y);
             if (dist <= radius) {
@@ -108,6 +108,60 @@ class NodeManager {
         }
         return null;
     }
+
+    // Get the minimum level requirement for a node
+getNodeMinLevel(nodeId) {
+    const node = this.nodes[nodeId];
+    if (!node) return 999; // Invalid node
+    
+    // Banks are always level 1 for clue purposes
+    if (node.type === 'bank') {
+        return 1;
+    }
+    
+    // Quest nodes shouldn't be used for clues
+    if (node.type === 'quest') {
+        return 999;
+    }
+    
+    // For skill nodes, find the minimum level across all activities
+    if (!node.activities || node.activities.length === 0) {
+        return 999; // No activities
+    }
+    
+    const activities = loadingManager.getData('activities');
+    let minLevel = 99;
+    
+    for (const activityId of node.activities) {
+        const activity = activities[activityId];
+        if (!activity) continue;
+        
+        const requiredLevel = activity.requiredLevel || 1;
+        minLevel = Math.min(minLevel, requiredLevel);
+    }
+    
+    return minLevel;
+}
+
+// Get all nodes valid for a clue tier
+getNodesForClueTier(maxLevel) {
+    const validNodes = [];
+    
+    for (const [nodeId, node] of Object.entries(this.nodes)) {
+        // Skip quest nodes
+        if (node.type === 'quest') continue;
+        
+        const nodeLevel = this.getNodeMinLevel(nodeId);
+        
+        // Include if it's a bank (always level 1) or within level range
+        if (node.type === 'bank' || nodeLevel <= maxLevel) {
+            validNodes.push(nodeId);
+        }
+    }
+    
+    return validNodes;
+}
+    
 }
 
 // Make NodeManager available globally
