@@ -256,6 +256,23 @@ class DevConsole {
                 usage: 'petstats [skill]',
                 fn: (args) => this.cmdPetStats(args)
             },
+
+            // === CLUES ===
+            clue: {
+                description: 'Generate a clue scroll',
+                usage: 'clue <tier> (easy/medium/hard/elite/master)',
+                fn: (args) => this.cmdClue(args)
+            },
+            forceclue: {
+                description: 'Force next activity to drop a clue',
+                usage: 'forceclue <tier>',
+                fn: (args) => this.cmdForceClue(args)
+            },
+            cluestats: {
+                description: 'Show clue scroll statistics',
+                usage: 'cluestats',
+                fn: () => this.cmdClueStats()
+            },
             
             // === CAPES ===
             cape: {
@@ -857,6 +874,7 @@ class DevConsole {
                 'Tasks': ['tasks', 'completetask', 'completetasks', 'rerolltask', 'cleartasks', 'taskstats'],
                 'RuneCred': ['rc', 'addrc', 'skillcred', 'skillcredits', 'rcstatus', 'rcpersist', 'rcreset', 'setweight'],
                 'Pets': ['pet', 'removepet', 'allpets', 'petstats'],
+                'Clues': ['clue', 'forceclue', 'cluestats'],
                 'Capes': ['cape', 'allcapes', 'maxcape', 'capestats'],
                 'Speed Bonuses': ['speedbonuses', 'resetbonuses'],
                 'AI': ['pauseai', 'aistatus', 'aistart', 'aistop'],
@@ -1939,6 +1957,185 @@ class DevConsole {
                 this.log('', 'info');
                 this.log('Skills with pets:', 'info');
                 this.log('  ' + skillsWithPets.join(', '), 'info');
+            }
+        }
+    }
+
+    // ==================== CLUE COMMANDS ====================
+
+    cmdClue(args) {
+        if (!window.clueManager) {
+            this.log('Clue manager not initialized', 'error');
+            return;
+        }
+        
+        if (args.length !== 1) {
+            this.log('Usage: clue <tier> (easy/medium/hard/elite/master)', 'error');
+            return;
+        }
+        
+        const tier = args[0].toLowerCase();
+        const validTiers = ['easy', 'medium', 'hard', 'elite', 'master'];
+        
+        if (!validTiers.includes(tier)) {
+            this.log(`Invalid tier: ${tier}`, 'error');
+            this.log('Valid tiers: easy, medium, hard, elite, master', 'info');
+            return;
+        }
+        
+        // Check if player already has this tier
+        if (clueManager.hasClue(tier)) {
+            this.log(`You already have a ${tier} clue scroll!`, 'error');
+            this.log('Complete or drop the existing one first', 'info');
+            return;
+        }
+        
+        // Generate the clue (simulates getting it from an activity)
+        clueManager.generateClue(tier);
+        
+        const config = clueManager.CLUE_CONFIG[tier];
+        this.log(`${config.itemName} obtained!`, 'success');
+        
+        // Show the steps
+        const clueData = clueManager.getClueData(tier);
+        if (clueData) {
+            this.log(`Steps required (${clueData.steps.length}):`, 'info');
+            for (const nodeId of clueData.steps) {
+                const node = window.nodes ? nodes.getNode(nodeId) : null;
+                const nodeName = node ? node.name : nodeId;
+                this.log(`  - ${nodeName}`, 'info');
+            }
+        }
+        
+        // Update UI if bank is open
+        if (window.ui && ui.bankOpen) {
+            ui.updateBank();
+        }
+    }
+
+    cmdForceClue(args) {
+        if (!window.clueManager) {
+            this.log('Clue manager not initialized', 'error');
+            return;
+        }
+        
+        if (args.length !== 1) {
+            this.log('Usage: forceclue <tier>', 'error');
+            return;
+        }
+        
+        const tier = args[0].toLowerCase();
+        const validTiers = ['easy', 'medium', 'hard', 'elite', 'master'];
+        
+        if (!validTiers.includes(tier)) {
+            this.log(`Invalid tier: ${tier}`, 'error');
+            this.log('Valid tiers: easy, medium, hard, elite, master', 'info');
+            return;
+        }
+        
+        // Check if player already has this tier
+        if (clueManager.hasClue(tier)) {
+            this.log(`You already have a ${tier} clue scroll!`, 'error');
+            return;
+        }
+        
+        // Store original drop rate
+        const originalDropRate = clueManager.CLUE_CONFIG[tier].dropRate;
+        
+        // Temporarily set drop rate to 100% for this tier
+        clueManager.CLUE_CONFIG[tier].dropRate = 1;
+        
+        this.log(`Next activity completion will drop a ${tier} clue scroll`, 'success');
+        
+        // Restore original drop rate after a short delay to ensure it applies
+        setTimeout(() => {
+            clueManager.CLUE_CONFIG[tier].dropRate = originalDropRate;
+        }, 100);
+    }
+
+    cmdClueStats() {
+        if (!window.clueManager) {
+            this.log('Clue manager not initialized', 'error');
+            return;
+        }
+        
+        this.log('=== CLUE SCROLL STATISTICS ===', 'info');
+        
+        // Show drop rates
+        this.log('', 'info');
+        this.log('Drop rates:', 'info');
+        for (const [tier, config] of Object.entries(clueManager.CLUE_CONFIG)) {
+            const dropRate = config.dropRate;
+            const oneIn = Math.round(1 / dropRate);
+            this.log(`  ${tier}: 1/${oneIn} (${(dropRate * 100).toFixed(2)}%)`, 'info');
+        }
+        
+        // Show active clues
+        const activeClues = Object.keys(clueManager.clues);
+        if (activeClues.length > 0) {
+            this.log('', 'info');
+            this.log('Active clues:', 'info');
+            
+            for (const tier of activeClues) {
+                const clueData = clueManager.getClueData(tier);
+                if (clueData) {
+                    const completed = clueData.completed.filter(c => c).length;
+                    const total = clueData.steps.length;
+                    const isComplete = clueManager.isClueComplete(tier);
+                    
+                    let status = `${completed}/${total} steps`;
+                    if (isComplete) {
+                        status = 'COMPLETE - Click in bank for casket';
+                    }
+                    
+                    this.log(`  ${tier}: ${status}`, isComplete ? 'success' : 'info');
+                    
+                    // Show steps
+                    for (let i = 0; i < clueData.steps.length; i++) {
+                        const nodeId = clueData.steps[i];
+                        const node = window.nodes ? nodes.getNode(nodeId) : null;
+                        const nodeName = node ? node.name : nodeId;
+                        const icon = clueData.completed[i] ? '✓' : '✗';
+                        this.log(`    ${icon} ${nodeName}`, 'info');
+                    }
+                }
+            }
+        } else {
+            this.log('', 'info');
+            this.log('No active clues', 'info');
+        }
+        
+        // Show clues in bank
+        if (window.bank) {
+            const cluesInBank = [];
+            const casketsInBank = [];
+            
+            for (const itemId of Object.keys(bank.items)) {
+                if (itemId.startsWith('clue_')) {
+                    cluesInBank.push(itemId);
+                } else if (itemId.startsWith('casket_')) {
+                    casketsInBank.push(itemId);
+                }
+            }
+            
+            if (cluesInBank.length > 0) {
+                this.log('', 'info');
+                this.log('Clues in bank:', 'info');
+                for (const itemId of cluesInBank) {
+                    const quantity = bank.getItemCount(itemId);
+                    const tier = itemId.replace('clue_', '');
+                    this.log(`  ${tier} clue: ${quantity}`, 'info');
+                }
+            }
+            
+            if (casketsInBank.length > 0) {
+                this.log('', 'info');
+                this.log('Caskets in bank:', 'info');
+                for (const itemId of casketsInBank) {
+                    const quantity = bank.getItemCount(itemId);
+                    const tier = itemId.replace('casket_', '');
+                    this.log(`  ${tier} casket: ${quantity}`, 'info');
+                }
             }
         }
     }
