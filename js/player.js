@@ -240,9 +240,9 @@ class Player {
             skill.onActivityComplete(activityData);
         }
         
-        // Update UI
+        // Update task progress bars only (not full UI rebuild)
         if (window.ui) {
-            window.ui.updateSkillsList();
+            window.ui.updateTaskProgressBarsOnly();
         }
 
         // Update task progress for items earned (cooking handles its own progress)
