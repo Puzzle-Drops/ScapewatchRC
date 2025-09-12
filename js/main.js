@@ -397,3 +397,11 @@ function gameLoop(currentTime) {
 
 // Start initialization when page loads
 window.addEventListener('DOMContentLoaded', init);
+
+// Disable browser context menu globally
+window.addEventListener('contextmenu', (e) => {
+    // Allow right-click only on clue items (they handle their own context menu)
+    if (!e.target.closest('.clue-slot')) {
+        e.preventDefault();
+    }
+});
