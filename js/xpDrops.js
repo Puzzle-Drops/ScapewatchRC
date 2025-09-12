@@ -539,7 +539,7 @@ showClueObtained(tier) {
     
     // Create clue icon
     const iconElement = document.createElement('img');
-    iconElement.src = `assets/items/clue_${data.tier}.png`;
+    iconElement.src = `assets/items/${data.tier}_clue.png`;
     iconElement.className = 'celebration-clue-icon';
     
     // Format tier name
