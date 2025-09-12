@@ -3628,3 +3628,88 @@ span.control-emoji {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
 }
+
+/* Clue scroll styles */
+.clue-slot {
+    position: relative;
+}
+
+.clue-complete {
+    border: 2px solid #4CAF50 !important;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+    50% { box-shadow: 0 0 15px rgba(76, 175, 80, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+}
+
+.clue-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #5a4a3a;
+    padding: 10px;
+    min-width: 200px;
+    border-radius: 5px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 1000;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.bank-slot:hover .clue-tooltip {
+    opacity: 1;
+}
+
+.clue-tooltip-title {
+    font-weight: bold;
+    color: #f39c12;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.clue-complete-text {
+    color: #4CAF50;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.clue-steps-header {
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.clue-steps-list {
+    color: #fff;
+}
+
+.clue-step {
+    margin: 3px 0;
+}
+
+.step-complete {
+    color: #4CAF50;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.step-incomplete {
+    color: #f44336;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.casket-slot {
+    cursor: pointer;
+}
+
+.casket-slot:hover {
+    border-color: #f39c12;
+}
