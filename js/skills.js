@@ -69,6 +69,18 @@ class SkillsManager {
         skill.xpForNextLevel = maxXp; // Already at max
     }
     
+    // NEW: Update UI for this specific skill
+    if (window.ui) {
+        // Update the skill in skills panel if visible
+        ui.updateSingleSkillUI(skillId);
+        
+        // Update floating task level progress if it's for this skill
+        if (window.taskManager && taskManager.currentTask && 
+            taskManager.currentTask.skill === skillId) {
+            ui.updateFloatingTaskLevelProgress();
+        }
+    }
+    
     // Check for trimmed max cape at 50M
     if (newXp >= 50000000 && window.xpDropManager) {
         xpDropManager.checkTrimmedMaxCape();
