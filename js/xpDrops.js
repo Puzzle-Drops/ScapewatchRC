@@ -244,6 +244,15 @@ class XPDropManager {
             duration: 4000
         });
     }
+
+    // Queue a clue obtained celebration
+showClueObtained(tier) {
+    this.queueCelebration({
+        type: 'clueObtained',
+        tier: tier,
+        duration: 3000
+    });
+}
     
     // Add celebration to queue and process
     queueCelebration(celebrationData) {
@@ -270,6 +279,9 @@ class XPDropManager {
                 break;
             case 'taskComplete':
                 this.displayTaskComplete(nextCelebration);
+                break;
+            case 'clueObtained':
+                this.displayClueObtained(nextCelebration);
                 break;
             case 'xpMilestone':
                 this.displayXPMilestone(nextCelebration);
@@ -517,6 +529,40 @@ class XPDropManager {
             }
         }, data.duration);
     }
+
+    displayClueObtained(data) {
+    const celebration = document.createElement('div');
+    celebration.className = 'clue-obtained-celebration';
+    
+    const clueInfo = document.createElement('div');
+    clueInfo.className = 'celebration-skill-info';
+    
+    // Create clue icon
+    const iconElement = document.createElement('img');
+    iconElement.src = `assets/items/clue_${data.tier}.png`;
+    iconElement.className = 'celebration-clue-icon';
+    
+    // Format tier name
+    const tierName = data.tier.charAt(0).toUpperCase() + data.tier.slice(1);
+    
+    const clueText = document.createElement('span');
+    clueText.className = 'celebration-clue';
+    clueText.textContent = `${tierName} Clue Obtained!`;
+    
+    clueInfo.appendChild(iconElement);
+    celebration.appendChild(clueInfo);
+    celebration.appendChild(clueText);
+    
+    // Small fireworks for clues
+    this.createFireworks(true);
+    this.celebrationContainer.appendChild(celebration);
+    
+    setTimeout(() => {
+        if (celebration.parentNode) {
+            celebration.parentNode.removeChild(celebration);
+        }
+    }, data.duration);
+}
     
     // Display max cape
     displayMaxCape(data) {
