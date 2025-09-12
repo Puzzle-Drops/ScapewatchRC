@@ -5,7 +5,7 @@ class ClueManager {
         // Clue configuration
         this.CLUE_CONFIG = {
             easy: {
-                dropRate: 1/5,
+                dropRate: 1/250,
                 steps: 1,
                 maxLevel: 1,
                 itemName: 'Easy Clue',
