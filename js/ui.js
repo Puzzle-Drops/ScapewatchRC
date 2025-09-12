@@ -692,7 +692,7 @@ switch (panelName) {
         if (!floatingContainer || !window.taskManager) return;
         
         // Update task progress
-        if (taskManager.currentTask) {
+        if (taskManager.currentTask && taskManager.currentTask.progress < 1) {
             taskManager.updateAllProgress();
         }
         
