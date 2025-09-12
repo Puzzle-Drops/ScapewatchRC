@@ -270,6 +270,184 @@ switch (panelName) {
         skillsList.appendChild(levelDiv);
     }
 
+    // ==================== TARGETED UI UPDATES ====================
+    
+    // Update a single skill's UI element
+    updateSingleSkillUI(skillId) {
+        // Only update if skills panel is visible
+        if (this.currentPanel !== 'skills' || this.minimized) return;
+        
+        const skillsList = document.getElementById('skills-list');
+        if (!skillsList) return;
+        
+        // Find the skill element
+        const skillElements = skillsList.querySelectorAll('.skill-item');
+        let skillElement = null;
+        let elementIndex = -1;
+        
+        // Skills are in a specific layout order, need to find the right one
+        const skillLayout = [
+            ['attack', 'strength', 'defence', 'ranged', 'prayer', 'magic', 'runecraft', 'construction'],
+            ['hitpoints', 'agility', 'herblore', 'thieving', 'crafting', 'fletching', 'slayer', 'hunter'],
+            ['mining', 'smithing', 'fishing', 'cooking', 'firemaking', 'woodcutting', 'farming', 'sailing']
+        ];
+        
+        // Calculate which element index this skill should be at
+        let targetIndex = 0;
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 3; col++) {
+                if (skillLayout[col][row] === skillId) {
+                    elementIndex = targetIndex;
+                    break;
+                }
+                targetIndex++;
+            }
+            if (elementIndex !== -1) break;
+        }
+        
+        if (elementIndex !== -1 && skillElements[elementIndex]) {
+            skillElement = skillElements[elementIndex];
+        }
+        
+        if (!skillElement) return;
+        
+        // Get the skill data
+        const skill = skills.getAllSkills()[skillId];
+        if (!skill) return;
+        
+        // Update level display
+        const levelDiv = skillElement.querySelector('.skill-level');
+        if (levelDiv) {
+            levelDiv.textContent = skill.level;
+        }
+        
+        // Update progress bar
+        const progressFill = skillElement.querySelector('.skill-progress-fill');
+        if (progressFill) {
+            const xpPercent = skill.level < 99 ? 
+                ((skill.xp - getXpForLevel(skill.level)) / 
+                (getXpForLevel(skill.level + 1) - getXpForLevel(skill.level))) * 100 : 100;
+            progressFill.style.width = `${xpPercent}%`;
+        }
+        
+        // Update tooltip
+        const tooltip = skillElement.querySelector('.skill-tooltip');
+        if (tooltip) {
+            let tooltipContent = `${skill.name}<br>Level ${skill.level}<br>`;
+            
+            if (skill.level < 99) {
+                const totalXp = Math.floor(skill.xp);
+                const nextLevelXp = getXpForLevel(skill.level + 1);
+                const xpToNext = nextLevelXp - totalXp;
+                
+                tooltipContent += `${formatNumber(totalXp)}/${formatNumber(nextLevelXp)} exp<br>`;
+                tooltipContent += `${formatNumber(xpToNext)} exp to level ${skill.level + 1}`;
+            } else {
+                tooltipContent += `${formatNumber(Math.floor(skill.xp))} exp`;
+            }
+            
+            tooltip.innerHTML = tooltipContent;
+        }
+    }
+    
+    // Update only task progress bars (not full task rebuild)
+    updateTaskProgressBarsOnly() {
+        // Update floating current task's level progress bar
+        this.updateFloatingTaskLevelProgress();
+        
+        // Update panel current task if visible
+        if (this.currentPanel === 'tasks' && !this.minimized) {
+            const tasksList = document.getElementById('tasks-list');
+            if (!tasksList || !window.taskManager) return;
+            
+            // Find current task element
+            const currentTaskSection = tasksList.querySelector('.task-section');
+            if (currentTaskSection && taskManager.currentTask) {
+                const progressFill = currentTaskSection.querySelector('.task-progress-fill');
+                const progressText = currentTaskSection.querySelector('.progress-bar-text');
+                
+                if (progressFill) {
+                    progressFill.style.width = `${taskManager.currentTask.progress * 100}%`;
+                }
+                
+                if (progressText) {
+                    const current = Math.floor(taskManager.currentTask.progress * taskManager.currentTask.targetCount);
+                    const percentage = (taskManager.currentTask.progress * 100).toFixed(2);
+                    
+                    progressText.innerHTML = `
+                        <span class="progress-text-left">${current}</span>
+                        <span class="progress-text-center">${percentage}%</span>
+                        <span class="progress-text-right">${taskManager.currentTask.targetCount}</span>
+                    `;
+                }
+            }
+        }
+    }
+    
+    // Update floating task's level progress bar only
+    updateFloatingTaskLevelProgress() {
+        const floatingContainer = document.getElementById('floating-current-task');
+        if (!floatingContainer || !window.taskManager || !taskManager.currentTask) return;
+        
+        // Find the level progress bar in floating task
+        const levelBar = floatingContainer.querySelector('.level-progress-bar');
+        if (!levelBar) return;
+        
+        const allSkills = skills.getAllSkills();
+        const skillData = allSkills[taskManager.currentTask.skill];
+        if (!skillData) return;
+        
+        // Calculate level progress
+        const currentLevel = skillData.level;
+        let levelProgress = 0;
+        let leftLabel = '';
+        let rightLabel = '';
+        
+        if (currentLevel < 99) {
+            const nextLevel = currentLevel + 1;
+            const currentLevelXp = getXpForLevel(currentLevel);
+            const nextLevelXp = getXpForLevel(nextLevel);
+            const xpIntoLevel = skillData.xp - currentLevelXp;
+            const xpNeeded = nextLevelXp - currentLevelXp;
+            levelProgress = (xpIntoLevel / xpNeeded) * 100;
+            leftLabel = `Lv ${currentLevel}`;
+            rightLabel = `Lv ${nextLevel}`;
+        } else if (skillData.xp < 50000000) {
+            const level99Xp = 13034431;
+            const targetXp = 50000000;
+            const xpProgress = skillData.xp - level99Xp;
+            const xpNeeded = targetXp - level99Xp;
+            levelProgress = (xpProgress / xpNeeded) * 100;
+            leftLabel = 'Lv 99';
+            rightLabel = '50M';
+        } else {
+            const startXp = 50000000;
+            const targetXp = 200000000;
+            const xpProgress = skillData.xp - startXp;
+            const xpNeeded = targetXp - startXp;
+            levelProgress = Math.min((xpProgress / xpNeeded) * 100, 100);
+            leftLabel = '50M';
+            rightLabel = '200M';
+        }
+        
+        // Update the fill
+        const levelFill = levelBar.querySelector('.level-progress-fill');
+        if (levelFill) {
+            levelFill.style.width = `${levelProgress}%`;
+        }
+        
+        // Update the text
+        const levelText = levelBar.querySelector('.progress-bar-text');
+        if (levelText) {
+            const levelPercentage = levelProgress.toFixed(2);
+            levelText.innerHTML = `
+                <span class="progress-text-left">${leftLabel}</span>
+                <span class="progress-text-center">${levelPercentage}%</span>
+                <span class="progress-text-right">${rightLabel}</span>
+            `;
+        }
+    }
+
     createSkillElement(skillId, skill) {
         const skillDiv = document.createElement('div');
         skillDiv.className = 'skill-item';
