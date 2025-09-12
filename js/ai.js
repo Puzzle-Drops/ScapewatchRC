@@ -44,11 +44,6 @@ class AIManager {
         // Only make decisions if cooldown has expired
         if (this.decisionCooldown > 0) return;
 
-        // Update task progress periodically for sync
-        if (window.taskManager) {
-            taskManager.updateAllProgress();
-        }
-
         // CRITICAL: If we have no current task but player is moving, stop and re-evaluate
         if (this.currentTask === null && player.isMoving()) {
             // Check if we're moving to a bank - if so, this is intentional
