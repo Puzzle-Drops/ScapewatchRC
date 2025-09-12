@@ -6,6 +6,76 @@
         "maxStack": 9999999999,
         "category": "currency"
     },
+  "clue_easy": {
+    "id": "clue_easy",
+    "name": "Easy Clue",
+    "category": "clue",
+    "stackable": false,
+    "value": 1
+  },
+  "clue_medium": {
+    "id": "clue_medium",
+    "name": "Medium Clue",
+    "category": "clue",
+    "stackable": false,
+    "value": 1
+  },
+  "clue_hard": {
+    "id": "clue_hard",
+    "name": "Hard Clue",
+    "category": "clue",
+    "stackable": false,
+    "value": 1
+  },
+  "clue_elite": {
+    "id": "clue_elite",
+    "name": "Elite Clue",
+    "category": "clue",
+    "stackable": false,
+    "value": 1
+  },
+  "clue_master": {
+    "id": "clue_master",
+    "name": "Master Clue",
+    "category": "clue",
+    "stackable": false,
+    "value": 1
+  },
+  "casket_easy": {
+    "id": "casket_easy",
+    "name": "Easy Casket",
+    "category": "casket",
+    "stackable": true,
+    "value": 1
+  },
+  "casket_medium": {
+    "id": "casket_medium",
+    "name": "Medium Casket",
+    "category": "casket",
+    "stackable": true,
+    "value": 1
+  },
+  "casket_hard": {
+    "id": "casket_hard",
+    "name": "Hard Casket",
+    "category": "casket",
+    "stackable": true,
+    "value": 1
+  },
+  "casket_elite": {
+    "id": "casket_elite",
+    "name": "Elite Casket",
+    "category": "casket",
+    "stackable": true,
+    "value": 1
+  },
+  "casket_master": {
+    "id": "casket_master",
+    "name": "Master Casket",
+    "category": "casket",
+    "stackable": true,
+    "value": 1
+  },
     "mark_of_grace": {
         "id": "mark_of_grace",
         "name": "Mark of grace",
