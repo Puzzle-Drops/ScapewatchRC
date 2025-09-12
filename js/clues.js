@@ -132,32 +132,42 @@ class ClueManager {
     }
     
     // Called when player arrives at a node
-    onNodeVisit(nodeId) {
-        // Check all active clues for this node
-        for (const [tier, clueData] of Object.entries(this.clues)) {
-            const stepIndex = clueData.steps.indexOf(nodeId);
+onNodeVisit(nodeId) {
+    // Check all active clues for this node
+    for (const [tier, clueData] of Object.entries(this.clues)) {
+        const stepIndex = clueData.steps.indexOf(nodeId);
+        
+        if (stepIndex !== -1 && !clueData.completed[stepIndex]) {
+            // Mark this step as complete
+            clueData.completed[stepIndex] = true;
             
-            if (stepIndex !== -1 && !clueData.completed[stepIndex]) {
-                // Mark this step as complete
-                clueData.completed[stepIndex] = true;
-                
-                const nodeName = nodes.getNode(nodeId).name;
-                console.log(`Clue step completed: ${nodeName}`);
-                
-                // Check if entire clue is complete
-                if (this.isClueComplete(tier)) {
-                    console.log(`${this.CLUE_CONFIG[tier].itemName} completed! Click it in bank to receive casket.`);
-                }
-                
-                // Update UI if bank is open
-                if (window.ui && ui.bankOpen) {
-                    ui.updateBank();
-                }
-                
-                this.saveClueData();
+            const nodeName = nodes.getNode(nodeId).name;
+            console.log(`Clue step completed: ${nodeName}`);
+            
+            // Show step completion celebration
+            if (window.xpDropManager) {
+                xpDropManager.showClueStepComplete(tier);
             }
+            
+            // Check if entire clue is complete
+            if (this.isClueComplete(tier)) {
+                console.log(`${this.CLUE_CONFIG[tier].itemName} completed! Click it in bank to receive casket.`);
+                
+                // Show clue completion celebration
+                if (window.xpDropManager) {
+                    xpDropManager.showClueComplete(tier);
+                }
+            }
+            
+            // Update UI if bank is open
+            if (window.ui && ui.bankOpen) {
+                ui.updateBank();
+            }
+            
+            this.saveClueData();
         }
     }
+}
     
     // Check if a clue is fully complete
     isClueComplete(tier) {
@@ -197,6 +207,33 @@ class ClueManager {
         
         return true;
     }
+
+    // Destroy a clue
+destroyClue(tier) {
+    const clueData = this.clues[tier];
+    if (!clueData) {
+        console.log('No clue to destroy');
+        return false;
+    }
+    
+    // Remove clue from bank
+    const clueItemId = `${tier}_clue`;
+    bank.withdraw(clueItemId, 1);
+    
+    // Remove from active clues
+    delete this.clues[tier];
+    
+    console.log(`${this.CLUE_CONFIG[tier].itemName} destroyed!`);
+    
+    this.saveClueData();
+    
+    // Update UI
+    if (window.ui) {
+        ui.updateBank();
+    }
+    
+    return true;
+}
     
     // Get clue data for a tier (for UI display)
     getClueData(tier) {
