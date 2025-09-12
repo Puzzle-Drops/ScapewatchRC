@@ -992,7 +992,7 @@ class SkillCustomizationUI {
                 imagePath = `assets/pets/${this.currentSkillId}_pet(s).png`;
                 fullTooltip = `${bonusInfo.tooltip} ${bonusInfo.bonus}`;
                 break;
-            case 'skillCape':
+            case 'cape':
                 imagePath = `assets/capes/${this.currentSkillId}_cape.png`;
                 fullTooltip = `${bonusInfo.tooltip} ${bonusInfo.bonus}`;
                 break;
