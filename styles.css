@@ -3070,18 +3070,17 @@ span.control-emoji {
     height: 34%;
     pointer-events: none;
     z-index: 100;
-    display: flex;
-    flex-direction: column-reverse;
-    align-items: center;
-    gap: 4px;
 }
 
 .xp-drop {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     gap: 10px;
     animation: xpDropAnimation 1.8s ease-out forwards;
-    position: relative;
 }
 
 .xp-drop-icon {
@@ -3108,7 +3107,7 @@ span.control-emoji {
 
 @keyframes xpDropAnimation {
     0% {
-        transform: translateY(0);
+        bottom: 0;
         opacity: 1;
     }
     66.67% {
@@ -3116,7 +3115,7 @@ span.control-emoji {
         opacity: 1;
     }
     100% {
-        transform: translateY(-300px);
+        bottom: 100%; /* Move to top of container */
         opacity: 0;
     }
 }
