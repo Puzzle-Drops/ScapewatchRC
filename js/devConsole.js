@@ -1408,21 +1408,38 @@ class DevConsole {
     
     const items = loadingManager.getData('items');
     let count = 0;
-    let skipped = 0;
+    let skippedNotes = 0;
+    let skippedClues = 0;
     
     for (const [itemId, itemData] of Object.entries(items)) {
         // Skip noted items
         if (itemData.category === 'note') {
-            skipped++;
+            skippedNotes++;
             continue;
         }
+        
+        // Skip clue scrolls and caskets
+        if (itemData.category === 'clue' || itemData.category === 'casket') {
+            skippedClues++;
+            continue;
+        }
+        
         bank.deposit(itemId, quantity);
         count++;
     }
     
     this.log(`Added ${quantity} of each item to bank (${count} items)`, 'success');
-    if (skipped > 0) {
-        this.log(`Skipped ${skipped} noted items`, 'info');
+    
+    let skipMessage = [];
+    if (skippedNotes > 0) {
+        skipMessage.push(`${skippedNotes} noted items`);
+    }
+    if (skippedClues > 0) {
+        skipMessage.push(`${skippedClues} clue/casket items`);
+    }
+    
+    if (skipMessage.length > 0) {
+        this.log(`Skipped ${skipMessage.join(' and ')}`, 'info');
     }
 }
 
