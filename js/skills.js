@@ -74,6 +74,17 @@ class SkillsManager {
         // Update the skill in skills panel if visible
         ui.updateSingleSkillUI(skillId);
         
+        // Update total level display (always, since tooltip shows total XP)
+        ui.updateTotalLevelDisplay();
+        
+        // Update combat level if this was a combat skill level up
+        if (skill.level !== oldLevel) {
+            const combatSkills = ['attack', 'strength', 'defence', 'hitpoints', 'prayer', 'ranged', 'magic'];
+            if (combatSkills.includes(skillId)) {
+                ui.updateCombatLevelDisplay();
+            }
+        }
+        
         // Update floating task level progress if it's for this skill
         if (window.taskManager && taskManager.currentTask && 
             taskManager.currentTask.skill === skillId) {
