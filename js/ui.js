@@ -241,7 +241,7 @@ createClueSlot(itemId, quantity) {
     
     const itemData = loadingManager.getData('items')[itemId];
     
-    // Check if this is a clue
+    // Check if it's a clue
     if (itemData.category === 'clue') {
         // Extract tier from itemId (e.g., "easy_clue" -> "easy")
         const tier = itemId.replace('_clue', '');
@@ -263,6 +263,45 @@ createClueSlot(itemId, quantity) {
                 slotDiv.style.cursor = 'pointer';
             }
             
+            // Add right-click handler for destroy option
+            slotDiv.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Create context menu
+                const existingMenu = document.querySelector('.context-menu');
+                if (existingMenu) existingMenu.remove();
+                
+                const menu = document.createElement('div');
+                menu.className = 'context-menu';
+                menu.style.left = e.pageX + 'px';
+                menu.style.top = e.pageY + 'px';
+                
+                const destroyOption = document.createElement('div');
+                destroyOption.className = 'context-menu-item';
+                destroyOption.textContent = 'Destroy Clue';
+                destroyOption.addEventListener('click', () => {
+                    if (confirm(`Are you sure you want to destroy this ${tier} clue?`)) {
+                        if (window.clueManager) {
+                            clueManager.destroyClue(tier);
+                        }
+                    }
+                    menu.remove();
+                });
+                
+                menu.appendChild(destroyOption);
+                document.body.appendChild(menu);
+                
+                // Remove menu when clicking elsewhere
+                const removeMenu = (e) => {
+                    if (!menu.contains(e.target)) {
+                        menu.remove();
+                        document.removeEventListener('click', removeMenu);
+                    }
+                };
+                setTimeout(() => document.addEventListener('click', removeMenu), 0);
+            });
+            
             // Create the item image
             const img = document.createElement('img');
             img.src = `assets/items/${itemId}.png`;
@@ -270,6 +309,10 @@ createClueSlot(itemId, quantity) {
             img.style.height = '100%';
             img.style.objectFit = 'contain';
             slotDiv.appendChild(img);
+            
+            // Add step completion overlay
+            const overlay = this.createClueStepOverlay(clueData);
+            slotDiv.appendChild(overlay);
             
             // Create custom tooltip
             const tooltip = this.createClueTooltip(tier, clueData, isComplete);
@@ -318,6 +361,29 @@ createClueSlot(itemId, quantity) {
     return slotDiv;
 }
 
+    // Create step overlay for clue scrolls
+createClueStepOverlay(clueData) {
+    const overlay = document.createElement('div');
+    overlay.className = 'clue-step-overlay';
+    
+    clueData.completed.forEach((isComplete, index) => {
+        const stepIndicator = document.createElement('div');
+        stepIndicator.className = 'clue-step-indicator';
+        
+        if (isComplete) {
+            stepIndicator.innerHTML = '✓';
+            stepIndicator.classList.add('step-indicator-complete');
+        } else {
+            stepIndicator.innerHTML = '✗';
+            stepIndicator.classList.add('step-indicator-incomplete');
+        }
+        
+        overlay.appendChild(stepIndicator);
+    });
+    
+    return overlay;
+}
+    
 // Create tooltip for clue scrolls
 createClueTooltip(tier, clueData, isComplete) {
     const tooltip = document.createElement('div');
