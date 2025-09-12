@@ -163,19 +163,19 @@ class UIManager {
     // ==================== PANEL MANAGEMENT ====================
 
     switchPanel(panelName) {
-    // Update button states
-    // Close shop if switching away from it
-    if (this.currentPanel === 'shop' && panelName !== 'shop' && window.shop) {
-        shop.isOpen = false;
-    }
-    
-    document.querySelectorAll('.panel-btn').forEach(btn => {
-        if (btn.dataset.panel === panelName) {
-            btn.classList.add('active');
-        } else if (btn.dataset.panel !== 'bank') {
-            btn.classList.remove('active');
+        // Update button states
+        // Close shop if switching away from it
+        if (this.currentPanel === 'shop' && panelName !== 'shop' && window.shop) {
+            shop.isOpen = false;
         }
-    });
+        
+        document.querySelectorAll('.panel-btn').forEach(btn => {
+            if (btn.dataset.panel === panelName) {
+                btn.classList.add('active');
+            } else if (btn.dataset.panel !== 'bank') {
+                btn.classList.remove('active');
+            }
+        });
         
         // Update panel visibility
         document.querySelectorAll('.panel').forEach(panel => {
@@ -189,24 +189,26 @@ class UIManager {
         
         this.currentPanel = panelName;
         
-        // Update panel content
-switch (panelName) {
-    case 'inventory':
-        this.updateInventory();
-        break;
-    case 'skills':
-        this.updateSkillsList();
-        break;
-    case 'tasks':
-        this.updateTasks();
-        break;
-    case 'shop':
-        if (window.shop) {
-            shop.isOpen = true;
+        // Update panel content - check if needs full update
+        switch (panelName) {
+            case 'inventory':
+                // Always do full update when switching to panel
+                this.updateInventory();
+                this.inventoryNeedsFullUpdate = false;
+                break;
+            case 'skills':
+                this.updateSkillsList();
+                break;
+            case 'tasks':
+                this.updateTasks();
+                break;
+            case 'shop':
+                if (window.shop) {
+                    shop.isOpen = true;
+                }
+                this.updateShop();
+                break;
         }
-        this.updateShop();
-        break;
-}
     }
 
     // ==================== INVENTORY DISPLAY ====================
@@ -230,6 +232,52 @@ switch (panelName) {
                 inventoryGrid.appendChild(emptySlot);
             }
         }
+    }
+
+    // ==================== TARGETED INVENTORY UPDATES ====================
+    
+    updateInventorySlots(slotIndices) {
+        // Only update if inventory panel is visible
+        if (this.currentPanel !== 'inventory' || this.minimized) {
+            // Still need to update the full inventory if we switch to it later
+            this.inventoryNeedsFullUpdate = true;
+            return;
+        }
+        
+        const inventoryGrid = document.getElementById('inventory-grid');
+        if (!inventoryGrid) return;
+        
+        // Update only the changed slots
+        for (const slotIndex of slotIndices) {
+            const slot = inventory.slots[slotIndex];
+            const slotElement = inventoryGrid.children[slotIndex];
+            
+            if (!slotElement) continue;
+            
+            // Create new slot content
+            const newSlot = slot ? 
+                this.createItemSlot(slot.itemId, slot.quantity, 'inventory-slot') :
+                document.createElement('div');
+                
+            if (!slot) {
+                newSlot.className = 'inventory-slot';
+            }
+            
+            // Replace the old slot element
+            inventoryGrid.replaceChild(newSlot, slotElement);
+        }
+    }
+
+    updateBankSlots(itemsChanged) {
+        // Only update if bank is open
+        if (!this.bankOpen) {
+            this.bankNeedsFullUpdate = true;
+            return;
+        }
+        
+        // For bank, we need to rebuild since items can be added/removed dynamically
+        // But we can optimize this later with a more complex slot mapping system
+        this.updateBank();
     }
 
     // ==================== SKILLS DISPLAY ====================
