@@ -243,8 +243,8 @@ createClueSlot(itemId, quantity) {
     
     // Check if this is a clue
     if (itemData.category === 'clue') {
-        // Extract tier from itemId (e.g., "clue_easy" -> "easy")
-        const tier = itemId.replace('clue_', '');
+        // Extract tier from itemId (e.g., "easy_clue" -> "easy")
+        const tier = itemId.replace('_clue', '');
         const clueData = window.clueManager ? clueManager.getClueData(tier) : null;
         
         if (clueData) {
