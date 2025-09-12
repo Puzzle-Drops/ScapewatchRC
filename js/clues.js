@@ -67,7 +67,7 @@ class ClueManager {
     // Check if player has a clue of this tier
     hasClue(tier) {
         // Check bank for existing clue
-        const clueItemId = `clue_${tier}`;
+        const clueItemId = `${tier}_clue`;
         return bank.getItemCount(clueItemId) > 0;
     }
     
@@ -116,7 +116,7 @@ class ClueManager {
         this.clues[tier] = clueData;
         
         // Add to bank as special clue item
-        const clueItemId = `clue_${tier}`;
+        const clueItemId = `${tier}_clue`;
         bank.deposit(clueItemId, 1);
         
         // Save clue data (will implement proper persistence later)
@@ -176,11 +176,11 @@ class ClueManager {
         }
         
         // Remove clue from bank
-        const clueItemId = `clue_${tier}`;
+        const clueItemId = `${tier}_clue`;
         bank.withdraw(clueItemId, 1);
         
         // Add casket to bank
-        const casketItemId = `casket_${tier}`;
+        const casketItemId = `${tier}_casket`;
         bank.deposit(casketItemId, 1);
         
         // Remove from active clues
