@@ -240,21 +240,17 @@ class Player {
             skill.onActivityComplete(activityData);
         }
         
-        // Update task progress bars only (not full UI rebuild)
-        if (window.ui) {
-            window.ui.updateTaskProgressBarsOnly();
-        }
-
         // Update task progress for items earned (cooking handles its own progress)
         if (window.taskManager && earnedRewards.length > 0 && !activityData.cookingTable) {
             // Task manager will check if this contributes to the current task
             for (const reward of earnedRewards) {
                 taskManager.updateProgressForItem(reward.itemId);
             }
-            
-            if (window.ui) {
-                window.ui.updateTasks();
-            }
+        }
+        
+        // Update only the task progress bars, not full UI rebuild
+        if (window.ui) {
+            window.ui.updateTaskProgressBarsOnly();
         }
 
         // IMPORTANT: Check if processing skills should continue based on available materials
