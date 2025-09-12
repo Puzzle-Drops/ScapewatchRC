@@ -216,7 +216,7 @@ class XPDropManager {
         // Check for level 99 skill cape
         if (newLevel === 99) {
             this.queueCelebration({
-                type: 'skillCape',
+                type: 'cape',
                 skillId: skillId,
                 duration: 3500
             });
@@ -274,7 +274,7 @@ class XPDropManager {
             case 'xpMilestone':
                 this.displayXPMilestone(nextCelebration);
                 break;
-            case 'skillCape':
+            case 'cape':
                 this.displaySkillCape(nextCelebration);
                 break;
             case 'trimmedCape':
