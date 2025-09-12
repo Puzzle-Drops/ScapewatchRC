@@ -6,71 +6,71 @@
         "maxStack": 9999999999,
         "category": "currency"
     },
-  "clue_easy": {
-    "id": "clue_easy",
+  "easy_clue": {
+    "id": "easy_clue",
     "name": "Easy Clue",
     "category": "clue",
     "stackable": false,
     "value": 1
   },
-  "clue_medium": {
-    "id": "clue_medium",
+  "medium_clue": {
+    "id": "medium_clue",
     "name": "Medium Clue",
     "category": "clue",
     "stackable": false,
     "value": 1
   },
-  "clue_hard": {
-    "id": "clue_hard",
+  "hard_clue": {
+    "id": "hard_clue",
     "name": "Hard Clue",
     "category": "clue",
     "stackable": false,
     "value": 1
   },
-  "clue_elite": {
-    "id": "clue_elite",
+  "elite_clue": {
+    "id": "elite_clue",
     "name": "Elite Clue",
     "category": "clue",
     "stackable": false,
     "value": 1
   },
-  "clue_master": {
-    "id": "clue_master",
+  "master_clue": {
+    "id": "master_clue",
     "name": "Master Clue",
     "category": "clue",
     "stackable": false,
     "value": 1
   },
-  "casket_easy": {
-    "id": "casket_easy",
+  "easy_casket": {
+    "id": "easy_casket",
     "name": "Easy Casket",
     "category": "casket",
     "stackable": true,
     "value": 1
   },
-  "casket_medium": {
-    "id": "casket_medium",
+  "medium_casket": {
+    "id": "medium_casket",
     "name": "Medium Casket",
     "category": "casket",
     "stackable": true,
     "value": 1
   },
-  "casket_hard": {
-    "id": "casket_hard",
+  "hard_casket": {
+    "id": "hard_casket",
     "name": "Hard Casket",
     "category": "casket",
     "stackable": true,
     "value": 1
   },
-  "casket_elite": {
-    "id": "casket_elite",
+  "elite_casket": {
+    "id": "elite_casket",
     "name": "Elite Casket",
     "category": "casket",
     "stackable": true,
     "value": 1
   },
-  "casket_master": {
-    "id": "casket_master",
+  "master_casket": {
+    "id": "master_casket",
     "name": "Master Casket",
     "category": "casket",
     "stackable": true,
