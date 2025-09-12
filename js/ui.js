@@ -234,6 +234,126 @@ class UIManager {
         }
     }
 
+    // Create special clue slot for bank
+createClueSlot(itemId, quantity) {
+    const slotDiv = document.createElement('div');
+    slotDiv.className = 'bank-slot clue-slot';
+    
+    const itemData = loadingManager.getData('items')[itemId];
+    
+    // Check if this is a clue
+    if (itemData.category === 'clue') {
+        // Extract tier from itemId (e.g., "clue_easy" -> "easy")
+        const tier = itemId.replace('clue_', '');
+        const clueData = window.clueManager ? clueManager.getClueData(tier) : null;
+        
+        if (clueData) {
+            // Check if complete
+            const isComplete = clueManager.isClueComplete(tier);
+            if (isComplete) {
+                slotDiv.classList.add('clue-complete');
+                
+                // Add click handler to convert to casket
+                slotDiv.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.clueManager) {
+                        clueManager.convertToCasket(tier);
+                    }
+                });
+                slotDiv.style.cursor = 'pointer';
+            }
+            
+            // Create the item image
+            const img = document.createElement('img');
+            img.src = `assets/items/${itemId}.png`;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'contain';
+            slotDiv.appendChild(img);
+            
+            // Create custom tooltip
+            const tooltip = this.createClueTooltip(tier, clueData, isComplete);
+            slotDiv.appendChild(tooltip);
+        } else {
+            // No clue data, show normal item
+            const imgElement = this.createItemImage(itemId, quantity);
+            slotDiv.appendChild(imgElement);
+            slotDiv.title = `${itemData.name} x${formatNumber(quantity)}`;
+        }
+    } else if (itemData.category === 'casket') {
+        // Handle casket display
+        slotDiv.classList.add('casket-slot');
+        
+        const imgElement = this.createItemImage(itemId, quantity);
+        slotDiv.appendChild(imgElement);
+        
+        // Add quantity display for stackable caskets
+        if (quantity > 1) {
+            const countDiv = this.createItemCount(itemId, quantity);
+            slotDiv.appendChild(countDiv);
+        }
+        
+        slotDiv.title = `${itemData.name} x${formatNumber(quantity)}`;
+        
+        // Add click handler to open casket (implement later)
+        slotDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log(`Opening ${itemData.name}...`);
+            // TODO: Implement casket opening
+        });
+        slotDiv.style.cursor = 'pointer';
+    } else {
+        // Regular item
+        const imgElement = this.createItemImage(itemId, quantity);
+        slotDiv.appendChild(imgElement);
+        
+        if (quantity > 1) {
+            const countDiv = this.createItemCount(itemId, quantity);
+            slotDiv.appendChild(countDiv);
+        }
+        
+        slotDiv.title = `${itemData.name} x${formatNumber(quantity)}`;
+    }
+    
+    return slotDiv;
+}
+
+// Create tooltip for clue scrolls
+createClueTooltip(tier, clueData, isComplete) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'clue-tooltip';
+    
+    const config = window.clueManager ? clueManager.CLUE_CONFIG[tier] : null;
+    const titleText = config ? config.itemName : `${tier} clue`;
+    
+    let content = `<div class="clue-tooltip-title">${titleText}</div>`;
+    
+    if (isComplete) {
+        content += '<div class="clue-complete-text">✓ Complete! Click to receive casket</div>';
+    }
+    
+    content += '<div class="clue-steps-header">Node Steps:</div>';
+    content += '<div class="clue-steps-list">';
+    
+    for (let i = 0; i < clueData.steps.length; i++) {
+        const nodeId = clueData.steps[i];
+        const node = window.nodes ? nodes.getNode(nodeId) : null;
+        const nodeName = node ? node.name : nodeId;
+        const completed = clueData.completed[i];
+        
+        const icon = completed ? 
+            '<span class="step-complete">✓</span>' : 
+            '<span class="step-incomplete">✗</span>';
+            
+        content += `<div class="clue-step">${icon} ${nodeName}</div>`;
+    }
+    
+    content += '</div>';
+    tooltip.innerHTML = content;
+    
+    return tooltip;
+}
+
     // ==================== TARGETED INVENTORY UPDATES ====================
     
     updateInventorySlots(slotIndices) {
@@ -1165,27 +1285,34 @@ createSelectableTaskElement(taskSlot, slotIndex) {
     }
 
     updateBank() {
-        if (!this.bankOpen) return;
-        
-        const bankGrid = document.getElementById('bank-grid');
-        if (!bankGrid) return;
-        
-        bankGrid.innerHTML = '';
+    if (!this.bankOpen) return;
+    
+    const bankGrid = document.getElementById('bank-grid');
+    if (!bankGrid) return;
+    
+    bankGrid.innerHTML = '';
 
-        const bankItems = bank.getAllItems();
-        
-        // Sort bank items according to items.json order
-        const sortedItems = Object.entries(bankItems).sort((a, b) => {
-            const indexA = this.itemOrderMap[a[0]] ?? Number.MAX_VALUE;
-            const indexB = this.itemOrderMap[b[0]] ?? Number.MAX_VALUE;
-            return indexA - indexB;
-        });
+    const bankItems = bank.getAllItems();
+    
+    // Sort bank items according to items.json order
+    const sortedItems = Object.entries(bankItems).sort((a, b) => {
+        const indexA = this.itemOrderMap[a[0]] ?? Number.MAX_VALUE;
+        const indexB = this.itemOrderMap[b[0]] ?? Number.MAX_VALUE;
+        return indexA - indexB;
+    });
 
-        for (const [itemId, quantity] of sortedItems) {
+    for (const [itemId, quantity] of sortedItems) {
+        // Check if this is a clue or casket
+        const itemData = loadingManager.getData('items')[itemId];
+        if (itemData && (itemData.category === 'clue' || itemData.category === 'casket')) {
+            const slotDiv = this.createClueSlot(itemId, quantity);
+            bankGrid.appendChild(slotDiv);
+        } else {
             const slotDiv = this.createItemSlot(itemId, quantity, 'bank-slot');
             bankGrid.appendChild(slotDiv);
         }
     }
+}
 
 // ==================== SHOP DISPLAY ====================
 
