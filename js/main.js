@@ -388,11 +388,6 @@ function gameLoop(currentTime) {
         player.update(deltaTime);
     }
 
-    // Update task progress
-    if (window.taskManager) {
-        taskManager.updateAllProgress();
-    }
-
     // Render the map
     map.render();
     
