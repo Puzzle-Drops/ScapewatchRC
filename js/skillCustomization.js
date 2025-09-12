@@ -1672,28 +1672,34 @@ class SkillCustomizationUI {
                     }
                 }
             } else if (this.currentSkillId === 'crafting') {
-                // Map crafting activities to their products
-                const skill = window.skillRegistry ? skillRegistry.getSkill('crafting') : null;
-                if (skill && skill.SKILL_DATA) {
-                    if (activityId === 'blowing_glass') {
-                        // Glass blowing produces blown glass and vials
-                        possibleTaskIds.set('blown_glass', currentLevel >= 1);
-                        possibleTaskIds.set('vial_of_water', currentLevel >= 10);
-                    } else if (activityId === 'cutting_gems') {
-                        // Gem cutting produces cut gems
-                        possibleTaskIds.set('sapphire', currentLevel >= 20);
-                        possibleTaskIds.set('emerald', currentLevel >= 27);
-                        possibleTaskIds.set('ruby', currentLevel >= 34);
-                        possibleTaskIds.set('diamond', currentLevel >= 43);
-                    } else if (activityId === 'plank_making') {
-                        // Sawmill produces planks
-                        possibleTaskIds.set('plank', currentLevel >= 10);
-                        possibleTaskIds.set('oak_plank', currentLevel >= 15);
-                        possibleTaskIds.set('teak_plank', currentLevel >= 20);
-                        possibleTaskIds.set('mahogany_plank', currentLevel >= 40);
-                    }
-                }
-            } else if (this.currentSkillId === 'herblore') {
+    // Map crafting activities to their products
+    const skill = window.skillRegistry ? skillRegistry.getSkill('crafting') : null;
+    if (skill && skill.SKILL_DATA) {
+        if (activityId === 'blowing_glass') {
+            // Glass blowing produces blown glass and vials
+            possibleTaskIds.set('blown_glass', currentLevel >= 1);
+            possibleTaskIds.set('vial_of_water', currentLevel >= 10);
+        } else if (activityId === 'cutting_gems') {
+            // Gem cutting produces cut gems
+            possibleTaskIds.set('sapphire', currentLevel >= 20);
+            possibleTaskIds.set('emerald', currentLevel >= 27);
+            possibleTaskIds.set('ruby', currentLevel >= 34);
+            possibleTaskIds.set('diamond', currentLevel >= 43);
+        } else if (activityId === 'plank_making') {
+            // Sawmill produces planks
+            possibleTaskIds.set('plank', currentLevel >= 10);
+            possibleTaskIds.set('oak_plank', currentLevel >= 15);
+            possibleTaskIds.set('teak_plank', currentLevel >= 20);
+            possibleTaskIds.set('mahogany_plank', currentLevel >= 40);
+        } else if (activityId === 'jewellery_making') {
+            // Jewellery making produces rings
+            possibleTaskIds.set('sapphire_ring', currentLevel >= 25);
+            possibleTaskIds.set('emerald_ring', currentLevel >= 32);
+            possibleTaskIds.set('ruby_ring', currentLevel >= 45);
+            possibleTaskIds.set('diamond_ring', currentLevel >= 55);
+        }
+    }
+} else if (this.currentSkillId === 'herblore') {
                 // Map herblore activities to their products
                 if (activityId === 'cleaning_herbs') {
                     // Cleaning herbs activity can clean any grimy herb
@@ -1952,17 +1958,21 @@ class SkillCustomizationUI {
                         canProduce = true;
                     }
                 } else if (this.currentSkillId === 'crafting') {
-                    // Map crafting products to their activities
-                    if (activityId === 'blowing_glass') {
-                        canProduce = (taskItemId === 'blown_glass' || taskItemId === 'vial_of_water');
-                    } else if (activityId === 'cutting_gems') {
-                        const gems = ['sapphire', 'emerald', 'ruby', 'diamond'];
-                        canProduce = gems.includes(taskItemId);
-                    } else if (activityId === 'plank_making') {
-                        const planks = ['plank', 'oak_plank', 'teak_plank', 'mahogany_plank'];
-                        canProduce = planks.includes(taskItemId);
-                    }
-                } else if (this.currentSkillId === 'herblore') {
+    // Map crafting products to their activities
+    if (activityId === 'blowing_glass') {
+        canProduce = (taskItemId === 'blown_glass' || taskItemId === 'vial_of_water');
+    } else if (activityId === 'cutting_gems') {
+        const gems = ['sapphire', 'emerald', 'ruby', 'diamond'];
+        canProduce = gems.includes(taskItemId);
+    } else if (activityId === 'plank_making') {
+        const planks = ['plank', 'oak_plank', 'teak_plank', 'mahogany_plank'];
+        canProduce = planks.includes(taskItemId);
+    } else if (activityId === 'jewellery_making') {
+        // Add ring making support
+        const rings = ['sapphire_ring', 'emerald_ring', 'ruby_ring', 'diamond_ring'];
+        canProduce = rings.includes(taskItemId);
+    }
+} else if (this.currentSkillId === 'herblore') {
                     // Map herblore products to their activities
                     const grimyHerbs = [
                         'grimy_guam_leaf', 'grimy_marrentill', 'grimy_tarromin', 
