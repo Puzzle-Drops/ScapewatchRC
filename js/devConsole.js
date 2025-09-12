@@ -2111,9 +2111,9 @@ class DevConsole {
             const casketsInBank = [];
             
             for (const itemId of Object.keys(bank.items)) {
-                if (itemId.startsWith('clue_')) {
+                if (itemId.startsWith('_clue')) {
                     cluesInBank.push(itemId);
-                } else if (itemId.startsWith('casket_')) {
+                } else if (itemId.startsWith('_casket')) {
                     casketsInBank.push(itemId);
                 }
             }
@@ -2123,7 +2123,7 @@ class DevConsole {
                 this.log('Clues in bank:', 'info');
                 for (const itemId of cluesInBank) {
                     const quantity = bank.getItemCount(itemId);
-                    const tier = itemId.replace('clue_', '');
+                    const tier = itemId.replace('_clue', '');
                     this.log(`  ${tier} clue: ${quantity}`, 'info');
                 }
             }
@@ -2133,7 +2133,7 @@ class DevConsole {
                 this.log('Caskets in bank:', 'info');
                 for (const itemId of casketsInBank) {
                     const quantity = bank.getItemCount(itemId);
-                    const tier = itemId.replace('casket_', '');
+                    const tier = itemId.replace('_casket', '');
                     this.log(`  ${tier} casket: ${quantity}`, 'info');
                 }
             }
