@@ -853,6 +853,13 @@ class FirebaseManager {
     }
 
     collectSaveData() {
+        // Invalidate any caches to ensure fresh data
+        if (window.taskManager) {
+            taskManager.invalidateCache();
+            // Force update task progress one final time before saving
+            taskManager.updateAllProgress();
+        }
+        
         const saveData = {
             // Player data
             player: {
