@@ -2097,7 +2097,7 @@ span.control-emoji {
     pointer-events: none;
     min-width: 220px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    font-size: 12px;
+    font-size: 24px;
 }
 
 .control-button:hover .control-button-tooltip {
@@ -2120,7 +2120,7 @@ span.control-emoji {
     color: #f39c12;
     font-weight: bold;
     margin-bottom: 5px;
-    font-size: 13px;
+    font-size: 26px;
 }
 
 .tooltip-effect {
