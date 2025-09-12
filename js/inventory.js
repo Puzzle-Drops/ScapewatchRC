@@ -19,6 +19,7 @@ class Inventory {
         }
 
         let remaining = quantity;
+        const changedSlots = []; // Track which slots changed
 
         if (itemData.stackable) {
             // First, try to add to existing stacks
@@ -27,8 +28,11 @@ class Inventory {
                 if (slot && slot.itemId === itemId) {
                     const spaceInStack = itemData.maxStack - slot.quantity;
                     const toAdd = Math.min(remaining, spaceInStack);
-                    slot.quantity += toAdd;
-                    remaining -= toAdd;
+                    if (toAdd > 0) {
+                        slot.quantity += toAdd;
+                        remaining -= toAdd;
+                        changedSlots.push(i);
+                    }
                 }
             }
         }
@@ -50,14 +54,23 @@ class Inventory {
                     };
                     remaining -= 1;
                 }
+                changedSlots.push(i);
             }
         }
 
         const added = quantity - remaining;
         
-        // Notify UI if items were added - using new UI system
+        // Update UI for changed slots
         if (added > 0 && window.ui) {
-            window.ui.updateInventory();
+            window.ui.updateInventorySlots(changedSlots);
+            
+            // Check if this item is relevant to current task
+            if (window.taskManager && taskManager.currentTask && 
+                !taskManager.currentTask.isCookingTask && 
+                taskManager.currentTask.itemId === itemId) {
+                taskManager.updateTaskProgress(taskManager.currentTask);
+                window.ui.updateTaskProgressBarsOnly();
+            }
         }
 
         return added; // Return amount actually added
@@ -65,6 +78,7 @@ class Inventory {
 
     removeItem(itemId, quantity = 1) {
         let remaining = quantity;
+        const changedSlots = []; // Track which slots changed
 
         for (let i = 0; i < this.maxSlots && remaining > 0; i++) {
             const slot = this.slots[i];
@@ -76,14 +90,15 @@ class Inventory {
                 if (slot.quantity <= 0) {
                     this.slots[i] = null;
                 }
+                changedSlots.push(i);
             }
         }
 
         const removed = quantity - remaining;
         
-        // Notify UI if items were removed - using new UI system
+        // Update UI for changed slots
         if (removed > 0 && window.ui) {
-            window.ui.updateInventory();
+            window.ui.updateInventorySlots(changedSlots);
         }
 
         return removed; // Return amount actually removed
