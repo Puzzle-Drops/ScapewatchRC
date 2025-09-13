@@ -728,10 +728,10 @@ body {
     border-radius: 10px;
     max-width: 1000px;
     width: 1000px;
-    max-height: 1280px;
-    height: 1280px;
+    max-height: 1350px;
+    height: 1350px;
     overflow-y: auto;
-    top: 140px;
+    top: 40px;
 }
 
 .modal-content h2 {
