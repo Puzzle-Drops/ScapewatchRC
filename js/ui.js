@@ -1282,12 +1282,6 @@ createSelectableTaskElement(taskSlot, slotIndex) {
             // Fallback text
             iconDiv.textContent = option.task.skill.substring(0, 3).toUpperCase();
         }
-        
-        // Add task quantity display
-        const quantityDiv = document.createElement('div');
-        quantityDiv.className = 'task-quantity-badge';
-        quantityDiv.textContent = option.task.targetCount;
-        iconDiv.appendChild(quantityDiv);
 
         // Add task quantity display
 const quantityDiv = document.createElement('div');
