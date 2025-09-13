@@ -1290,7 +1290,7 @@ quantityDiv.textContent = option.task.targetCount;
 iconDiv.appendChild(quantityDiv);
 
 // Add clue indicator if this task's node is in any active clue
-if (window.clueManager && option.originalIndex === selectedIndex) {
+if (window.clueManager) {
     const cluesWithThisNode = clueManager.getCluesContainingNode(option.task.nodeId);
     if (cluesWithThisNode.length > 0) {
         // Show the first matching clue
