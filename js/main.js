@@ -169,6 +169,11 @@ if (window.xpDropManager) {
     xpDropManager.initialize();
 }
 
+    // Initialize completed clues display
+if (window.clueManager) {
+    clueManager.updateCompletedCluesDisplay();
+}
+
 // Load saved game data if logged in
 if (firebaseManager.currentUser) {
     const loadSuccess = await firebaseManager.loadGame();
