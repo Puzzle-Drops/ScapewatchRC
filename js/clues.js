@@ -188,7 +188,11 @@ onNodeVisit(nodeId) {
                 ui.updateBank();
             }
             
-            this.saveClueData();
+this.saveClueData();
+
+// Update floating display
+this.updateCompletedCluesDisplay();
+            
         }
     }
 }
@@ -228,6 +232,9 @@ onNodeVisit(nodeId) {
         if (window.ui && ui.bankOpen) {
             ui.updateBank();
         }
+
+        // Update floating display
+this.updateCompletedCluesDisplay();
         
         return true;
     }
@@ -256,6 +263,9 @@ if (window.ui) {
     ui.updateBank();
     ui.updateTasks(); // Also update tasks to remove clue indicators
 }
+
+    // Update floating display
+this.updateCompletedCluesDisplay();
 
 return true;
 }
@@ -286,6 +296,61 @@ getCluesContainingNode(nodeId) {
     //console.log(`[getCluesContainingNode] Returning matches:`, matchingClues);
     return matchingClues;
 }
+
+    // Update the floating completed clues display
+updateCompletedCluesDisplay() {
+    const container = document.getElementById('floating-completed-clues');
+    if (!container) return;
+    
+    // Clear current display
+    container.innerHTML = '';
+    
+    // Define tier order (highest to lowest)
+    const tierOrder = ['master', 'elite', 'hard', 'medium', 'easy'];
+    
+    // Find all completed clues
+    const completedClues = [];
+    for (const tier of tierOrder) {
+        if (this.clues[tier] && this.isClueComplete(tier)) {
+            completedClues.push(tier);
+        }
+    }
+    
+    // Create display elements for each completed clue
+    completedClues.forEach(tier => {
+        const clueDiv = document.createElement('div');
+        clueDiv.className = 'floating-clue-item';
+        clueDiv.title = `Click to convert to casket`;
+        
+        // Add click handler to convert to casket
+        clueDiv.addEventListener('click', () => {
+            if (window.clueManager) {
+                clueManager.convertToCasket(tier);
+            }
+        });
+        
+        // Create clue image
+        const img = document.createElement('img');
+        img.src = `assets/items/${tier}_clue.png`;
+        img.alt = `${tier} clue`;
+        clueDiv.appendChild(img);
+        
+        // Create tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'floating-clue-tooltip';
+        
+        const config = this.CLUE_CONFIG[tier];
+        const titleText = config ? config.itemName : `${tier} clue`;
+        
+        tooltip.innerHTML = `
+            <div class="floating-clue-tooltip-title">✓ ${titleText} Complete!</div>
+            <div>Click to receive casket</div>
+        `;
+        
+        clueDiv.appendChild(tooltip);
+        container.appendChild(clueDiv);
+    });
+}
     
     // Save clue data (temporary - will hook into firebase later)
     saveClueData() {
@@ -297,6 +362,9 @@ getCluesContainingNode(nodeId) {
 loadClueData(data) {
     if (data && data.clues) {
         this.clues = data.clues;
+
+        // Update floating display
+this.updateCompletedCluesDisplay();
         
         // Refresh task UI to show clue indicators for loaded clues
         if (window.ui) {
