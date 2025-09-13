@@ -4,7 +4,54 @@ class AIManager {
         this.decisionCooldown = 0;
         this.failedNodes = new Set();
         this.hasBankedForCurrentTask = false; // Track if we've already banked for current task
+        this.isResumingFromLoad = false; // Track if we just loaded a save
+
     }
+
+    // ==================== SAVE/LOAD SYNCHRONIZATION ====================
+
+// Called after loading a save to restore AI state
+syncAfterLoad() {
+    console.log('AI syncing state after load...');
+    
+    // Mark that we're resuming from a load
+    this.isResumingFromLoad = true;
+    
+    // Sync the current task from task manager
+    if (window.taskManager && taskManager.currentTask) {
+        this.currentTask = taskManager.currentTask;
+        console.log(`AI resumed task: ${this.currentTask.description}`);
+        
+        // Verify we're on the right path
+        if (player.isMoving() && player.targetNode) {
+            const targetNode = nodes.getNode(player.targetNode);
+            
+            // Check if we're moving to the task node
+            if (targetNode && this.currentTask.nodeId === player.targetNode) {
+                console.log(`Resuming movement to task node ${player.targetNode}`);
+            } 
+            // Check if we're moving to a bank
+            else if (targetNode && targetNode.type === 'bank') {
+                console.log(`Resuming movement to bank ${player.targetNode}`);
+                // If moving to bank and we have the banking flag set, we're good
+                if (this.hasBankedForCurrentTask) {
+                    console.log('Already banked for this task, continuing to node after banking');
+                }
+            }
+            // Otherwise we might be on a waypoint path
+            else {
+                console.log(`Resuming path to ${player.targetNode}`);
+            }
+        }
+        
+        // Give a longer grace period when resuming
+        this.decisionCooldown = 5000; // 5 seconds to let things settle
+    } else {
+        // No current task in task manager
+        this.currentTask = null;
+        this.decisionCooldown = 3000; // Still give grace period
+    }
+}
 
     // ==================== TASK MANAGEMENT ====================
 
@@ -45,28 +92,35 @@ class AIManager {
         if (this.decisionCooldown > 0) return;
 
         // CRITICAL: If we have no current task but player is moving, stop and re-evaluate
-        if (this.currentTask === null && player.isMoving()) {
-            // Check if we're moving to a bank - if so, this is intentional
-            if (player.targetNode) {
-                const targetNode = nodes.getNode(player.targetNode);
-                if (targetNode && targetNode.type === 'bank') {
-                    // We're moving to bank after task completion - this is fine
-                    return;
-                }
-            }
-            
-            console.log('Task lost while moving, stopping to re-evaluate');
-            // Stop movement immediately
-            player.path = [];
-            player.pathIndex = 0;
-            player.targetPosition = null;
-            player.targetNode = null;
-            player.segmentProgress = 0;
-            // Make a decision immediately
-            this.makeDecision();
-            this.resetDecisionCooldown();
+if (this.currentTask === null && player.isMoving()) {
+    // If we're resuming from load, don't panic - let the sync happen
+    if (this.isResumingFromLoad) {
+        console.log('Resuming from load, allowing movement to continue');
+        this.isResumingFromLoad = false; // Clear the flag
+        return;
+    }
+    
+    // Check if we're moving to a bank - if so, this is intentional
+    if (player.targetNode) {
+        const targetNode = nodes.getNode(player.targetNode);
+        if (targetNode && targetNode.type === 'bank') {
+            // We're moving to bank after task completion - this is fine
             return;
         }
+    }
+    
+    console.log('Task lost while moving, stopping to re-evaluate');
+    // Stop movement immediately
+    player.path = [];
+    player.pathIndex = 0;
+    player.targetPosition = null;
+    player.targetNode = null;
+    player.segmentProgress = 0;
+    // Make a decision immediately
+    this.makeDecision();
+    this.resetDecisionCooldown();
+    return;
+}
 
         // Check if current task changed while we were busy
         if (!this.isCurrentTaskValid() && this.currentTask !== null) {
