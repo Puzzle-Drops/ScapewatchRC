@@ -1041,12 +1041,26 @@ if (!isFloating) {
     iconDiv.appendChild(quantityBadge);
 }
 
-// Add clue indicator if this task's node is in any active clue
+// Add clue indicator if this task's node OR its bank is in any active clue
 if (!isFloating && window.clueManager) {
-    const cluesWithThisNode = clueManager.getCluesContainingNode(task.nodeId);
-    if (cluesWithThisNode.length > 0) {
-        // Show the first matching clue (could enhance to show multiple)
-        const clueTier = cluesWithThisNode[0];
+    // Check both the task node and its nearest bank
+    let matchingClues = new Set();
+    
+    // Check the task node itself
+    const taskNodeClues = clueManager.getCluesContainingNode(task.nodeId);
+    taskNodeClues.forEach(tier => matchingClues.add(tier));
+    
+    // Check the task node's nearest bank
+    const taskNode = window.nodes ? nodes.getNode(task.nodeId) : null;
+    if (taskNode && taskNode.nearestBank) {
+        const bankClues = clueManager.getCluesContainingNode(taskNode.nearestBank);
+        bankClues.forEach(tier => matchingClues.add(tier));
+    }
+    
+    // If we found any matching clues, show the indicator
+    if (matchingClues.size > 0) {
+        // Show the first matching clue
+        const clueTier = Array.from(matchingClues)[0];
         const clueIndicator = document.createElement('div');
         clueIndicator.className = 'task-clue-indicator';
         
@@ -1289,12 +1303,26 @@ quantityDiv.className = 'task-quantity-badge';
 quantityDiv.textContent = option.task.targetCount;
 iconDiv.appendChild(quantityDiv);
 
-// Add clue indicator if this task's node is in any active clue
+// Add clue indicator if this task's node OR its bank is in any active clue
 if (window.clueManager) {
-    const cluesWithThisNode = clueManager.getCluesContainingNode(option.task.nodeId);
-    if (cluesWithThisNode.length > 0) {
+    // Check both the task node and its nearest bank
+    let matchingClues = new Set();
+    
+    // Check the task node itself
+    const taskNodeClues = clueManager.getCluesContainingNode(option.task.nodeId);
+    taskNodeClues.forEach(tier => matchingClues.add(tier));
+    
+    // Check the task node's nearest bank
+    const taskNode = window.nodes ? nodes.getNode(option.task.nodeId) : null;
+    if (taskNode && taskNode.nearestBank) {
+        const bankClues = clueManager.getCluesContainingNode(taskNode.nearestBank);
+        bankClues.forEach(tier => matchingClues.add(tier));
+    }
+    
+    // If we found any matching clues, show the indicator
+    if (matchingClues.size > 0) {
         // Show the first matching clue
-        const clueTier = cluesWithThisNode[0];
+        const clueTier = Array.from(matchingClues)[0];
         const clueIndicator = document.createElement('div');
         clueIndicator.className = 'task-clue-indicator';
         
