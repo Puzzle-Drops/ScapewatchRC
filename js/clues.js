@@ -13,7 +13,7 @@ class ClueManager {
             },
             medium: {
                 dropRate: 1/500,
-                steps: [1],
+                steps: [1, 1],
                 maxLevel: 20,
                 itemName: 'Medium Clue',
                 casketName: 'Medium Casket'
