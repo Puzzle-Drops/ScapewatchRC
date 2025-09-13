@@ -1097,10 +1097,17 @@ if (saveData.ai && window.ai) {
         taskManager.ensureFullTaskQueue();
     }
 
-    // Load clues
-    if (saveData.clues && window.clueManager) {
-        clueManager.loadClueData({ clues: saveData.clues });
+// Load clues
+if (saveData.clues && window.clueManager) {
+    clueManager.loadClueData({ clues: saveData.clues });
+}
+
+// Ensure UI updates after all data is loaded
+setTimeout(() => {
+    if (window.ui) {
+        ui.updateTasks();
     }
+}, 100);
 
     // Load RuneCred data
     if (saveData.runeCred && window.runeCreditManager) {
