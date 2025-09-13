@@ -136,25 +136,44 @@ if (window.ui) {
 }
     }
     
-    // Called when player arrives at a node
+// Called when player arrives at a node
 onNodeVisit(nodeId) {
-    // Check all active clues for this node
+    // Get the node we're visiting and its nearest bank
+    const visitedNode = window.nodes ? nodes.getNode(nodeId) : null;
+    const nodesEffectivelyVisited = new Set([nodeId]);
+    
+    // If this node has a nearest bank, we're effectively "at" that bank too
+    if (visitedNode && visitedNode.nearestBank) {
+        nodesEffectivelyVisited.add(visitedNode.nearestBank);
+    }
+    
+    // Check all active clues for any of these nodes
     for (const [tier, clueData] of Object.entries(this.clues)) {
-        const stepIndex = clueData.steps.indexOf(nodeId);
+        let stepCompleted = false;
+        let completedNodeName = null;
         
-        if (stepIndex !== -1 && !clueData.completed[stepIndex]) {
-            // Mark this step as complete
-            clueData.completed[stepIndex] = true;
+        // Check each node we're effectively visiting
+        for (const effectiveNodeId of nodesEffectivelyVisited) {
+            const stepIndex = clueData.steps.indexOf(effectiveNodeId);
             
-            const nodeName = nodes.getNode(nodeId).name;
-            console.log(`Clue step completed: ${nodeName}`);
-            
-            // Show step completion celebration
-            if (window.xpDropManager) {
-                xpDropManager.showClueStepComplete(tier);
+            if (stepIndex !== -1 && !clueData.completed[stepIndex]) {
+                // Mark this step as complete
+                clueData.completed[stepIndex] = true;
+                stepCompleted = true;
+                
+                const completedNode = nodes.getNode(effectiveNodeId);
+                completedNodeName = completedNode ? completedNode.name : effectiveNodeId;
+                console.log(`Clue step completed: ${completedNodeName} (via ${nodeId === effectiveNodeId ? 'direct visit' : 'nearest bank'})`);
+                
+                // Show step completion celebration
+                if (window.xpDropManager) {
+                    xpDropManager.showClueStepComplete(tier);
+                }
             }
-            
-            // Check if entire clue is complete
+        }
+        
+        // If we completed any steps, check if entire clue is complete
+        if (stepCompleted) {
             if (this.isClueComplete(tier)) {
                 console.log(`${this.CLUE_CONFIG[tier].itemName} completed! Click it in bank to receive casket.`);
                 
@@ -248,23 +267,23 @@ return true;
 
 // Get all clues that contain a specific node
 getCluesContainingNode(nodeId) {
-    console.log(`[getCluesContainingNode] Called with nodeId: ${nodeId}`);
+    //console.log(`[getCluesContainingNode] Called with nodeId: ${nodeId}`);
     const matchingClues = [];
     
-    console.log(`[getCluesContainingNode] Checking against clues:`, this.clues);
+    //console.log(`[getCluesContainingNode] Checking against clues:`, this.clues);
     
     for (const [tier, clueData] of Object.entries(this.clues)) {
-        console.log(`[getCluesContainingNode] Checking ${tier} clue with steps:`, clueData.steps);
+        //console.log(`[getCluesContainingNode] Checking ${tier} clue with steps:`, clueData.steps);
         
         if (clueData.steps.includes(nodeId)) {
-            console.log(`[getCluesContainingNode] ✅ FOUND MATCH: ${nodeId} is in ${tier} clue`);
+            //console.log(`[getCluesContainingNode] ✅ FOUND MATCH: ${nodeId} is in ${tier} clue`);
             matchingClues.push(tier);
         } else {
-            console.log(`[getCluesContainingNode] ❌ No match: ${nodeId} not in ${tier} clue`);
+            //console.log(`[getCluesContainingNode] ❌ No match: ${nodeId} not in ${tier} clue`);
         }
     }
     
-    console.log(`[getCluesContainingNode] Returning matches:`, matchingClues);
+    //console.log(`[getCluesContainingNode] Returning matches:`, matchingClues);
     return matchingClues;
 }
     
