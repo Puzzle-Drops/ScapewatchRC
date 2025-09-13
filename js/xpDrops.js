@@ -56,9 +56,11 @@ class XPDropManager {
         }
         
         // Create text
-        const textElement = document.createElement('span');
-        textElement.className = 'xp-drop-text';
-        textElement.textContent = `+${formatNumber(amount)}`;
+const textElement = document.createElement('span');
+textElement.className = 'xp-drop-text';
+// Round to 1 decimal place
+const roundedAmount = Math.round(amount * 10) / 10;
+textElement.textContent = `+${formatNumber(roundedAmount)}`;
         
         // Assemble drop
         drop.appendChild(iconElement);
