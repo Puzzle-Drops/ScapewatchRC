@@ -13,28 +13,28 @@ class ClueManager {
             },
             medium: {
                 dropRate: 1/500,
-                steps: [1, 2], // 1-2 steps randomly
+                steps: [1],
                 maxLevel: 20,
                 itemName: 'Medium Clue',
                 casketName: 'Medium Casket'
             },
             hard: {
                 dropRate: 1/1000,
-                steps: [2, 3], // 2-3 steps
+                steps: [1, 2],
                 maxLevel: 40,
                 itemName: 'Hard Clue',
                 casketName: 'Hard Casket'
             },
             elite: {
                 dropRate: 1/1500,
-                steps: [3, 4], // 3-4 steps
+                steps: [2, 3],
                 maxLevel: 60,
                 itemName: 'Elite Clue',
                 casketName: 'Elite Casket'
             },
             master: {
                 dropRate: 1/2500,
-                steps: [4, 5], // 4-5 steps
+                steps: [3, 4],
                 maxLevel: 99,
                 itemName: 'Master Clue',
                 casketName: 'Master Casket'
