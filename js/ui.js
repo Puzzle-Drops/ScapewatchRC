@@ -1018,28 +1018,46 @@ createClueTooltip(tier, clueData, isComplete) {
         taskContent.className = 'task-content';
         
         // Skill icon
-        const iconDiv = document.createElement('div');
-        iconDiv.className = 'task-icon';
-        // Add skill-colored border for current and next tasks
-        iconDiv.classList.add(`skill-border-${task.skill}`);
+const iconDiv = document.createElement('div');
+iconDiv.className = 'task-icon';
+// Add skill-colored border for current and next tasks
+iconDiv.classList.add(`skill-border-${task.skill}`);
 
-        const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
-        if (skillIcon) {
-            const icon = document.createElement('img');
-            icon.src = skillIcon.src;
-            iconDiv.appendChild(icon);
-        } else {
-            // Fallback text
-            iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
-        }
+const skillIcon = loadingManager.getImage(`skill_${task.skill}`);
+if (skillIcon) {
+    const icon = document.createElement('img');
+    icon.src = skillIcon.src;
+    iconDiv.appendChild(icon);
+} else {
+    // Fallback text
+    iconDiv.textContent = task.skill.substring(0, 3).toUpperCase();
+}
 
-        // Add task quantity badge (but not for floating display)
-        if (!isFloating) {
-            const quantityBadge = document.createElement('div');
-            quantityBadge.className = 'task-quantity-badge';
-            quantityBadge.textContent = task.targetCount;
-            iconDiv.appendChild(quantityBadge);
-        }
+// Add task quantity badge (but not for floating display)
+if (!isFloating) {
+    const quantityBadge = document.createElement('div');
+    quantityBadge.className = 'task-quantity-badge';
+    quantityBadge.textContent = task.targetCount;
+    iconDiv.appendChild(quantityBadge);
+}
+
+// Add clue indicator if this task's node is in any active clue
+if (!isFloating && window.clueManager) {
+    const cluesWithThisNode = clueManager.getCluesContainingNode(task.nodeId);
+    if (cluesWithThisNode.length > 0) {
+        // Show the first matching clue (could enhance to show multiple)
+        const clueTier = cluesWithThisNode[0];
+        const clueIndicator = document.createElement('div');
+        clueIndicator.className = 'task-clue-indicator';
+        
+        const clueImg = document.createElement('img');
+        clueImg.src = `assets/items/${clueTier}_clue.png`;
+        clueImg.alt = `${clueTier} clue`;
+        clueIndicator.appendChild(clueImg);
+        
+        iconDiv.appendChild(clueIndicator);
+    }
+}
         
         // Task details container
         const detailsDiv = document.createElement('div');
