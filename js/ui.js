@@ -1288,6 +1288,30 @@ createSelectableTaskElement(taskSlot, slotIndex) {
         quantityDiv.className = 'task-quantity-badge';
         quantityDiv.textContent = option.task.targetCount;
         iconDiv.appendChild(quantityDiv);
+
+        // Add task quantity display
+const quantityDiv = document.createElement('div');
+quantityDiv.className = 'task-quantity-badge';
+quantityDiv.textContent = option.task.targetCount;
+iconDiv.appendChild(quantityDiv);
+
+// Add clue indicator if this task's node is in any active clue
+if (window.clueManager && option.originalIndex === selectedIndex) {
+    const cluesWithThisNode = clueManager.getCluesContainingNode(option.task.nodeId);
+    if (cluesWithThisNode.length > 0) {
+        // Show the first matching clue
+        const clueTier = cluesWithThisNode[0];
+        const clueIndicator = document.createElement('div');
+        clueIndicator.className = 'task-clue-indicator';
+        
+        const clueImg = document.createElement('img');
+        clueImg.src = `assets/items/${clueTier}_clue.png`;
+        clueImg.alt = `${clueTier} clue`;
+        clueIndicator.appendChild(clueImg);
+        
+        iconDiv.appendChild(clueIndicator);
+    }
+}
         
         // Add hover handler to preview task
         iconDiv.addEventListener('mouseenter', () => {
