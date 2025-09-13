@@ -434,14 +434,9 @@ if (player.isBanking) {
 }
 
 drawPlayerCircle(x, y) {
-    // Adjust y position to match sprite feet position
-    const spriteScale = Math.max(3, Math.min(10, 3 * (this.camera.zoom / 14)));
-    const yOffset = spriteScale * 0.7;
-    const adjustedY = y - spriteScale + yOffset;
-    
-    // Fallback circle drawing (at feet position)
+    // Fallback circle drawing (original code)
     this.ctx.beginPath();
-    this.ctx.arc(x, adjustedY, 1.2, 0, Math.PI * 2);  // was 6, now 1.2
+    this.ctx.arc(x, y, 1.2, 0, Math.PI * 2);  // was 6, now 1.2
     this.ctx.fillStyle = player.isStunned ? '#e74c3c' : '#2ecc71'; // Red when stunned
     this.ctx.fill();
     this.ctx.strokeStyle = player.isStunned ? '#c0392b' : '#27ae60';

@@ -762,10 +762,16 @@ if (this.currentTask === null && player.isMoving()) {
                             }
                         }
                         
-                        // NO A* FALLBACK - If no waypoint path, we'll teleport when needed
-                if (!path) {
-                    console.log('No waypoint path available - will teleport if needed');
-                }
+                        // Fallback to A* if no waypoint path available
+                        if (!path && window.pathfinding) {
+                            console.log('No waypoint path available, falling back to A* pathfinding');
+                            path = pathfinding.findPath(
+                                player.position.x,
+                                player.position.y,
+                                taskNode.position.x,
+                                taskNode.position.y
+                            );
+                        }
                         
                         if (path && path.length > 0) {
                             player.path = path;
@@ -830,10 +836,16 @@ if (this.currentTask === null && player.isMoving()) {
                     }
                 }
                 
-                // NO A* FALLBACK - If no waypoint path, we'll teleport when needed
-                        if (!path) {
-                            console.log('No waypoint path available - will teleport if needed');
-                        }
+                // Fallback to A* if no waypoint path available
+                if (!path && window.pathfinding) {
+                    console.log('No waypoint path available, falling back to A* pathfinding');
+                    path = pathfinding.findPath(
+                        player.position.x,
+                        player.position.y,
+                        taskNode.position.x,
+                        taskNode.position.y
+                    );
+                }
                 
                 if (path && path.length > 0) {
                     player.path = path;
@@ -907,9 +919,15 @@ if (this.currentTask === null && player.isMoving()) {
                     }
                 }
                 
-                // NO A* FALLBACK - If no waypoint path, we'll teleport when needed
-                if (!path) {
-                    console.log('No waypoint path available - will teleport if needed');
+                // Fallback to A* if no waypoint path available
+                if (!path && window.pathfinding) {
+                    console.log('No waypoint path available, falling back to A* pathfinding');
+                    path = pathfinding.findPath(
+                        player.position.x,
+                        player.position.y,
+                        taskNode.position.x,
+                        taskNode.position.y
+                    );
                 }
                 
                 if (path && path.length > 0) {

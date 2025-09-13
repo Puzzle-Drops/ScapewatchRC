@@ -129,20 +129,17 @@ constructor() {
         const col = this.animationFrame;
         
         ctx.imageSmoothingEnabled = false;
-        // Position sprite so feet are at the position (offset up by 70% of sprite height)
-const yOffset = scale * 0.7; // Adjust this value if needed (0.7 = feet are 70% down the sprite)
-
-ctx.drawImage(
-    activeSheet,
-    col * this.spriteSize,
-    row * this.spriteSize,
-    this.spriteSize,
-    this.spriteSize,
-    x - scale/2,
-    y - scale + yOffset,  // Changed from y - scale/2
-    scale,
-    scale
-);
+        ctx.drawImage(
+            activeSheet,
+            col * this.spriteSize,
+            row * this.spriteSize,
+            this.spriteSize,
+            this.spriteSize,
+            x - scale/2,
+            y - scale/2,
+            scale,
+            scale
+        );
         
         return true; // Successfully drew sprite
     }

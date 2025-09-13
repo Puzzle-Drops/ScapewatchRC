@@ -374,12 +374,28 @@ if (window.clueManager) {
             }
         }
         
-        // NO A* FALLBACK - If we can't use waypoints, teleport to nearest bank
-if (!path) {
-    console.log('No waypoint path available, need to teleport to nearest bank');
-    this.teleportToNearestBank();
-    return;
-}
+        // FALLBACK TO A* PATHFINDING
+        if (!path && window.pathfinding) {
+            const calculatedPath = pathfinding.findPath(
+                this.position.x,
+                this.position.y,
+                node.position.x,
+                node.position.y
+            );
+            
+            if (calculatedPath && calculatedPath.length > 0) {
+                path = calculatedPath;
+                pathSource = 'A* pathfinding';
+                console.log(`Using calculated A* path to ${targetNodeId} (${path.length} waypoints)`);
+            }
+        }
+        
+        // LAST RESORT: Direct path
+        if (!path) {
+            path = [{ x: node.position.x, y: node.position.y }];
+            pathSource = 'direct';
+            console.log(`Using direct path to ${targetNodeId} (no pathfinding)`);
+        }
 
         // Remove first waypoint if it's our current position
         if (path.length > 1 && 
@@ -495,9 +511,9 @@ if (window.clueManager && this.currentNode) {
             }
         }
         
-        // We're truly off-path - teleport to nearest bank
-console.warn('Player is off-path! Teleporting to nearest bank...');
-this.teleportToNearestBank();
+        // We're truly off-path - teleport to Lumbridge bank
+        console.warn('Player is off-path! Teleporting to Lumbridge bank...');
+        this.teleportToLumbridge();
     }
     
     teleportToLumbridge() {
@@ -532,62 +548,6 @@ this.teleportToNearestBank();
             window.ai.decisionCooldown = 0;
         }
     }
-
-    teleportToNearestBank() {
-    console.log('Finding nearest bank for teleport...');
-    
-    // Get all bank nodes
-    const allBanks = nodes.getNodesOfType('bank');
-    if (allBanks.length === 0) {
-        console.error('No banks found! Teleporting to Lumbridge');
-        this.teleportToLumbridge();
-        return;
-    }
-    
-    // Find nearest bank by Euclidean distance
-    let nearestBank = null;
-    let minDistance = Infinity;
-    
-    for (const bank of allBanks) {
-        const dist = distance(this.position.x, this.position.y, bank.position.x, bank.position.y);
-        if (dist < minDistance) {
-            minDistance = dist;
-            nearestBank = bank;
-        }
-    }
-    
-    if (!nearestBank) {
-        console.error('Failed to find nearest bank, teleporting to Lumbridge');
-        this.teleportToLumbridge();
-        return;
-    }
-    
-    // Teleport to the nearest bank
-    console.log(`Teleporting to nearest bank: ${nearestBank.id} (distance: ${minDistance.toFixed(1)})`);
-    this.position = { x: nearestBank.position.x, y: nearestBank.position.y };
-    this.currentNode = nearestBank.id;
-    
-    // Clear any ongoing movement
-    this.path = [];
-    this.pathIndex = 0;
-    this.targetPosition = null;
-    this.targetNode = null;
-    this.segmentProgress = 0;
-    
-    // Stop any activity
-    this.stopActivity();
-    
-    console.log(`Teleported to ${nearestBank.id}`);
-    
-    // Notify AI to re-evaluate from bank
-    if (window.ai) {
-        // Keep the current task if we have one
-        if (ai.currentTask) {
-            console.log('Keeping current task after teleport, will path from bank');
-        }
-        ai.decisionCooldown = 0;
-    }
-}
 
     startActivity(activityId) {
         const activityData = loadingManager.getData('activities')[activityId];
