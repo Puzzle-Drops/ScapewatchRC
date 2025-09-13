@@ -239,6 +239,19 @@ destroyClue(tier) {
     getClueData(tier) {
         return this.clues[tier];
     }
+
+    // Get all clues that contain a specific node
+getCluesContainingNode(nodeId) {
+    const matchingClues = [];
+    
+    for (const [tier, clueData] of Object.entries(this.clues)) {
+        if (clueData.steps.includes(nodeId)) {
+            matchingClues.push(tier);
+        }
+    }
+    
+    return matchingClues;
+}
     
     // Save clue data (temporary - will hook into firebase later)
     saveClueData() {
