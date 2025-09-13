@@ -126,9 +126,14 @@ class ClueManager {
         console.log(`Steps required: ${selectedNodes.map(id => nodes.getNode(id).name).join(', ')}`);
         
         // Show celebration if XP drop manager exists
-        if (window.xpDropManager) {
-            xpDropManager.showClueObtained(tier);
-        }
+if (window.xpDropManager) {
+    xpDropManager.showClueObtained(tier);
+}
+
+// Refresh task UI to show clue indicators
+if (window.ui) {
+    ui.updateTasks();
+}
     }
     
     // Called when player arrives at a node
@@ -227,12 +232,13 @@ destroyClue(tier) {
     
     this.saveClueData();
     
-    // Update UI
-    if (window.ui) {
-        ui.updateBank();
-    }
-    
-    return true;
+// Update UI
+if (window.ui) {
+    ui.updateBank();
+    ui.updateTasks(); // Also update tasks to remove clue indicators
+}
+
+return true;
 }
     
     // Get clue data for a tier (for UI display)
@@ -268,12 +274,17 @@ getCluesContainingNode(nodeId) {
         // For now just store in memory
     }
     
-    // Load clue data
-    loadClueData(data) {
-        if (data && data.clues) {
-            this.clues = data.clues;
+// Load clue data
+loadClueData(data) {
+    if (data && data.clues) {
+        this.clues = data.clues;
+        
+        // Refresh task UI to show clue indicators for loaded clues
+        if (window.ui) {
+            ui.updateTasks();
         }
     }
+}
 }
 
 // Create global instance
