@@ -1049,14 +1049,14 @@ class FirebaseManager {
     }
 
     // Load AI state
-    if (saveData.ai && window.ai) {
-        ai.hasBankedForCurrentTask = saveData.ai.hasBankedForCurrentTask || false;
-        if (saveData.ai.failedNodes) {
-            ai.failedNodes = new Set(saveData.ai.failedNodes);
-        }
-        // Reset decision cooldown on login
-        ai.decisionCooldown = 0;
+if (saveData.ai && window.ai) {
+    ai.hasBankedForCurrentTask = saveData.ai.hasBankedForCurrentTask || false;
+    if (saveData.ai.failedNodes) {
+        ai.failedNodes = new Set(saveData.ai.failedNodes);
     }
+    // Sync AI state after loading
+    ai.syncAfterLoad();
+}
 
     // Load skills
     if (saveData.skills) {
