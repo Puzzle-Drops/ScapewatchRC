@@ -3883,3 +3883,76 @@ span.control-emoji {
         2px 0 0 #000,
         0 0 20px rgba(243, 156, 18, 0.6);
 }
+
+/* Floating Completed Clues Display */
+.floating-completed-clues {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.floating-clue-item {
+    width: 64px;
+    height: 64px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    animation: pulseClue 2s infinite;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.floating-clue-item:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+}
+
+.floating-clue-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+@keyframes pulseClue {
+    0% { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+    50% { box-shadow: 0 0 15px rgba(76, 175, 80, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+}
+
+/* Tooltip for floating clues */
+.floating-clue-tooltip {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 10px;
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #5a4a3a;
+    padding: 10px;
+    min-width: 200px;
+    border-radius: 5px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 1000;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.floating-clue-item:hover .floating-clue-tooltip {
+    opacity: 1;
+}
+
+.floating-clue-tooltip-title {
+    color: #4CAF50;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
