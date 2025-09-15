@@ -848,6 +848,51 @@ async fetchLeaderboardData(category, page) {
                 <td>${userData.cluesTotal || 0}</td>
             `;
             catBody.appendChild(cluesRow);
+
+            // Individual Clue Tiers
+            const clueTiers = [
+                { id: 'easy', name: 'Easy Clues' },
+                { id: 'medium', name: 'Medium Clues' },
+                { id: 'hard', name: 'Hard Clues' },
+                { id: 'elite', name: 'Elite Clues' },
+                { id: 'master', name: 'Master Clues' }
+            ];
+            
+            for (const tier of clueTiers) {
+                const tierRank = await this.getPlayerRank(uid, `clues${tier.id.charAt(0).toUpperCase() + tier.id.slice(1)}`);
+                const tierRow = document.createElement('tr');
+                const tierNameCell = document.createElement('td');
+                tierNameCell.className = 'hiscores-skill-name-cell';
+                
+                // Try to get icon or use direct path
+                const tierIcon = loadingManager.getImage(`items_${tier.id}_clue`);
+                if (tierIcon) {
+                    const iconImg = document.createElement('img');
+                    iconImg.className = 'hiscores-inline-icon';
+                    iconImg.src = tierIcon.src;
+                    tierNameCell.appendChild(iconImg);
+                } else {
+                    // Direct path fallback
+                    const iconImg = document.createElement('img');
+                    iconImg.className = 'hiscores-inline-icon';
+                    iconImg.src = `assets/items/${tier.id}_clue.png`;
+                    tierNameCell.appendChild(iconImg);
+                }
+                
+                const tierText = document.createElement('span');
+                tierText.textContent = tier.name;
+                tierNameCell.appendChild(tierText);
+                
+                tierRow.appendChild(tierNameCell);
+                
+                const fieldName = `clues${tier.id.charAt(0).toUpperCase() + tier.id.slice(1)}`;
+                tierRow.innerHTML += `
+                    <td>${tierRank}</td>
+                    <td>${userData[fieldName] || 0}</td>
+                `;
+                
+                catBody.appendChild(tierRow);
+            }
             
             catTable.appendChild(catBody);
             container.appendChild(catTable);
