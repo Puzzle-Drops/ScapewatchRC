@@ -1,6 +1,13 @@
 class ClueManager {
-    constructor() {
+constructor() {
         this.clues = {}; // Store active clues by tier
+        this.completedClues = {
+            easy: 0,
+            medium: 0,
+            hard: 0,
+            elite: 0,
+            master: 0
+        }; // Track completed clues by tier
         
         // Clue configuration
         this.CLUE_CONFIG = {
@@ -206,7 +213,7 @@ this.updateCompletedCluesDisplay();
     }
     
     // Convert completed clue to casket
-    convertToCasket(tier) {
+    async convertToCasket(tier) {
         const clueData = this.clues[tier];
         if (!clueData || !this.isClueComplete(tier)) {
             console.log('Clue not complete!');
@@ -224,7 +231,14 @@ this.updateCompletedCluesDisplay();
         // Remove from active clues
         delete this.clues[tier];
         
-        console.log(`${this.CLUE_CONFIG[tier].itemName} converted to ${this.CLUE_CONFIG[tier].casketName}!`);
+        // INCREMENT COMPLETED CLUES COUNTER
+        this.completedClues[tier]++;
+        console.log(`${this.CLUE_CONFIG[tier].casketName} obtained! Total ${tier} clues completed: ${this.completedClues[tier]}`);
+        
+        // Show casket obtained celebration
+        if (window.xpDropManager) {
+            xpDropManager.showCasketObtained(tier);
+        }
         
         this.saveClueData();
         
@@ -234,7 +248,12 @@ this.updateCompletedCluesDisplay();
         }
 
         // Update floating display
-this.updateCompletedCluesDisplay();
+        this.updateCompletedCluesDisplay();
+        
+        // Force save and update hiscores after casket obtained
+        if (window.firebaseManager && !firebaseManager.isOfflineMode) {
+            await firebaseManager.forceSave();
+        }
         
         return true;
     }
@@ -368,16 +387,22 @@ updateCompletedCluesDisplay() {
 loadClueData(data) {
     if (data && data.clues) {
         this.clues = data.clues;
+    }
+    
+    // Load completed clues counts
+    if (data && data.completedClues) {
+        this.completedClues = data.completedClues;
+    }
 
-        // Update floating display
-this.updateCompletedCluesDisplay();
-        
-        // Refresh task UI to show clue indicators for loaded clues
-        if (window.ui) {
-            ui.updateTasks();
-        }
+    // Update floating display
+    this.updateCompletedCluesDisplay();
+    
+    // Refresh task UI to show clue indicators for loaded clues
+    if (window.ui) {
+        ui.updateTasks();
     }
 }
+
 }
 
 // Create global instance
