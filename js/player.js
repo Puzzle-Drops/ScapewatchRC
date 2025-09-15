@@ -422,23 +422,43 @@ if (window.clueManager) {
     }
     
     onReachedTarget() {
-        if (this.targetNode) {
-            this.currentNode = this.targetNode;
-            this.targetNode = null;
-            
-            console.log(`Reached node: ${this.currentNode}`);
-            
-            if (window.ai) {
-                window.ai.decisionCooldown = 0;
+    if (this.targetNode) {
+        this.currentNode = this.targetNode;
+        this.targetNode = null;
+        
+        console.log(`Reached node: ${this.currentNode}`);
+        
+        // NEW: Check if we just arrived at a bank that is the nearest bank for our current task
+        if (window.ai && window.ai.currentTask && window.nodes) {
+            const currentNodeData = nodes.getNode(this.currentNode);
+            if (currentNodeData && currentNodeData.type === 'bank') {
+                // We're at a bank - check if it's the right bank for our current task
+                const taskNode = nodes.getNode(window.ai.currentTask.nodeId);
+                if (taskNode && taskNode.nearestBank === this.currentNode) {
+                    // We're at the bank for our current task!
+                    console.log(`Arrived at task's bank (${this.currentNode}), marking as banked`);
+                    window.ai.hasBankedForCurrentTask = true;
+                    
+                    // Perform banking immediately
+                    if (window.ai) {
+                        window.ai.performBanking();
+                        // Don't reset cooldown here - performBanking will handle it
+                        return;
+                    }
+                }
             }
         }
-
-        // Check clue progress when arriving at node
-if (window.clueManager && this.currentNode) {
-    clueManager.onNodeVisit(this.currentNode);
-}
-
+        
+        if (window.ai) {
+            window.ai.decisionCooldown = 0;
+        }
     }
+
+    // Check clue progress when arriving at node
+    if (window.clueManager && this.currentNode) {
+        clueManager.onNodeVisit(this.currentNode);
+    }
+}
 
     checkCurrentNode() {
         const previousNode = this.currentNode;
