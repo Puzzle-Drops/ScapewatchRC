@@ -275,25 +275,31 @@ return true;
         return this.clues[tier];
     }
 
-// Get all clues that contain a specific node
+// Get all clues that contain a specific node (only incomplete steps)
 getCluesContainingNode(nodeId) {
-    //console.log(`[getCluesContainingNode] Called with nodeId: ${nodeId}`);
+    console.log(`[getCluesContainingNode] Called with nodeId: ${nodeId}`);
     const matchingClues = [];
     
-    //console.log(`[getCluesContainingNode] Checking against clues:`, this.clues);
+    console.log(`[getCluesContainingNode] Checking against clues:`, this.clues);
     
     for (const [tier, clueData] of Object.entries(this.clues)) {
-        //console.log(`[getCluesContainingNode] Checking ${tier} clue with steps:`, clueData.steps);
+        console.log(`[getCluesContainingNode] Checking ${tier} clue with steps:`, clueData.steps);
         
-        if (clueData.steps.includes(nodeId)) {
-            //console.log(`[getCluesContainingNode] ✅ FOUND MATCH: ${nodeId} is in ${tier} clue`);
+        // Find the step index for this node
+        const stepIndex = clueData.steps.indexOf(nodeId);
+        
+        // Only add if this step exists AND is not completed
+        if (stepIndex !== -1 && !clueData.completed[stepIndex]) {
+            console.log(`[getCluesContainingNode] ✅ FOUND INCOMPLETE MATCH: ${nodeId} is in ${tier} clue at step ${stepIndex}`);
             matchingClues.push(tier);
+        } else if (stepIndex !== -1 && clueData.completed[stepIndex]) {
+            console.log(`[getCluesContainingNode] ⏭️ Step already complete: ${nodeId} in ${tier} clue`);
         } else {
-            //console.log(`[getCluesContainingNode] ❌ No match: ${nodeId} not in ${tier} clue`);
+            console.log(`[getCluesContainingNode] ❌ No match: ${nodeId} not in ${tier} clue`);
         }
     }
     
-    //console.log(`[getCluesContainingNode] Returning matches:`, matchingClues);
+    console.log(`[getCluesContainingNode] Returning matches:`, matchingClues);
     return matchingClues;
 }
 
