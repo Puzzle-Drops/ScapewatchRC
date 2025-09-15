@@ -44,6 +44,7 @@ async function init() {
     loadingManager.addImage('ui_tasks', 'assets/ui/tasks.png');
     loadingManager.addImage('ui_pets', 'assets/ui/pets.png');
     loadingManager.addImage('ui_pets_shiny', 'assets/ui/pets(s).png');
+    loadingManager.addImage('ui_all_clue', 'assets/ui/all_clue.png');
 
     // Add cape and pet images
     const skillsForAssets = [
