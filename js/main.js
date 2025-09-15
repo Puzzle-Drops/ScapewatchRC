@@ -45,6 +45,12 @@ async function init() {
     loadingManager.addImage('ui_pets', 'assets/ui/pets.png');
     loadingManager.addImage('ui_pets_shiny', 'assets/ui/pets(s).png');
     loadingManager.addImage('ui_all_clue', 'assets/ui/all_clue.png');
+    // Add clue and casket icons for hiscores
+    loadingManager.addImage('items_easy_clue', 'assets/items/easy_clue.png');
+    loadingManager.addImage('items_medium_clue', 'assets/items/medium_clue.png');
+    loadingManager.addImage('items_hard_clue', 'assets/items/hard_clue.png');
+    loadingManager.addImage('items_elite_clue', 'assets/items/elite_clue.png');
+    loadingManager.addImage('items_master_clue', 'assets/items/master_clue.png');
 
     // Add cape and pet images
     const skillsForAssets = [
