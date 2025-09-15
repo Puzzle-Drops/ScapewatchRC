@@ -389,9 +389,25 @@ loadClueData(data) {
         this.clues = data.clues;
     }
     
-    // Load completed clues counts
+    // Load completed clues counts - ensure all tiers are initialized
     if (data && data.completedClues) {
-        this.completedClues = data.completedClues;
+        // Merge loaded data with defaults to ensure all tiers exist
+        this.completedClues = {
+            easy: data.completedClues.easy || 0,
+            medium: data.completedClues.medium || 0,
+            hard: data.completedClues.hard || 0,
+            elite: data.completedClues.elite || 0,
+            master: data.completedClues.master || 0
+        };
+    } else {
+        // No saved data - initialize all to 0
+        this.completedClues = {
+            easy: 0,
+            medium: 0,
+            hard: 0,
+            elite: 0,
+            master: 0
+        };
     }
 
     // Update floating display
