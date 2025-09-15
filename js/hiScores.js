@@ -449,6 +449,18 @@ async fetchLeaderboardData(category, page) {
             iconKey = 'ui_pets';
         } else if (this.currentCategory === 'shinyPets') {
             iconKey = 'ui_pets_shiny';
+        } else if (this.currentCategory === 'cluesTotal') {
+            iconKey = 'ui_all_clue';
+        } else if (this.currentCategory === 'cluesEasy') {
+            iconKey = 'items_easy_clue';
+        } else if (this.currentCategory === 'cluesMedium') {
+            iconKey = 'items_medium_clue';
+        } else if (this.currentCategory === 'cluesHard') {
+            iconKey = 'items_hard_clue';
+        } else if (this.currentCategory === 'cluesElite') {
+            iconKey = 'items_elite_clue';
+        } else if (this.currentCategory === 'cluesMaster') {
+            iconKey = 'items_master_clue';
         } else if (this.currentCategory.startsWith('skill_')) {
             iconKey = this.currentCategory;
         }
