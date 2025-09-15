@@ -180,7 +180,7 @@ class TaskManager {
         
         // Update UI
         if (window.ui) {
-            window.ui.updateTasks();
+            window.ui.updateTaskProgressBarsOnly();
         }
     }
 
