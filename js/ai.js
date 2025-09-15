@@ -141,13 +141,14 @@ if (this.currentTask === null && player.isMoving()) {
 }
 
         // Check if current task changed while we were busy
-        if (!this.isCurrentTaskValid() && this.currentTask !== null) {
-            // Task was invalidated (completed, changed, etc)
-            const oldTaskDesc = this.currentTask ? this.currentTask.description : 'none';
-            const newTaskDesc = window.taskManager && taskManager.currentTask ? 
-                taskManager.currentTask.description : 'none';
-            
-            console.log(`Task changed from "${oldTaskDesc}" to "${newTaskDesc}"`);
+// Skip this check if we just loaded (give it time to stabilize)
+if (!this.isCurrentTaskValid() && this.currentTask !== null && !this.isResumingFromLoad) {
+    // Task was invalidated (completed, changed, etc)
+    const oldTaskDesc = this.currentTask ? this.currentTask.description : 'none';
+    const newTaskDesc = window.taskManager && taskManager.currentTask ? 
+        taskManager.currentTask.description : 'none';
+    
+    console.log(`Task changed from "${oldTaskDesc}" to "${newTaskDesc}"`);
             
             if (player.isMoving()) {
                 // Check if we're moving to bank - that's fine after task completion
@@ -228,10 +229,18 @@ if (this.currentTask === null && player.isMoving()) {
         }
 
         // IMPORTANT: Always verify we're working on the right task
-        if (!this.isCurrentTaskValid()) {
-            console.log('Current task is no longer valid, selecting new task');
-            this.selectNextTask();
-        }
+// But be lenient if we just loaded
+if (!this.isCurrentTaskValid()) {
+    // If we're resuming from load and task manager has a task, sync it
+    if (this.isResumingFromLoad && window.taskManager && taskManager.currentTask) {
+        console.log('Syncing task after load');
+        this.currentTask = taskManager.currentTask;
+        this.isResumingFromLoad = false; // Clear the flag
+    } else {
+        console.log('Current task is no longer valid, selecting new task');
+        this.selectNextTask();
+    }
+}
 
         // Check if we need a new task
         if (!this.currentTask || this.currentTask.progress >= 1) {
