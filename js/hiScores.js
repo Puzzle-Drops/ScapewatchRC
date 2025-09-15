@@ -82,11 +82,17 @@ class HiScoresManager {
             });
         }
 
-        // Add Tasks, Pets, and Shiny Pets at the end
+        // Add Tasks, Pets, Shiny Pets, and Clues at the end
         categories.push(
             { id: 'tasks', name: 'Tasks', icon: 'ui_tasks' },
             { id: 'pets', name: 'Pets', icon: 'ui_pets' },
-            { id: 'shinyPets', name: 'Shiny Pets', icon: 'ui_pets_shiny' }
+            { id: 'shinyPets', name: 'Shiny Pets', icon: 'ui_pets_shiny' },
+            { id: 'cluesTotal', name: 'All Clues', icon: 'ui_all_clue' },
+            { id: 'cluesEasy', name: 'Easy Clues', icon: 'items_easy_clue' },
+            { id: 'cluesMedium', name: 'Medium Clues', icon: 'items_medium_clue' },
+            { id: 'cluesHard', name: 'Hard Clues', icon: 'items_hard_clue' },
+            { id: 'cluesElite', name: 'Elite Clues', icon: 'items_elite_clue' },
+            { id: 'cluesMaster', name: 'Master Clues', icon: 'items_master_clue' }
         );
         
         const list = document.createElement('div');
@@ -333,6 +339,36 @@ async fetchLeaderboardData(category, page) {
                 orderBy('petsShiny', 'desc'),
                 limit(this.pageSize)
             ];
+        } else if (category === 'cluesTotal') {
+            queryConstraints = [
+                orderBy('cluesTotal', 'desc'),
+                limit(this.pageSize)
+            ];
+        } else if (category === 'cluesEasy') {
+            queryConstraints = [
+                orderBy('cluesEasy', 'desc'),
+                limit(this.pageSize)
+            ];
+        } else if (category === 'cluesMedium') {
+            queryConstraints = [
+                orderBy('cluesMedium', 'desc'),
+                limit(this.pageSize)
+            ];
+        } else if (category === 'cluesHard') {
+            queryConstraints = [
+                orderBy('cluesHard', 'desc'),
+                limit(this.pageSize)
+            ];
+        } else if (category === 'cluesElite') {
+            queryConstraints = [
+                orderBy('cluesElite', 'desc'),
+                limit(this.pageSize)
+            ];
+        } else if (category === 'cluesMaster') {
+            queryConstraints = [
+                orderBy('cluesMaster', 'desc'),
+                limit(this.pageSize)
+            ];
         } else if (category.startsWith('skill_')) {
             const skillId = category.replace('skill_', '');
             queryConstraints = [
@@ -491,6 +527,14 @@ async fetchLeaderboardData(category, page) {
                     <td class="hiscores-name" data-uid="${player.uid}">${player.username}</td>
                     <td>${player.petsShiny || 0}</td>
                 `;
+            } else if (this.currentCategory.startsWith('clues')) {
+                const clueField = this.currentCategory === 'cluesTotal' ? 'cluesTotal' :
+                                  this.currentCategory;
+                row.innerHTML = `
+                    <td>${player.rank}</td>
+                    <td class="hiscores-name" data-uid="${player.uid}">${player.username}</td>
+                    <td>${player[clueField] || 0}</td>
+                `;
             }
             
             tbody.appendChild(row);
@@ -544,6 +588,12 @@ async fetchLeaderboardData(category, page) {
         if (this.currentCategory === 'tasks') return 'Tasks Hiscores';
         if (this.currentCategory === 'pets') return 'Pets Hiscores';
         if (this.currentCategory === 'shinyPets') return 'Shiny Pets Hiscores';
+        if (this.currentCategory === 'cluesTotal') return 'All Clues Hiscores';
+        if (this.currentCategory === 'cluesEasy') return 'Easy Clues Hiscores';
+        if (this.currentCategory === 'cluesMedium') return 'Medium Clues Hiscores';
+        if (this.currentCategory === 'cluesHard') return 'Hard Clues Hiscores';
+        if (this.currentCategory === 'cluesElite') return 'Elite Clues Hiscores';
+        if (this.currentCategory === 'cluesMaster') return 'Master Clues Hiscores';
         if (this.currentCategory.startsWith('skill_')) {
             const skillId = this.currentCategory.replace('skill_', '');
             const skillsData = loadingManager.getData('skills');
@@ -774,6 +824,30 @@ async fetchLeaderboardData(category, page) {
                 <td>${userData.petsShiny || 0}</td>
             `;
             catBody.appendChild(shinyRow);
+
+            // All Clues with icon
+            const cluesRank = await this.getPlayerRank(uid, 'cluesTotal');
+            const cluesRow = document.createElement('tr');
+            const cluesNameCell = document.createElement('td');
+            cluesNameCell.className = 'hiscores-skill-name-cell';
+
+            const cluesIcon = loadingManager.getImage('ui_all_clue');
+            if (cluesIcon) {
+                const iconImg = document.createElement('img');
+                iconImg.className = 'hiscores-inline-icon';
+                iconImg.src = cluesIcon.src;
+                cluesNameCell.appendChild(iconImg);
+            }
+            const cluesText = document.createElement('span');
+            cluesText.textContent = 'All Clues';
+            cluesNameCell.appendChild(cluesText);
+
+            cluesRow.appendChild(cluesNameCell);
+            cluesRow.innerHTML += `
+                <td>${cluesRank}</td>
+                <td>${userData.cluesTotal || 0}</td>
+            `;
+            catBody.appendChild(cluesRow);
             
             catTable.appendChild(catBody);
             container.appendChild(catTable);
@@ -840,6 +914,15 @@ async fetchLeaderboardData(category, page) {
                 const q = query(
                     collection(firebaseManager.db, 'hiscores'),
                     where('petsShiny', '>', playerShiny)
+                );
+                const snapshot = await getDocs(q);
+                return snapshot.size + 1;
+            } else if (category.startsWith('clues')) {
+                const clueField = category === 'cluesTotal' ? 'cluesTotal' : category;
+                const playerClues = playerData[clueField] || 0;
+                const q = query(
+                    collection(firebaseManager.db, 'hiscores'),
+                    where(clueField, '>', playerClues)
                 );
                 const snapshot = await getDocs(q);
                 return snapshot.size + 1;
@@ -1040,6 +1123,17 @@ async fetchLeaderboardData(category, page) {
                 'ui_pets_shiny',
                 shinyRank1, user1Data.petsShiny || 0,
                 shinyRank2, user2Data.petsShiny || 0
+            );
+
+            // All Clues comparison
+            const cluesRank1 = await this.getPlayerRank(user1Id, 'cluesTotal');
+            const cluesRank2 = await this.getPlayerRank(user2Id, 'cluesTotal');
+            await this.addCompareRowWithRank(
+                catBody,
+                'All Clues',
+                'ui_all_clue',
+                cluesRank1, user1Data.cluesTotal || 0,
+                cluesRank2, user2Data.cluesTotal || 0
             );
             
             catTable.appendChild(catBody);
