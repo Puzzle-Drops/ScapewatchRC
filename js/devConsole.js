@@ -258,16 +258,16 @@ class DevConsole {
             },
 
             // === CLUES ===
-            clue: {
-                description: 'Generate a clue scroll',
-                usage: 'clue <tier> (easy/medium/hard/elite/master)',
-                fn: (args) => this.cmdClue(args)
-            },
-            forceclue: {
-                description: 'Force next activity to drop a clue',
-                usage: 'forceclue <tier>',
-                fn: (args) => this.cmdForceClue(args)
-            },
+clue: {
+    description: 'Generate a clue scroll or complete steps',
+    usage: 'clue <tier> [step|all] - Generate clue or complete steps',
+    fn: (args) => this.cmdClue(args)
+},
+forceclue: {
+    description: 'Force next activity to drop a clue',
+    usage: 'forceclue <tier>',
+    fn: (args) => this.cmdForceClue(args)
+},
             cluestats: {
                 description: 'Show clue scroll statistics',
                 usage: 'cluestats',
@@ -1981,25 +1981,36 @@ class DevConsole {
     // ==================== CLUE COMMANDS ====================
 
     cmdClue(args) {
-        if (!window.clueManager) {
-            this.log('Clue manager not initialized', 'error');
-            return;
-        }
-        
-        if (args.length !== 1) {
-            this.log('Usage: clue <tier> (easy/medium/hard/elite/master)', 'error');
-            return;
-        }
-        
-        const tier = args[0].toLowerCase();
-        const validTiers = ['easy', 'medium', 'hard', 'elite', 'master'];
-        
-        if (!validTiers.includes(tier)) {
-            this.log(`Invalid tier: ${tier}`, 'error');
-            this.log('Valid tiers: easy, medium, hard, elite, master', 'info');
-            return;
-        }
-        
+    if (!window.clueManager) {
+        this.log('Clue manager not initialized', 'error');
+        return;
+    }
+    
+    if (args.length === 0) {
+        this.log('Usage: clue <tier> [step|all]', 'error');
+        this.log('  clue easy - Generate easy clue', 'info');
+        this.log('  clue easy 1 - Complete step 1 of easy clue', 'info');
+        this.log('  clue easy all - Complete all steps of easy clue', 'info');
+        this.log('  clue all - Complete all steps of all clues', 'info');
+        return;
+    }
+    
+    // Handle "clue all" - complete all clues
+    if (args[0].toLowerCase() === 'all') {
+        return this.cmdCompleteAllClues();
+    }
+    
+    const tier = args[0].toLowerCase();
+    const validTiers = ['easy', 'medium', 'hard', 'elite', 'master'];
+    
+    if (!validTiers.includes(tier)) {
+        this.log(`Invalid tier: ${tier}`, 'error');
+        this.log('Valid tiers: easy, medium, hard, elite, master', 'info');
+        return;
+    }
+    
+    // If no second argument, generate a clue (original behavior)
+    if (args.length === 1) {
         // Check if player already has this tier
         if (clueManager.hasClue(tier)) {
             this.log(`You already have a ${tier} clue scroll!`, 'error');
@@ -2028,7 +2039,190 @@ class DevConsole {
         if (window.ui && ui.bankOpen) {
             ui.updateBank();
         }
+        return;
     }
+    
+    // Handle completing steps
+    const stepArg = args[1].toLowerCase();
+    
+    // Check if clue exists
+    const clueData = clueManager.getClueData(tier);
+    if (!clueData) {
+        this.log(`No ${tier} clue found in bank`, 'error');
+        return;
+    }
+    
+    if (stepArg === 'all') {
+        // Complete all steps for this tier
+        return this.cmdCompleteClueSteps(tier, 'all');
+    } else {
+        // Try to parse as step number
+        const stepNum = parseInt(stepArg);
+        if (isNaN(stepNum) || stepNum < 1) {
+            this.log('Invalid step number. Use a number or "all"', 'error');
+            return;
+        }
+        return this.cmdCompleteClueSteps(tier, stepNum);
+    }
+}
+
+    cmdCompleteClueSteps(tier, step) {
+    const clueData = clueManager.getClueData(tier);
+    if (!clueData) {
+        this.log(`No ${tier} clue found`, 'error');
+        return;
+    }
+    
+    const config = clueManager.CLUE_CONFIG[tier];
+    
+    if (step === 'all') {
+        // Complete all steps
+        let completedCount = 0;
+        for (let i = 0; i < clueData.steps.length; i++) {
+            if (!clueData.completed[i]) {
+                clueData.completed[i] = true;
+                completedCount++;
+                
+                const nodeId = clueData.steps[i];
+                const node = window.nodes ? nodes.getNode(nodeId) : null;
+                const nodeName = node ? node.name : nodeId;
+                this.log(`Completed step ${i + 1}: ${nodeName}`, 'success');
+            }
+        }
+        
+        if (completedCount === 0) {
+            this.log(`All steps already completed for ${config.itemName}`, 'info');
+        } else {
+            this.log(`Completed ${completedCount} steps for ${config.itemName}`, 'success');
+        }
+        
+        // Check if clue is now complete
+        if (clueManager.isClueComplete(tier)) {
+            this.log(`${config.itemName} is now complete! Click it in bank to receive casket.`, 'success');
+            
+            // Show completion celebration
+            if (window.xpDropManager) {
+                xpDropManager.showClueComplete(tier);
+            }
+        }
+    } else {
+        // Complete specific step
+        const stepIndex = step - 1; // Convert to 0-based index
+        
+        if (stepIndex < 0 || stepIndex >= clueData.steps.length) {
+            this.log(`Invalid step number. ${config.itemName} has ${clueData.steps.length} steps.`, 'error');
+            return;
+        }
+        
+        if (clueData.completed[stepIndex]) {
+            this.log(`Step ${step} already completed`, 'info');
+            return;
+        }
+        
+        // Complete the step
+        clueData.completed[stepIndex] = true;
+        
+        const nodeId = clueData.steps[stepIndex];
+        const node = window.nodes ? nodes.getNode(nodeId) : null;
+        const nodeName = node ? node.name : nodeId;
+        this.log(`Completed step ${step}: ${nodeName}`, 'success');
+        
+        // Show step completion celebration
+        if (window.xpDropManager) {
+            xpDropManager.showClueStepComplete(tier);
+        }
+        
+        // Check if clue is now complete
+        if (clueManager.isClueComplete(tier)) {
+            this.log(`${config.itemName} is now complete! Click it in bank to receive casket.`, 'success');
+            
+            // Show completion celebration
+            if (window.xpDropManager) {
+                xpDropManager.showClueComplete(tier);
+            }
+        } else {
+            // Show remaining steps
+            const remaining = clueData.completed.filter(c => !c).length;
+            this.log(`${remaining} step(s) remaining`, 'info');
+        }
+    }
+    
+    // Save clue data
+    clueManager.saveClueData();
+    
+    // Update UI
+    if (window.ui && ui.bankOpen) {
+        ui.updateBank();
+    }
+    
+    // Update floating display
+    clueManager.updateCompletedCluesDisplay();
+}
+
+cmdCompleteAllClues() {
+    const tiers = ['easy', 'medium', 'hard', 'elite', 'master'];
+    let totalCompleted = 0;
+    let cluesCompleted = [];
+    
+    for (const tier of tiers) {
+        const clueData = clueManager.getClueData(tier);
+        if (clueData) {
+            let stepsCompleted = 0;
+            for (let i = 0; i < clueData.steps.length; i++) {
+                if (!clueData.completed[i]) {
+                    clueData.completed[i] = true;
+                    stepsCompleted++;
+                }
+            }
+            
+            if (stepsCompleted > 0) {
+                totalCompleted += stepsCompleted;
+                cluesCompleted.push(tier);
+                
+                const config = clueManager.CLUE_CONFIG[tier];
+                this.log(`${config.itemName}: Completed ${stepsCompleted} steps`, 'success');
+                
+                // Show completion celebration if complete
+                if (clueManager.isClueComplete(tier)) {
+                    if (window.xpDropManager) {
+                        xpDropManager.showClueComplete(tier);
+                    }
+                }
+            }
+        }
+    }
+    
+    if (totalCompleted === 0) {
+        this.log('No incomplete clue steps found', 'info');
+    } else {
+        this.log(``, 'info');
+        this.log(`Total: Completed ${totalCompleted} steps across ${cluesCompleted.length} clues`, 'success');
+        
+        // Check which clues are now complete
+        const completeClues = [];
+        for (const tier of cluesCompleted) {
+            if (clueManager.isClueComplete(tier)) {
+                completeClues.push(tier);
+            }
+        }
+        
+        if (completeClues.length > 0) {
+            this.log(``, 'info');
+            this.log(`Completed clues ready for caskets: ${completeClues.join(', ')}`, 'success');
+        }
+    }
+    
+    // Save clue data
+    clueManager.saveClueData();
+    
+    // Update UI
+    if (window.ui && ui.bankOpen) {
+        ui.updateBank();
+    }
+    
+    // Update floating display
+    clueManager.updateCompletedCluesDisplay();
+}
 
     cmdForceClue(args) {
         if (!window.clueManager) {
