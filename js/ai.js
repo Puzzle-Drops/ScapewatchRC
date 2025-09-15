@@ -21,6 +21,7 @@ syncAfterLoad() {
     if (window.taskManager && taskManager.currentTask) {
         this.currentTask = taskManager.currentTask;
         console.log(`AI resumed task: ${this.currentTask.description}`);
+        console.log(`Banking flag preserved: ${this.hasBankedForCurrentTask}`);
         
         // Verify we're on the right path
         if (player.isMoving() && player.targetNode) {
@@ -75,13 +76,30 @@ syncAfterLoad() {
     }
 
     // Check if current task is still valid
-    isCurrentTaskValid() {
-        if (!this.currentTask) return false;
-        if (!window.taskManager) return false;
+isCurrentTaskValid() {
+    if (!this.currentTask) return false;
+    if (!window.taskManager) return false;
+    
+    // During load recovery, be more lenient with task validation
+    if (this.isResumingFromLoad && taskManager.currentTask) {
+        // Check if it's the same task by comparing properties, not reference
+        const isSameTask = this.currentTask.nodeId === taskManager.currentTask.nodeId &&
+                          this.currentTask.activityId === taskManager.currentTask.activityId &&
+                          this.currentTask.skill === taskManager.currentTask.skill &&
+                          this.currentTask.targetCount === taskManager.currentTask.targetCount;
         
-        // Check if our task is still the current task in task manager
-        return this.currentTask === taskManager.currentTask;
+        if (isSameTask) {
+            // Update our reference to the actual task object
+            this.currentTask = taskManager.currentTask;
+            // Clear the resuming flag after successful validation
+            this.isResumingFromLoad = false;
+            return true;
+        }
     }
+    
+    // Check if our task is still the current task in task manager
+    return this.currentTask === taskManager.currentTask;
+}
 
     // ==================== DECISION MAKING & EXECUTION ====================
 
