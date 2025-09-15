@@ -273,6 +273,15 @@ showClueComplete(tier) {
         duration: 3000
     });
 }
+
+// Show casket obtained when converting clue to casket
+    showCasketObtained(tier) {
+        this.queueCelebration({
+            type: 'casketObtained',
+            tier: tier,
+            duration: 3000
+        });
+    }
     
     // Add celebration to queue and process
     queueCelebration(celebrationData) {
@@ -308,6 +317,9 @@ showClueComplete(tier) {
                 break;
             case 'clueComplete':
                 this.displayClueComplete(nextCelebration);
+                break;
+            case 'casketObtained':
+                this.displayCasketObtained(nextCelebration);
                 break;
             case 'xpMilestone':
                 this.displayXPMilestone(nextCelebration);
@@ -657,6 +669,41 @@ displayClueComplete(data) {
         }
     }, data.duration);
 }
+
+// Display casket obtained celebration
+    displayCasketObtained(data) {
+        const celebration = document.createElement('div');
+        celebration.className = 'clue-complete-celebration';
+        
+        const casketInfo = document.createElement('div');
+        casketInfo.className = 'celebration-skill-info';
+        
+        // Create casket icon
+        const iconElement = document.createElement('img');
+        iconElement.src = `assets/items/${data.tier}_casket.png`;
+        iconElement.className = 'celebration-casket-icon';
+        
+        // Format tier name for casket
+        const tierName = data.tier.charAt(0).toUpperCase() + data.tier.slice(1);
+        
+        const casketText = document.createElement('span');
+        casketText.className = 'celebration-clue-complete';
+        casketText.textContent = `${tierName} Casket Obtained!`;
+        
+        casketInfo.appendChild(iconElement);
+        celebration.appendChild(casketInfo);
+        celebration.appendChild(casketText);
+        
+        // Add small fireworks for casket
+        this.createFireworks(true);
+        this.celebrationContainer.appendChild(celebration);
+        
+        setTimeout(() => {
+            if (celebration.parentNode) {
+                celebration.parentNode.removeChild(celebration);
+            }
+        }, data.duration);
+    }
     
     // Display max cape
     displayMaxCape(data) {
