@@ -903,6 +903,7 @@ class FirebaseManager {
         
         // Clue system
         clues: window.clueManager ? clueManager.clues : {},
+        completedClues: window.clueManager ? clueManager.completedClues : {},
         
         // RuneCred system
         runeCred: null
@@ -1098,8 +1099,12 @@ if (saveData.ai && window.ai) {
     }
 
 // Load clues
-if (saveData.clues && window.clueManager) {
-    clueManager.loadClueData({ clues: saveData.clues });
+if (window.clueManager) {
+    const clueData = {
+        clues: saveData.clues || {},
+        completedClues: saveData.completedClues || {}
+    };
+    clueManager.loadClueData(clueData);
 }
 
 // Ensure UI updates after all data is loaded
@@ -1244,6 +1249,20 @@ setTimeout(() => {
                 petsShiny: 0,
                 petsFirstReached: this.SENTINEL_DATE,
                 shinyPetsFirstReached: this.SENTINEL_DATE,
+
+                // Clues
+            cluesTotal: 0,
+            cluesEasy: 0,
+            cluesMedium: 0,
+            cluesHard: 0,
+            cluesElite: 0,
+            cluesMaster: 0,
+            cluesTotalFirstReached: this.SENTINEL_DATE,
+            cluesEasyFirstReached: this.SENTINEL_DATE,
+            cluesMediumFirstReached: this.SENTINEL_DATE,
+            cluesHardFirstReached: this.SENTINEL_DATE,
+            cluesEliteFirstReached: this.SENTINEL_DATE,
+            cluesMasterFirstReached: this.SENTINEL_DATE,
                 
                 // Update timestamp
                 lastUpdated: serverTimestamp()
@@ -1255,6 +1274,18 @@ setTimeout(() => {
                     hiscoreData.petsTotal += (skillCounts.regular || 0) + (skillCounts.shiny || 0);
                     hiscoreData.petsShiny += (skillCounts.shiny || 0);
                 }
+            }
+
+            // Calculate clue totals
+            if (window.clueManager && clueManager.completedClues) {
+                hiscoreData.cluesEasy = clueManager.completedClues.easy || 0;
+                hiscoreData.cluesMedium = clueManager.completedClues.medium || 0;
+                hiscoreData.cluesHard = clueManager.completedClues.hard || 0;
+                hiscoreData.cluesElite = clueManager.completedClues.elite || 0;
+                hiscoreData.cluesMaster = clueManager.completedClues.master || 0;
+                hiscoreData.cluesTotal = hiscoreData.cluesEasy + hiscoreData.cluesMedium + 
+                                         hiscoreData.cluesHard + hiscoreData.cluesElite + 
+                                         hiscoreData.cluesMaster;
             }
             
             // Add individual skill data
