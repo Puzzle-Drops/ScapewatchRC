@@ -1180,6 +1180,36 @@ async fetchLeaderboardData(category, page) {
                 cluesRank1, user1Data.cluesTotal || 0,
                 cluesRank2, user2Data.cluesTotal || 0
             );
+
+            // Individual Clue Tier comparisons
+            const clueTiers = [
+                { id: 'easy', name: 'Easy Clues', icon: 'easy_clue' },
+                { id: 'medium', name: 'Medium Clues', icon: 'medium_clue' },
+                { id: 'hard', name: 'Hard Clues', icon: 'hard_clue' },
+                { id: 'elite', name: 'Elite Clues', icon: 'elite_clue' },
+                { id: 'master', name: 'Master Clues', icon: 'master_clue' }
+            ];
+            
+            for (const tier of clueTiers) {
+                const fieldName = `clues${tier.id.charAt(0).toUpperCase() + tier.id.slice(1)}`;
+                const tierRank1 = await this.getPlayerRank(user1Id, fieldName);
+                const tierRank2 = await this.getPlayerRank(user2Id, fieldName);
+                
+                // Try to use preloaded icon or fallback to direct path
+                let iconKey = `items_${tier.icon}`;
+                if (!loadingManager.getImage(iconKey)) {
+                    // If not preloaded, we'll handle it in addCompareRowWithRank
+                    iconKey = null;
+                }
+                
+                await this.addCompareRowWithRank(
+                    catBody,
+                    tier.name,
+                    iconKey || `direct:assets/items/${tier.icon}.png`, // Use direct path prefix
+                    tierRank1, user1Data[fieldName] || 0,
+                    tierRank2, user2Data[fieldName] || 0
+                );
+            }
             
             catTable.appendChild(catBody);
             container.appendChild(catTable);
@@ -1208,12 +1238,28 @@ async fetchLeaderboardData(category, page) {
         labelCell.className = 'hiscores-skill-name-cell';
         
         if (iconKey) {
-            const icon = loadingManager.getImage(iconKey);
-            if (icon) {
+            if (iconKey.startsWith('direct:')) {
+                // Handle direct path
                 const iconImg = document.createElement('img');
                 iconImg.className = 'hiscores-inline-icon';
-                iconImg.src = icon.src;
+                iconImg.src = iconKey.replace('direct:', '');
                 labelCell.appendChild(iconImg);
+            } else {
+                // Try preloaded image
+                const icon = loadingManager.getImage(iconKey);
+                if (icon) {
+                    const iconImg = document.createElement('img');
+                    iconImg.className = 'hiscores-inline-icon';
+                    iconImg.src = icon.src;
+                    labelCell.appendChild(iconImg);
+                } else if (iconKey.startsWith('items_')) {
+                    // Fallback for items not preloaded
+                    const itemId = iconKey.replace('items_', '');
+                    const iconImg = document.createElement('img');
+                    iconImg.className = 'hiscores-inline-icon';
+                    iconImg.src = `assets/items/${itemId}.png`;
+                    labelCell.appendChild(iconImg);
+                }
             }
         }
         const labelText = document.createElement('span');
