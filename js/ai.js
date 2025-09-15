@@ -44,13 +44,20 @@ syncAfterLoad() {
                 console.log(`Resuming path to ${player.targetNode}`);
             }
         }
-        
         // Give a longer grace period when resuming
-        this.decisionCooldown = 5000; // 5 seconds to let things settle
+this.decisionCooldown = 5000; // 5 seconds to let things settle
+
+// Clear the resuming flag after the grace period
+setTimeout(() => {
+    if (this.isResumingFromLoad) {
+        console.log('Load grace period expired, clearing resume flag');
+        this.isResumingFromLoad = false;
+    }
+}, 5000);
     } else {
         // No current task in task manager
         this.currentTask = null;
-        this.decisionCooldown = 3000; // Still give grace period
+        this.decisionCooldown = 5000; // Still give grace period
     }
 }
 
@@ -111,10 +118,20 @@ isCurrentTaskValid() {
 
         // CRITICAL: If we have no current task but player is moving, stop and re-evaluate
 if (this.currentTask === null && player.isMoving()) {
-    // If we're resuming from load, don't panic - let the sync happen
+    // If we're resuming from load, sync the task from task manager
     if (this.isResumingFromLoad) {
-        console.log('Resuming from load, allowing movement to continue');
-        this.isResumingFromLoad = false; // Clear the flag
+        console.log('Resuming from load, checking for task to sync...');
+        
+        // Try to sync the current task from task manager
+        if (window.taskManager && taskManager.currentTask) {
+            this.currentTask = taskManager.currentTask;
+            console.log(`Synced task from task manager: ${this.currentTask.description}`);
+            // Don't clear the flag yet - let it run for a few seconds
+            return;
+        }
+        
+        // No task to sync, but still resuming - allow movement
+        console.log('No task to sync yet, allowing movement to continue');
         return;
     }
     
@@ -228,14 +245,13 @@ if (!this.isCurrentTaskValid() && this.currentTask !== null && !this.isResumingF
             return;
         }
 
-        // IMPORTANT: Always verify we're working on the right task
-// But be lenient if we just loaded
+// IMPORTANT: Always verify we're working on the right task
 if (!this.isCurrentTaskValid()) {
-    // If we're resuming from load and task manager has a task, sync it
+    // If we're resuming from load, try to sync first
     if (this.isResumingFromLoad && window.taskManager && taskManager.currentTask) {
-        console.log('Syncing task after load');
+        console.log('Syncing task from task manager during decision making');
         this.currentTask = taskManager.currentTask;
-        this.isResumingFromLoad = false; // Clear the flag
+        // Don't select a new task, just use the synced one
     } else {
         console.log('Current task is no longer valid, selecting new task');
         this.selectNextTask();
