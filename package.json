@@ -7,9 +7,11 @@
     "width": 2560,
     "height": 1440,
     "min_width": 1280,
-    "min_height": 720
+    "min_height": 720,
+    "fullscreen": false,
+    "kiosk": false
   },
-  "chromium-args": "--disable-raf-throttling --disable-background-timer-throttling --disable-renderer-backgrounding",
+  "chromium-args": "--disable-raf-throttling --disable-background-timer-throttling --disable-renderer-backgrounding --enable-fullscreen-tab",
   "devDependencies": {
     "nw": "0.83.0"
   },
