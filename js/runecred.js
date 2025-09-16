@@ -109,93 +109,103 @@ class RuneCreditManager {
     }
     
     // Add credits when task completes
-    onTaskComplete(task) {
-        this.totalTasksCompleted++;
-        
-        // Add 1 Rune Cred for any task
-        this.runeCred += 1;
-        
-        // Add 1 skill-specific credit if we have task info
-        if (task && task.skill) {
-            if (this.skillCredits[task.skill] !== undefined) {
-                this.skillCredits[task.skill] += 1;
-                this.tasksPerSkill[task.skill] = (this.tasksPerSkill[task.skill] || 0) + 1;
-                console.log(`+1 ${this.getSkillCredName(task.skill)} (now ${this.skillCredits[task.skill]})`);
-            }
-            
-            // Check for pet drop (1/1000 chance)
-            this.rollForPet(task.skill);
+onTaskComplete(task) {
+    this.totalTasksCompleted++;
+    
+    // Add 1 Rune Cred for any task
+    this.runeCred += 1;
+    
+    let petObtained = null;
+    
+    // Add 1 skill-specific credit if we have task info
+    if (task && task.skill) {
+        if (this.skillCredits[task.skill] !== undefined) {
+            this.skillCredits[task.skill] += 1;
+            this.tasksPerSkill[task.skill] = (this.tasksPerSkill[task.skill] || 0) + 1;
+            console.log(`+1 ${this.getSkillCredName(task.skill)} (now ${this.skillCredits[task.skill]})`);
         }
         
-        console.log(`+1 Rune Cred (now ${this.runeCred})`);
-        
-        // Update Skill Cred in case levels changed
-        this.updateSkillCred();
-        
-        this.saveData();
-        
-        // Update UI if overlay is open
-        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
-            window.skillCustomizationUI.updateCredits();
-        }
+        // Check for pet drop (1/1000 chance) - NOW CAPTURES RETURN VALUE
+        petObtained = this.rollForPet(task.skill);
     }
+    
+    console.log(`+1 Rune Cred (now ${this.runeCred})`);
+    
+    // Update Skill Cred in case levels changed
+    this.updateSkillCred();
+    
+    this.saveData();
+    
+    // Update UI if overlay is open
+    if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
+        window.skillCustomizationUI.updateCredits();
+    }
+    
+    // Return pet info if obtained
+    return petObtained;
+}
     
     // Roll for pet drop when completing a task
-    rollForPet(skillId) {
-        // 1/1000 chance for pet
-        const petRoll = Math.random();
-        if (petRoll < 1/1000) {
-            // We got a pet! Now check if it's shiny (1/10 chance)
-const shinyRoll = Math.random();
-const isShiny = shinyRoll < 1/10;
+rollForPet(skillId) {
+    // 1/1000 chance for pet
+    const petRoll = Math.random();
+    if (petRoll < 1/1000) {
+        // We got a pet! Now check if it's shiny (1/10 chance)
+        const shinyRoll = Math.random();
+        const isShiny = shinyRoll < 1/10;
 
-// Get skill name for display
-const skillsData = loadingManager.getData('skills');
-const skillName = skillsData[skillId] ? skillsData[skillId].name : skillId;
+        // Get skill name for display
+        const skillsData = loadingManager.getData('skills');
+        const skillName = skillsData[skillId] ? skillsData[skillId].name : skillId;
 
-// Initialize pet counts if needed
-if (!this.petCounts[skillId]) {
-    this.petCounts[skillId] = { regular: 0, shiny: 0 };
-}
+        // Initialize pet counts if needed
+        if (!this.petCounts[skillId]) {
+            this.petCounts[skillId] = { regular: 0, shiny: 0 };
+        }
 
-if (isShiny) {
-    this.petCounts[skillId].shiny++;
-    this.totalShinyPetsObtained++;
-    this.totalPetsObtained++;
-    
-    // Set speed bonus flag
-    this.speedBonuses.shinyPets[skillId] = true;
-    
-    console.log(`🌟✨ SHINY PET DROP! ✨🌟 You received a SHINY ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
-    
-    // Show pet celebration
-    if (window.xpDropManager) {
-        xpDropManager.showPetObtained(skillId, true);
-    }
-} else {
-    this.petCounts[skillId].regular++;
-    this.totalPetsObtained++;
-    
-    // Set speed bonus flag
-    this.speedBonuses.pets[skillId] = true;
-    
-    console.log(`🎉 PET DROP! 🎉 You received a ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
-    
-    // Show pet celebration
-    if (window.xpDropManager) {
-        xpDropManager.showPetObtained(skillId, false);
-    }
-}
+        if (isShiny) {
+            this.petCounts[skillId].shiny++;
+            this.totalShinyPetsObtained++;
+            this.totalPetsObtained++;
             
-            // Save immediately
-            this.saveData();
+            // Set speed bonus flag
+            this.speedBonuses.shinyPets[skillId] = true;
             
-            // Update UI if skill customization is open
-            if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
-                window.skillCustomizationUI.render();
+            console.log(`🌟✨ SHINY PET DROP! ✨🌟 You received a SHINY ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
+            
+            // Show pet celebration
+            if (window.xpDropManager) {
+                xpDropManager.showPetObtained(skillId, true);
+            }
+        } else {
+            this.petCounts[skillId].regular++;
+            this.totalPetsObtained++;
+            
+            // Set speed bonus flag
+            this.speedBonuses.pets[skillId] = true;
+            
+            console.log(`🎉 PET DROP! 🎉 You received a ${skillName} pet! (Pet #${this.petCounts[skillId].regular + this.petCounts[skillId].shiny} for ${skillName})`);
+            
+            // Show pet celebration
+            if (window.xpDropManager) {
+                xpDropManager.showPetObtained(skillId, false);
             }
         }
+        
+        // Save immediately
+        this.saveData();
+        
+        // Update UI if skill customization is open
+        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
+            window.skillCustomizationUI.render();
+        }
+        
+        // RETURN THE PET TYPE OBTAINED
+        return isShiny ? 'shiny' : 'regular';
     }
+    
+    return null; // No pet obtained
+}
     
     // Get pet statistics for a skill
     getPetStats(skillId) {
