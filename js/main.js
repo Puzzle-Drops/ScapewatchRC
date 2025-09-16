@@ -160,6 +160,7 @@ async function continueGameStart() {
     window.nodes = new NodeManager();
     window.map = new MapRenderer();
     window.ui = new UIManager();
+    window.petNotificationManager = new PetNotificationManager();
     window.ai = new AIManager();
 
     // Initialize player animation
