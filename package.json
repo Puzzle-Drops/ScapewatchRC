@@ -1,17 +1,19 @@
 {
-  "name": "scapewatch alpha",
+  "name": "scapewatch",
   "main": "index.html",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "window": {
     "title": "Scapewatch",
     "width": 2560,
     "height": 1440,
     "min_width": 1280,
-    "min_height": 720,
-    "position": "center"
+    "min_height": 720
   },
   "chromium-args": "--disable-raf-throttling --disable-background-timer-throttling --disable-renderer-backgrounding",
   "devDependencies": {
     "nw": "0.83.0-sdk"
+  },
+  "scripts": {
+    "start": "nw ."
   }
 }
