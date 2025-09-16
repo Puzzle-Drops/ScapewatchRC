@@ -376,9 +376,6 @@ this.updateCompletedCluesDisplay();
             const slot = document.createElement('div');
             slot.className = 'casket-reward-slot';
             
-            // Add staggered animation
-            slot.style.animationDelay = `${index * 0.1}s`;
-            
             // Use the same item creation as bank slots
             if (window.ui) {
                 // For coins, use the getCoinImage function
@@ -416,6 +413,11 @@ this.updateCompletedCluesDisplay();
             slot.title = `${itemData.name} x${formatNumber(reward.quantity)}`;
             
             grid.appendChild(slot);
+            
+            // Add staggered animation with highlight class
+            setTimeout(() => {
+                slot.classList.add('highlight');
+            }, index * 200);
         });
         
         // Show modal
