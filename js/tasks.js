@@ -273,8 +273,8 @@ async completeTask(task) {
             task.petObtained = petObtained; // Store 'regular' or 'shiny' on the task
             
             // Show floating pet notification
-            if (window.petNotificationManager) {
-                petNotificationManager.showPetNotification(task.skill, petObtained);
+            if (window.ui) {
+                ui.showPetNotification(task.skill, petObtained);
             }
         }
     }
