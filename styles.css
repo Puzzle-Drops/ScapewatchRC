@@ -3955,3 +3955,106 @@ span.control-emoji {
     font-weight: bold;
     margin-bottom: 5px;
 }
+
+/* Casket Rewards Modal */
+.casket-rewards-content {
+    max-width: 800px;
+    width: 800px;
+    max-height: 600px;
+    height: auto;
+}
+
+.casket-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.casket-header-number {
+    font-size: 48px;
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.casket-header-icon {
+    width: 64px;
+    height: 64px;
+}
+
+.casket-header-text {
+    font-size: 36px;
+    color: #FFD700;
+}
+
+.casket-rewards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+    min-height: 200px;
+}
+
+.casket-reward-slot {
+    width: 140px;
+    height: 140px;
+    background-color: #222;
+    border: 2px solid #444;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.casket-reward-slot.highlight {
+    border-color: #f39c12;
+    box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
+    animation: rewardPulse 0.5s ease-out;
+}
+
+@keyframes rewardPulse {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.casket-reward-icon {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.casket-reward-quantity {
+    font-size: 24px;
+    color: #FFD700;
+    font-weight: bold;
+}
+
+.casket-claim-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.casket-claim-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+}
+
+.casket-claim-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    transform: none;
+}
