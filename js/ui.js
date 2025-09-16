@@ -79,16 +79,42 @@ class UIManager {
 }
 
     setupModalButtons() {
-    // Bank X close button
-    const bankCloseX = document.getElementById('bank-close-x');
-    if (bankCloseX) {
-        bankCloseX.addEventListener('click', () => {
-            this.closeBank();
-        });
+        // Bank X close button
+        const bankCloseX = document.getElementById('bank-close-x');
+        if (bankCloseX) {
+            bankCloseX.addEventListener('click', () => {
+                this.closeBank();
+            });
+        }
+        
+        // Casket X close button
+        const casketCloseX = document.getElementById('casket-close-x');
+        if (casketCloseX) {
+            casketCloseX.addEventListener('click', () => {
+                this.closeCasketRewards();
+            });
+        }
+        
+        // Casket claim button
+        const casketClaimBtn = document.getElementById('casket-claim-btn');
+        if (casketClaimBtn) {
+            casketClaimBtn.addEventListener('click', () => {
+                this.closeCasketRewards();
+            });
+        }
+        
+        // Shop X close button (handled by shop.js)
     }
     
-    // Shop X close button (handled by shop.js)
-}
+    closeCasketRewards() {
+        const modal = document.getElementById('casket-rewards-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        
+        // Update bank display to show new items
+        this.updateBank();
+    }
 
     // ==================== MINIMIZE/MAXIMIZE FUNCTIONALITY ====================
 
@@ -338,11 +364,13 @@ createClueSlot(itemId, quantity) {
         
         slotDiv.title = `${itemData.name} x${formatNumber(quantity)}`;
         
-        // Add click handler to open casket (implement later)
+        // Add click handler to open casket
         slotDiv.addEventListener('click', (e) => {
             e.stopPropagation();
-            console.log(`Opening ${itemData.name}...`);
-            // TODO: Implement casket opening
+            const tier = itemId.replace('_casket', '');
+            if (window.clueManager) {
+                clueManager.openCasket(tier);
+            }
         });
         slotDiv.style.cursor = 'pointer';
     } else {
