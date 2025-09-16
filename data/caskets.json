@@ -2,121 +2,1701 @@
   "easy": [
     {
       "itemId": "coins",
-      "minRoll": 100,
-      "maxRoll": 1000
+      "minRoll": 1,
+      "maxRoll": 500
     },
     {
       "itemId": "feather",
-      "minRoll": 10,
-      "maxRoll": 200
+      "minRoll": 1,
+      "maxRoll": 100
     },
     {
       "itemId": "fishing_bait",
-      "minRoll": 10,
-      "maxRoll": 200
+      "minRoll": 1,
+      "maxRoll": 100
     },
     {
       "itemId": "ashes",
-      "minRoll": 10,
+      "minRoll": 1,
       "maxRoll": 50
     },
     {
       "itemId": "blown_glass",
-      "minRoll": 20,
-      "maxRoll": 40
+      "minRoll": 1,
+      "maxRoll": 50
     },
     {
       "itemId": "vial_of_water",
-      "minRoll": 10,
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "raw_meat",
+      "minRoll": 1,
       "maxRoll": 20
+    },
+    {
+      "itemId": "raw_shrimps",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "raw_sardine",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "raw_herring",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "raw_anchovies",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "meat",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "shrimps",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "sardine",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "anchovies",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "herring",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "logs",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "plank",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "copper_ore",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "tin_ore",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "iron_ore",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "oak_plank",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "oak_logs",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "burnt_food",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "bronze_bar",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "iron_bar",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "bronze_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "iron_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 20
+    },
+    {
+      "itemId": "uncut_sapphire",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "sapphire",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "potato_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "potato",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "guam_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "rune_essence",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "air_rune",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "water_rune",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "earth_rune",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "fire_rune",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "arrow_shaft",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "headless_arrow",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "bronze_arrow",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "iron_arrow",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "mind_rune",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "body_rune",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "sapphire_ring",
+      "minRoll": 1,
+      "maxRoll": 25
     }
   ],
   "medium": [
     {
       "itemId": "coins",
-      "minRoll": 500,
-      "maxRoll": 5000
+      "minRoll": 1,
+      "maxRoll": 3000
+    },
+    {
+      "itemId": "feather",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "fishing_bait",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "ashes",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "blown_glass",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "vial_of_water",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "raw_meat",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "raw_shrimps",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "raw_sardine",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "raw_herring",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "raw_anchovies",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "raw_mackerel",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "raw_trout",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "raw_cod",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "raw_pike",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "raw_salmon",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "meat",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "shrimps",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "sardine",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "anchovies",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "herring",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "mackerel",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "trout",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "cod",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "pike",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "salmon",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "burnt_food",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "logs",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "oak_logs",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "willow_logs",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "teak_logs",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "plank",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "oak_plank",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "copper_ore",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "tin_ore",
+      "minRoll": 1,
+      "maxRoll": 50
     },
     {
       "itemId": "iron_ore",
-      "minRoll": 20,
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "silver_ore",
+      "minRoll": 1,
       "maxRoll": 50
     },
     {
       "itemId": "coal",
-      "minRoll": 30,
-      "maxRoll": 60
+      "minRoll": 1,
+      "maxRoll": 50
     },
     {
-      "itemId": "oak_logs",
-      "minRoll": 25,
+      "itemId": "bronze_bar",
+      "minRoll": 1,
       "maxRoll": 50
+    },
+    {
+      "itemId": "iron_bar",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "silver_bar",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "steel_bar",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "bronze_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "iron_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "steel_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "uncut_sapphire",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "uncut_emerald",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "sapphire",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "emerald",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "sapphire_ring",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "emerald_ring",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "potato_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "potato",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "guam_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "marrentill_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "rune_essence",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "air_rune",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "water_rune",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "earth_rune",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "fire_rune",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "mind_rune",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "body_rune",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "chaos_rune",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "small_pouch",
+      "minRoll": 1,
+      "maxRoll": 1
+    },
+    {
+      "itemId": "arrow_shaft",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "headless_arrow",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "bronze_arrow",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "iron_arrow",
+      "minRoll": 1,
+      "maxRoll": 300
+    },
+    {
+      "itemId": "steel_arrow",
+      "minRoll": 1,
+      "maxRoll": 300
     }
   ],
   "hard": [
     {
       "itemId": "coins",
-      "minRoll": 2000,
-      "maxRoll": 20000
+      "minRoll": 1,
+      "maxRoll": 10000
+    },
+    {
+      "itemId": "raw_mackerel",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "raw_trout",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "raw_cod",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "raw_pike",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "raw_salmon",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "raw_tuna",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "raw_lobster",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "mackerel",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "trout",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "cod",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "pike",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "salmon",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "tuna",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "lobster",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "burnt_food",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "willow_logs",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "teak_logs",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "maple_logs",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "mahogany_logs",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "oak_plank",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "teak_plank",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "silver_ore",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "coal",
+      "minRoll": 1,
+      "maxRoll": 100
     },
     {
       "itemId": "gold_ore",
-      "minRoll": 10,
-      "maxRoll": 30
+      "minRoll": 1,
+      "maxRoll": 100
     },
     {
       "itemId": "mithril_ore",
-      "minRoll": 15,
-      "maxRoll": 40
+      "minRoll": 1,
+      "maxRoll": 100
     },
     {
-      "itemId": "yew_logs",
-      "minRoll": 20,
-      "maxRoll": 40
+      "itemId": "silver_bar",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "steel_bar",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "gold_bar",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "mithril_bar",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "steel_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "mithril_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 100
+    },
+    {
+      "itemId": "uncut_sapphire",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "uncut_emerald",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "uncut_ruby",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "sapphire",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "emerald",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "ruby",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "sapphire_ring",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "emerald_ring",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "ruby_ring",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "snape_grass_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "limpwurt_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "snape_grass",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "limpwurt_root",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "marrentill_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "tarromin_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "harralander_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "ranarr_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "toadflax_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "irit_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "avantoe_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "kwuarm_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "snapdragon_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "cadantine_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "lantadyme_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "dwarf_weed_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "torstol_seed",
+      "minRoll": 1,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "rune_essence",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "air_rune",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "water_rune",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "earth_rune",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "fire_rune",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "nature_rune",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "law_rune",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "astral_rune",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "cosmic_rune",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "chaos_rune",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "death_rune",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "medium_pouch",
+      "minRoll": 1,
+      "maxRoll": 1
+    },
+    {
+      "itemId": "arrow_shaft",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "headless_arrow",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "steel_arrow",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "mithril_arrow",
+      "minRoll": 1,
+      "maxRoll": 500
     }
   ],
   "elite": [
     {
       "itemId": "coins",
-      "minRoll": 10000,
-      "maxRoll": 100000
+      "minRoll": 1,
+      "maxRoll": 50000
     },
     {
-      "itemId": "adamantite_ore",
-      "minRoll": 10,
-      "maxRoll": 25
+      "itemId": "raw_tuna",
+      "minRoll": 1,
+      "maxRoll": 500
     },
     {
-      "itemId": "runite_ore",
-      "minRoll": 5,
-      "maxRoll": 15
+      "itemId": "raw_lobster",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "raw_bass",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "raw_swordfish",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "tuna",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "lobster",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "bass",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "swordfish",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "burnt_food",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "maple_logs",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "mahogany_logs",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "yew_logs",
+      "minRoll": 1,
+      "maxRoll": 500
     },
     {
       "itemId": "magic_logs",
-      "minRoll": 15,
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "teak_plank",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "mahogany_plank",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "gold_ore",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "mithril_ore",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "adamantite_ore",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "runite_ore",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "gold_bar",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "mithril_bar",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "adamantite_bar",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "runite_bar",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "mithril_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "adamant_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "rune_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 500
+    },
+    {
+      "itemId": "uncut_sapphire",
+      "minRoll": 1,
       "maxRoll": 30
+    },
+    {
+      "itemId": "uncut_emerald",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "uncut_ruby",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "uncut_diamond",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "sapphire",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "emerald",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "ruby",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "diamond",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "sapphire_ring",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "emerald_ring",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "ruby_ring",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "diamond_ring",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "snape_grass_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "limpwurt_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "potato_cactus_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "snape_grass",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "limpwurt_root",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "potato_cactus",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "ranarr_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "toadflax_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "irit_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "avantoe_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "kwuarm_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "snapdragon_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "cadantine_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "lantadyme_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "dwarf_weed_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "torstol_seed",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "super_combat_potion",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "magic_potion",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "ranging_potion",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "stamina_potion",
+      "minRoll": 1,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "rune_essence",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "air_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "water_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "earth_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "fire_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "nature_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "law_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "astral_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "cosmic_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "chaos_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "death_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "soul_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "blood_rune",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "large_pouch",
+      "minRoll": 1,
+      "maxRoll": 1
+    },
+    {
+      "itemId": "arrow_shaft",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "headless_arrow",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "mithril_arrow",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "adamant_arrow",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "rune_arrow",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "chinchompa",
+      "minRoll": 1,
+      "maxRoll": 1000
     }
   ],
   "master": [
     {
       "itemId": "coins",
-      "minRoll": 50000,
-      "maxRoll": 500000
+      "minRoll": 1,
+      "maxRoll": 200000
     },
     {
-      "itemId": "runite_ore",
-      "minRoll": 20,
-      "maxRoll": 50
+      "itemId": "raw_bass",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "raw_swordfish",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "raw_shark",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "swordfish",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "shark",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "bass",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "burnt_food",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "yew_logs",
+      "minRoll": 1,
+      "maxRoll": 1000
     },
     {
       "itemId": "magic_logs",
-      "minRoll": 30,
-      "maxRoll": 60
+      "minRoll": 1,
+      "maxRoll": 1000
     },
     {
       "itemId": "redwood_logs",
-      "minRoll": 25,
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "mahogany_plank",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "teak_plank",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "runite_ore",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "amethyst",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "runite_bar",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "amethyst_bar",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "rune_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "amethyst_arrowtips",
+      "minRoll": 1,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "uncut_sapphire",
+      "minRoll": 1,
       "maxRoll": 50
+    },
+    {
+      "itemId": "uncut_emerald",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "uncut_ruby",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "uncut_diamond",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "sapphire",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "emerald",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "ruby",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "diamond",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "diamond_ring",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "ruby_ring",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "emerald_ring",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "sapphire_ring",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "potato_cactus_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "limpwurt_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "snape_grass_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "snape_grass",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "limpwurt_root",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "potato_cactus",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "torstol_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "dwarf_weed_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "lantadyme_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "cadantine_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "snapdragon_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "kwuarm_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "avantoe_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "irit_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "toadflax_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "ranarr_seed",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "super_combat_potion",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "stamina_potion",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "magic_potion",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "ranging_potion",
+      "minRoll": 1,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "rune_essence",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "air_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "water_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "earth_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "fire_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "nature_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "law_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "astral_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "cosmic_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "chaos_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "death_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "soul_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "blood_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "wrath_rune",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "giant_pouch",
+      "minRoll": 1,
+      "maxRoll": 1
+    },
+    {
+      "itemId": "arrow_shaft",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "headless_arrow",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "rune_arrow",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "amethyst_arrow",
+      "minRoll": 1,
+      "maxRoll": 2500
+    },
+    {
+      "itemId": "chinchompa",
+      "minRoll": 1,
+      "maxRoll": 2500
     }
   ]
 }
