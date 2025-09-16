@@ -274,14 +274,14 @@ this.updateCompletedCluesDisplay();
         // Roll rewards
         const rewards = this.rollCasketRewards(tier);
         
-        // Show rewards modal
-        this.showCasketRewards(tier, rewards);
-        
-        // Add rewards to bank
+        // Add rewards to bank immediately
         for (const reward of rewards) {
             bank.deposit(reward.itemId, reward.quantity);
             console.log(`Received ${reward.quantity} ${reward.itemId} from ${tier} casket`);
         }
+        
+        // Show rewards modal (items are already in bank)
+        this.showCasketRewards(tier, rewards);
         
         // Force save to prevent save scumming
         if (window.firebaseManager && !firebaseManager.isOfflineMode) {
@@ -302,6 +302,7 @@ this.updateCompletedCluesDisplay();
         
         const rewardPool = casketData[tier];
         const rewards = [];
+        const usedItemIds = new Set();
         
         // Always add coins first
         const coinsData = rewardPool.find(r => r.itemId === 'coins');
@@ -311,6 +312,7 @@ this.updateCompletedCluesDisplay();
                 itemId: 'coins',
                 quantity: quantity
             });
+            usedItemIds.add('coins');
         }
         
         // Filter out coins from pool for other items
@@ -323,23 +325,24 @@ this.updateCompletedCluesDisplay();
         else if (tier === 'elite') additionalItems = 4;
         else if (tier === 'master') additionalItems = 5;
         
-        // Roll for additional items
+        // Roll for additional items (no duplicates)
         for (let i = 0; i < additionalItems && itemPool.length > 0; i++) {
-            const randomIndex = Math.floor(Math.random() * itemPool.length);
-            const itemData = itemPool[randomIndex];
+            // Filter out already used items
+            const availableItems = itemPool.filter(item => !usedItemIds.has(item.itemId));
+            
+            if (availableItems.length === 0) break;
+            
+            const randomIndex = Math.floor(Math.random() * availableItems.length);
+            const itemData = availableItems[randomIndex];
             
             const quantity = Math.floor(Math.random() * (itemData.maxRoll - itemData.minRoll + 1)) + itemData.minRoll;
             
-            // Check if we already have this item in rewards
-            const existingReward = rewards.find(r => r.itemId === itemData.itemId);
-            if (existingReward) {
-                existingReward.quantity += quantity;
-            } else {
-                rewards.push({
-                    itemId: itemData.itemId,
-                    quantity: quantity
-                });
-            }
+            rewards.push({
+                itemId: itemData.itemId,
+                quantity: quantity
+            });
+            
+            usedItemIds.add(itemData.itemId);
         }
         
         return rewards;
@@ -350,7 +353,6 @@ this.updateCompletedCluesDisplay();
         const modal = document.getElementById('casket-rewards-modal');
         const header = document.getElementById('casket-header');
         const grid = document.getElementById('casket-rewards-grid');
-        const claimBtn = document.getElementById('casket-claim-btn');
         
         if (!modal || !header || !grid) return;
         
@@ -358,17 +360,15 @@ this.updateCompletedCluesDisplay();
         header.innerHTML = '';
         grid.innerHTML = '';
         
-        // Create header
-        const casketCount = this.completedClues[tier] || 1;
+        // Create header (without the casket count)
         const tierName = tier.charAt(0).toUpperCase() + tier.slice(1);
         
         header.innerHTML = `
-            <span class="casket-header-number">${casketCount}</span>
             <img class="casket-header-icon" src="assets/items/${tier}_casket.png" alt="${tierName} Casket">
-            <span class="casket-header-text">${tierName} Casket Rewards!</span>
+            <span>${tierName} Casket Rewards!</span>
         `;
         
-        // Create reward slots with staggered animation
+        // Create reward slots using same style as bank slots
         rewards.forEach((reward, index) => {
             const itemData = loadingManager.getData('items')[reward.itemId];
             if (!itemData) return;
@@ -377,21 +377,42 @@ this.updateCompletedCluesDisplay();
             slot.className = 'casket-reward-slot';
             
             // Add staggered animation
-            setTimeout(() => {
-                slot.classList.add('highlight');
-            }, index * 200);
+            slot.style.animationDelay = `${index * 0.1}s`;
             
-            const icon = document.createElement('img');
-            icon.className = 'casket-reward-icon';
-            icon.src = `assets/items/${reward.itemId}.png`;
-            icon.alt = itemData.name;
+            // Use the same item creation as bank slots
+            if (window.ui) {
+                // For coins, use the getCoinImage function
+                if (reward.itemId === 'coins') {
+                    const coinImage = ui.getCoinImage(reward.quantity);
+                    const img = document.createElement('img');
+                    img.src = `assets/items/${coinImage}.png`;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain';
+                    slot.appendChild(img);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = `assets/items/${reward.itemId}.png`;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain';
+                    slot.appendChild(img);
+                }
+                
+                // Add quantity display if more than 1
+                if (reward.quantity > 1) {
+                    const countDiv = document.createElement('div');
+                    countDiv.className = 'item-count';
+                    
+                    // Use the formatItemCount method from UI
+                    const formatted = ui.formatItemCount(reward.quantity);
+                    countDiv.textContent = formatted.text;
+                    countDiv.style.color = formatted.color;
+                    
+                    slot.appendChild(countDiv);
+                }
+            }
             
-            const quantity = document.createElement('div');
-            quantity.className = 'casket-reward-quantity';
-            quantity.textContent = formatNumber(reward.quantity);
-            
-            slot.appendChild(icon);
-            slot.appendChild(quantity);
             slot.title = `${itemData.name} x${formatNumber(reward.quantity)}`;
             
             grid.appendChild(slot);
@@ -399,9 +420,6 @@ this.updateCompletedCluesDisplay();
         
         // Show modal
         modal.style.display = 'flex';
-        
-        // Claim button is already wired up in setupModalButtons
-        claimBtn.disabled = false;
     }
 
     // Destroy a clue
