@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casket Configuration Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Left Panel - All Items */
+        .left-panel {
+            width: 40%;
+            background: #2a2a2a;
+            border-right: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 20px;
+            background: #333;
+            border-bottom: 1px solid #444;
+        }
+
+        .panel-header h2 {
+            margin-bottom: 15px;
+            color: #f0f0f0;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .items-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin: 4px 0;
+            background: #333;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .item:hover {
+            background: #3a3a3a;
+            border-color: #555;
+        }
+
+        .item.selected {
+            background: #2a4a6a;
+            border-color: #4a9eff;
+        }
+
+        .item.in-caskets {
+            position: relative;
+        }
+
+        .item img {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            image-rendering: pixelated;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .item-category {
+            font-size: 11px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .casket-badges {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .casket-badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge-easy { background: #4caf50; color: white; }
+        .badge-medium { background: #ff9800; color: white; }
+        .badge-hard { background: #f44336; color: white; }
+        .badge-elite { background: #9c27b0; color: white; }
+        .badge-master { background: #ffd700; color: #333; }
+
+        /* Right Panel - Casket Configuration */
+        .right-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            background: #252525;
+        }
+
+        .casket-selector {
+            padding: 20px;
+            background: #333;
+            border-bottom: 1px solid #444;
+        }
+
+        .casket-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .casket-tab {
+            padding: 10px 20px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: capitalize;
+            font-weight: bold;
+        }
+
+        .casket-tab[data-casket="easy"] { background: #2e7d32; }
+        .casket-tab[data-casket="medium"] { background: #f57c00; }
+        .casket-tab[data-casket="hard"] { background: #c62828; }
+        .casket-tab[data-casket="elite"] { background: #6a1b9a; }
+        .casket-tab[data-casket="master"] { background: #f9a825; color: #333; }
+
+        .casket-tab:hover {
+            opacity: 0.9;
+        }
+
+        .casket-tab.active {
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .casket-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .casket-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+
+        .casket-item img {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            image-rendering: pixelated;
+        }
+
+        .casket-item-info {
+            flex: 1;
+        }
+
+        .roll-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .roll-input {
+            width: 80px;
+            padding: 6px;
+            background: #1a1a1a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #e0e0e0;
+            text-align: center;
+        }
+
+        .roll-label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .remove-btn {
+            padding: 6px 12px;
+            background: #d32f2f;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-btn:hover {
+            background: #f44336;
+        }
+
+        /* Action Buttons */
+        .actions {
+            padding: 20px;
+            background: #333;
+            border-top: 1px solid #444;
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #4a9eff;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #3a8eef;
+        }
+
+        .btn-success {
+            background: #4caf50;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .btn-load {
+            background: #ff9800;
+        }
+
+        .btn-load:hover {
+            background: #f57c00;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .stats {
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border-bottom: 1px solid #444;
+            font-size: 13px;
+            color: #999;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel - All Items -->
+        <div class="left-panel">
+            <div class="panel-header">
+                <h2>All Items</h2>
+                <input type="text" class="search-box" id="searchBox" placeholder="Search items...">
+            </div>
+            <div class="stats" id="itemStats">Loading items...</div>
+            <div class="items-container" id="itemsList">
+                <div class="loading">Loading items...</div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Casket Configuration -->
+        <div class="right-panel">
+            <div class="casket-selector">
+                <h2>Configure Caskets</h2>
+                <div class="casket-tabs" id="casketTabs">
+                    <div class="casket-tab" data-casket="easy">Easy</div>
+                    <div class="casket-tab" data-casket="medium">Medium</div>
+                    <div class="casket-tab" data-casket="hard">Hard</div>
+                    <div class="casket-tab" data-casket="elite">Elite</div>
+                    <div class="casket-tab" data-casket="master">Master</div>
+                </div>
+            </div>
+            <div class="casket-items" id="casketItems">
+                <div class="empty-state">Select a casket tier to configure</div>
+            </div>
+            <div class="actions">
+                <div>
+                    <button class="btn btn-load" onclick="loadExistingCaskets()">Load Existing Caskets</button>
+                    <button class="btn" onclick="addSelectedItems()">Add Selected Items</button>
+                </div>
+                <button class="btn btn-success" onclick="downloadCasketsJson()">Download caskets.json</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allItems = {};
+        let casketData = {
+            easy: [],
+            medium: [],
+            hard: [],
+            elite: [],
+            master: []
+        };
+        let selectedItems = new Set();
+        let currentCasket = null;
+        let lastSelectedIndex = -1;
+
+        // Initialize
+        async function init() {
+            await loadItems();
+            setupEventListeners();
+        }
+
+        // Load items from JSON
+        async function loadItems() {
+            try {
+                const response = await fetch('https://puzzle-drops.github.io/ScapewatchRC/data/items.json');
+                const data = await response.json();
+                allItems = data;
+                renderItems();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading items:', error);
+                document.getElementById('itemsList').innerHTML = '<div class="loading">Error loading items. Please try again.</div>';
+            }
+        }
+
+        // Render items list
+        function renderItems() {
+            const container = document.getElementById('itemsList');
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            container.innerHTML = '';
+            
+            let itemArray = Object.entries(allItems)
+                .filter(([id, item]) => item.category !== 'note' && item.category !== 'clue' && item.category !== 'casket')
+                .filter(([id, item]) => {
+                    if (!searchTerm) return true;
+                    return item.name.toLowerCase().includes(searchTerm) || 
+                           item.category.toLowerCase().includes(searchTerm);
+                });
+
+            itemArray.forEach(([id, item], index) => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.dataset.itemId = id;
+                div.dataset.index = index;
+                
+                // Check which caskets this item is in
+                const inCaskets = getItemCaskets(id);
+                if (inCaskets.length > 0) {
+                    div.classList.add('in-caskets');
+                }
+                
+                if (selectedItems.has(id)) {
+                    div.classList.add('selected');
+                }
+                
+                // Build badges HTML
+                let badgesHtml = '';
+                if (inCaskets.length > 0) {
+                    badgesHtml = '<div class="casket-badges">';
+                    inCaskets.forEach(tier => {
+                        badgesHtml += `<div class="casket-badge badge-${tier}">${tier.charAt(0)}</div>`;
+                    });
+                    badgesHtml += '</div>';
+                }
+                
+                div.innerHTML = `
+                    <img src="https://puzzle-drops.github.io/ScapewatchRC/assets/items/${id}.png" 
+                         onerror="this.src='https://puzzle-drops.github.io/ScapewatchRC/assets/items/coins.png'">
+                    <div class="item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-category">${item.category}</div>
+                    </div>
+                    ${badgesHtml}
+                `;
+                
+                div.addEventListener('click', (e) => handleItemClick(e, id, index));
+                container.appendChild(div);
+            });
+        }
+
+        // Handle item selection
+        function handleItemClick(event, itemId, index) {
+            const itemDiv = event.currentTarget;
+            
+            if (event.ctrlKey || event.metaKey) {
+                // Ctrl/Cmd click - toggle single item
+                if (selectedItems.has(itemId)) {
+                    selectedItems.delete(itemId);
+                    itemDiv.classList.remove('selected');
+                } else {
+                    selectedItems.add(itemId);
+                    itemDiv.classList.add('selected');
+                }
+                lastSelectedIndex = index;
+            } else if (event.shiftKey && lastSelectedIndex !== -1) {
+                // Shift click - select range
+                const start = Math.min(lastSelectedIndex, index);
+                const end = Math.max(lastSelectedIndex, index);
+                
+                const items = document.querySelectorAll('.item');
+                for (let i = start; i <= end; i++) {
+                    const item = items[i];
+                    if (item) {
+                        const id = item.dataset.itemId;
+                        selectedItems.add(id);
+                        item.classList.add('selected');
+                    }
+                }
+            } else {
+                // Regular click - clear selection and select this item
+                clearSelection();
+                selectedItems.add(itemId);
+                itemDiv.classList.add('selected');
+                lastSelectedIndex = index;
+            }
+            
+            updateStats();
+        }
+
+        // Clear selection
+        function clearSelection() {
+            selectedItems.clear();
+            document.querySelectorAll('.item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+        }
+
+        // Get which caskets an item is in
+        function getItemCaskets(itemId) {
+            const caskets = [];
+            for (const [tier, items] of Object.entries(casketData)) {
+                if (items.some(item => item.itemId === itemId)) {
+                    caskets.push(tier);
+                }
+            }
+            return caskets;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search box
+            document.getElementById('searchBox').addEventListener('input', renderItems);
+            
+            // Casket tabs
+            document.querySelectorAll('.casket-tab').forEach(tab => {
+                tab.addEventListener('click', () => selectCasket(tab.dataset.casket));
+            });
+        }
+
+        // Select casket
+        function selectCasket(casketTier) {
+            currentCasket = casketTier;
+            
+            // Update tab styling
+            document.querySelectorAll('.casket-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.casket === casketTier);
+            });
+            
+            // Render casket items
+            renderCasketItems();
+        }
+
+        // Render casket items
+        function renderCasketItems() {
+            const container = document.getElementById('casketItems');
+            
+            if (!currentCasket) {
+                container.innerHTML = '<div class="empty-state">Select a casket tier to configure</div>';
+                return;
+            }
+            
+            const items = casketData[currentCasket];
+            
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state">No items in this casket. Select items from the left panel and click "Add Selected Items".</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Sort items by their original order in items.json
+            const sortedItems = [...items].sort((a, b) => {
+                const aIndex = Object.keys(allItems).indexOf(a.itemId);
+                const bIndex = Object.keys(allItems).indexOf(b.itemId);
+                return aIndex - bIndex;
+            });
+            
+            sortedItems.forEach(casketItem => {
+                const item = allItems[casketItem.itemId];
+                const div = document.createElement('div');
+                div.className = 'casket-item';
+                
+                div.innerHTML = `
+                    <img src="https://puzzle-drops.github.io/ScapewatchRC/assets/items/${casketItem.itemId}.png" 
+                         onerror="this.src='https://puzzle-drops.github.io/ScapewatchRC/assets/items/coins.png'">
+                    <div class="casket-item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-category">${item.category}</div>
+                    </div>
+                    <div class="roll-controls">
+                        <span class="roll-label">Min:</span>
+                        <input type="number" class="roll-input" value="${casketItem.minRoll}" 
+                               min="1" data-item-id="${casketItem.itemId}" data-type="min"
+                               onchange="updateItemRoll('${casketItem.itemId}', 'min', this.value)">
+                        <span class="roll-label">Max:</span>
+                        <input type="number" class="roll-input" value="${casketItem.maxRoll}" 
+                               min="1" data-item-id="${casketItem.itemId}" data-type="max"
+                               onchange="updateItemRoll('${casketItem.itemId}', 'max', this.value)">
+                        <button class="remove-btn" onclick="removeItemFromCasket('${casketItem.itemId}')">Remove</button>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Add selected items to current casket
+        function addSelectedItems() {
+            if (!currentCasket) {
+                alert('Please select a casket tier first');
+                return;
+            }
+            
+            if (selectedItems.size === 0) {
+                alert('Please select items to add');
+                return;
+            }
+            
+            selectedItems.forEach(itemId => {
+                if (!casketData[currentCasket].some(item => item.itemId === itemId)) {
+                    casketData[currentCasket].push({
+                        itemId: itemId,
+                        minRoll: 1,
+                        maxRoll: 10
+                    });
+                }
+            });
+            
+            clearSelection();
+            renderItems();
+            renderCasketItems();
+            updateStats();
+        }
+
+        // Update item roll values
+        function updateItemRoll(itemId, type, newValue) {
+            const value = parseInt(newValue);
+            if (value < 1) {
+                alert('Roll value must be at least 1');
+                return;
+            }
+            
+            const item = casketData[currentCasket].find(i => i.itemId === itemId);
+            if (item) {
+                if (type === 'min') {
+                    item.minRoll = value;
+                    // Ensure max is not less than min
+                    if (item.maxRoll < value) {
+                        item.maxRoll = value;
+                        renderCasketItems();
+                    }
+                } else {
+                    item.maxRoll = value;
+                    // Ensure min is not greater than max
+                    if (item.minRoll > value) {
+                        item.minRoll = value;
+                        renderCasketItems();
+                    }
+                }
+            }
+        }
+
+        // Remove item from casket
+        function removeItemFromCasket(itemId) {
+            casketData[currentCasket] = casketData[currentCasket].filter(item => item.itemId !== itemId);
+            renderItems();
+            renderCasketItems();
+            updateStats();
+        }
+
+        // Update stats
+        function updateStats() {
+            const totalItems = Object.keys(allItems).filter(id => {
+                const cat = allItems[id].category;
+                return cat !== 'note' && cat !== 'clue' && cat !== 'casket';
+            }).length;
+            const uniqueItemsInCaskets = new Set(Object.values(casketData).flat().map(item => item.itemId)).size;
+            const selectedCount = selectedItems.size;
+            
+            document.getElementById('itemStats').innerHTML = `
+                Total Items: ${totalItems} | Unique in Caskets: ${uniqueItemsInCaskets} | Selected: ${selectedCount}
+            `;
+        }
+
+        // Load existing casket configuration
+        async function loadExistingCaskets() {
+            try {
+                const response = await fetch('https://puzzle-drops.github.io/ScapewatchRC/data/caskets.json');
+                const data = await response.json();
+                
+                // Clear existing data
+                Object.keys(casketData).forEach(key => {
+                    casketData[key] = [];
+                });
+                
+                // Load new data
+                Object.entries(data).forEach(([tier, items]) => {
+                    if (casketData.hasOwnProperty(tier)) {
+                        casketData[tier] = items;
+                    }
+                });
+                
+                alert('Casket configuration loaded successfully!');
+                renderItems();
+                if (currentCasket) {
+                    renderCasketItems();
+                }
+                updateStats();
+            } catch (error) {
+                alert('Error loading casket configuration. The file may not exist or there was a network error.');
+                console.error('Error:', error);
+            }
+        }
+
+        // Download caskets JSON
+        function downloadCasketsJson() {
+            const json = JSON.stringify(casketData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'caskets.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
