@@ -11,9 +11,13 @@
   },
   "chromium-args": "--disable-raf-throttling --disable-background-timer-throttling --disable-renderer-backgrounding",
   "devDependencies": {
-    "nw": "0.83.0-sdk"
+    "nw": "0.83.0-sdk",
+    "nw-builder": "^4.0.0"
   },
   "scripts": {
-    "start": "nw ."
+    "start": "nw .",
+    "build-win": "node build.js win",
+    "build-mac": "node build.js mac",
+    "build-linux": "node build.js linux"
   }
 }
