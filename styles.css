@@ -3988,7 +3988,7 @@ span.control-emoji {
     justify-items: center;
 }
 
-/* Use same styling as bank slots */
+/* Match bank slot sizing exactly */
 .casket-reward-slot {
     width: 100px;
     height: 100px;
@@ -3999,12 +3999,26 @@ span.control-emoji {
     align-items: center;
     justify-content: center;
     position: relative;
-    border: 1px solid #444;
+    cursor: default;
+}
+
+/* Keep the highlight animation */
+.casket-reward-slot.highlight {
+    border-color: #f39c12;
+    box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
     animation: rewardPulse 0.5s ease-out;
 }
 
 @keyframes rewardPulse {
-    0% { transform: scale(0.8); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
+    0% { 
+        transform: scale(0.8); 
+        opacity: 0;
+    }
+    50% { 
+        transform: scale(1.1);
+    }
+    100% { 
+        transform: scale(1); 
+        opacity: 1;
+    }
 }
