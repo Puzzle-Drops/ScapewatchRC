@@ -261,18 +261,26 @@ async completeTask(task) {
     task.progress = 1;
     task.completedAt = Date.now();
     
-    // Add to completed tasks
-    this.completedTasks.push(task);
-    
     // Show task completion celebration
     if (window.xpDropManager) {
         xpDropManager.showTaskComplete(task);
     }
     
-    // Award credits - NOW PASSING THE TASK OBJECT
+    // Award credits and check for pet - CAPTURE PET INFO
     if (window.runeCreditManager) {
-        runeCreditManager.onTaskComplete(task);
+        const petObtained = runeCreditManager.onTaskComplete(task);
+        if (petObtained) {
+            task.petObtained = petObtained; // Store 'regular' or 'shiny' on the task
+            
+            // Show floating pet notification
+            if (window.petNotificationManager) {
+                petNotificationManager.showPetNotification(task.skill, petObtained);
+            }
+        }
     }
+    
+    // Add to completed tasks AFTER pet info is added
+    this.completedTasks.push(task);
 
     // Rotate shop stock on task completion
     if (window.shop) {
