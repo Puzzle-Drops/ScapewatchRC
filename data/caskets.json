@@ -1,0 +1,122 @@
+{
+  "easy": [
+    {
+      "itemId": "coins",
+      "minRoll": 100,
+      "maxRoll": 1000
+    },
+    {
+      "itemId": "feather",
+      "minRoll": 10,
+      "maxRoll": 200
+    },
+    {
+      "itemId": "fishing_bait",
+      "minRoll": 10,
+      "maxRoll": 200
+    },
+    {
+      "itemId": "ashes",
+      "minRoll": 10,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "blown_glass",
+      "minRoll": 20,
+      "maxRoll": 40
+    },
+    {
+      "itemId": "vial_of_water",
+      "minRoll": 10,
+      "maxRoll": 20
+    }
+  ],
+  "medium": [
+    {
+      "itemId": "coins",
+      "minRoll": 500,
+      "maxRoll": 5000
+    },
+    {
+      "itemId": "iron_ore",
+      "minRoll": 20,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "coal",
+      "minRoll": 30,
+      "maxRoll": 60
+    },
+    {
+      "itemId": "oak_logs",
+      "minRoll": 25,
+      "maxRoll": 50
+    }
+  ],
+  "hard": [
+    {
+      "itemId": "coins",
+      "minRoll": 2000,
+      "maxRoll": 20000
+    },
+    {
+      "itemId": "gold_ore",
+      "minRoll": 10,
+      "maxRoll": 30
+    },
+    {
+      "itemId": "mithril_ore",
+      "minRoll": 15,
+      "maxRoll": 40
+    },
+    {
+      "itemId": "yew_logs",
+      "minRoll": 20,
+      "maxRoll": 40
+    }
+  ],
+  "elite": [
+    {
+      "itemId": "coins",
+      "minRoll": 10000,
+      "maxRoll": 100000
+    },
+    {
+      "itemId": "adamantite_ore",
+      "minRoll": 10,
+      "maxRoll": 25
+    },
+    {
+      "itemId": "runite_ore",
+      "minRoll": 5,
+      "maxRoll": 15
+    },
+    {
+      "itemId": "magic_logs",
+      "minRoll": 15,
+      "maxRoll": 30
+    }
+  ],
+  "master": [
+    {
+      "itemId": "coins",
+      "minRoll": 50000,
+      "maxRoll": 500000
+    },
+    {
+      "itemId": "runite_ore",
+      "minRoll": 20,
+      "maxRoll": 50
+    },
+    {
+      "itemId": "magic_logs",
+      "minRoll": 30,
+      "maxRoll": 60
+    },
+    {
+      "itemId": "redwood_logs",
+      "minRoll": 25,
+      "maxRoll": 50
+    }
+  ]
+}
