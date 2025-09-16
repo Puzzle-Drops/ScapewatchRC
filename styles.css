@@ -4022,3 +4022,122 @@ span.control-emoji {
         opacity: 1;
     }
 }
+
+/* Floating Pet Notifications */
+.floating-pet-notifications {
+    position: fixed;
+    top: 20px;
+    left: 170px; /* Positioned to the right of clues */
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.floating-pet-item {
+    width: 128px;
+    height: 128px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.floating-pet-item.pet-regular {
+    border: 2px solid #4CAF50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.floating-pet-item.pet-shiny {
+    border: 2px solid #FF69B4;
+    box-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+}
+
+.floating-pet-item:hover {
+    transform: scale(1.1);
+}
+
+.floating-pet-item.pet-regular:hover {
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+}
+
+.floating-pet-item.pet-shiny:hover {
+    box-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+}
+
+.floating-pet-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Tooltip for floating pets */
+.floating-pet-tooltip {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 10px;
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #5a4a3a;
+    padding: 10px;
+    min-width: 200px;
+    border-radius: 5px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 1000;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.floating-pet-item:hover .floating-pet-tooltip {
+    opacity: 1;
+}
+
+.floating-pet-tooltip-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.floating-pet-item.pet-regular .floating-pet-tooltip-title {
+    color: #4CAF50;
+}
+
+.floating-pet-item.pet-shiny .floating-pet-tooltip-title {
+    color: #FF69B4;
+}
+
+/* Task history pet icons and borders */
+.completed-task-pet-icon,
+.completed-task-pet-icon-empty {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+}
+
+.completed-task-pet-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.completed-task-row.pet-task-regular {
+    border-left: 3px solid #4CAF50;
+    padding-left: 7px;
+    margin-left: -10px;
+    background: linear-gradient(90deg, rgba(76, 175, 80, 0.1), transparent 100px);
+}
+
+.completed-task-row.pet-task-shiny {
+    border-left: 3px solid #FF69B4;
+    padding-left: 7px;
+    margin-left: -10px;
+    background: linear-gradient(90deg, rgba(255, 105, 180, 0.1), transparent 100px);
+}
