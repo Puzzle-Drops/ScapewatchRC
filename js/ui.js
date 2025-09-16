@@ -95,14 +95,6 @@ class UIManager {
             });
         }
         
-        // Casket claim button
-        const casketClaimBtn = document.getElementById('casket-claim-btn');
-        if (casketClaimBtn) {
-            casketClaimBtn.addEventListener('click', () => {
-                this.closeCasketRewards();
-            });
-        }
-        
         // Shop X close button (handled by shop.js)
     }
     
