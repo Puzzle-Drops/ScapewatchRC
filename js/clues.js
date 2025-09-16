@@ -258,6 +258,152 @@ this.updateCompletedCluesDisplay();
         return true;
     }
 
+// Open a casket and roll rewards
+    async openCasket(tier) {
+        const casketItemId = `${tier}_casket`;
+        const casketCount = bank.getItemCount(casketItemId);
+        
+        if (casketCount === 0) {
+            console.log('No casket to open!');
+            return false;
+        }
+        
+        // Withdraw one casket
+        bank.withdraw(casketItemId, 1);
+        
+        // Roll rewards
+        const rewards = this.rollCasketRewards(tier);
+        
+        // Show rewards modal
+        this.showCasketRewards(tier, rewards);
+        
+        // Add rewards to bank
+        for (const reward of rewards) {
+            bank.deposit(reward.itemId, reward.quantity);
+            console.log(`Received ${reward.quantity} ${reward.itemId} from ${tier} casket`);
+        }
+        
+        // Force save to prevent save scumming
+        if (window.firebaseManager && !firebaseManager.isOfflineMode) {
+            await firebaseManager.forceSave();
+            console.log('Game saved after casket opening');
+        }
+        
+        return true;
+    }
+    
+    // Roll rewards based on tier
+    rollCasketRewards(tier) {
+        const casketData = loadingManager.getData('caskets');
+        if (!casketData || !casketData[tier]) {
+            console.error(`No casket data for tier: ${tier}`);
+            return [];
+        }
+        
+        const rewardPool = casketData[tier];
+        const rewards = [];
+        
+        // Always add coins first
+        const coinsData = rewardPool.find(r => r.itemId === 'coins');
+        if (coinsData) {
+            const quantity = Math.floor(Math.random() * (coinsData.maxRoll - coinsData.minRoll + 1)) + coinsData.minRoll;
+            rewards.push({
+                itemId: 'coins',
+                quantity: quantity
+            });
+        }
+        
+        // Filter out coins from pool for other items
+        const itemPool = rewardPool.filter(r => r.itemId !== 'coins');
+        
+        // Determine number of additional items based on tier
+        let additionalItems = 1; // easy
+        if (tier === 'medium') additionalItems = 2;
+        else if (tier === 'hard') additionalItems = 3;
+        else if (tier === 'elite') additionalItems = 4;
+        else if (tier === 'master') additionalItems = 5;
+        
+        // Roll for additional items
+        for (let i = 0; i < additionalItems && itemPool.length > 0; i++) {
+            const randomIndex = Math.floor(Math.random() * itemPool.length);
+            const itemData = itemPool[randomIndex];
+            
+            const quantity = Math.floor(Math.random() * (itemData.maxRoll - itemData.minRoll + 1)) + itemData.minRoll;
+            
+            // Check if we already have this item in rewards
+            const existingReward = rewards.find(r => r.itemId === itemData.itemId);
+            if (existingReward) {
+                existingReward.quantity += quantity;
+            } else {
+                rewards.push({
+                    itemId: itemData.itemId,
+                    quantity: quantity
+                });
+            }
+        }
+        
+        return rewards;
+    }
+    
+    // Show casket rewards in modal
+    showCasketRewards(tier, rewards) {
+        const modal = document.getElementById('casket-rewards-modal');
+        const header = document.getElementById('casket-header');
+        const grid = document.getElementById('casket-rewards-grid');
+        const claimBtn = document.getElementById('casket-claim-btn');
+        
+        if (!modal || !header || !grid) return;
+        
+        // Clear previous content
+        header.innerHTML = '';
+        grid.innerHTML = '';
+        
+        // Create header
+        const casketCount = this.completedClues[tier] || 1;
+        const tierName = tier.charAt(0).toUpperCase() + tier.slice(1);
+        
+        header.innerHTML = `
+            <span class="casket-header-number">${casketCount}</span>
+            <img class="casket-header-icon" src="assets/items/${tier}_casket.png" alt="${tierName} Casket">
+            <span class="casket-header-text">${tierName} Casket Rewards!</span>
+        `;
+        
+        // Create reward slots with staggered animation
+        rewards.forEach((reward, index) => {
+            const itemData = loadingManager.getData('items')[reward.itemId];
+            if (!itemData) return;
+            
+            const slot = document.createElement('div');
+            slot.className = 'casket-reward-slot';
+            
+            // Add staggered animation
+            setTimeout(() => {
+                slot.classList.add('highlight');
+            }, index * 200);
+            
+            const icon = document.createElement('img');
+            icon.className = 'casket-reward-icon';
+            icon.src = `assets/items/${reward.itemId}.png`;
+            icon.alt = itemData.name;
+            
+            const quantity = document.createElement('div');
+            quantity.className = 'casket-reward-quantity';
+            quantity.textContent = formatNumber(reward.quantity);
+            
+            slot.appendChild(icon);
+            slot.appendChild(quantity);
+            slot.title = `${itemData.name} x${formatNumber(reward.quantity)}`;
+            
+            grid.appendChild(slot);
+        });
+        
+        // Show modal
+        modal.style.display = 'flex';
+        
+        // Claim button is already wired up in setupModalButtons
+        claimBtn.disabled = false;
+    }
+
     // Destroy a clue
 destroyClue(tier) {
     const clueData = this.clues[tier];
