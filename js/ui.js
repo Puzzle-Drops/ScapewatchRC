@@ -108,6 +108,92 @@ class UIManager {
         this.updateBank();
     }
 
+    // ==================== PET NOTIFICATION MANAGER ====================
+
+class PetNotificationManager {
+    constructor() {
+        this.container = null;
+        this.activePets = [];
+        this.initialize();
+    }
+    
+    initialize() {
+        // Create container if it doesn't exist
+        this.container = document.getElementById('floating-pet-notifications');
+        if (!this.container) {
+            this.container = document.createElement('div');
+            this.container.id = 'floating-pet-notifications';
+            this.container.className = 'floating-pet-notifications';
+            
+            const gameContainer = document.getElementById('game-container');
+            if (gameContainer) {
+                gameContainer.appendChild(this.container);
+            }
+        }
+    }
+    
+    showPetNotification(skillId, petType) {
+        // Create pet notification element
+        const petDiv = document.createElement('div');
+        petDiv.className = 'floating-pet-item';
+        petDiv.classList.add(petType === 'shiny' ? 'pet-shiny' : 'pet-regular');
+        
+        // Add click handler to open skill customization
+        petDiv.addEventListener('click', () => {
+            // Dismiss this notification
+            this.dismissPet(petDiv, skillId);
+            
+            // Open skill customization for this skill
+            if (window.skillCustomizationUI) {
+                skillCustomizationUI.open(skillId);
+            }
+        });
+        
+        // Create pet image
+        const img = document.createElement('img');
+        img.src = `assets/pets/${skillId}_pet${petType === 'shiny' ? '(s)' : ''}.png`;
+        img.alt = `${skillId} pet`;
+        petDiv.appendChild(img);
+        
+        // Create tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'floating-pet-tooltip';
+        
+        const skillsData = loadingManager.getData('skills');
+        const skillName = skillsData[skillId] ? skillsData[skillId].name : skillId;
+        const petName = petType === 'shiny' ? `Shiny ${skillName} Pet` : `${skillName} Pet`;
+        
+        tooltip.innerHTML = `
+            <div class="floating-pet-tooltip-title">${petName} Obtained!</div>
+            <div>Click to view in Skill Customization</div>
+        `;
+        
+        petDiv.appendChild(tooltip);
+        
+        // Add to container
+        this.container.appendChild(petDiv);
+        
+        // Track active pet
+        this.activePets.push({ element: petDiv, skillId, petType });
+    }
+    
+    dismissPet(petElement, skillId) {
+        // Remove from DOM with fade animation
+        petElement.style.opacity = '0';
+        setTimeout(() => {
+            if (petElement.parentNode) {
+                petElement.parentNode.removeChild(petElement);
+            }
+        }, 300);
+        
+        // Remove from tracking
+        this.activePets = this.activePets.filter(p => p.element !== petElement);
+    }
+}
+
+// Create global instance
+window.petNotificationManager = new PetNotificationManager();
+
     // ==================== MINIMIZE/MAXIMIZE FUNCTIONALITY ====================
 
     toggleMinimize() {
