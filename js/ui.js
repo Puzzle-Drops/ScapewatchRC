@@ -1220,9 +1220,29 @@ if (!isFloating && window.clueManager) {
             const rerollBtn = document.createElement('button');
             rerollBtn.className = 'task-reroll';
             rerollBtn.textContent = '↻';
-            rerollBtn.title = 'Reroll task';
+            
+            // Check if enough RuneCred
+            const hasEnoughCred = window.runeCreditManager && runeCreditManager.runeCred >= 1;
+            if (!hasEnoughCred) {
+                rerollBtn.classList.add('disabled');
+                rerollBtn.disabled = true;
+            }
+            
+            // Create tooltip for reroll button
+            const rerollTooltip = document.createElement('div');
+            rerollTooltip.className = 'reroll-tooltip';
+            const currentRuneCred = window.runeCreditManager ? runeCreditManager.runeCred : 0;
+            rerollTooltip.innerHTML = `
+                <div class="reroll-tooltip-header">Reroll All Options</div>
+                <div class="reroll-tooltip-cost">Cost: 1 Rune Cred</div>
+                <div class="reroll-tooltip-balance ${hasEnoughCred ? '' : 'insufficient'}">
+                    You have: ${currentRuneCred} Rune Cred
+                </div>
+            `;
+            rerollBtn.appendChild(rerollTooltip);
+            
             rerollBtn.addEventListener('click', () => {
-                if (window.taskManager) {
+                if (window.taskManager && hasEnoughCred) {
                     taskManager.rerollTask(rerollIndex);
                 }
             });
@@ -1372,12 +1392,30 @@ createSelectableTaskElement(taskSlot, slotIndex) {
     const rerollDiv = document.createElement('div');
     rerollDiv.className = 'task-icon-option reroll-option';
     rerollDiv.innerHTML = '↻';
-    rerollDiv.title = 'Reroll other options';
+    
+    // Check if enough RuneCred
+    const hasEnoughCred = window.runeCreditManager && runeCreditManager.runeCred >= 1;
+    if (!hasEnoughCred) {
+        rerollDiv.classList.add('disabled');
+    }
+    
+    // Create tooltip for smart reroll
+    const rerollTooltip = document.createElement('div');
+    rerollTooltip.className = 'reroll-tooltip small-reroll-tooltip';
+    const currentRuneCred = window.runeCreditManager ? runeCreditManager.runeCred : 0;
+    rerollTooltip.innerHTML = `
+        <div class="reroll-tooltip-header">Reroll Other Options</div>
+        <div class="reroll-tooltip-cost">Cost: 1 Rune Cred</div>
+        <div class="reroll-tooltip-balance ${hasEnoughCred ? '' : 'insufficient'}">
+            You have: ${currentRuneCred} Rune Cred
+        </div>
+    `;
+    rerollDiv.appendChild(rerollTooltip);
     
     // Add click handler for smart reroll (only reroll non-selected)
     rerollDiv.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (window.taskManager) {
+        if (window.taskManager && hasEnoughCred) {
             taskManager.rerollNonSelectedOptions(slotIndex);
         }
     });
