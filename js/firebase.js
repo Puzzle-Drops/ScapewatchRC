@@ -67,7 +67,7 @@ class FirebaseManager {
         this.lastTokenRefresh = 0;
         this.TOKEN_REFRESH_INTERVAL = 30 * 60 * 1000; // Refresh token every 30 minutes
         
-        // New property for task storage management
+        // Task storage limit - only save most recent 500 tasks to Firebase
         this.MAX_FIREBASE_TASKS = 500; // Maximum tasks to store in Firebase
     }
 
@@ -130,88 +130,6 @@ class FirebaseManager {
             console.error('Auth state listener error:', error);
             this.handleConnectionError(error);
         });
-    }
-
-    // Get local storage key for current user's completed tasks
-    getLocalTasksKey() {
-        if (!this.currentUser) return null;
-        return `completedTasks_${this.currentUser.uid}`;
-    }
-
-    // Save all completed tasks to localStorage
-    saveCompletedTasksLocally() {
-        if (!this.currentUser || !window.taskManager) return;
-        
-        const key = this.getLocalTasksKey();
-        if (!key) return;
-        
-        try {
-            // Save ALL completed tasks to localStorage
-            localStorage.setItem(key, JSON.stringify(taskManager.completedTasks));
-            console.log(`Saved ${taskManager.completedTasks.length} completed tasks locally`);
-        } catch (error) {
-            console.error('Failed to save tasks locally:', error);
-            // If localStorage is full, we could implement cleanup here
-            if (error.name === 'QuotaExceededError') {
-                console.warn('localStorage quota exceeded, consider clearing old data');
-            }
-        }
-    }
-
-    // Load completed tasks from localStorage
-    loadCompletedTasksLocally() {
-        if (!this.currentUser) return [];
-        
-        const key = this.getLocalTasksKey();
-        if (!key) return [];
-        
-        try {
-            const stored = localStorage.getItem(key);
-            if (stored) {
-                const tasks = JSON.parse(stored);
-                console.log(`Loaded ${tasks.length} completed tasks from local storage`);
-                return tasks;
-            }
-        } catch (error) {
-            console.error('Failed to load local tasks:', error);
-        }
-        
-        return [];
-    }
-
-    // Merge local and Firebase completed tasks, removing duplicates
-    mergeCompletedTasks(localTasks, firebaseTasks) {
-        // Create a map to deduplicate tasks based on task number
-        const taskMap = new Map();
-        
-        // Add all Firebase tasks (these are the most recent 500)
-        firebaseTasks.forEach(task => {
-            // Use task number as unique key if available, otherwise create a composite key
-            const key = task.taskNumber || `${task.skill}_${task.nodeId}_${task.activityId}_${task.timestamp || ''}`;
-            taskMap.set(key, task);
-        });
-        
-        // Add local tasks that aren't already in the map
-        localTasks.forEach(task => {
-            const key = task.taskNumber || `${task.skill}_${task.nodeId}_${task.activityId}_${task.timestamp || ''}`;
-            if (!taskMap.has(key)) {
-                taskMap.set(key, task);
-            }
-        });
-        
-        // Convert back to array
-        const merged = Array.from(taskMap.values());
-        
-        // Sort by task number if available, otherwise by timestamp
-        merged.sort((a, b) => {
-            if (a.taskNumber && b.taskNumber) {
-                return a.taskNumber - b.taskNumber;
-            }
-            return (a.timestamp || 0) - (b.timestamp || 0);
-        });
-        
-        console.log(`Merged tasks: ${localTasks.length} local + ${firebaseTasks.length} Firebase = ${merged.length} total (${taskMap.size} unique)`);
-        return merged;
     }
 
     // Start token refresh timer
@@ -660,9 +578,6 @@ class FirebaseManager {
     handleForcedLogout() {
         // Save game state before forced logout
         if (!this.isOfflineMode) {
-            // Save completed tasks locally first
-            this.saveCompletedTasksLocally();
-            
             // Ensure task queue is complete before saving
             if (window.taskManager) {
                 taskManager.ensureFullTaskQueue();
@@ -752,9 +667,6 @@ class FirebaseManager {
 
     // Logout
     async logout() {
-        // Save completed tasks locally first
-        this.saveCompletedTasksLocally();
-        
         // Ensure tasks are fully populated, then save and update hi-scores
         if (!this.isOfflineMode) {
             // Ensure task queue is complete before saving
@@ -819,12 +731,20 @@ class FirebaseManager {
             taskManager.updateAllProgress();
         }
         
-        // Get only the most recent tasks for Firebase
+        // Get only the most recent tasks for Firebase (maintain task numbering)
         let recentCompletedTasks = [];
         if (window.taskManager && taskManager.completedTasks) {
             // Take only the most recent MAX_FIREBASE_TASKS
+            // These tasks keep their original task numbers
             recentCompletedTasks = taskManager.completedTasks.slice(-this.MAX_FIREBASE_TASKS);
-            console.log(`Preparing ${recentCompletedTasks.length} of ${taskManager.completedTasks.length} tasks for Firebase`);
+            
+            // If we have tasks, verify the first task in our saved list has the correct number
+            if (recentCompletedTasks.length > 0 && taskManager.completedTasks.length > this.MAX_FIREBASE_TASKS) {
+                const firstSavedTaskIndex = taskManager.completedTasks.length - recentCompletedTasks.length;
+                console.log(`Saving tasks ${firstSavedTaskIndex + 1} to ${taskManager.completedTasks.length} (${recentCompletedTasks.length} tasks) to Firebase`);
+            } else {
+                console.log(`Saving all ${recentCompletedTasks.length} tasks to Firebase`);
+            }
         }
         
         const saveData = {
@@ -860,12 +780,15 @@ class FirebaseManager {
             // Shop
             shop: window.shop ? shop.getState() : null,
             
-            // Task system - now with limited completed tasks
+            // Task system - now with limited completed tasks but preserved total count
             tasks: {
                 current: taskManager.currentTask,
                 next: taskManager.nextTask,
                 queue: taskManager.tasks,
-                completed: recentCompletedTasks // Only the most recent 500
+                completed: recentCompletedTasks, // Only the most recent 500
+                // CRITICAL: This tracks the TRUE total number of tasks completed
+                // Used to maintain accurate task numbering even when we only save 500
+                totalCompleted: window.runeCreditManager ? runeCreditManager.totalTasksCompleted : taskManager.completedTasks.length
             },
             
             // Clue system
@@ -890,7 +813,7 @@ class FirebaseManager {
                 skillCredits: runeCreditManager.skillCredits,
                 skillCredSpent: runeCreditManager.skillCredSpent,
                 runeCred: runeCreditManager.runeCred,
-                totalTasksCompleted: runeCreditManager.totalTasksCompleted,
+                totalTasksCompleted: runeCreditManager.totalTasksCompleted, // This tracks the real total
                 tasksPerSkill: runeCreditManager.tasksPerSkill,
                 creditsSpentPerSkill: runeCreditManager.creditsSpentPerSkill,
                 skillModLevels: runeCreditManager.skillModLevels,
@@ -919,9 +842,6 @@ class FirebaseManager {
         }
         
         try {
-            // Save ALL completed tasks locally first
-            this.saveCompletedTasksLocally();
-            
             // Collect save data (includes only recent 500 tasks)
             const saveData = this.collectSaveData();
             
@@ -1190,21 +1110,43 @@ class FirebaseManager {
             console.log('Shop state loaded');
         }
 
-        // Load tasks with merged completed tasks
+        // Load tasks with proper numbering
         if (saveData.tasks) {
             taskManager.currentTask = saveData.tasks.current;
             taskManager.nextTask = saveData.tasks.next;
             taskManager.tasks = saveData.tasks.queue || [];
             
-            // Load local completed tasks
-            const localTasks = this.loadCompletedTasksLocally();
-            const firebaseTasks = saveData.tasks.completed || [];
+            // Load the completed tasks (up to 500 most recent)
+            taskManager.completedTasks = saveData.tasks.completed || [];
             
-            // Merge local and Firebase tasks
-            taskManager.completedTasks = this.mergeCompletedTasks(localTasks, firebaseTasks);
+            // IMPORTANT: If we have a totalCompleted count that's higher than our loaded tasks,
+            // it means we have more historical tasks that aren't saved
+            const totalCompleted = saveData.tasks.totalCompleted || 
+                                  (window.runeCreditManager ? runeCreditManager.totalTasksCompleted : 0) ||
+                                  taskManager.completedTasks.length;
             
-            // Save the merged list locally to ensure we have the complete history
-            this.saveCompletedTasksLocally();
+            // If we've done more tasks than we have saved, we know these are the most recent ones
+            if (totalCompleted > taskManager.completedTasks.length && taskManager.completedTasks.length > 0) {
+                console.log(`Loaded ${taskManager.completedTasks.length} recent tasks out of ${totalCompleted} total completed`);
+                
+                // Ensure task numbers are correct for the loaded tasks
+                // These are the LAST 500 tasks, so their numbers should be from (total - 500 + 1) to total
+                const firstTaskNumber = totalCompleted - taskManager.completedTasks.length + 1;
+                
+                taskManager.completedTasks.forEach((task, index) => {
+                    // Only update if task doesn't have a number or if it's clearly wrong
+                    if (!task.taskNumber) {
+                        task.taskNumber = firstTaskNumber + index;
+                    }
+                });
+            } else if (taskManager.completedTasks.length > 0) {
+                // We have all tasks saved, ensure they're numbered
+                taskManager.completedTasks.forEach((task, index) => {
+                    if (!task.taskNumber) {
+                        task.taskNumber = index + 1;
+                    }
+                });
+            }
             
             // CRITICAL: Ensure we have a full task queue
             console.log('Validating task queue after load...');
@@ -1310,9 +1252,6 @@ class FirebaseManager {
         if (this.isOfflineMode || !this.currentUser) return;
 
         try {
-            // Save ALL completed tasks locally first
-            this.saveCompletedTasksLocally();
-            
             // Collect save data (includes only recent 500 tasks)
             const saveData = this.collectSaveData();
             
