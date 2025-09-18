@@ -144,6 +144,25 @@ onTaskComplete(task) {
     // Return pet info if obtained
     return petObtained;
 }
+
+    // Spend RuneCred for task rerolling
+    spendRuneCred(amount) {
+        if (this.runeCred < amount) {
+            return false; // Not enough RuneCred
+        }
+        
+        this.runeCred -= amount;
+        this.saveData();
+        
+        console.log(`Spent ${amount} Rune Cred (now ${this.runeCred})`);
+        
+        // Update UI if skill customization is open
+        if (window.skillCustomizationUI && window.skillCustomizationUI.isOpen) {
+            window.skillCustomizationUI.updateCredits();
+        }
+        
+        return true;
+    }
     
     // Roll for pet drop when completing a task
 rollForPet(skillId) {
