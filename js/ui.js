@@ -688,124 +688,127 @@ createClueTooltip(tier, clueData, isComplete) {
     }
     
     // Update only task progress bars (not full task rebuild)
-    updateTaskProgressBarsOnly() {
-        // Update floating current task's level progress bar
-        this.updateFloatingTaskLevelProgress();
-        
-        // Update panel current task if visible
-        if (this.currentPanel === 'tasks' && !this.minimized) {
-            const tasksList = document.getElementById('tasks-list');
-            if (!tasksList || !window.taskManager) return;
+updateTaskProgressBarsOnly() {
+    // Update floating current task's level progress bar
+    this.updateFloatingTaskLevelProgress();
+    
+    // Update floating current task's TASK progress bar too!
+    const floatingContainer = document.getElementById('floating-current-task');
+    if (floatingContainer && window.taskManager && taskManager.currentTask) {
+        const floatingTaskBar = floatingContainer.querySelector('.task-progress-bar');
+        if (floatingTaskBar) {
+            const floatingTaskFill = floatingTaskBar.querySelector('.task-progress-fill');
+            const floatingTaskText = floatingTaskBar.querySelector('.progress-bar-text');
             
-            // Find current task element
-            const currentTaskSection = tasksList.querySelector('.task-section');
-            if (currentTaskSection && taskManager.currentTask) {
-                const progressFill = currentTaskSection.querySelector('.task-progress-fill');
-                const progressText = currentTaskSection.querySelector('.progress-bar-text');
+            if (floatingTaskFill) {
+                floatingTaskFill.style.width = `${taskManager.currentTask.progress * 100}%`;
+            }
+            
+            if (floatingTaskText) {
+                const current = Math.floor(taskManager.currentTask.progress * taskManager.currentTask.targetCount);
+                const percentage = (taskManager.currentTask.progress * 100).toFixed(2);
                 
-                if (progressFill) {
-                    progressFill.style.width = `${taskManager.currentTask.progress * 100}%`;
-                }
-                
-                if (progressText) {
-                    const current = Math.floor(taskManager.currentTask.progress * taskManager.currentTask.targetCount);
-                    const percentage = (taskManager.currentTask.progress * 100).toFixed(2);
-                    
-                    progressText.innerHTML = `
-                        <span class="progress-text-left">${current}</span>
-                        <span class="progress-text-center">${percentage}%</span>
-                        <span class="progress-text-right">${taskManager.currentTask.targetCount}</span>
-                    `;
-                }
+                floatingTaskText.innerHTML = `
+                    <span class="progress-text-left">${current}</span>
+                    <span class="progress-text-center">${percentage}%</span>
+                    <span class="progress-text-right">${taskManager.currentTask.targetCount}</span>
+                `;
             }
         }
     }
     
-    // Update floating task's level progress bar only
-updateFloatingTaskLevelProgress() {
-    const floatingContainer = document.getElementById('floating-current-task');
-    if (!floatingContainer || !window.taskManager || !taskManager.currentTask) return;
-    
-    // FIRST: Update the task progress bar (NEW CODE)
-    const taskBar = floatingContainer.querySelector('.task-progress-bar');
-    if (taskBar) {
-        const taskFill = taskBar.querySelector('.task-progress-fill');
-        const taskText = taskBar.querySelector('.progress-bar-text');
+    // Update panel current task if visible
+    if (this.currentPanel === 'tasks' && !this.minimized) {
+        const tasksList = document.getElementById('tasks-list');
+        if (!tasksList || !window.taskManager) return;
         
-        if (taskFill) {
-            taskFill.style.width = `${taskManager.currentTask.progress * 100}%`;
+        // Find current task element
+        const currentTaskSection = tasksList.querySelector('.task-section');
+        if (currentTaskSection && taskManager.currentTask) {
+            const progressFill = currentTaskSection.querySelector('.task-progress-fill');
+            const progressText = currentTaskSection.querySelector('.progress-bar-text');
+            
+            if (progressFill) {
+                progressFill.style.width = `${taskManager.currentTask.progress * 100}%`;
+            }
+            
+            if (progressText) {
+                const current = Math.floor(taskManager.currentTask.progress * taskManager.currentTask.targetCount);
+                const percentage = (taskManager.currentTask.progress * 100).toFixed(2);
+                
+                progressText.innerHTML = `
+                    <span class="progress-text-left">${current}</span>
+                    <span class="progress-text-center">${percentage}%</span>
+                    <span class="progress-text-right">${taskManager.currentTask.targetCount}</span>
+                `;
+            }
+        }
+    }
+}
+    
+    // Update floating task's level progress bar only
+    updateFloatingTaskLevelProgress() {
+        const floatingContainer = document.getElementById('floating-current-task');
+        if (!floatingContainer || !window.taskManager || !taskManager.currentTask) return;
+        
+        // Find the level progress bar in floating task
+        const levelBar = floatingContainer.querySelector('.level-progress-bar');
+        if (!levelBar) return;
+        
+        const allSkills = skills.getAllSkills();
+        const skillData = allSkills[taskManager.currentTask.skill];
+        if (!skillData) return;
+        
+        // Calculate level progress
+        const currentLevel = skillData.level;
+        let levelProgress = 0;
+        let leftLabel = '';
+        let rightLabel = '';
+        
+        if (currentLevel < 99) {
+            const nextLevel = currentLevel + 1;
+            const currentLevelXp = getXpForLevel(currentLevel);
+            const nextLevelXp = getXpForLevel(nextLevel);
+            const xpIntoLevel = skillData.xp - currentLevelXp;
+            const xpNeeded = nextLevelXp - currentLevelXp;
+            levelProgress = (xpIntoLevel / xpNeeded) * 100;
+            leftLabel = `Lv ${currentLevel}`;
+            rightLabel = `Lv ${nextLevel}`;
+        } else if (skillData.xp < 50000000) {
+            const level99Xp = 13034431;
+            const targetXp = 50000000;
+            const xpProgress = skillData.xp - level99Xp;
+            const xpNeeded = targetXp - level99Xp;
+            levelProgress = (xpProgress / xpNeeded) * 100;
+            leftLabel = 'Lv 99';
+            rightLabel = '50M';
+        } else {
+            const startXp = 50000000;
+            const targetXp = 200000000;
+            const xpProgress = skillData.xp - startXp;
+            const xpNeeded = targetXp - startXp;
+            levelProgress = Math.min((xpProgress / xpNeeded) * 100, 100);
+            leftLabel = '50M';
+            rightLabel = '200M';
         }
         
-        if (taskText) {
-            const current = Math.floor(taskManager.currentTask.progress * taskManager.currentTask.targetCount);
-            const percentage = (taskManager.currentTask.progress * 100).toFixed(2);
-            
-            taskText.innerHTML = `
-                <span class="progress-text-left">${current}</span>
-                <span class="progress-text-center">${percentage}%</span>
-                <span class="progress-text-right">${taskManager.currentTask.targetCount}</span>
+        // Update the fill
+        const levelFill = levelBar.querySelector('.level-progress-fill');
+        if (levelFill) {
+            levelFill.style.width = `${levelProgress}%`;
+        }
+        
+        // Update the text
+        const levelText = levelBar.querySelector('.progress-bar-text');
+        if (levelText) {
+            const levelPercentage = levelProgress.toFixed(2);
+            levelText.innerHTML = `
+                <span class="progress-text-left">${leftLabel}</span>
+                <span class="progress-text-center">${levelPercentage}%</span>
+                <span class="progress-text-right">${rightLabel}</span>
             `;
         }
     }
-    
-    // SECOND: Update the level progress bar (EXISTING CODE)
-    const levelBar = floatingContainer.querySelector('.level-progress-bar');
-    if (!levelBar) return;
-    
-    const allSkills = skills.getAllSkills();
-    const skillData = allSkills[taskManager.currentTask.skill];
-    if (!skillData) return;
-    
-    // Calculate level progress
-    const currentLevel = skillData.level;
-    let levelProgress = 0;
-    let leftLabel = '';
-    let rightLabel = '';
-    
-    if (currentLevel < 99) {
-        const nextLevel = currentLevel + 1;
-        const currentLevelXp = getXpForLevel(currentLevel);
-        const nextLevelXp = getXpForLevel(nextLevel);
-        const xpIntoLevel = skillData.xp - currentLevelXp;
-        const xpNeeded = nextLevelXp - currentLevelXp;
-        levelProgress = (xpIntoLevel / xpNeeded) * 100;
-        leftLabel = `Lv ${currentLevel}`;
-        rightLabel = `Lv ${nextLevel}`;
-    } else if (skillData.xp < 50000000) {
-        const level99Xp = 13034431;
-        const targetXp = 50000000;
-        const xpProgress = skillData.xp - level99Xp;
-        const xpNeeded = targetXp - level99Xp;
-        levelProgress = (xpProgress / xpNeeded) * 100;
-        leftLabel = 'Lv 99';
-        rightLabel = '50M';
-    } else {
-        const startXp = 50000000;
-        const targetXp = 200000000;
-        const xpProgress = skillData.xp - startXp;
-        const xpNeeded = targetXp - startXp;
-        levelProgress = Math.min((xpProgress / xpNeeded) * 100, 100);
-        leftLabel = '50M';
-        rightLabel = '200M';
-    }
-    
-    // Update the fill
-    const levelFill = levelBar.querySelector('.level-progress-fill');
-    if (levelFill) {
-        levelFill.style.width = `${levelProgress}%`;
-    }
-    
-    // Update the text
-    const levelText = levelBar.querySelector('.progress-bar-text');
-    if (levelText) {
-        const levelPercentage = levelProgress.toFixed(2);
-        levelText.innerHTML = `
-            <span class="progress-text-left">${leftLabel}</span>
-            <span class="progress-text-center">${levelPercentage}%</span>
-            <span class="progress-text-right">${rightLabel}</span>
-        `;
-    }
-}
 
     // Update total level display and tooltip
     updateTotalLevelDisplay() {
