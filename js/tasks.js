@@ -432,7 +432,13 @@ async completeTask(task) {
     rerollNonSelectedOptions(index) {
         if (index < 0 || index >= this.tasks.length) {
             console.error('Invalid task index');
-            return;
+            return false;
+        }
+
+        // Check and spend RuneCred
+        if (!window.runeCreditManager || !runeCreditManager.spendRuneCred(1)) {
+            console.log('Insufficient Rune Cred for reroll');
+            return false;
         }
 
         const taskSlot = this.tasks[index];
@@ -461,8 +467,11 @@ async completeTask(task) {
             if (window.ui) {
                 window.ui.updateTasks();
             }
+            
+            return true;
         } else {
             console.error('Failed to generate replacement task options');
+            return false;
         }
     }
 
@@ -470,7 +479,13 @@ async completeTask(task) {
     rerollTask(index) {
         if (index < 0 || index >= this.tasks.length) {
             console.error('Invalid task index');
-            return;
+            return false;
+        }
+
+        // Check and spend RuneCred
+        if (!window.runeCreditManager || !runeCreditManager.spendRuneCred(1)) {
+            console.log('Insufficient Rune Cred for reroll');
+            return false;
         }
 
         const oldTaskSlot = this.tasks[index];
@@ -495,10 +510,13 @@ async completeTask(task) {
             if (window.ui) {
                 window.ui.updateTasks();
             }
+            
+            return true;
         } else {
             console.error('Failed to generate replacement tasks');
             // Try to maintain full queue even if reroll failed
             this.ensureFullTaskQueue();
+            return false;
         }
     }
 
