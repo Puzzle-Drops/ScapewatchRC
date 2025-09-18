@@ -1,863 +1,107 @@
-// Import Firebase modules from CDN
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { 
-    getAuth, 
-    onAuthStateChanged, 
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    sendPasswordResetEmail,
-    signOut
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { 
-    getFirestore, 
-    doc, 
-    setDoc, 
-    getDoc, 
-    updateDoc, 
-    collection,
-    query,
-    where,
-    orderBy,
-    limit,
-    getDocs,
-    onSnapshot,
-    serverTimestamp,
-    startAfter,
-    endBefore,
-    getCountFromServer
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+// In firebase.js, add these methods to handle local task storage:
 
-// Export Firestore functions for use in other modules
-window.firestoreHelpers = {
-    query,
-    collection,
-    where,
-    orderBy,
-    limit,
-    getDocs,
-    getDoc,
-    doc,
-    startAfter,
-    endBefore,
-    getCountFromServer
-};
+// Add these properties to the FirebaseManager constructor:
+constructor() {
+    // ... existing properties ...
+    this.MAX_FIREBASE_TASKS = 500; // Maximum tasks to store in Firebase
+    this.localTasksKey = null; // Will be set to 'completedTasks_[uid]' when user logs in
+}
 
-class FirebaseManager {
-    constructor() {
-        this.app = null;
-        this.auth = null;
-        this.db = null;
-        this.currentUser = null;
-        this.username = null;
-        this.isOfflineMode = false;
-        this.saveTimer = null;
-        this.lastSaveTime = 0;
-        this.saveDebounceTimer = null;
-        this.sessionId = null;
-        this.sessionListener = null;
-        this.SAVE_INTERVAL = 10 * 60 * 1000; // 10 minutes in milliseconds
-        
-        // New properties for connection management
-        this.connectionRetryCount = 0;
-        this.maxRetries = 3;
-        this.retryDelay = 5000; // Start with 5 seconds
-        this.maxRetryDelay = 60000; // Max 60 seconds
-        this.connectionHealthy = true;
-        this.tokenRefreshTimer = null;
-        this.lastTokenRefresh = 0;
-        this.TOKEN_REFRESH_INTERVAL = 30 * 60 * 1000; // Refresh token every 30 minutes
+// Add method to get local storage key for current user
+getLocalTasksKey() {
+    if (!this.currentUser) return null;
+    return `completedTasks_${this.currentUser.uid}`;
+}
+
+// Add method to save completed tasks locally
+saveCompletedTasksLocally() {
+    if (!this.currentUser || !window.taskManager) return;
+    
+    const key = this.getLocalTasksKey();
+    if (!key) return;
+    
+    try {
+        // Save ALL completed tasks to localStorage
+        localStorage.setItem(key, JSON.stringify(taskManager.completedTasks));
+        console.log(`Saved ${taskManager.completedTasks.length} completed tasks locally`);
+    } catch (error) {
+        console.error('Failed to save tasks locally:', error);
+        // If localStorage is full, we could implement cleanup here
     }
+}
 
-    SENTINEL_DATE = new Date('2099-12-31T23:59:59Z');
-
-    // Initialize Firebase with your config
-    initialize() {
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDNTjUANEOUzcx13IhqZAT-grfMNPL8ia8",
-            authDomain: "scapewatch-f2d9d.firebaseapp.com",
-            projectId: "scapewatch-f2d9d",
-            storageBucket: "scapewatch-f2d9d.firebasestorage.app",
-            messagingSenderId: "631909394106",
-            appId: "1:631909394106:web:86cf7b0a7d97675216c483",
-            measurementId: "G-HJFKPL6N2B"
-        };
-
-        // Initialize Firebase
-        this.app = initializeApp(firebaseConfig);
-        this.auth = getAuth(this.app);
-        this.db = getFirestore(this.app);
-
-        // Restore session ID from localStorage if it exists
-        this.sessionId = localStorage.getItem('scapewatch_session_id');
-
-        // Set up auth state listener with error handling
-        onAuthStateChanged(this.auth, async (user) => {
-            try {
-                if (user) {
-                    this.currentUser = user;
-                    await this.loadUsername();
-                    console.log('User logged in:', this.username);
-                    
-                    // Reset connection state
-                    this.connectionHealthy = true;
-                    this.connectionRetryCount = 0;
-                    
-                    // Validate session if we have a stored sessionId
-                    if (this.sessionId) {
-                        await this.validateSession();
-                    }
-                    
-                    // Start token refresh timer
-                    this.startTokenRefreshTimer();
-                } else {
-                    this.currentUser = null;
-                    this.username = null;
-                    this.sessionId = null;
-                    localStorage.removeItem('scapewatch_session_id');
-                    
-                    // Clean up timers and listeners
-                    this.cleanup();
-                }
-            } catch (error) {
-                console.error('Error in auth state change handler:', error);
-                this.handleConnectionError(error);
-            }
-        }, (error) => {
-            console.error('Auth state listener error:', error);
-            this.handleConnectionError(error);
-        });
-    }
-
-    // Start token refresh timer
-    startTokenRefreshTimer() {
-        // Clear existing timer
-        if (this.tokenRefreshTimer) {
-            clearInterval(this.tokenRefreshTimer);
+// Add method to load completed tasks from local storage
+loadCompletedTasksLocally() {
+    if (!this.currentUser) return [];
+    
+    const key = this.getLocalTasksKey();
+    if (!key) return [];
+    
+    try {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+            const tasks = JSON.parse(stored);
+            console.log(`Loaded ${tasks.length} completed tasks from local storage`);
+            return tasks;
         }
-        
-        // Set up periodic token refresh
-        this.tokenRefreshTimer = setInterval(async () => {
-            await this.refreshAuthToken();
-        }, this.TOKEN_REFRESH_INTERVAL);
-        
-        // Also refresh immediately if it's been a while
-        const timeSinceLastRefresh = Date.now() - this.lastTokenRefresh;
-        if (timeSinceLastRefresh > this.TOKEN_REFRESH_INTERVAL) {
-            this.refreshAuthToken();
-        }
-    }
-
-    // Refresh authentication token
-    async refreshAuthToken() {
-        if (!this.currentUser || this.isOfflineMode) return;
-        
-        try {
-            console.log('Refreshing authentication token...');
-            // Force token refresh
-            await this.currentUser.getIdToken(true);
-            this.lastTokenRefresh = Date.now();
-            this.connectionHealthy = true;
-            this.connectionRetryCount = 0;
-            console.log('Token refreshed successfully');
-        } catch (error) {
-            console.error('Failed to refresh token:', error);
-            this.handleConnectionError(error);
-        }
-    }
-
-    // Handle connection errors
-    handleConnectionError(error) {
-        console.error('Connection error detected:', error);
-        
-        this.connectionHealthy = false;
-        this.connectionRetryCount++;
-        
-        // Check if we've exceeded max retries
-        if (this.connectionRetryCount >= this.maxRetries) {
-            console.error('Max connection retries exceeded, entering offline mode');
-            this.enterTemporaryOfflineMode();
-            return;
-        }
-        
-        // Calculate exponential backoff
-        const delay = Math.min(
-            this.retryDelay * Math.pow(2, this.connectionRetryCount - 1),
-            this.maxRetryDelay
-        );
-        
-        console.log(`Retrying connection in ${delay / 1000} seconds (attempt ${this.connectionRetryCount}/${this.maxRetries})`);
-        
-        // Schedule retry
-        setTimeout(async () => {
-            if (this.currentUser) {
-                try {
-                    await this.refreshAuthToken();
-                    // If successful, restart session monitoring
-                    if (this.connectionHealthy) {
-                        this.restartSessionMonitoring();
-                    }
-                } catch (retryError) {
-                    console.error('Retry failed:', retryError);
-                    this.handleConnectionError(retryError);
-                }
-            }
-        }, delay);
-    }
-
-    // Enter temporary offline mode
-    enterTemporaryOfflineMode() {
-        console.warn('Entering temporary offline mode due to connection issues');
-        
-        // Clean up listeners
-        this.cleanup();
-        
-        // Try to reconnect after a longer delay
-        setTimeout(async () => {
-            console.log('Attempting to reconnect...');
-            if (this.currentUser) {
-                this.connectionRetryCount = 0; // Reset retry count
-                try {
-                    await this.refreshAuthToken();
-                    if (this.connectionHealthy) {
-                        console.log('Reconnection successful');
-                        await this.validateSession();
-                    }
-                } catch (error) {
-                    console.error('Reconnection failed:', error);
-                    // Try again later
-                    this.enterTemporaryOfflineMode();
-                }
-            }
-        }, 5 * 60 * 1000); // Try again in 5 minutes
-    }
-
-    // Restart session monitoring after connection recovery
-    restartSessionMonitoring() {
-        console.log('Restarting session monitoring...');
-        
-        // Clean up old listener first
-        if (this.sessionListener) {
-            this.sessionListener();
-            this.sessionListener = null;
-        }
-        
-        // Restart monitoring
-        this.startSessionMonitoring();
-    }
-
-    // Clean up listeners and timers
-    cleanup() {
-        // Stop session listener
-        if (this.sessionListener) {
-            this.sessionListener();
-            this.sessionListener = null;
-        }
-        
-        // Stop activity timer
-        if (this.activityTimer) {
-            clearInterval(this.activityTimer);
-            this.activityTimer = null;
-        }
-        
-        // Stop token refresh timer
-        if (this.tokenRefreshTimer) {
-            clearInterval(this.tokenRefreshTimer);
-            this.tokenRefreshTimer = null;
-        }
-        
-        // Stop auto-save timer
-        if (this.saveTimer) {
-            clearInterval(this.saveTimer);
-            this.saveTimer = null;
-        }
-    }
-
-    // Validate current session
-    async validateSession() {
-        if (!this.currentUser || !this.sessionId) return;
-        
-        try {
-            const userDoc = await getDoc(doc(this.db, 'users', this.currentUser.uid));
-            if (userDoc.exists()) {
-                const data = userDoc.data();
-                
-                // Check if our session is still the current one
-                if (data.currentSessionId !== this.sessionId) {
-                    console.warn('Session mismatch detected');
-                    
-                    // Check if there's a newer session
-                    if (data.currentSessionId && data.lastLoginTime) {
-                        const lastLoginTime = data.lastLoginTime.toDate ? data.lastLoginTime.toDate() : new Date(data.lastLoginTime);
-                        const timeDiff = Date.now() - lastLoginTime.getTime();
-                        
-                        // If the other session is recent (within last 5 minutes), we were kicked out
-                        if (timeDiff < 5 * 60 * 1000) {
-                            this.handleForcedLogout();
-                            return;
-                        }
-                    }
-                    
-                    // Otherwise, reclaim the session
-                    console.log('Reclaiming session...');
-                    await this.updateSession();
-                }
-                
-                // Start monitoring
-                this.startSessionMonitoring();
-            }
-        } catch (error) {
-            console.error('Failed to validate session:', error);
-            this.handleConnectionError(error);
-        }
-    }
-
-    // Update session info
-    async updateSession() {
-        if (!this.currentUser) return;
-        
-        // Generate new session ID if we don't have one
-        if (!this.sessionId) {
-            this.sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('scapewatch_session_id', this.sessionId);
-        }
-        
-        try {
-            await updateDoc(doc(this.db, 'users', this.currentUser.uid), {
-                lastLoginTime: serverTimestamp(),
-                lastActiveTime: serverTimestamp(),
-                currentSessionId: this.sessionId
-            });
-        } catch (error) {
-            console.error('Failed to update session:', error);
-            this.handleConnectionError(error);
-        }
-    }
-
-    // Check if username is available
-    async isUsernameAvailable(username) {
-        try {
-            const usernameDoc = await getDoc(doc(this.db, 'usernames', username.toLowerCase()));
-            return !usernameDoc.exists();
-        } catch (error) {
-            console.error('Failed to check username availability:', error);
-            throw error;
-        }
-    }
-
-    // Reserve username during signup
-    async reserveUsername(username, uid) {
-        try {
-            await setDoc(doc(this.db, 'usernames', username.toLowerCase()), {
-                uid: uid,
-                username: username,
-                createdAt: serverTimestamp()
-            });
-        } catch (error) {
-            console.error('Failed to reserve username:', error);
-            throw error;
-        }
-    }
-
-    // Load username for current user
-    async loadUsername() {
-        if (!this.currentUser) return;
-        
-        try {
-            const userDoc = await getDoc(doc(this.db, 'users', this.currentUser.uid));
-            if (userDoc.exists()) {
-                this.username = userDoc.data().username;
-            }
-        } catch (error) {
-            console.error('Failed to load username:', error);
-            this.handleConnectionError(error);
-        }
-    }
-
-    // Get email from username (for password reset)
-    async getEmailFromUsername(username) {
-        try {
-            const usernameDoc = await getDoc(doc(this.db, 'usernames', username.toLowerCase()));
-            
-            if (!usernameDoc.exists()) {
-                throw new Error('Username not found');
-            }
-            
-            const uid = usernameDoc.data().uid;
-            const userDoc = await getDoc(doc(this.db, 'users', uid));
-            
-            if (!userDoc.exists()) {
-                throw new Error('User data not found');
-            }
-            
-            return userDoc.data().email;
-        } catch (error) {
-            console.error('Failed to get email from username:', error);
-            throw error;
-        }
-    }
-
-    // Reset password
-    async resetPassword(email) {
-        try {
-            await sendPasswordResetEmail(this.auth, email);
-        } catch (error) {
-            console.error('Failed to send password reset email:', error);
-            throw error;
-        }
-    }
-
-    // Sign up new user
-    async signUp(username, email, password) {
-        // Validate username
-        if (!/^[a-zA-Z0-9_]{3,16}$/.test(username)) {
-            throw new Error('Username must be 3-16 characters and contain only letters, numbers, and underscores');
-        }
-
-        // Check if username is available
-        const available = await this.isUsernameAvailable(username);
-        if (!available) {
-            throw new Error('Username is already taken');
-        }
-
-        // Create auth account
-        const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
-        const user = userCredential.user;
-
-        // Generate session ID
-        this.sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('scapewatch_session_id', this.sessionId);
-
-        // Reserve username and create user document with organized fields
-        await this.reserveUsername(username, user.uid);
-        await setDoc(doc(this.db, 'users', user.uid), {
-            // Identity info at top
-            username: username,
-            uid: user.uid,
-            email: email,
-            
-            // Timestamps in logical order
-            createdAt: serverTimestamp(),
-            lastLoginTime: serverTimestamp(),
-            lastActiveTime: serverTimestamp(),
-            lastLogoutTime: null,
-            lastPlayed: serverTimestamp(),
-            
-            // Session info last
-            currentSessionId: this.sessionId
-        });
-
-        this.currentUser = user;
-        this.username = username;
-        
-        // Start session monitoring
-        this.startSessionMonitoring();
-        
-        // Start token refresh timer
-        this.startTokenRefreshTimer();
-
-        return user;
-    }
-
-    // Login existing user
-    async login(username, password) {
-        // Get email from username
-        const usernameDoc = await getDoc(doc(this.db, 'usernames', username.toLowerCase()));
-        
-        if (!usernameDoc.exists()) {
-            throw new Error('Username not found');
-        }
-
-        const uid = usernameDoc.data().uid;
-        const userDoc = await getDoc(doc(this.db, 'users', uid));
-        
-        if (!userDoc.exists()) {
-            throw new Error('User data not found');
-        }
-
-        const email = userDoc.data().email;
-        
-        // Sign in with email
-        const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
-        
-        // Generate a unique session ID for this login
-        this.sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('scapewatch_session_id', this.sessionId);
-        
-        // Update user document with new session (maintains field order)
-        await updateDoc(doc(this.db, 'users', userCredential.user.uid), {
-            lastLoginTime: serverTimestamp(),
-            lastActiveTime: serverTimestamp(),
-            lastPlayed: serverTimestamp(),
-            currentSessionId: this.sessionId
-        });
-
-        this.currentUser = userCredential.user;
-        this.username = username;
-        
-        // Start session monitoring
-        this.startSessionMonitoring();
-        
-        // Start token refresh timer
-        this.startTokenRefreshTimer();
-
-        return userCredential.user;
+    } catch (error) {
+        console.error('Failed to load local tasks:', error);
     }
     
-    // Monitor for session conflicts with improved error handling
-    startSessionMonitoring() {
-        if (!this.currentUser) return;
-        
-        // Clear any existing listener
-        if (this.sessionListener) {
-            this.sessionListener();
-            this.sessionListener = null;
+    return [];
+}
+
+// Add method to merge local and Firebase tasks
+mergeCompletedTasks(localTasks, firebaseTasks) {
+    // Create a map to deduplicate tasks based on a unique identifier
+    // We'll use a combination of skill, nodeId, activityId, and timestamp
+    const taskMap = new Map();
+    
+    // Helper to create unique task key
+    const getTaskKey = (task) => {
+        return `${task.skill}_${task.nodeId}_${task.activityId}_${task.timestamp || ''}`;
+    };
+    
+    // Add Firebase tasks first (these are the most recent 500)
+    firebaseTasks.forEach(task => {
+        taskMap.set(getTaskKey(task), task);
+    });
+    
+    // Add local tasks (older ones that might not be in Firebase)
+    localTasks.forEach(task => {
+        const key = getTaskKey(task);
+        if (!taskMap.has(key)) {
+            taskMap.set(key, task);
         }
-        
-        // Listen for changes to the user document with error handling
-        this.sessionListener = onSnapshot(
-            doc(this.db, 'users', this.currentUser.uid),
-            (doc) => {
-                if (doc.exists()) {
-                    const data = doc.data();
-                    // Check if another session has taken over
-                    if (data.currentSessionId && data.currentSessionId !== this.sessionId) {
-                        console.warn('Another session detected! Session ID:', data.currentSessionId);
-                        this.handleForcedLogout();
-                    }
-                }
-                
-                // Reset connection health on successful snapshot
-                this.connectionHealthy = true;
-                this.connectionRetryCount = 0;
-            },
-            (error) => {
-                console.error('Session monitoring error:', error);
-                
-                // Don't retry on permission errors
-                if (error.code === 'permission-denied') {
-                    console.error('Permission denied for session monitoring');
-                    this.cleanup();
-                    return;
-                }
-                
-                // Handle other errors with retry logic
-                this.handleConnectionError(error);
-            }
-        );
-            
-        // Also update last active time periodically (every 2 minutes)
-        if (this.activityTimer) {
-            clearInterval(this.activityTimer);
-        }
-        
-        this.activityTimer = setInterval(() => {
-            this.updateLastActive();
-        }, 2 * 60 * 1000);
+    });
+    
+    // Convert back to array and sort by timestamp (if available)
+    const merged = Array.from(taskMap.values());
+    
+    // Sort by timestamp if tasks have them, otherwise maintain order
+    if (merged.length > 0 && merged[0].timestamp) {
+        merged.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
     }
     
-    // Update last active time with error handling
-    async updateLastActive() {
-        if (!this.currentUser || this.isOfflineMode || !this.connectionHealthy) return;
-        
-        try {
-            await updateDoc(doc(this.db, 'users', this.currentUser.uid), {
-                lastActiveTime: serverTimestamp()
-            });
-        } catch (error) {
-            console.error('Failed to update last active time:', error);
-            // Don't trigger full connection error handling for activity updates
-            // Just log and continue
-        }
-    }
-    
-    // Handle being logged out by another session
-    handleForcedLogout() {
-        // Save game state before forced logout
-        if (!this.isOfflineMode) {
-            // Ensure task queue is complete before saving
-            if (window.taskManager) {
-                taskManager.ensureFullTaskQueue();
-                
-                // Generate emergency tasks if needed
-                if (!taskManager.currentTask) {
-                    const emergencyTasks = taskManager.generateMultipleTasks(1);
-                    if (emergencyTasks.length > 0) {
-                        taskManager.currentTask = emergencyTasks[0];
-                        console.log('Generated emergency current task before forced logout');
-                    }
-                }
-                
-                if (!taskManager.nextTask) {
-                    const emergencyTasks = taskManager.generateMultipleTasks(1);
-                    if (emergencyTasks.length > 0) {
-                        taskManager.nextTask = emergencyTasks[0];
-                        console.log('Generated emergency next task before forced logout');
-                    }
-                }
-            }
-            
-            // Force save (bypass throttle)
-            this.forceSave().then(() => {
-                console.log('Game saved before forced logout');
-            }).catch(error => {
-                console.error('Failed to save before forced logout:', error);
-            });
-        }
-        
-        // Clean up everything
-        this.cleanup();
-        
-        // Clear session
-        this.currentUser = null;
-        this.username = null;
-        this.sessionId = null;
-        localStorage.removeItem('scapewatch_session_id');
-        
-        // Show alert and redirect to login
-        alert('You have been logged in from another location. You will be logged out from this session.');
-        location.reload();
-    }
+    console.log(`Merged tasks: ${localTasks.length} local + ${firebaseTasks.length} Firebase = ${merged.length} total`);
+    return merged;
+}
 
-    // Force logout all sessions
-    async forceLogoutAllSessions() {
-        if (!this.currentUser) return;
-        
-        try {
-            // Clear the session ID in the database
-            await updateDoc(doc(this.db, 'users', this.currentUser.uid), {
-                currentSessionId: null,
-                lastLogoutTime: serverTimestamp()
-            });
-            
-            console.log('All sessions have been logged out');
-        } catch (error) {
-            console.error('Failed to logout all sessions:', error);
-        }
-    }
-
-    // Clean undefined values from an object (convert to null)
-    cleanUndefinedValues(obj) {
-        if (obj === undefined) return null;
-        if (obj === null) return null;
-        if (typeof obj !== 'object') return obj;
-        if (obj instanceof Date) return obj;
-        
-        // Handle arrays
-        if (Array.isArray(obj)) {
-            return obj.map(item => this.cleanUndefinedValues(item));
-        }
-        
-        // Handle objects
-        const cleaned = {};
-        for (const [key, value] of Object.entries(obj)) {
-            if (value === undefined) {
-                cleaned[key] = null;
-            } else if (value !== null && typeof value === 'object' && !(value instanceof Date)) {
-                cleaned[key] = this.cleanUndefinedValues(value);
-            } else {
-                cleaned[key] = value;
-            }
-        }
-        return cleaned;
-    }
-
-    // Logout
-    async logout() {
-        // Ensure tasks are fully populated, then save and update hi-scores
-        if (!this.isOfflineMode) {
-            // Ensure task queue is complete before saving
-            if (window.taskManager) {
-                taskManager.ensureFullTaskQueue();
-                
-                // Generate emergency tasks if needed
-                if (!taskManager.currentTask) {
-                    const emergencyTasks = taskManager.generateMultipleTasks(1);
-                    if (emergencyTasks.length > 0) {
-                        taskManager.currentTask = emergencyTasks[0];
-                        console.log('Generated emergency current task before logout');
-                    }
-                }
-                
-                if (!taskManager.nextTask) {
-                    const emergencyTasks = taskManager.generateMultipleTasks(1);
-                    if (emergencyTasks.length > 0) {
-                        taskManager.nextTask = emergencyTasks[0];
-                        console.log('Generated emergency next task before logout');
-                    }
-                }
-            }
-            
-            // Force save on logout (bypass throttle)
-            await this.forceSave();
-        }
-        
-        // Clear session in database
-        if (this.currentUser) {
-            try {
-                await updateDoc(doc(this.db, 'users', this.currentUser.uid), {
-                    lastLogoutTime: serverTimestamp(),
-                    currentSessionId: null
-                });
-            } catch (error) {
-                console.error('Failed to clear session:', error);
-            }
-        }
-        
-        // Clean up everything
-        this.cleanup();
-        
-        // Clear local session
-        localStorage.removeItem('scapewatch_session_id');
-        
-        await signOut(this.auth);
-        this.currentUser = null;
-        this.username = null;
-        this.sessionId = null;
-        
-        // Redirect to login
-        location.reload();
-    }
-
-    // Save game state with connection checking
-    async saveGame() {
-        if (this.isOfflineMode || !this.currentUser || !this.connectionHealthy) return;
-
-        // Prevent saving too frequently (10 minutes throttle for normal saves)
-        const now = Date.now();
-        if (now - this.lastSaveTime < this.SAVE_INTERVAL) {
-            console.log(`Save throttled. Next save in ${Math.ceil((this.SAVE_INTERVAL - (now - this.lastSaveTime)) / 1000)} seconds`);
-            return;
-        }
-        
-        try {
-            const saveData = this.collectSaveData();
-            
-            // Clean undefined values before saving
-            const cleanedSaveData = this.cleanUndefinedValues(saveData);
-            
-            // Save to Firestore with organized field order for readability
-            await setDoc(doc(this.db, 'saves', this.currentUser.uid), {
-                // User info at the very top
-                username: this.username,
-                uid: this.currentUser.uid,
-                
-                // Timestamp info next
-                lastSaved: serverTimestamp(),
-                sessionId: this.sessionId,
-                
-                // Then all game data
-                ...cleanedSaveData
-            });
-
-            this.lastSaveTime = now;
-            this.showSaveIndicator();
-            console.log('Game saved successfully');
-            
-            // Update hi-scores after successful save
-            await this.updateHiscores();
-        } catch (error) {
-            console.error('Failed to save game:', error);
-            this.handleConnectionError(error);
-        }
-    }
-
-    // Load game state
-    async loadGame() {
-        if (this.isOfflineMode || !this.currentUser) return false;
-
-        try {
-            const saveDoc = await getDoc(doc(this.db, 'saves', this.currentUser.uid));
-            
-            if (!saveDoc.exists()) {
-                console.log('No save data found, starting fresh');
-                return false;
-            }
-
-            const saveData = saveDoc.data();
-            
-            // Validate save data before applying
-            if (this.validateSaveData(saveData)) {
-                this.applySaveData(saveData);
-                console.log('Game loaded successfully');
-                return true;
-            } else {
-                console.warn('Save data validation failed, starting fresh');
-                return false;
-            }
-        } catch (error) {
-            console.error('Failed to load game:', error);
-            return false;
-        }
-    }
-
-    validateSaveData(saveData) {
-        if (!saveData) return false;
-        
-        // Basic structure validation
-        if (!saveData.player || !saveData.skills) {
-            console.warn('Save data missing core components');
-            return false;
-        }
-        
-        // Validate task data if present
-        if (saveData.tasks) {
-            // Ensure tasks have required fields
-            if (saveData.tasks.current && !this.validateTask(saveData.tasks.current)) {
-                console.warn('Current task validation failed');
-                saveData.tasks.current = null;
-            }
-            
-            if (saveData.tasks.next && !this.validateTask(saveData.tasks.next)) {
-                console.warn('Next task validation failed');
-                saveData.tasks.next = null;
-            }
-            
-            // Validate task queue
-            if (saveData.tasks.queue && Array.isArray(saveData.tasks.queue)) {
-                // Remove invalid tasks from queue
-                saveData.tasks.queue = saveData.tasks.queue.filter(task => {
-                    if (task && task.options) {
-                        // Validate each option
-                        task.options = task.options.filter(opt => this.validateTask(opt));
-                        return task.options.length > 0;
-                    }
-                    return false;
-                });
-            }
-        }
-        
-        return true;
-    }
-    
-    validateTask(task) {
-        if (!task) return false;
-        
-        // Check required fields
-        const requiredFields = ['skill', 'nodeId', 'activityId', 'targetCount', 'description'];
-        for (const field of requiredFields) {
-            if (task[field] === undefined || task[field] === null) {
-                console.warn(`Task missing required field: ${field}`);
-                return false;
-            }
-        }
-        
-        // Validate progress is between 0 and 1
-        if (task.progress !== undefined) {
-            if (task.progress < 0 || task.progress > 1) {
-                task.progress = Math.max(0, Math.min(1, task.progress));
-            }
-        }
-        
-        return true;
-    }
-
-    collectSaveData() {
+// Modified collectSaveData to only include recent tasks:
+collectSaveData() {
     // Invalidate any caches to ensure fresh data
     if (window.taskManager) {
         taskManager.invalidateCache();
         // Force update task progress one final time before saving
         taskManager.updateAllProgress();
+    }
+    
+    // Get only the most recent tasks for Firebase
+    let recentCompletedTasks = [];
+    if (window.taskManager && taskManager.completedTasks) {
+        // Take only the most recent MAX_FIREBASE_TASKS
+        recentCompletedTasks = taskManager.completedTasks.slice(-this.MAX_FIREBASE_TASKS);
+        console.log(`Saving ${recentCompletedTasks.length} of ${taskManager.completedTasks.length} tasks to Firebase`);
     }
     
     const saveData = {
@@ -893,12 +137,12 @@ class FirebaseManager {
         // Shop
         shop: window.shop ? shop.getState() : null,
         
-        // Task system
+        // Task system - now includes only recent completed tasks
         tasks: {
             current: taskManager.currentTask,
             next: taskManager.nextTask,
             queue: taskManager.tasks,
-            completed: taskManager.completedTasks
+            completed: recentCompletedTasks // Only the most recent 500
         },
         
         // Clue system
@@ -940,7 +184,92 @@ class FirebaseManager {
     return saveData;
 }
 
-    applySaveData(saveData) {
+// Modified saveGame method:
+async saveGame() {
+    if (this.isOfflineMode || !this.currentUser || !this.connectionHealthy) return;
+
+    // Prevent saving too frequently (10 minutes throttle for normal saves)
+    const now = Date.now();
+    if (now - this.lastSaveTime < this.SAVE_INTERVAL) {
+        console.log(`Save throttled. Next save in ${Math.ceil((this.SAVE_INTERVAL - (now - this.lastSaveTime)) / 1000)} seconds`);
+        return;
+    }
+    
+    try {
+        // Save ALL completed tasks locally first
+        this.saveCompletedTasksLocally();
+        
+        // Collect save data (includes only recent 500 tasks)
+        const saveData = this.collectSaveData();
+        
+        // Clean undefined values before saving
+        const cleanedSaveData = this.cleanUndefinedValues(saveData);
+        
+        // Save to Firestore with organized field order for readability
+        await setDoc(doc(this.db, 'saves', this.currentUser.uid), {
+            // User info at the very top
+            username: this.username,
+            uid: this.currentUser.uid,
+            
+            // Timestamp info next
+            lastSaved: serverTimestamp(),
+            sessionId: this.sessionId,
+            
+            // Then all game data (with only recent 500 tasks)
+            ...cleanedSaveData
+        });
+
+        this.lastSaveTime = now;
+        this.showSaveIndicator();
+        console.log('Game saved successfully');
+        
+        // Update hi-scores after successful save
+        await this.updateHiscores();
+    } catch (error) {
+        console.error('Failed to save game:', error);
+        this.handleConnectionError(error);
+    }
+}
+
+// Modified forceSave method:
+async forceSave() {
+    if (this.isOfflineMode || !this.currentUser) return;
+
+    try {
+        // Save ALL completed tasks locally first
+        this.saveCompletedTasksLocally();
+        
+        // Collect save data (includes only recent 500 tasks)
+        const saveData = this.collectSaveData();
+        
+        // Clean undefined values before saving
+        const cleanedSaveData = this.cleanUndefinedValues(saveData);
+        
+        // Save to Firestore immediately with organized field order
+        await setDoc(doc(this.db, 'saves', this.currentUser.uid), {
+            // User info at the very top
+            username: this.username,
+            uid: this.currentUser.uid,
+            
+            // Timestamp info next
+            lastSaved: serverTimestamp(),
+            sessionId: this.sessionId,
+            
+            // Then all game data (with only recent 500 tasks)
+            ...cleanedSaveData
+        });
+
+        console.log('Force save completed (logout/task completion)');
+        
+        // Update hi-scores after force save too
+        await this.updateHiscores(true);
+    } catch (error) {
+        console.error('Failed to force save:', error);
+    }
+}
+
+// Modified applySaveData to handle merged tasks:
+applySaveData(saveData) {
     // Load player state
     if (saveData.player) {
         // First, restore node information
@@ -1050,14 +379,14 @@ class FirebaseManager {
     }
 
     // Load AI state
-if (saveData.ai && window.ai) {
-    ai.hasBankedForCurrentTask = saveData.ai.hasBankedForCurrentTask || false;
-    if (saveData.ai.failedNodes) {
-        ai.failedNodes = new Set(saveData.ai.failedNodes);
+    if (saveData.ai && window.ai) {
+        ai.hasBankedForCurrentTask = saveData.ai.hasBankedForCurrentTask || false;
+        if (saveData.ai.failedNodes) {
+            ai.failedNodes = new Set(saveData.ai.failedNodes);
+        }
+        // Sync AI state after loading
+        ai.syncAfterLoad();
     }
-    // Sync AI state after loading
-    ai.syncAfterLoad();
-}
 
     // Load skills
     if (saveData.skills) {
@@ -1086,33 +415,42 @@ if (saveData.ai && window.ai) {
         console.log('Shop state loaded');
     }
 
-    // Load tasks
+    // Load tasks with merged completed tasks
     if (saveData.tasks) {
         taskManager.currentTask = saveData.tasks.current;
         taskManager.nextTask = saveData.tasks.next;
         taskManager.tasks = saveData.tasks.queue || [];
-        taskManager.completedTasks = saveData.tasks.completed || [];
+        
+        // Load local completed tasks
+        const localTasks = this.loadCompletedTasksLocally();
+        const firebaseTasks = saveData.tasks.completed || [];
+        
+        // Merge local and Firebase tasks
+        taskManager.completedTasks = this.mergeCompletedTasks(localTasks, firebaseTasks);
+        
+        // Save the merged list locally to ensure we have the complete history
+        this.saveCompletedTasksLocally();
         
         // CRITICAL: Ensure we have a full task queue
         console.log('Validating task queue after load...');
         taskManager.ensureFullTaskQueue();
     }
 
-// Load clues
-if (window.clueManager) {
-    const clueData = {
-        clues: saveData.clues || {},
-        completedClues: saveData.completedClues || {}
-    };
-    clueManager.loadClueData(clueData);
-}
-
-// Ensure UI updates after all data is loaded
-setTimeout(() => {
-    if (window.ui) {
-        ui.updateTasks();
+    // Load clues
+    if (window.clueManager) {
+        const clueData = {
+            clues: saveData.clues || {},
+            completedClues: saveData.completedClues || {}
+        };
+        clueManager.loadClueData(clueData);
     }
-}, 100);
+
+    // Ensure UI updates after all data is loaded
+    setTimeout(() => {
+        if (window.ui) {
+            ui.updateTasks();
+        }
+    }, 100);
 
     // Load RuneCred data
     if (saveData.runeCred && window.runeCreditManager) {
@@ -1147,177 +485,3 @@ setTimeout(() => {
         ui.updateBank();
     }
 }
-
-    showSaveIndicator() {
-        let indicator = document.getElementById('save-indicator');
-        if (!indicator) {
-            indicator = document.createElement('div');
-            indicator.id = 'save-indicator';
-            indicator.className = 'save-indicator';
-            indicator.textContent = '✓ Game Saved';
-            document.body.appendChild(indicator);
-        }
-        
-        indicator.classList.add('show');
-        setTimeout(() => {
-            indicator.classList.remove('show');
-        }, 2000);
-    }
-
-    startAutoSave() {
-        // Save every 10 minutes
-        this.saveTimer = setInterval(() => {
-            this.saveGame();
-        }, this.SAVE_INTERVAL);
-
-        // Also save on important events (force save, bypasses throttle)
-        window.addEventListener('beforeunload', () => {
-            this.forceSave();
-        });
-    }
-
-    stopAutoSave() {
-        if (this.saveTimer) {
-            clearInterval(this.saveTimer);
-            this.saveTimer = null;
-        }
-        
-        if (this.activityTimer) {
-            clearInterval(this.activityTimer);
-            this.activityTimer = null;
-        }
-    }
-
-    async saveNow() {
-        this.lastSaveTime = 0; // Reset timer to force save
-        await this.saveGame();
-    }
-
-    async forceSave() {
-        if (this.isOfflineMode || !this.currentUser) return;
-
-        try {
-            const saveData = this.collectSaveData();
-            
-            // Clean undefined values before saving
-            const cleanedSaveData = this.cleanUndefinedValues(saveData);
-            
-            // Save to Firestore immediately with organized field order
-            await setDoc(doc(this.db, 'saves', this.currentUser.uid), {
-                // User info at the very top
-                username: this.username,
-                uid: this.currentUser.uid,
-                
-                // Timestamp info next
-                lastSaved: serverTimestamp(),
-                sessionId: this.sessionId,
-                
-                // Then all game data
-                ...cleanedSaveData
-            });
-
-            console.log('Force save completed (logout/task completion)');
-            
-            // Update hi-scores after force save too
-            await this.updateHiscores(true);
-        } catch (error) {
-            console.error('Failed to force save:', error);
-        }
-    }
-
-    async updateHiscores(forceUpdate = false) {
-        if (this.isOfflineMode || !this.currentUser || !this.connectionHealthy) return;
-        
-        try {
-            const hiscoreData = {
-                uid: this.currentUser.uid,
-                username: this.username,
-                
-                // Overall stats
-                totalLevel: skills.getTotalLevel(),
-                totalXp: this.calculateTotalXp(),
-                
-                // Track when milestones were first reached (using sentinel date for "not yet")
-                totalLevelFirstReached: this.SENTINEL_DATE,
-                
-                // Tasks
-                tasksCompleted: window.runeCreditManager ? runeCreditManager.totalTasksCompleted : 0,
-                tasksFirstReached: this.SENTINEL_DATE,
-                
-                // Pets
-                petsTotal: 0,
-                petsShiny: 0,
-                petsFirstReached: this.SENTINEL_DATE,
-                shinyPetsFirstReached: this.SENTINEL_DATE,
-
-                // Clues
-            cluesTotal: 0,
-            cluesEasy: 0,
-            cluesMedium: 0,
-            cluesHard: 0,
-            cluesElite: 0,
-            cluesMaster: 0,
-            cluesTotalFirstReached: this.SENTINEL_DATE,
-            cluesEasyFirstReached: this.SENTINEL_DATE,
-            cluesMediumFirstReached: this.SENTINEL_DATE,
-            cluesHardFirstReached: this.SENTINEL_DATE,
-            cluesEliteFirstReached: this.SENTINEL_DATE,
-            cluesMasterFirstReached: this.SENTINEL_DATE,
-                
-                // Update timestamp
-                lastUpdated: serverTimestamp()
-            };
-            
-            // Calculate pet totals
-            if (window.runeCreditManager && runeCreditManager.petCounts) {
-                for (const skillCounts of Object.values(runeCreditManager.petCounts)) {
-                    hiscoreData.petsTotal += (skillCounts.regular || 0) + (skillCounts.shiny || 0);
-                    hiscoreData.petsShiny += (skillCounts.shiny || 0);
-                }
-            }
-
-            // Calculate clue totals
-            if (window.clueManager && clueManager.completedClues) {
-                hiscoreData.cluesEasy = clueManager.completedClues.easy || 0;
-                hiscoreData.cluesMedium = clueManager.completedClues.medium || 0;
-                hiscoreData.cluesHard = clueManager.completedClues.hard || 0;
-                hiscoreData.cluesElite = clueManager.completedClues.elite || 0;
-                hiscoreData.cluesMaster = clueManager.completedClues.master || 0;
-                hiscoreData.cluesTotal = hiscoreData.cluesEasy + hiscoreData.cluesMedium + 
-                                         hiscoreData.cluesHard + hiscoreData.cluesElite + 
-                                         hiscoreData.cluesMaster;
-            }
-            
-            // Add individual skill data
-            for (const [skillId, skill] of Object.entries(skills.skills)) {
-                hiscoreData[`level_${skillId}`] = skill.level;
-                hiscoreData[`xp_${skillId}`] = Math.floor(skill.xp);
-                hiscoreData[`levelFirst_${skillId}`] = this.SENTINEL_DATE; // Sentinel date for "not yet"
-            }
-            
-            // Clean undefined values before saving
-            const cleanedHiscoreData = this.cleanUndefinedValues(hiscoreData);
-            
-            // Use merge to preserve "firstReached" timestamps
-            await setDoc(doc(this.db, 'hiscores', this.currentUser.uid), cleanedHiscoreData, { merge: true });
-            
-            console.log('Hiscores updated');
-        } catch (error) {
-            console.error('Failed to update hiscores:', error);
-            // Don't trigger connection error handling for hiscores updates
-        }
-    }
-
-    calculateTotalXp() {
-        let total = 0;
-        if (window.skills) {
-            for (const skill of Object.values(skills.skills)) {
-                total += Math.floor(skill.xp);
-            }
-        }
-        return total;
-    }
-}
-
-// Create global instance
-window.firebaseManager = new FirebaseManager();
