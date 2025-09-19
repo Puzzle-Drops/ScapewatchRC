@@ -181,8 +181,6 @@ setTaskProgress(task, progress) {
     // Update UI - both progress bars and floating display
     if (window.ui) {
         window.ui.updateTaskProgressBarsOnly();
-        // Also update the floating task display
-        window.ui.updateFloatingTaskDisplay();
     }
 }
 
