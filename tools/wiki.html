@@ -1060,7 +1060,6 @@ Rounded to 1 decimal in drops
                 
                 // Initialize UI
                 initNavigation();
-                initSearch();
                 initScrollToTop();
                 
                 // Render initial content
@@ -1130,24 +1129,6 @@ Rounded to 1 decimal in drops
                     document.getElementById(targetSection).classList.add('active');
                 });
             });
-        }
-
-        // Search functionality
-        function initSearch() {
-            const searchInput = document.getElementById('search');
-            
-            searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase();
-                if (query.length < 2) return;
-                
-                performSearch(query);
-            });
-        }
-
-        // Perform search across all data
-        function performSearch(query) {
-            // Search implementation would go here
-            console.log('Searching for:', query);
         }
 
         // Scroll to top button
