@@ -687,44 +687,56 @@ createClueTooltip(tier, clueData, isComplete) {
         }
     }
     
-    // Update only task progress bars (not full task rebuild)
-updateTaskProgressBarsOnly() {
-    // Update floating current task's level progress bar
-    this.updateFloatingTaskLevelProgress();
+// Update only task progress bars (not full task rebuild)
+    updateTaskProgressBarsOnly() {
+        // Update floating task progress bars
+        this.updateFloatingTaskProgressBars();
+        
+        // Update panel task progress bars if visible
+        this.updatePanelTaskProgressBars();
+    }
     
-    // Update floating current task's TASK progress bar too!
-    const floatingContainer = document.getElementById('floating-current-task');
-    if (floatingContainer && window.taskManager && taskManager.currentTask) {
-        const floatingTaskBar = floatingContainer.querySelector('.task-progress-bar');
-        if (floatingTaskBar) {
-            const floatingTaskFill = floatingTaskBar.querySelector('.task-progress-fill');
-            const floatingTaskText = floatingTaskBar.querySelector('.progress-bar-text');
+    // New helper: Update floating task progress bars
+    updateFloatingTaskProgressBars() {
+        const floatingContainer = document.getElementById('floating-current-task');
+        if (!floatingContainer || !window.taskManager || !taskManager.currentTask) return;
+        
+        // Update TASK progress bar
+        const taskBar = floatingContainer.querySelector('.task-progress-bar');
+        if (taskBar) {
+            const taskFill = taskBar.querySelector('.task-progress-fill');
+            const taskText = taskBar.querySelector('.progress-bar-text');
             
-            if (floatingTaskFill) {
-                floatingTaskFill.style.width = `${taskManager.currentTask.progress * 100}%`;
+            if (taskFill) {
+                taskFill.style.width = `${taskManager.currentTask.progress * 100}%`;
             }
             
-            if (floatingTaskText) {
+            if (taskText) {
                 const current = Math.floor(taskManager.currentTask.progress * taskManager.currentTask.targetCount);
                 const percentage = (taskManager.currentTask.progress * 100).toFixed(2);
                 
-                floatingTaskText.innerHTML = `
+                taskText.innerHTML = `
                     <span class="progress-text-left">${current}</span>
                     <span class="progress-text-center">${percentage}%</span>
                     <span class="progress-text-right">${taskManager.currentTask.targetCount}</span>
                 `;
             }
         }
+        
+        // Update LEVEL progress bar
+        this.updateFloatingTaskLevelProgress();
     }
     
-    // Update panel current task if visible
-    if (this.currentPanel === 'tasks' && !this.minimized) {
+    // New helper: Update panel task progress bars  
+    updatePanelTaskProgressBars() {
+        if (this.currentPanel !== 'tasks' || this.minimized) return;
+        
         const tasksList = document.getElementById('tasks-list');
-        if (!tasksList || !window.taskManager) return;
+        if (!tasksList || !window.taskManager || !taskManager.currentTask) return;
         
         // Find current task element
         const currentTaskSection = tasksList.querySelector('.task-section');
-        if (currentTaskSection && taskManager.currentTask) {
+        if (currentTaskSection) {
             const progressFill = currentTaskSection.querySelector('.task-progress-fill');
             const progressText = currentTaskSection.querySelector('.progress-bar-text');
             
@@ -744,7 +756,6 @@ updateTaskProgressBarsOnly() {
             }
         }
     }
-}
     
     // Update floating task's level progress bar only
     updateFloatingTaskLevelProgress() {
