@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scapewatch Wiki</title>
+    <style>
+        :root {
+            /* Skill colors from the game */
+            --color-attack: #9E0000;
+            --color-strength: #009E00;
+            --color-defence: #7F7FBF;
+            --color-hitpoints: #9E9E9E;
+            --color-ranged: #5F9E00;
+            --color-magic: #3F3FBF;
+            --color-prayer: #BFBF00;
+            --color-woodcutting: #5F3F00;
+            --color-mining: #7F7F7F;
+            --color-fishing: #007F9E;
+            --color-cooking: #7F00BF;
+            --color-crafting: #9E5F00;
+            --color-smithing: #5F5F5F;
+            --color-agility: #00009E;
+            --color-thieving: #5F005F;
+            --color-runecraft: #BFBF7F;
+            --color-hunter: #5F5F00;
+            --color-farming: #3F7F00;
+            --color-slayer: #3F3F3F;
+            --color-herblore: #007F00;
+            --color-fletching: #007F5F;
+            --color-construction: #7F5F3F;
+            --color-firemaking: #BF5F00;
+            --color-sailing: #00BFBF;
+            
+            /* Dark theme colors */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #252525;
+            --bg-tertiary: #2f2f2f;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-color: #404040;
+            --accent: #4a9eff;
+            --accent-hover: #66b3ff;
+            --success: #52c41a;
+            --warning: #faad14;
+            --danger: #f5222d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            padding: 30px 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, var(--accent), var(--accent-hover));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(74, 158, 255, 0.3);
+        }
+
+        .search-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        #search {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+
+        #search:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(74, 158, 255, 0.2);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-tab:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        .nav-tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .skill-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            border-color: var(--accent);
+        }
+
+        .skill-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .skill-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .skill-name {
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        .skill-category {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .item-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .item-card:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent);
+        }
+
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .item-category {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        .item-stackable {
+            color: var(--success);
+            font-size: 0.85em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .formula-box {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .formula-box h3 {
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .formula-code {
+            background: var(--bg-primary);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--accent);
+        }
+
+        .subsection {
+            margin: 30px 0;
+        }
+
+        .subsection-title {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            font-size: 0.85em;
+            margin: 2px;
+        }
+
+        .tag.rare {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .tag.common {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            background: rgba(245, 34, 45, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: var(--accent-hover);
+            transform: scale(1.1);
+        }
+
+        .activity-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .activity-item {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .activity-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .activity-skill {
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+
+        .activity-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        .detail-value {
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Scapewatch Wiki</h1>
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="search" placeholder="Search for skills, items, activities, or nodes...">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav class="nav-tabs">
+            <div class="nav-tab active" data-section="overview">Overview</div>
+            <div class="nav-tab" data-section="skills">Skills</div>
+            <div class="nav-tab" data-section="items">Items</div>
+            <div class="nav-tab" data-section="activities">Activities</div>
+            <div class="nav-tab" data-section="nodes">Nodes</div>
+            <div class="nav-tab" data-section="mechanics">Game Mechanics</div>
+            <div class="nav-tab" data-section="formulas">Formulas</div>
+            <div class="nav-tab" data-section="runecred">RuneCred System</div>
+            <div class="nav-tab" data-section="clues">Clue Scrolls</div>
+            <div class="nav-tab" data-section="shop">Shop</div>
+        </nav>
+
+        <main id="content">
+            <!-- Overview Section -->
+            <section id="overview" class="content-section active">
+                <h2 class="section-title">Welcome to Scapewatch Wiki</h2>
+                <div class="info-box">
+                    <p>Scapewatch is an idle/incremental game inspired by RuneScape, featuring 24 skills, automated gameplay, and extensive progression systems.</p>
+                    <h3>Key Features</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>24 unique skills with 1-99 progression (200M XP cap)</li>
+                        <li>Automated AI gameplay with task-based system</li>
+                        <li>RuneCred system for customization and speed bonuses</li>
+                        <li>Pet system with regular and shiny variants</li>
+                        <li>Skill capes and trimmed variants</li>
+                        <li>Clue scrolls with 5 difficulty tiers</li>
+                        <li>Banking and inventory management</li>
+                        <li>Online save system with Firebase integration</li>
+                        <li>Hiscores and leaderboards</li>
+
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Game Resolution & UI</h3>
+                    <div class="info-box">
+                        <p><strong>Fixed Internal Resolution:</strong> 2560x1440 (scales to fit screen)</p>
+                        <p><strong>Layout:</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li>Full-screen map with camera following player</li>
+                            <li>Bottom-right UI panel (500x900px) with tabs</li>
+                            <li>Floating current task display (top center)</li>
+                            <li>Floating completed clues display (top left)</li>
+                            <li>Account info in top right (when logged in)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Keyboard Shortcuts</h3>
+                    <div class="info-box">
+                        <ul style="margin-left: 20px;">
+                            <li><strong>ESC:</strong> Close popups</li>
+                            <li><strong>C:</strong> Toggle collision overlay</li>
+                            <li><strong>N:</strong> Toggle node text</li>
+                            <li><strong>+/-:</strong> Zoom in/out</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skills Section -->
+            <section id="skills" class="content-section">
+                <h2 class="section-title">Skills</h2>
+                <div id="skills-container" class="skills-grid">
+                    <div class="loading">Loading skills data...</div>
+                </div>
+            </section>
+
+            <!-- Items Section -->
+            <section id="items" class="content-section">
+                <h2 class="section-title">Items Database</h2>
+                <div id="items-filter" style="margin-bottom: 20px;">
+                    <select id="items-category-filter" style="padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 5px;">
+                        <option value="all">All Categories</option>
+                        <option value="currency">Currency</option>
+                        <option value="resource">Resources</option>
+                        <option value="food">Food</option>
+                        <option value="gem">Gems</option>
+                        <option value="seed">Seeds</option>
+                        <option value="herb">Herbs</option>
+                        <option value="grimy">Grimy Herbs</option>
+                        <option value="potion">Potions</option>
+                        <option value="runes">Runes</option>
+                        <option value="ammo">Ammunition</option>
+                        <option value="jewellery">Jewellery</option>
+                        <option value="clue">Clue Scrolls</option>
+                        <option value="casket">Caskets</option>
+                        <option value="junk">Junk</option>
+                    </select>
+                </div>
+                <div id="items-container" class="items-grid">
+                    <div class="loading">Loading items data...</div>
+                </div>
+            </section>
+
+            <!-- Activities Section -->
+            <section id="activities" class="content-section">
+                <h2 class="section-title">Activities</h2>
+                <div id="activities-container" class="activity-list">
+                    <div class="loading">Loading activities data...</div>
+                </div>
+            </section>
+
+            <!-- Nodes Section -->
+            <section id="nodes" class="content-section">
+                <h2 class="section-title">Nodes & Locations</h2>
+                <div id="nodes-filter" style="margin-bottom: 20px;">
+                    <select id="nodes-type-filter" style="padding: 8px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 5px;">
+                        <option value="all">All Types</option>
+                        <option value="bank">Banks</option>
+                        <option value="skill">Skill Nodes</option>
+                    </select>
+                </div>
+                <div id="nodes-container">
+                    <div class="loading">Loading nodes data...</div>
+                </div>
+            </section>
+
+            <!-- Game Mechanics Section -->
+            <section id="mechanics" class="content-section">
+                <h2 class="section-title">Game Mechanics</h2>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title">XP System</h3>
+                    <div class="info-box">
+                        <p><strong>Level Range:</strong> 1-99</p>
+                        <p><strong>XP Cap:</strong> 200,000,000 (displayed with formatting)</p>
+                        <p><strong>Trimmed Status:</strong> Achieved at 50,000,000 XP</p>
+                        <p><strong>Special Note:</strong> Hitpoints starts at level 10</p>
+                        <p><strong>XP Drops:</strong> Show with skill icon and formatted amount</p>
+                        <p><strong>Milestones:</strong> Celebrated at every 10,000,000 XP</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Task System</h3>
+                    <div class="info-box">
+                        <h4>Tutorial Tasks (First Two Tasks)</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>First: Chop 28 Logs at Draynor Willow</li>
+                            <li>Second: Mine 14 Tin Ore at South East Varrock mine</li>
+                        </ul>
+                        
+                        <h4 style="margin-top: 15px;">Task Structure</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>Current task (active)</li>
+                            <li>Next task (queued)</li>
+                            <li>5 regular task slots with 3 options each</li>
+                            <li>Players can select between options by clicking skill icons</li>
+                        </ul>
+
+                        <h4 style="margin-top: 15px;">Task Ranges</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>Gathering skills: 20-100 items typically</li>
+                            <li>Processing skills: 20-50 items typically</li>
+                            <li>Movement skills: 2-10 laps/trips</li>
+                        </ul>
+
+                        <h4 style="margin-top: 15px;">Task Rerolling</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>Costs 1 Rune Cred</li>
+                            <li>Can reroll all 3 options or just non-selected options</li>
+                            <li>Disabled if insufficient Rune Cred</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Banking System</h3>
+                    <div class="info-box">
+                        <ul style="margin-left: 20px;">
+                            <li>28 inventory slots maximum</li>
+                            <li>Bank has unlimited storage</li>
+                            <li>Deposit all functionality</li>
+                            <li>Withdraw specific amounts</li>
+                            <li>Processing skills require banking before starting tasks</li>
+                            <li>Gathering skills bank when inventory is full</li>
+                            <li>Bank nodes scattered throughout the map</li>
+                            <li>Banking animation: 600ms duration</li>
+                            <li>Items sorted by items.json order</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Movement & Pathfinding</h3>
+                    <div class="info-box">
+                        <h4>Movement Speeds</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>Base land speed: 3 tiles/second (scales with Agility)</li>
+                            <li>Base water speed: 5 tiles/second (scales with Sailing)</li>
+                            <li>Speed formula: base × (1 + (level - 1) × 0.025)</li>
+                            <li>Speed bonuses from RuneCred system stack</li>
+                        </ul>
+                        
+                        <h4 style="margin-top: 15px;">Pathfinding</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>A* algorithm for dynamic pathfinding</li>
+                            <li>Pre-computed waypoint paths between nodes</li>
+                            <li>Hub-and-spoke routing through banks</li>
+                            <li>Line-of-sight optimization</li>
+                            <li>Path smoothing</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Pet System</h3>
+                    <div class="info-box">
+                        <ul style="margin-left: 20px;">
+                            <li>1/1000 drop chance on task completion</li>
+                            <li>1/10 chance for shiny variant</li>
+                            <li>Multiple pets can be obtained per skill</li>
+                            <li>Provides speed bonuses (5% regular, 10% shiny)</li>
+                            <li>Pet notifications appear in top-left</li>
+                            <li>Pet obtained tasks highlighted in task history</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Formulas Section -->
+            <section id="formulas" class="content-section">
+                <h2 class="section-title">Game Formulas</h2>
+                
+                <div class="formula-box">
+                    <h3>XP Formula</h3>
+                    <div class="formula-code">
+function getXpForLevel(level) {
+    if (level === 1) return 0;
+    if (level === 2) return 83;
+    
+    let total = 0;
+    for (let i = 1; i < level; i++) {
+        total += Math.floor(i + 300 * Math.pow(2, i / 7));
+    }
+    return Math.floor(total / 4);
+}
+                    </div>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Combat Level Formula</h3>
+                    <div class="formula-code">
+base = 0.25 * (defence + hitpoints + floor(prayer / 2))
+melee = 0.325 * (attack + strength)
+range = 0.325 * (floor(ranged * 1.5))
+mage = 0.325 * (floor(magic * 1.5))
+combat_level = floor(base + max(melee, range, mage))
+                    </div>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Speed Bonus Calculation</h3>
+                    <div class="formula-code">
+bonus = 0;
+if (hasPet) bonus += 0.05;
+if (hasShinyPet) bonus += 0.10;
+if (hasSkillCape) bonus += 0.05;
+if (hasTrimmedCape) bonus += 0.10;
+if (hasMaxCape) bonus += 0.05;
+if (hasTrimmedMaxCape) bonus += 0.10;
+// Maximum: 45%
+                    </div>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Weight Multiplier Formula</h3>
+                    <div class="formula-code">
+// For modification level n:
+if (n > 0) multiplier = 1.25^n;
+if (n < 0) multiplier = 0.8^|n|;
+if (n == 0) multiplier = 1.0;
+                    </div>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Number Formatting</h3>
+                    <div class="formula-code">
+// Item Counts:
+< 100K: Show with commas (gold color)
+100K-9.99M: Show as "XXXk" (white color)
+10M+: Show as "XXM" (green color)
+
+// XP Display:
+Formatted with commas
+Rounded to 1 decimal in drops
+                    </div>
+                </div>
+            </section>
+
+            <!-- RuneCred System Section -->
+            <section id="runecred" class="content-section">
+                <h2 class="section-title">RuneCred System</h2>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title">Three-Tier Currency</h3>
+                    <div class="info-box">
+                        <ul style="margin-left: 20px;">
+                            <li><strong>Skill Credits:</strong> Each skill starts with 10 credits, +1 per task completed in that skill</li>
+                            <li><strong>Skill Cred:</strong> Equal to total level (sum of all skill levels)</li>
+                            <li><strong>Rune Cred:</strong> Universal currency, starts at 5, +1 per any task completion</li>
+                            <li><strong>Persistence:</strong> Can be toggled on/off (currently disabled by default)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Credit Costs (Exponential)</h3>
+                    <div class="info-box">
+                        <p><strong>Base costs:</strong> 25 for skill weights, 5 for task/node/quantity</p>
+                        <p><strong>Cost formula:</strong> baseCost × 2^(level-1) for each modification level</p>
+                        <p><strong>Example:</strong> Level 1 = 25, Level 2 = 50, Level 3 = 100, Level 4 = 200</p>
+                        <p><strong>Refunds:</strong> Credits are refunded when moving back toward 0</p>
+                        <p><strong>Maximum modification level:</strong> ±10</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Weight System</h3>
+                    <div class="info-box">
+                        <ul style="margin-left: 20px;">
+                            <li><strong>Skill weights:</strong> Affects which skills get selected for tasks</li>
+                            <li><strong>Task weights:</strong> Affects which items are chosen within a skill</li>
+                            <li><strong>Node weights:</strong> Affects which locations are selected</li>
+                            <li><strong>Quantity modifiers:</strong> Affects task target amounts</li>
+                            <li><strong>Weight formula:</strong> 1.25^level for positive, 0.8^|level| for negative</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Speed Bonuses</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Bonus</th>
+                                <th>Requirement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Pet</td>
+                                <td>5%</td>
+                                <td>Per skill</td>
+                            </tr>
+                            <tr>
+                                <td>Shiny Pet</td>
+                                <td>10%</td>
+                                <td>Stacks with regular</td>
+                            </tr>
+                            <tr>
+                                <td>Skill Cape</td>
+                                <td>5%</td>
+                                <td>Level 99</td>
+                            </tr>
+                            <tr>
+                                <td>Trimmed Cape</td>
+                                <td>10%</td>
+                                <td>50M XP</td>
+                            </tr>
+                            <tr>
+                                <td>Max Cape</td>
+                                <td>5%</td>
+                                <td>All skills 99</td>
+                            </tr>
+                            <tr>
+                                <td>Trimmed Max Cape</td>
+                                <td>10%</td>
+                                <td>All skills 50M XP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Maximum Total</strong></td>
+                                <td><strong>45%</strong></td>
+                                <td>All bonuses</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Clue Scrolls Section -->
+            <section id="clues" class="content-section">
+                <h2 class="section-title">Clue Scrolls</h2>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title">Clue Tiers & Drop Rates</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tier</th>
+                                <th>Drop Rate</th>
+                                <th>Steps</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Easy</td>
+                                <td>1/250</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Medium</td>
+                                <td>1/500</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Hard</td>
+                                <td>1/1000</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Elite</td>
+                                <td>1/1500</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Master</td>
+                                <td>1/2500</td>
+                                <td>4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Clue Mechanics</h3>
+                    <div class="info-box">
+                        <ul style="margin-left: 20px;">
+                            <li>Step-based progression (must visit nodes in order)</li>
+                            <li>Complete clues can be converted to caskets</li>
+                            <li>Casket rewards from caskets.json</li>
+                            <li>Floating display for completed clues</li>
+                            <li>Tasks at clue nodes show clue indicator</li>
+                            <li>Can destroy clues via right-click menu</li>
+                            <li>Step completion overlay on clue icons</li>
+                            <li>Green border and pulse animation when complete</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="casket-rewards" class="subsection">
+                    <h3 class="subsection-title">Casket Rewards</h3>
+                    <div class="loading">Loading casket rewards...</div>
+                </div>
+            </section>
+
+            <!-- Shop Section -->
+            <section id="shop" class="content-section">
+                <h2 class="section-title">Shop System</h2>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title">Shop Mechanics</h3>
+                    <div class="info-box">
+                        <ul style="margin-left: 20px;">
+                            <li><strong>Categories:</strong> Supplies (1 rotating item), Resources (2 rotating items), Runes (1 rotating item)</li>
+                            <li><strong>Price fluctuations:</strong> 50%-200% of base price (whole numbers)</li>
+                            <li><strong>Rotation:</strong> Items rotate on task completion</li>
+                            <li><strong>Purchase:</strong> Uses bank gold only</li>
+                            <li><strong>Delivery:</strong> Items sent directly to bank</li>
+                            <li><strong>Save State:</strong> Current and previous stock preserved</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="shop-items" class="subsection">
+                    <h3 class="subsection-title">Shop Items</h3>
+                    <div class="loading">Loading shop data...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="back-to-top" id="backToTop">↑</div>
+
+    <script>
+        // Global data storage
+        let gameData = {
+            skills: {},
+            items: {},
+            activities: {},
+            nodes: {},
+            shop: {},
+            caskets: {}
+        };
+
+        // Initialize wiki
+        async function initWiki() {
+            try {
+                // Load all data files
+                await loadGameData();
+                
+                // Initialize UI
+                initNavigation();
+                initSearch();
+                initScrollToTop();
+                
+                // Render initial content
+                renderSkills();
+                renderItems();
+                renderActivities();
+                renderNodes();
+                renderShop();
+                renderCaskets();
+            } catch (error) {
+                console.error('Failed to initialize wiki:', error);
+                showError('Failed to load game data. Please refresh the page.');
+            }
+        }
+
+        // Load game data from JSON files
+        async function loadGameData() {
+            const dataFiles = [
+                { name: 'skills', path: '../data/skills.json' },
+                { name: 'items', path: '../data/items.json' },
+                { name: 'activities', path: '../data/activities.json' },
+                { name: 'nodes', path: '../data/nodes.json' },
+                { name: 'shop', path: '../data/shop.json' },
+                { name: 'caskets', path: '../data/caskets.json' }
+            ];
+
+            for (const file of dataFiles) {
+                try {
+                    const response = await fetch(file.path);
+                    if (response.ok) {
+                        gameData[file.name] = await response.json();
+                    } else {
+                        console.warn(`Failed to load ${file.name} data`);
+                        // Use embedded data as fallback if needed
+                        gameData[file.name] = getEmbeddedData(file.name);
+                    }
+                } catch (error) {
+                    console.warn(`Error loading ${file.name}:`, error);
+                    // Use embedded data as fallback
+                    gameData[file.name] = getEmbeddedData(file.name);
+                }
+            }
+        }
+
+        // Get embedded data (fallback for when files can't be loaded)
+        function getEmbeddedData(dataType) {
+            // This would contain the embedded data from the document
+            // For brevity, returning empty objects, but in production would have full data
+            return {};
+        }
+
+        // Navigation system
+        function initNavigation() {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const sections = document.querySelectorAll('.content-section');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetSection = tab.dataset.section;
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update active section
+                    sections.forEach(s => s.classList.remove('active'));
+                    document.getElementById(targetSection).classList.add('active');
+                });
+            });
+        }
+
+        // Search functionality
+        function initSearch() {
+            const searchInput = document.getElementById('search');
+            
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                if (query.length < 2) return;
+                
+                performSearch(query);
+            });
+        }
+
+        // Perform search across all data
+        function performSearch(query) {
+            // Search implementation would go here
+            console.log('Searching for:', query);
+        }
+
+        // Scroll to top button
+        function initScrollToTop() {
+            const button = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    button.classList.add('visible');
+                } else {
+                    button.classList.remove('visible');
+                }
+            });
+            
+            button.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Render skills
+        function renderSkills() {
+            const container = document.getElementById('skills-container');
+            if (!gameData.skills || Object.keys(gameData.skills).length === 0) {
+                container.innerHTML = '<div class="error">Skills data not available</div>';
+                return;
+            }
+
+            const skillsHtml = Object.entries(gameData.skills).map(([id, skill]) => {
+                const color = `var(--color-${id})`;
+                return `
+                    <div class="skill-card">
+                        <div class="skill-header">
+                            <div class="skill-icon" style="background: ${color};">
+                                ${skill.name.charAt(0)}
+                            </div>
+                            <div>
+                                <div class="skill-name">${skill.name}</div>
+                                <div class="skill-category">${skill.category}</div>
+                            </div>
+                        </div>
+                        <p>${skill.description}</p>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = skillsHtml;
+        }
+
+        // Render items
+        function renderItems() {
+            const container = document.getElementById('items-container');
+            const filter = document.getElementById('items-category-filter');
+            
+            if (!gameData.items || Object.keys(gameData.items).length === 0) {
+                container.innerHTML = '<div class="error">Items data not available</div>';
+                return;
+            }
+
+            function displayItems(category = 'all') {
+                const filteredItems = Object.entries(gameData.items).filter(([id, item]) => {
+                    return category === 'all' || item.category === category;
+                });
+
+                const itemsHtml = filteredItems.map(([id, item]) => {
+                    return `
+                        <div class="item-card">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-category">${item.category}</div>
+                            ${item.stackable ? '<div class="item-stackable">Stackable</div>' : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = itemsHtml || '<div class="info-box">No items found</div>';
+            }
+
+            filter.addEventListener('change', (e) => displayItems(e.target.value));
+            displayItems();
+        }
+
+        // Render activities
+        function renderActivities() {
+            const container = document.getElementById('activities-container');
+            if (!gameData.activities || Object.keys(gameData.activities).length === 0) {
+                container.innerHTML = '<div class="error">Activities data not available</div>';
+                return;
+            }
+
+            const activitiesHtml = Object.entries(gameData.activities).map(([id, activity]) => {
+                const skillColor = activity.skill ? `var(--color-${activity.skill})` : '#666';
+                return `
+                    <div class="activity-item">
+                        <div class="activity-header">
+                            <span class="activity-name">${activity.name}</span>
+                            <span class="activity-skill" style="background: ${skillColor};">
+                                ${activity.skill || 'N/A'}
+                            </span>
+                        </div>
+                        <div class="activity-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Required Level</span>
+                                <span class="detail-value">${activity.requiredLevel || 1}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Base Duration</span>
+                                <span class="detail-value">${(activity.baseDuration / 1000).toFixed(1)}s</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">XP/Action</span>
+                                <span class="detail-value">${activity.xpPerAction || 'Varies'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = activitiesHtml;
+        }
+
+        // Render nodes
+        function renderNodes() {
+            const container = document.getElementById('nodes-container');
+            const filter = document.getElementById('nodes-type-filter');
+            
+            if (!gameData.nodes || Object.keys(gameData.nodes).length === 0) {
+                container.innerHTML = '<div class="error">Nodes data not available</div>';
+                return;
+            }
+
+            function displayNodes(type = 'all') {
+                const filteredNodes = Object.entries(gameData.nodes).filter(([id, node]) => {
+                    return type === 'all' || node.type === type;
+                });
+
+                const nodesHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Position</th>
+                                <th>Activities</th>
+                                <th>Nearest Bank</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filteredNodes.map(([id, node]) => `
+                                <tr>
+                                    <td>${node.name}</td>
+                                    <td>${node.type}</td>
+                                    <td>${node.position ? `${node.position.x}, ${node.position.y}` : 'N/A'}</td>
+                                    <td>${node.activities ? node.activities.join(', ') : 'N/A'}</td>
+                                    <td>${node.nearestBank || 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = nodesHtml;
+            }
+
+            filter.addEventListener('change', (e) => displayNodes(e.target.value));
+            displayNodes();
+        }
+
+        // Render shop
+        function renderShop() {
+            const container = document.getElementById('shop-items');
+            if (!gameData.shop || Object.keys(gameData.shop).length === 0) {
+                container.innerHTML = '<div class="error">Shop data not available</div>';
+                return;
+            }
+
+            let shopHtml = '';
+            
+            for (const [category, items] of Object.entries(gameData.shop)) {
+                shopHtml += `
+                    <h4 style="margin-top: 20px; color: var(--accent);">${category.charAt(0).toUpperCase() + category.slice(1)}</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Base Price</th>
+                                <th>Price Range</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(item => `
+                                <tr>
+                                    <td>${item.itemId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</td>
+                                    <td>${item.basePrice.toLocaleString()} gp</td>
+                                    <td>${Math.floor(item.basePrice * 0.5).toLocaleString()} - ${(item.basePrice * 2).toLocaleString()} gp</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            container.innerHTML = shopHtml;
+        }
+
+        // Render caskets
+        function renderCaskets() {
+            const container = document.getElementById('casket-rewards');
+            if (!gameData.caskets || Object.keys(gameData.caskets).length === 0) {
+                container.innerHTML = '<div class="error">Casket data not available</div>';
+                return;
+            }
+
+            let casketHtml = '';
+            
+            for (const [tier, rewards] of Object.entries(gameData.caskets)) {
+                const uniqueRewards = rewards.length;
+                const maxCoins = rewards.find(r => r.itemId === 'coins')?.maxRoll || 0;
+                
+                casketHtml += `
+                    <div class="info-box" style="margin-bottom: 20px;">
+                        <h4 style="color: var(--accent);">${tier.charAt(0).toUpperCase() + tier.slice(1)} Casket</h4>
+                        <p><strong>Unique Rewards:</strong> ${uniqueRewards} items</p>
+                        <p><strong>Max Coins:</strong> ${maxCoins.toLocaleString()} gp</p>
+                        <p><strong>Notable Items:</strong></p>
+                        <div style="margin-top: 10px;">
+                            ${rewards.filter(r => r.itemId !== 'coins').slice(0, 5).map(r => 
+                                `<span class="tag">${r.itemId.replace(/_/g, ' ')}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = casketHtml;
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.getElementById('content').prepend(errorDiv);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initWiki);
+    </script>
+</body>
+</html>
