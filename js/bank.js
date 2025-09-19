@@ -19,15 +19,8 @@ class Bank {
             window.ui.updateBank();
         }
         
-        // Check if this affects current task
-        if (window.taskManager && taskManager.currentTask && 
-            !taskManager.currentTask.isCookingTask && 
-            taskManager.currentTask.itemId === itemId) {
-            taskManager.updateTaskProgress(taskManager.currentTask);
-            if (window.ui) {
-                window.ui.updateTaskProgressBarsOnly();
-            }
-        }
+        // DON'T update task progress here - it will be handled by the next AI decision
+        // This prevents double-counting when banking
     }
 
     withdraw(itemId, quantity) {
