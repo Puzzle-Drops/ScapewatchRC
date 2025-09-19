@@ -102,12 +102,6 @@ async function startGame() {
     // Hide loading screen
     document.getElementById('loading-screen').style.display = 'none';
     
-    // Initialize dev console BEFORE login check
-    if (window.DevConsole) {
-        window.devConsole = new DevConsole();
-        console.log('Dev console initialized - Press ` (backtick) to open');
-    }
-    
     // Check if user is logged in
     if (!gameState.isLoggedIn && !firebaseManager.isOfflineMode) {
         // Show login screen
@@ -134,6 +128,15 @@ async function continueGameStart() {
     
     // Show game container
     document.getElementById('game-container').style.display = 'block';
+    
+    // Initialize dev console ONLY for dev user or offline mode
+    if (window.DevConsole) {
+        // Check if username is "dev" or in offline mode
+        if (firebaseManager.isOfflineMode || firebaseManager.username === 'dev') {
+            window.devConsole = new DevConsole();
+            console.log('Dev console initialized - Press ` (backtick) to open');
+        }
+    }
     
     // Scaling system is already initialized
     scalingSystem.setupInitialScaling();
