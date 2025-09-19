@@ -4159,7 +4159,7 @@ span.control-emoji {
     border: 1px solid #444;
     border-radius: 4px;
     padding: 8px;
-    min-width: 150px;
+    min-width: 500px;
     display: none;
     z-index: 1000;
     font-size: 28px;
