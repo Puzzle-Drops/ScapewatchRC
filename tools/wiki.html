@@ -1162,7 +1162,7 @@ Rounded to 1 decimal in drops
                     <div class="skill-card">
                         <div class="skill-header">
                             <div class="skill-icon" style="background: ${color};">
-                                <img src="../images/skills/${id}.png" alt="${skill.name}" class="skill-image" 
+                                <img src="../assets/skills/${id}.png" alt="${skill.name}" class="skill-image" 
                                      onerror="this.style.display='none'; this.parentElement.innerHTML='${skill.name.charAt(0)}'">
                             </div>
                             <div>
@@ -1173,22 +1173,22 @@ Rounded to 1 decimal in drops
                         <p>${skill.description}</p>
                         <div class="skill-image-container">
                             <div class="skill-image-item">
-                                <img src="../images/capes/${id}_cape.png" alt="${skill.name} Cape" class="skill-image" 
+                                <img src="../assets/capes/${id}_cape.png" alt="${skill.name} Cape" class="skill-image" 
                                      onerror="this.style.display='none'">
                                 <span class="skill-image-label">Cape</span>
                             </div>
                             <div class="skill-image-item">
-                                <img src="../images/capes/${id}_cape_t.png" alt="${skill.name} Cape (t)" class="skill-image" 
+                                <img src="../assets/capes/${id}_cape_t.png" alt="${skill.name} Cape (t)" class="skill-image" 
                                      onerror="this.style.display='none'">
                                 <span class="skill-image-label">Cape (t)</span>
                             </div>
                             <div class="skill-image-item">
-                                <img src="../images/pets/${id}_pet.png" alt="${skill.name} Pet" class="skill-image" 
+                                <img src="../assets/pets/${id}_pet.png" alt="${skill.name} Pet" class="skill-image" 
                                      onerror="this.style.display='none'">
                                 <span class="skill-image-label">Pet</span>
                             </div>
                             <div class="skill-image-item">
-                                <img src="../images/pets/${id}_pet_shiny.png" alt="${skill.name} Pet (Shiny)" class="skill-image" 
+                                <img src="../assets/pets/${id}_pet_shiny.png" alt="${skill.name} Pet (Shiny)" class="skill-image" 
                                      onerror="this.style.display='none'">
                                 <span class="skill-image-label">Pet (Shiny)</span>
                             </div>
@@ -1218,7 +1218,7 @@ Rounded to 1 decimal in drops
                 const itemsHtml = filteredItems.map(([id, item]) => {
                     return `
                         <div class="item-card">
-                            <img src="../images/items/${id}.png" alt="${item.name}" class="item-image" 
+                            <img src="../assets/items/${id}.png" alt="${item.name}" class="item-image" 
                                  onerror="this.style.display='none'">
                             <div class="item-info">
                                 <div class="item-name">${item.name}</div>
@@ -1362,7 +1362,7 @@ Rounded to 1 decimal in drops
                                             return `
                                                 <tr>
                                                     <td>
-                                                        <img src="../images/items/${item.itemId}.png" alt="${itemName}" class="item-image" 
+                                                        <img src="../assets/items/${item.itemId}.png" alt="${itemName}" class="item-image" 
                                                              onerror="this.style.display='none'">
                                                         ${itemName}
                                                     </td>
@@ -1419,7 +1419,7 @@ Rounded to 1 decimal in drops
                                                         `${reward.minRoll}-${reward.maxRoll}`;
                                         return `
                                             <div class="reward-item">
-                                                <img src="../images/items/${reward.itemId}.png" alt="${itemName}" class="item-image" 
+                                                <img src="../assets/items/${reward.itemId}.png" alt="${itemName}" class="item-image" 
                                                      onerror="this.style.display='none'">
                                                 <span>${itemName}</span>
                                                 <span class="reward-range">${rollRange}</span>
