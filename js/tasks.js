@@ -18,46 +18,116 @@ class TaskManager {
     }
 
     // Generate initial set of tasks (current, next, and 5 regular)
-    generateInitialTasks() {
-        // Generate current and next as single tasks
-        const initialTasks = this.generateMultipleTasks(2);
-        
-        if (initialTasks.length > 0) {
-            this.currentTask = initialTasks[0];
-            // Initialize startingCount for current task if it's a gathering task
-            if (this.currentTask && !this.currentTask.isCookingTask) {
-                this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
-            }
-        }
-        
-        if (initialTasks.length > 1) {
-            this.nextTask = initialTasks[1];
-        }
-        
-        // Generate 5 task slots with 3 options each
-        this.tasks = [];
-        for (let i = 0; i < 5; i++) {
-            const options = this.generateMultipleTasks(3);
-            if (options.length > 0) {
-                this.tasks.push({
-                    options: options,
-                    selectedIndex: 0,  // Auto-select first option
-                    displayOrder: [0, 1, 2]  // Track display order for swapping
-                });
-            }
-        }
-        
-        // Notify UI to update
-        if (window.ui) {
-            window.ui.updateTasks();
-        }
-        
-        // Notify AI about the new current task
-        if (window.ai) {
-            window.ai.currentTask = null;
-            window.ai.decisionCooldown = 0;
+generateInitialTasks() {
+    // Check if this is a brand new player (no completed tasks ever)
+    const isBrandNewPlayer = this.completedTasks.length === 0;
+    
+    if (isBrandNewPlayer) {
+        console.log('Brand new player detected - using tutorial tasks');
+        // Use hardcoded tutorial tasks for brand new players
+        this.generateTutorialTasks();
+    } else {
+        console.log('Existing player - generating random tasks');
+        // Generate random tasks for existing players who lost their current tasks somehow
+        this.generateRandomInitialTasks();
+    }
+}
+
+// Hardcoded tutorial tasks for brand new players
+generateTutorialTasks() {
+    // First task: Chop 28 logs at Draynor oak trees
+    this.currentTask = {
+        skill: 'woodcutting',
+        itemId: 'logs',
+        targetCount: 28,
+        nodeId: 'draynor_oak',
+        activityId: 'woodcutting_oak',
+        description: 'Chop 28 Logs at Draynor oak trees',
+        startingCount: this.getCurrentItemCount('logs'),
+        progress: 0
+    };
+    
+    // Second task: Mine 14 tin at South-east Varrock mine
+    this.nextTask = {
+        skill: 'mining',
+        itemId: 'tin_ore',
+        targetCount: 14,
+        nodeId: 'south_east_varrock_mine',
+        activityId: 'mining_copper_tin',
+        description: 'Mine 14 Tin ore at South-east Varrock mine',
+        startingCount: null, // Will be set when it becomes current
+        progress: 0
+    };
+    
+    // Generate 5 random task slots for the queue (these can be rerolled)
+    this.tasks = [];
+    for (let i = 0; i < 5; i++) {
+        const options = this.generateMultipleTasks(3);
+        if (options.length > 0) {
+            this.tasks.push({
+                options: options,
+                selectedIndex: 0,
+                displayOrder: [0, 1, 2]
+            });
         }
     }
+    
+    // Notify UI to update
+    if (window.ui) {
+        window.ui.updateTasks();
+    }
+    
+    // Notify AI about the new current task
+    if (window.ai) {
+        window.ai.currentTask = null;
+        window.ai.decisionCooldown = 0;
+    }
+    
+    console.log('Tutorial tasks created successfully');
+}
+
+// Generate random initial tasks (for existing players who somehow lost their tasks)
+generateRandomInitialTasks() {
+    // This is the OLD generateInitialTasks logic
+    // Generate current and next as single tasks
+    const initialTasks = this.generateMultipleTasks(2);
+    
+    if (initialTasks.length > 0) {
+        this.currentTask = initialTasks[0];
+        // Initialize startingCount for current task if it's a gathering task
+        if (this.currentTask && !this.currentTask.isCookingTask) {
+            this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
+        }
+    }
+    
+    if (initialTasks.length > 1) {
+        this.nextTask = initialTasks[1];
+    }
+    
+    // Generate 5 task slots with 3 options each
+    this.tasks = [];
+    for (let i = 0; i < 5; i++) {
+        const options = this.generateMultipleTasks(3);
+        if (options.length > 0) {
+            this.tasks.push({
+                options: options,
+                selectedIndex: 0,  // Auto-select first option
+                displayOrder: [0, 1, 2]  // Track display order for swapping
+            });
+        }
+    }
+    
+    // Notify UI to update
+    if (window.ui) {
+        window.ui.updateTasks();
+    }
+    
+    // Notify AI about the new current task
+    if (window.ai) {
+        window.ai.currentTask = null;
+        window.ai.decisionCooldown = 0;
+    }
+}
 
     // Generate multiple tasks at once
     generateMultipleTasks(count) {
