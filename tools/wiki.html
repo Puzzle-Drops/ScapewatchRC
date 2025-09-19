@@ -447,11 +447,6 @@
     <header>
         <div class="container">
             <h1>Scapewatch Wiki</h1>
-            <div class="search-container">
-                <div class="search-box">
-                    <input type="text" id="search" placeholder="Search for skills, items, activities, or nodes...">
-                </div>
-            </div>
         </div>
     </header>
 
@@ -1262,12 +1257,6 @@ Rounded to 1 decimal in drops
                         <h4 style="color: var(--accent);">${tier.charAt(0).toUpperCase() + tier.slice(1)} Casket</h4>
                         <p><strong>Unique Rewards:</strong> ${uniqueRewards} items</p>
                         <p><strong>Max Coins:</strong> ${maxCoins.toLocaleString()} gp</p>
-                        <p><strong>Notable Items:</strong></p>
-                        <div style="margin-top: 10px;">
-                            ${rewards.filter(r => r.itemId !== 'coins').slice(0, 5).map(r => 
-                                `<span class="tag">${r.itemId.replace(/_/g, ' ')}</span>`
-                            ).join('')}
-                        </div>
                     </div>
                 `;
             }
