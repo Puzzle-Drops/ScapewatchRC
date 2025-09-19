@@ -730,7 +730,7 @@ body {
     width: 1000px;
     max-height: 1350px;
     height: 1350px;
-    overflow-y: auto;
+    overflow: visible;
     top: 40px;
 }
 
@@ -745,6 +745,9 @@ body {
     grid-template-columns: repeat(8, 1fr);
     gap: 12px;
     margin-bottom: 20px;
+    overflow-y: auto;
+    max-height: calc(1350px - 100px);
+    padding-right: 10px;
 }
 
 .bank-slot {
@@ -758,6 +761,7 @@ body {
     justify-content: center;
     position: relative;
     cursor: pointer;
+    overflow: visible;
 }
 
 .bank-slot:hover {
