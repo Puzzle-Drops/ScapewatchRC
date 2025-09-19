@@ -53,7 +53,7 @@ generateTutorialTasks() {
         itemId: 'tin_ore',
         targetCount: 14,
         nodeId: 'south_east_varrock_mine',
-        activityId: 'mining_copper_tin',
+        activityId: 'mine_copper_tin',
         description: 'Mine 14 Tin ore at South-east Varrock mine',
         startingCount: null, // Will be set when it becomes current
         progress: 0
