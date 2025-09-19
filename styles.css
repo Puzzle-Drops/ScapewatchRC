@@ -4162,7 +4162,7 @@ span.control-emoji {
     min-width: 150px;
     display: none;
     z-index: 1000;
-    font-size: 12px;
+    font-size: 28px;
     pointer-events: none;
     margin-bottom: 4px;
 }
@@ -4192,7 +4192,7 @@ span.control-emoji {
 
 .reroll-tooltip-balance {
     color: #2ecc71;
-    font-size: 11px;
+    font-size: 24px;
 }
 
 .reroll-tooltip-balance.insufficient {
