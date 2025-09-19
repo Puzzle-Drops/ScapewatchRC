@@ -170,49 +170,76 @@ class TaskManager {
     }
 
     // Generic method to set task progress directly
-    setTaskProgress(task, progress) {
-        task.progress = Math.min(Math.max(0, progress), 1);
-        
-        // Check if complete
-        if (task.progress >= 1) {
-            this.completeTask(task); // No await needed - fire and forget
-        }
-        
-        // Update UI
-        if (window.ui) {
-            window.ui.updateTaskProgressBarsOnly();
-        }
+setTaskProgress(task, progress) {
+    task.progress = Math.min(Math.max(0, progress), 1);
+    
+    // Check if complete
+    if (task.progress >= 1) {
+        this.completeTask(task); // No await needed - fire and forget
     }
+    
+    // Update UI - both progress bars and floating display
+    if (window.ui) {
+        window.ui.updateTaskProgressBarsOnly();
+        // Also update the floating task display
+        window.ui.updateFloatingTaskDisplay();
+    }
+}
 
     // Update task progress for a specific task (for gathering tasks)
-    updateTaskProgress(task) {
-        // Cooking tasks should not use this method - they update via setTaskProgress
-        if (task.isCookingTask) {
-            return;
-        }
-        
-        // Normal gathering task - track items gained
-        const currentCount = this.getCurrentItemCount(task.itemId);
-        const itemsGained = currentCount - task.startingCount;
-        const progress = itemsGained / task.targetCount;
-        
-        this.setTaskProgress(task, progress);
+updateTaskProgress(task) {
+    // Processing tasks should not use this method - they update via setTaskProgress
+    if (task.isCookingTask || 
+        task.isFiremakingTask ||
+        task.isAgilityTask ||
+        task.isSailingTask ||
+        task.isThievingTask ||
+        task.isHuntingTask ||
+        task.isRunecraftingTask ||
+        task.isConstructionTask ||
+        task.isHerbloreTask ||
+        task.isFletchingTask ||
+        task.isFarmingTask ||
+        task.isSmithingTask ||
+        task.isCraftingTask) {
+        return;
     }
+    
+    // Initialize startingCount if not set (prevents double-counting)
+    if (task.startingCount === null || task.startingCount === undefined) {
+        task.startingCount = this.getCurrentItemCount(task.itemId);
+        console.log(`Initializing starting count for "${task.description}": ${task.startingCount}`);
+    }
+    
+    // Normal gathering task - track items gained
+    const currentCount = this.getCurrentItemCount(task.itemId);
+    const itemsGained = currentCount - task.startingCount;
+    const progress = Math.min(Math.max(0, itemsGained / task.targetCount), 1);
+    
+    this.setTaskProgress(task, progress);
+}
 
     // Update progress for the current task if it matches the given item
-    updateProgressForItem(itemId) {
-        // Only update gathering tasks - processing tasks manage their own progress
-        if (this.currentTask && 
-            !this.currentTask.isCookingTask && 
-            !this.currentTask.isFiremakingTask && 
-            !this.currentTask.isAgilityTask && 
-            !this.currentTask.isSailingTask && 
-            !this.currentTask.isThievingTask && 
-            !this.currentTask.isHuntingTask && 
-            this.currentTask.itemId === itemId) {
-            this.updateTaskProgress(this.currentTask);
-        }
+updateProgressForItem(itemId) {
+    // Only update gathering tasks - processing tasks manage their own progress
+    if (this.currentTask && 
+        !this.currentTask.isCookingTask && 
+        !this.currentTask.isFiremakingTask && 
+        !this.currentTask.isAgilityTask && 
+        !this.currentTask.isSailingTask && 
+        !this.currentTask.isThievingTask && 
+        !this.currentTask.isHuntingTask && 
+        !this.currentTask.isRunecraftingTask &&
+        !this.currentTask.isConstructionTask &&
+        !this.currentTask.isHerbloreTask &&
+        !this.currentTask.isFletchingTask &&
+        !this.currentTask.isFarmingTask &&
+        !this.currentTask.isSmithingTask &&
+        !this.currentTask.isCraftingTask &&
+        this.currentTask.itemId === itemId) {
+        this.updateTaskProgress(this.currentTask);
     }
+}
 
     // Update all task progress (called periodically to sync)
     updateAllProgress() {
@@ -369,10 +396,29 @@ async completeTask(task) {
         }
         
         // Initialize starting count for new current task if it's a gathering task
-        if (this.currentTask && !this.currentTask.isCookingTask && this.currentTask.startingCount === null) {
-            this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
-            console.log(`New current task "${this.currentTask.description}" starting count: ${this.currentTask.startingCount}`);
-        }
+if (this.currentTask) {
+    // Check if this is a gathering task (not a processing task)
+    const isProcessingTask = this.currentTask.isCookingTask || 
+        this.currentTask.isFiremakingTask ||
+        this.currentTask.isAgilityTask ||
+        this.currentTask.isSailingTask ||
+        this.currentTask.isThievingTask ||
+        this.currentTask.isHuntingTask ||
+        this.currentTask.isRunecraftingTask ||
+        this.currentTask.isConstructionTask ||
+        this.currentTask.isHerbloreTask ||
+        this.currentTask.isFletchingTask ||
+        this.currentTask.isFarmingTask ||
+        this.currentTask.isSmithingTask ||
+        this.currentTask.isCraftingTask;
+    
+    if (!isProcessingTask && (this.currentTask.startingCount === null || this.currentTask.startingCount === undefined)) {
+        // IMPORTANT: Invalidate cache before getting count to ensure fresh data
+        this.invalidateCache();
+        this.currentTask.startingCount = this.getCurrentItemCount(this.currentTask.itemId);
+        console.log(`New current task "${this.currentTask.description}" starting count: ${this.currentTask.startingCount}`);
+    }
+}
         
         // Move first regular task to next
         if (this.tasks.length > 0) {
