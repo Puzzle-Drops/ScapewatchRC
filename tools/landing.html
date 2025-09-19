@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scapewatch - Idle Skilling Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.1) 0%, transparent 100%);
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 72px;
+            color: #f39c12;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
+            50% { text-shadow: 2px 2px 20px rgba(243, 156, 18, 0.5); }
+        }
+
+        .tagline {
+            font-size: 24px;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .btn-secondary {
+            background: #2a2a2a;
+            color: #fff;
+            border: 2px solid #444;
+        }
+
+        .btn-secondary:hover {
+            background: #333;
+            border-color: #f39c12;
+        }
+
+        /* Quick Links */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .link-card {
+            background: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .link-card:hover {
+            border-color: #f39c12;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.2);
+        }
+
+        .link-card img {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 10px;
+        }
+
+        .link-card h3 {
+            color: #f39c12;
+            margin-bottom: 5px;
+        }
+
+        /* Game Info Section */
+        .game-info {
+            background: #222;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid #333;
+        }
+
+        .game-info h2 {
+            color: #f39c12;
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .feature h3 {
+            color: #f39c12;
+            font-size: 20px;
+        }
+
+        .feature p {
+            color: #aaa;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        /* Skills Showcase */
+        .skills-showcase {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 8px;
+        }
+
+        .skill-icon-small {
+            width: 40px;
+            height: 40px;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+        }
+
+        .skill-icon-small:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #333;
+        }
+
+        .loading-bar-decoration {
+            width: 100%;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .loading-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+            width: 100%;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 48px; }
+            .tagline { font-size: 18px; }
+            .action-buttons { flex-direction: column; align-items: center; }
+            .btn { width: 100%; max-width: 300px; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Scapewatch</h1>
+            <p class="tagline">The Ultimate Idle Skilling Adventure</p>
+            <div class="loading-bar-decoration">
+                <div class="loading-fill"></div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="https://puzzle-drops.github.io/ScapewatchRC/" class="btn btn-primary">
+                🎮 Play in Browser
+            </a>
+            <a href="https://github.com/Puzzle-Drops/ScapewatchRC/releases" class="btn btn-secondary">
+                💻 Download Desktop
+            </a>
+            <a href="https://discord.gg/zwQRnsT64m" class="btn btn-secondary">
+                💬 Join Discord
+            </a>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <a href="https://puzzle-drops.github.io/ScapewatchRC/tools/hiscores.html" class="link-card">
+                <img src="../assets/ui/hiscores.png" alt="Hiscores">
+                <h3>Hiscores</h3>
+                <p>Compete for the top ranks</p>
+            </a>
+            <a href="https://puzzle-drops.github.io/ScapewatchRC/tools/world-map.html" class="link-card">
+                <img src="../assets/skills/skills.png" alt="World Map">
+                <h3>World Map</h3>
+                <p>Explore the vast world</p>
+            </a>
+        </div>
+
+        <!-- How It Works -->
+        <div class="game-info">
+            <h2>How It Works</h2>
+            <p style="font-size: 16px; color: #aaa; margin-bottom: 20px;">
+                Scapewatch is an idle skilling game where your character automatically completes tasks, 
+                gains experience, and progresses through a vast world of activities. Set your goals, 
+                customize your skill preferences, and watch your character grow!
+            </p>
+            
+            <div class="feature-grid">
+                <div class="feature">
+                    <div class="feature-header">
+                        <img src="../assets/ui/tasks.png" class="feature-icon" alt="Tasks">
+                        <h3>Tasks System</h3>
+                    </div>
+                    <p>
+                        Your character automatically works through a queue of tasks. Each task involves 
+                        gathering or processing items at specific nodes. Complete tasks to earn Rune Credits 
+                        and unlock customization options.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-header">
+                        <img src="../assets/skills/skills.png" class="feature-icon" alt="Nodes">
+                        <h3>Nodes & Activities</h3>
+                    </div>
+                    <p>
+                        Travel between nodes across the world map. Each node offers different activities 
+                        like mining ores, fishing, woodcutting, and more. Your character intelligently 
+                        navigates and banks items when needed.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-header">
+                        <img src="../assets/skills/sailing.png" class="feature-icon" alt="Skills">
+                        <h3>24 Skills</h3>
+                    </div>
+                    <p>
+                        Master 24 unique skills including the exclusive Sailing skill! Each skill levels 
+                        from 1 to 99, unlocking new activities and better rewards. Customize skill weights 
+                        to focus on your favorites.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-header">
+                        <img src="../assets/ui/pets.png" class="feature-icon" alt="Pets">
+                        <h3>Pet Collection</h3>
+                    </div>
+                    <p>
+                        Earn skill pets by completing tasks! Each skill has a unique pet with regular 
+                        and shiny variants. Collect them all to show off your dedication and unlock 
+                        the prestigious Max Cape.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-header">
+                        <img src="../assets/items/medium_clue.png" class="feature-icon" alt="Clues">
+                        <h3>Clue Scrolls</h3>
+                    </div>
+                    <p>
+                        Discover clue scrolls while skilling! Complete multi-step treasure hunts across 
+                        the world to earn caskets filled with valuable rewards. Five tiers from Easy to 
+                        Master await brave adventurers.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-header">
+                        <img src="../assets/ui/shop.png" class="feature-icon" alt="Shop">
+                        <h3>Dynamic Shop</h3>
+                    </div>
+                    <p>
+                        The shop rotates stock with each task completion. Buy supplies, resources, and 
+                        runes at fluctuating prices. Smart shopping can accelerate your progress 
+                        significantly!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Display -->
+        <div class="game-info">
+            <h2>Master All Skills</h2>
+            <div class="skills-showcase">
+                <img src="../assets/skills/attack.png" class="skill-icon-small" title="Attack">
+                <img src="../assets/skills/strength.png" class="skill-icon-small" title="Strength">
+                <img src="../assets/skills/defence.png" class="skill-icon-small" title="Defence">
+                <img src="../assets/skills/ranged.png" class="skill-icon-small" title="Ranged">
+                <img src="../assets/skills/prayer.png" class="skill-icon-small" title="Prayer">
+                <img src="../assets/skills/magic.png" class="skill-icon-small" title="Magic">
+                <img src="../assets/skills/hitpoints.png" class="skill-icon-small" title="Hitpoints">
+                <img src="../assets/skills/agility.png" class="skill-icon-small" title="Agility">
+                <img src="../assets/skills/herblore.png" class="skill-icon-small" title="Herblore">
+                <img src="../assets/skills/thieving.png" class="skill-icon-small" title="Thieving">
+                <img src="../assets/skills/crafting.png" class="skill-icon-small" title="Crafting">
+                <img src="../assets/skills/fletching.png" class="skill-icon-small" title="Fletching">
+                <img src="../assets/skills/mining.png" class="skill-icon-small" title="Mining">
+                <img src="../assets/skills/smithing.png" class="skill-icon-small" title="Smithing">
+                <img src="../assets/skills/fishing.png" class="skill-icon-small" title="Fishing">
+                <img src="../assets/skills/cooking.png" class="skill-icon-small" title="Cooking">
+                <img src="../assets/skills/firemaking.png" class="skill-icon-small" title="Firemaking">
+                <img src="../assets/skills/woodcutting.png" class="skill-icon-small" title="Woodcutting">
+                <img src="../assets/skills/farming.png" class="skill-icon-small" title="Farming">
+                <img src="../assets/skills/runecraft.png" class="skill-icon-small" title="Runecraft">
+                <img src="../assets/skills/construction.png" class="skill-icon-small" title="Construction">
+                <img src="../assets/skills/hunter.png" class="skill-icon-small" title="Hunter">
+                <img src="../assets/skills/slayer.png" class="skill-icon-small" title="Slayer">
+                <img src="../assets/skills/sailing.png" class="skill-icon-small" title="Sailing">
+            </div>
+        </div>
+
+        <!-- Coming Soon -->
+        <div class="game-info">
+            <h2>Coming Soon</h2>
+            <div class="feature-grid">
+                <div class="feature">
+                    <div class="feature-header">
+                        <img src="../assets/skills/combat.png" class="feature-icon" alt="Combat">
+                        <h3>Combat & PVM</h3>
+                    </div>
+                    <p>
+                        Epic boss battles and combat mechanics are in development! Prepare to face 
+                        challenging enemies and earn exclusive rewards.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 Scapewatch - An Idle Skilling Adventure</p>
+            <p style="margin-top: 10px; color: #444;">
+                Automatically complete tasks • Level up skills • Collect pets • Find treasure
+            </p>
+        </div>
+    </div>
+</body>
+</html>
