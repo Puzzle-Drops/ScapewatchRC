@@ -222,6 +222,8 @@
             padding: 15px;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
         }
 
         .item-card:hover {
@@ -242,6 +244,19 @@
         .item-stackable {
             color: var(--success);
             font-size: 0.85em;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-image {
+            width: 24px;
+            height: 24px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            margin-right: 8px;
         }
 
         table {
@@ -440,6 +455,104 @@
 
         .detail-value {
             font-weight: 500;
+        }
+
+        .expandable-section {
+            margin: 20px 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-tertiary);
+            transition: all 0.3s;
+        }
+
+        .expandable-header:hover {
+            background: var(--bg-primary);
+        }
+
+        .expandable-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: var(--accent);
+        }
+
+        .expand-icon {
+            transition: transform 0.3s;
+        }
+
+        .expandable-header.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .expandable-content.expanded {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .expandable-content-inner {
+            padding: 20px;
+        }
+
+        .skill-image-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .skill-image-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .skill-image {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .skill-image-label {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+        }
+
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .reward-item {
+            background: var(--bg-tertiary);
+            padding: 8px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        .reward-range {
+            color: var(--text-secondary);
+            margin-left: auto;
         }
     </style>
 </head>
@@ -1068,7 +1181,8 @@ Rounded to 1 decimal in drops
                     <div class="skill-card">
                         <div class="skill-header">
                             <div class="skill-icon" style="background: ${color};">
-                                ${skill.name.charAt(0)}
+                                <img src="../images/skills/${id}.png" alt="${skill.name}" class="skill-image" 
+                                     onerror="this.style.display='none'; this.parentElement.innerHTML='${skill.name.charAt(0)}'">
                             </div>
                             <div>
                                 <div class="skill-name">${skill.name}</div>
@@ -1076,6 +1190,28 @@ Rounded to 1 decimal in drops
                             </div>
                         </div>
                         <p>${skill.description}</p>
+                        <div class="skill-image-container">
+                            <div class="skill-image-item">
+                                <img src="../images/capes/${id}_cape.png" alt="${skill.name} Cape" class="skill-image" 
+                                     onerror="this.style.display='none'">
+                                <span class="skill-image-label">Cape</span>
+                            </div>
+                            <div class="skill-image-item">
+                                <img src="../images/capes/${id}_cape_t.png" alt="${skill.name} Cape (t)" class="skill-image" 
+                                     onerror="this.style.display='none'">
+                                <span class="skill-image-label">Cape (t)</span>
+                            </div>
+                            <div class="skill-image-item">
+                                <img src="../images/pets/${id}_pet.png" alt="${skill.name} Pet" class="skill-image" 
+                                     onerror="this.style.display='none'">
+                                <span class="skill-image-label">Pet</span>
+                            </div>
+                            <div class="skill-image-item">
+                                <img src="../images/pets/${id}_pet_shiny.png" alt="${skill.name} Pet (Shiny)" class="skill-image" 
+                                     onerror="this.style.display='none'">
+                                <span class="skill-image-label">Pet (Shiny)</span>
+                            </div>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -1101,9 +1237,13 @@ Rounded to 1 decimal in drops
                 const itemsHtml = filteredItems.map(([id, item]) => {
                     return `
                         <div class="item-card">
-                            <div class="item-name">${item.name}</div>
-                            <div class="item-category">${item.category}</div>
-                            ${item.stackable ? '<div class="item-stackable">Stackable</div>' : ''}
+                            <img src="../images/items/${id}.png" alt="${item.name}" class="item-image" 
+                                 onerror="this.style.display='none'">
+                            <div class="item-info">
+                                <div class="item-name">${item.name}</div>
+                                <div class="item-category">${item.category}</div>
+                                ${item.stackable ? '<div class="item-stackable">Stackable</div>' : ''}
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -1212,26 +1352,49 @@ Rounded to 1 decimal in drops
             let shopHtml = '';
             
             for (const [category, items] of Object.entries(gameData.shop)) {
+                const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
+                const itemCount = items.length;
+                
                 shopHtml += `
-                    <h4 style="margin-top: 20px; color: var(--accent);">${category.charAt(0).toUpperCase() + category.slice(1)}</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Base Price</th>
-                                <th>Price Range</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${items.map(item => `
-                                <tr>
-                                    <td>${item.itemId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</td>
-                                    <td>${item.basePrice.toLocaleString()} gp</td>
-                                    <td>${Math.floor(item.basePrice * 0.5).toLocaleString()} - ${(item.basePrice * 2).toLocaleString()} gp</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                    <div class="expandable-section">
+                        <div class="expandable-header" onclick="toggleExpandable(this)">
+                            <div>
+                                <span class="expandable-title">${categoryTitle}</span>
+                                <span style="color: var(--text-secondary); margin-left: 10px;">(${itemCount} items)</span>
+                            </div>
+                            <span class="expand-icon">▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <div class="expandable-content-inner">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Base Price</th>
+                                            <th>Price Range</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${items.map(item => {
+                                            const itemName = gameData.items[item.itemId]?.name || 
+                                                           item.itemId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                                            return `
+                                                <tr>
+                                                    <td>
+                                                        <img src="../images/items/${item.itemId}.png" alt="${itemName}" class="item-image" 
+                                                             onerror="this.style.display='none'">
+                                                        ${itemName}
+                                                    </td>
+                                                    <td>${item.basePrice.toLocaleString()} gp</td>
+                                                    <td>${Math.floor(item.basePrice * 0.5).toLocaleString()} - ${(item.basePrice * 2).toLocaleString()} gp</td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 `;
             }
 
@@ -1251,17 +1414,52 @@ Rounded to 1 decimal in drops
             for (const [tier, rewards] of Object.entries(gameData.caskets)) {
                 const uniqueRewards = rewards.length;
                 const maxCoins = rewards.find(r => r.itemId === 'coins')?.maxRoll || 0;
+                const tierTitle = tier.charAt(0).toUpperCase() + tier.slice(1);
                 
                 casketHtml += `
-                    <div class="info-box" style="margin-bottom: 20px;">
-                        <h4 style="color: var(--accent);">${tier.charAt(0).toUpperCase() + tier.slice(1)} Casket</h4>
-                        <p><strong>Unique Rewards:</strong> ${uniqueRewards} items</p>
-                        <p><strong>Max Coins:</strong> ${maxCoins.toLocaleString()} gp</p>
+                    <div class="expandable-section">
+                        <div class="expandable-header" onclick="toggleExpandable(this)">
+                            <div>
+                                <span class="expandable-title">${tierTitle} Casket</span>
+                                <span style="color: var(--text-secondary); margin-left: 10px;">
+                                    (${uniqueRewards} unique rewards, max ${maxCoins.toLocaleString()} gp)
+                                </span>
+                            </div>
+                            <span class="expand-icon">▼</span>
+                        </div>
+                        <div class="expandable-content">
+                            <div class="expandable-content-inner">
+                                <div class="rewards-grid">
+                                    ${rewards.map(reward => {
+                                        const itemName = gameData.items[reward.itemId]?.name || 
+                                                       reward.itemId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                                        const rollRange = reward.minRoll === reward.maxRoll ? 
+                                                        reward.maxRoll.toString() : 
+                                                        `${reward.minRoll}-${reward.maxRoll}`;
+                                        return `
+                                            <div class="reward-item">
+                                                <img src="../images/items/${reward.itemId}.png" alt="${itemName}" class="item-image" 
+                                                     onerror="this.style.display='none'">
+                                                <span>${itemName}</span>
+                                                <span class="reward-range">${rollRange}</span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `;
             }
 
             container.innerHTML = casketHtml;
+        }
+
+        // Toggle expandable sections
+        function toggleExpandable(header) {
+            header.classList.toggle('expanded');
+            const content = header.nextElementSibling;
+            content.classList.toggle('expanded');
         }
 
         // Show error message
