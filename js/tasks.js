@@ -40,9 +40,9 @@ generateTutorialTasks() {
         skill: 'woodcutting',
         itemId: 'logs',
         targetCount: 28,
-        nodeId: 'draynor_oak',
-        activityId: 'woodcutting_oak',
-        description: 'Chop 28 Logs at Draynor oak trees',
+        nodeId: 'draynor_willow',
+        activityId: 'chop_tree',
+        description: 'Chop 28 Logs at Draynor Willow',
         startingCount: this.getCurrentItemCount('logs'),
         progress: 0
     };
@@ -54,7 +54,7 @@ generateTutorialTasks() {
         targetCount: 14,
         nodeId: 'south_east_varrock_mine',
         activityId: 'mine_copper_tin',
-        description: 'Mine 14 Tin ore at South-east Varrock mine',
+        description: 'Mine 14 Tin ore at South East Varrock mine',
         startingCount: null, // Will be set when it becomes current
         progress: 0
     };
