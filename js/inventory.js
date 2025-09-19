@@ -60,6 +60,11 @@ class Inventory {
 
         const added = quantity - remaining;
         
+        // Invalidate task cache when inventory changes
+        if (added > 0 && window.taskManager) {
+            taskManager.invalidateCache();
+        }
+        
         // Update UI for changed slots
         if (added > 0 && window.ui) {
             window.ui.updateInventorySlots(changedSlots);
@@ -95,6 +100,11 @@ class Inventory {
         }
 
         const removed = quantity - remaining;
+        
+        // Invalidate task cache when inventory changes
+        if (removed > 0 && window.taskManager) {
+            taskManager.invalidateCache();
+        }
         
         // Update UI for changed slots
         if (removed > 0 && window.ui) {
