@@ -54,7 +54,7 @@ generateTutorialTasks() {
         targetCount: 14,
         nodeId: 'south_east_varrock_mine',
         activityId: 'mine_copper_tin',
-        description: 'Mine 14 Tin ore at South East Varrock mine',
+        description: 'Mine 14 Tin Ore at South East Varrock mine',
         startingCount: null, // Will be set when it becomes current
         progress: 0
     };
