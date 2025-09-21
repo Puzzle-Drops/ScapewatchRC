@@ -9,6 +9,10 @@ import {
     signOut
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { 
+    getFunctions, 
+    httpsCallable 
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
+import { 
     getFirestore, 
     doc, 
     setDoc, 
@@ -27,7 +31,7 @@ import {
     getCountFromServer
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-// Export Firestore functions for use in other modules
+// Export Firestore and Functions helpers for use in other modules
 window.firestoreHelpers = {
     query,
     collection,
@@ -39,7 +43,8 @@ window.firestoreHelpers = {
     doc,
     startAfter,
     endBefore,
-    getCountFromServer
+    getCountFromServer,
+    httpsCallable  // Added for Firebase Functions
 };
 
 class FirebaseManager {
@@ -47,6 +52,7 @@ class FirebaseManager {
         this.app = null;
         this.auth = null;
         this.db = null;
+        this.functions = null;
         this.currentUser = null;
         this.username = null;
         this.isOfflineMode = false;
@@ -67,8 +73,8 @@ class FirebaseManager {
         this.lastTokenRefresh = 0;
         this.TOKEN_REFRESH_INTERVAL = 30 * 60 * 1000; // Refresh token every 30 minutes
         
-        // Task storage limit - only save most recent 500 tasks to Firebase
-        this.MAX_FIREBASE_TASKS = 500; // Maximum tasks to store in Firebase
+        // Task storage limit - only save most recent 10 tasks to Firebase
+        this.MAX_FIREBASE_TASKS = 10; // Maximum tasks to store in Firebase
     }
 
     SENTINEL_DATE = new Date('2099-12-31T23:59:59Z');
@@ -90,6 +96,7 @@ class FirebaseManager {
         this.app = initializeApp(firebaseConfig);
         this.auth = getAuth(this.app);
         this.db = getFirestore(this.app);
+        this.functions = getFunctions(this.app);
 
         // Restore session ID from localStorage if it exists
         this.sessionId = localStorage.getItem('scapewatch_session_id');
@@ -785,9 +792,9 @@ class FirebaseManager {
                 current: taskManager.currentTask,
                 next: taskManager.nextTask,
                 queue: taskManager.tasks,
-                completed: recentCompletedTasks, // Only the most recent 500
+                completed: recentCompletedTasks, // Only the most recent 10
                 // CRITICAL: This tracks the TRUE total number of tasks completed
-                // Used to maintain accurate task numbering even when we only save 500
+                // Used to maintain accurate task numbering even when we only save 10
                 totalCompleted: window.runeCreditManager ? runeCreditManager.totalTasksCompleted : taskManager.completedTasks.length
             },
             
@@ -832,7 +839,30 @@ class FirebaseManager {
 
     // Save game state with connection checking
     async saveGame() {
-        if (this.isOfflineMode || !this.currentUser || !this.connectionHealthy) return;
+        if (this.isOfflineMode) {
+            // OFFLINE MODE: Save to localStorage
+            try {
+                const saveData = this.collectSaveData();
+                const cleanedSaveData = this.cleanUndefinedValues(saveData);
+                
+                // Add metadata for offline save
+                const offlineSave = {
+                    username: 'Offline Player',
+                    uid: 'offline',
+                    lastSaved: Date.now(),
+                    ...cleanedSaveData
+                };
+                
+                localStorage.setItem('scapewatch_offline_save', JSON.stringify(offlineSave));
+                this.showSaveIndicator();
+                console.log('Game saved to localStorage (offline mode)');
+            } catch (error) {
+                console.error('Failed to save to localStorage:', error);
+            }
+            return;
+        }
+        
+        if (!this.currentUser || !this.connectionHealthy) return;
 
         // Prevent saving too frequently (10 minutes throttle for normal saves)
         const now = Date.now();
@@ -842,29 +872,30 @@ class FirebaseManager {
         }
         
         try {
-            // Collect save data (includes only recent 500 tasks)
+            // Collect save data (includes only recent 10 tasks now)
             const saveData = this.collectSaveData();
             
             // Clean undefined values before saving
             const cleanedSaveData = this.cleanUndefinedValues(saveData);
             
-            // Save to Firestore with organized field order for readability
-            await setDoc(doc(this.db, 'saves', this.currentUser.uid), {
+            // Call the Cloud Function to stage the save
+            const saveFunction = httpsCallable(this.functions, 'receivePlayerSave');
+            await saveFunction({
                 // User info at the very top
                 username: this.username,
                 uid: this.currentUser.uid,
                 
-                // Timestamp info next
-                lastSaved: serverTimestamp(),
+                // Timestamp info next (serverTimestamp doesn't work in functions, use null)
+                lastSaved: null, // Will be set server-side
                 sessionId: this.sessionId,
                 
-                // Then all game data (with only recent 500 tasks)
+                // Then all game data (with only recent 10 tasks)
                 ...cleanedSaveData
             });
 
             this.lastSaveTime = now;
             this.showSaveIndicator();
-            console.log('Game saved successfully');
+            console.log('Game saved to staging successfully');
             
             // Update hi-scores after successful save
             await this.updateHiscores();
@@ -876,17 +907,55 @@ class FirebaseManager {
 
     // Load game state
     async loadGame() {
-        if (this.isOfflineMode || !this.currentUser) return false;
-
-        try {
-            const saveDoc = await getDoc(doc(this.db, 'saves', this.currentUser.uid));
-            
-            if (!saveDoc.exists()) {
-                console.log('No save data found, starting fresh');
+        if (this.isOfflineMode) {
+            // OFFLINE MODE: Load from localStorage
+            try {
+                const savedData = localStorage.getItem('scapewatch_offline_save');
+                if (!savedData) {
+                    console.log('No offline save found, starting fresh');
+                    return false;
+                }
+                
+                const saveData = JSON.parse(savedData);
+                console.log('Loading from localStorage (offline mode)');
+                
+                // Validate save data before applying
+                if (this.validateSaveData(saveData)) {
+                    this.applySaveData(saveData);
+                    console.log('Offline game loaded successfully');
+                    return true;
+                } else {
+                    console.warn('Offline save data validation failed, starting fresh');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Failed to load from localStorage:', error);
                 return false;
             }
+        }
+        
+        if (!this.currentUser) return false;
 
-            const saveData = saveDoc.data();
+        try {
+            // Check staging collection FIRST for most recent data
+            const stagingDoc = await getDoc(doc(this.db, '_staging_player_saves', this.currentUser.uid));
+            
+            let saveData;
+            if (stagingDoc.exists()) {
+                console.log('Loading from staging (most recent save)');
+                saveData = stagingDoc.data();
+            } else {
+                // Fall back to main saves collection
+                const mainDoc = await getDoc(doc(this.db, 'saves', this.currentUser.uid));
+                
+                if (!mainDoc.exists()) {
+                    console.log('No save data found, starting fresh');
+                    return false;
+                }
+                
+                console.log('Loading from main saves collection');
+                saveData = mainDoc.data();
+            }
             
             // Validate save data before applying
             if (this.validateSaveData(saveData)) {
@@ -1116,7 +1185,7 @@ class FirebaseManager {
             taskManager.nextTask = saveData.tasks.next;
             taskManager.tasks = saveData.tasks.queue || [];
             
-            // Load the completed tasks (up to 500 most recent)
+            // Load the completed tasks (up to 10 most recent)
             taskManager.completedTasks = saveData.tasks.completed || [];
             
             // IMPORTANT: If we have a totalCompleted count that's higher than our loaded tasks,
@@ -1130,7 +1199,7 @@ class FirebaseManager {
                 console.log(`Loaded ${taskManager.completedTasks.length} recent tasks out of ${totalCompleted} total completed`);
                 
                 // Ensure task numbers are correct for the loaded tasks
-                // These are the LAST 500 tasks, so their numbers should be from (total - 500 + 1) to total
+                // These are the LAST 10 tasks, so their numbers should be from (total - 10 + 1) to total
                 const firstTaskNumber = totalCompleted - taskManager.completedTasks.length + 1;
                 
                 taskManager.completedTasks.forEach((task, index) => {
@@ -1209,7 +1278,7 @@ class FirebaseManager {
             indicator = document.createElement('div');
             indicator.id = 'save-indicator';
             indicator.className = 'save-indicator';
-            indicator.textContent = '✓ Game Saved';
+            indicator.textContent = '✔ Game Saved';
             document.body.appendChild(indicator);
         }
         
@@ -1243,36 +1312,55 @@ class FirebaseManager {
         }
     }
 
+    // Update saveNow to also use the staging system or localStorage
     async saveNow() {
         this.lastSaveTime = 0; // Reset timer to force save
-        await this.saveGame();
+        await this.saveGame(); // This now uses the Cloud Function or localStorage
     }
 
+    // Force save - ALSO goes through Cloud Function (no direct writes) or localStorage
     async forceSave() {
-        if (this.isOfflineMode || !this.currentUser) return;
+        if (this.isOfflineMode) {
+            // OFFLINE MODE: Save to localStorage immediately
+            try {
+                const saveData = this.collectSaveData();
+                const cleanedSaveData = this.cleanUndefinedValues(saveData);
+                
+                const offlineSave = {
+                    username: 'Offline Player',
+                    uid: 'offline',
+                    lastSaved: Date.now(),
+                    ...cleanedSaveData
+                };
+                
+                localStorage.setItem('scapewatch_offline_save', JSON.stringify(offlineSave));
+                console.log('Force save to localStorage completed (offline mode)');
+            } catch (error) {
+                console.error('Failed to force save to localStorage:', error);
+            }
+            return;
+        }
+        
+        if (!this.currentUser) return;
 
         try {
-            // Collect save data (includes only recent 500 tasks)
+            // Collect save data (includes only recent 10 tasks)
             const saveData = this.collectSaveData();
             
             // Clean undefined values before saving
             const cleanedSaveData = this.cleanUndefinedValues(saveData);
             
-            // Save to Firestore immediately with organized field order
-            await setDoc(doc(this.db, 'saves', this.currentUser.uid), {
-                // User info at the very top
+            // Even force saves go through the staging system
+            const saveFunction = httpsCallable(this.functions, 'receivePlayerSave');
+            await saveFunction({
                 username: this.username,
                 uid: this.currentUser.uid,
-                
-                // Timestamp info next
-                lastSaved: serverTimestamp(),
+                lastSaved: null, // Will be set server-side
                 sessionId: this.sessionId,
-                
-                // Then all game data (with only recent 500 tasks)
                 ...cleanedSaveData
             });
 
-            console.log('Force save completed (logout/task completion)');
+            console.log('Force save staged successfully');
             
             // Update hi-scores after force save too
             await this.updateHiscores(true);
@@ -1320,8 +1408,8 @@ class FirebaseManager {
                 cluesEliteFirstReached: this.SENTINEL_DATE,
                 cluesMasterFirstReached: this.SENTINEL_DATE,
                 
-                // Update timestamp
-                lastUpdated: serverTimestamp()
+                // Update timestamp will be added server-side
+                // lastUpdated: serverTimestamp() - removed, will be set by function
             };
             
             // Calculate pet totals
@@ -1354,8 +1442,9 @@ class FirebaseManager {
             // Clean undefined values before saving
             const cleanedHiscoreData = this.cleanUndefinedValues(hiscoreData);
             
-            // Use merge to preserve "firstReached" timestamps
-            await setDoc(doc(this.db, 'hiscores', this.currentUser.uid), cleanedHiscoreData, { merge: true });
+            // Call the Firebase Function to update hiscores
+            const updateHiscoresFunction = httpsCallable(this.functions, 'updatePlayerHiscores');
+            await updateHiscoresFunction(cleanedHiscoreData);
             
             console.log('Hiscores updated');
         } catch (error) {

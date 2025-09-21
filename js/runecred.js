@@ -6,7 +6,7 @@ class RuneCreditManager {
         // Three-tier credit system
         this.skillCredits = {}; // skillId -> amount (start at 10)
         this.skillCred = 0; // total level (calculated dynamically)
-        this.runeCred = 5; // Universal currency (start at 5)
+        this.runeCred = 10; // Universal currency (start at 5)
         
         // Track Skill Cred spent separately
         this.skillCredSpent = 0; // Track how much Skill Cred has been spent
@@ -651,7 +651,7 @@ rollForPet(skillId) {
                 // Load all the saved data
                 this.skillCredits = data.skillCredits || {};
                 this.skillCredSpent = data.skillCredSpent || 0;
-                this.runeCred = data.runeCred || 5;
+                this.runeCred = data.runeCred || 10;
                 this.totalTasksCompleted = data.totalTasksCompleted || 0;
                 this.tasksPerSkill = data.tasksPerSkill || {};
                 this.creditsSpentPerSkill = data.creditsSpentPerSkill || {};

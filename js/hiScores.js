@@ -1,15 +1,29 @@
+// Import httpsCallable for Firebase Functions
+const { httpsCallable } = window.firestoreHelpers || {};
+
+// Helper function for number formatting (assuming it exists globally or is imported)
+// If not, you'll need to define it or import it.
+// Example:
+function formatNumber(num) {
+    if (num === undefined || num === null) return '0';
+    return num.toLocaleString();
+}
+
+
 class HiScoresManager {
     constructor() {
         this.isOpen = false;
         this.currentCategory = 'overall';
         this.currentPage = 0;
         this.pageSize = 25;
-        this.cachedData = {};
-        this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
-        this.lastUpdate = 0;
-        this.updateThrottle = 5 * 60 * 1000; // 5 minutes between updates
+        // Client-side cache for leaderboard pages
+        this.leaderboardCache = new Map(); // Stores { category: { page: data, timestamp: time } }
+        this.clientCacheTimeout = 60 * 1000; // 1 minute client-side cache for leaderboard pages
+        
         this.compareMode = false;
         this.compareUsers = [];
+        this.lastUpdateTime = null; // From server metadata
+        this.totalPlayers = 0;      // From server metadata
     }
     
     // Initialize the hi-scores system
@@ -46,6 +60,11 @@ class HiScoresManager {
         }
         this.compareMode = false;
         this.compareUsers = [];
+        // Clear any specific display elements that might be lingering
+        const leaderboardContainer = document.getElementById('hiscores-leaderboard');
+        if (leaderboardContainer) {
+            leaderboardContainer.innerHTML = '';
+        }
     }
     
     // Render the hi-scores UI
@@ -73,7 +92,7 @@ class HiScoresManager {
         ];
 
         // Add all skills next
-        const skillsData = loadingManager.getData('skills');
+        const skillsData = window.loadingManager.getData('skills'); // Use window.loadingManager
         for (const skillId of Object.keys(skillsData)) {
             categories.push({
                 id: `skill_${skillId}`,
@@ -88,11 +107,11 @@ class HiScoresManager {
             { id: 'pets', name: 'Pets', icon: 'ui_pets' },
             { id: 'shinyPets', name: 'Shiny Pets', icon: 'ui_pets_shiny' },
             { id: 'cluesTotal', name: 'All Clues', icon: 'ui_all_clue' },
-            { id: 'cluesEasy', name: 'Easy Clues', icon: 'items_easy_clue' },
-            { id: 'cluesMedium', name: 'Medium Clues', icon: 'items_medium_clue' },
-            { id: 'cluesHard', name: 'Hard Clues', icon: 'items_hard_clue' },
-            { id: 'cluesElite', name: 'Elite Clues', icon: 'items_elite_clue' },
-            { id: 'cluesMaster', name: 'Master Clues', icon: 'items_master_clue' }
+            { id: 'clueseasy', name: 'Easy Clues', icon: 'items_easy_clue' },
+            { id: 'cluesmedium', name: 'Medium Clues', icon: 'items_medium_clue' },
+            { id: 'clueshard', name: 'Hard Clues', icon: 'items_hard_clue' },
+            { id: 'clueselite', name: 'Elite Clues', icon: 'items_elite_clue' },
+            { id: 'cluesmaster', name: 'Master Clues', icon: 'items_master_clue' }
         );
         
         const list = document.createElement('div');
@@ -107,7 +126,7 @@ class HiScoresManager {
             
             // Add icon if available
             if (cat.icon) {
-                const icon = loadingManager.getImage(cat.icon);
+                const icon = window.loadingManager.getImage(cat.icon); // Use window.loadingManager
                 if (icon) {
                     const iconImg = document.createElement('img');
                     iconImg.src = icon.src;
@@ -225,8 +244,8 @@ class HiScoresManager {
         yourRankBtn.className = 'hiscores-your-rank-btn';
         yourRankBtn.textContent = 'View Your Rank';
         yourRankBtn.addEventListener('click', () => {
-            if (firebaseManager.username) {
-                this.searchByName(firebaseManager.username);
+            if (window.firebaseManager.username) { // Use window.firebaseManager
+                this.searchByName(window.firebaseManager.username);
             }
         });
         
@@ -242,25 +261,29 @@ class HiScoresManager {
         // Update active state in categories
         document.querySelectorAll('.hiscores-category-item').forEach((item, index) => {
             item.classList.remove('active');
-            // Check if this item's text or data matches the category
             const text = item.querySelector('span')?.textContent;
-            const categories = ['Overall', 'Tasks', 'Pets', 'Shiny Pets'];
-            const skillsData = loadingManager.getData('skills');
             
             let itemCategoryId = null;
-            if (categories.includes(text)) {
-                if (text === 'Overall') itemCategoryId = 'overall';
-                else if (text === 'Tasks') itemCategoryId = 'tasks';
-                else if (text === 'Pets') itemCategoryId = 'pets';
-                else if (text === 'Shiny Pets') itemCategoryId = 'shinyPets';
-            } else {
-                // It's a skill
-                for (const skillId of Object.keys(skillsData)) {
-                    if (skillsData[skillId].name === text) {
-                        itemCategoryId = `skill_${skillId}`;
-                        break;
+            // Map text content back to category ID
+            switch (text) {
+                case 'Overall': itemCategoryId = 'overall'; break;
+                case 'Tasks': itemCategoryId = 'tasks'; break;
+                case 'Pets': itemCategoryId = 'pets'; break;
+                case 'Shiny Pets': itemCategoryId = 'shinyPets'; break;
+                case 'All Clues': itemCategoryId = 'cluesTotal'; break;
+                case 'Easy Clues': itemCategoryId = 'clueseasy'; break;
+                case 'Medium Clues': itemCategoryId = 'cluesmedium'; break;
+                case 'Hard Clues': itemCategoryId = 'clueshard'; break;
+                case 'Elite Clues': itemCategoryId = 'clueselite'; break;
+                case 'Master Clues': itemCategoryId = 'cluesmaster'; break;
+                default:
+                    const skillsData = window.loadingManager.getData('skills');
+                    for (const skillId of Object.keys(skillsData)) {
+                        if (skillsData[skillId].name === text) {
+                            itemCategoryId = `skill_${skillId}`;
+                            break;
+                        }
                     }
-                }
             }
             
             if (itemCategoryId === categoryId) {
@@ -270,16 +293,6 @@ class HiScoresManager {
         
         // Load and display data
         await this.loadLeaderboard();
-    }
-    
-    // Get category index
-    getCategoryIndex(categoryId) {
-        const categories = ['overall', 'tasks', 'pets', 'shinyPets'];
-        const skillsData = loadingManager.getData('skills');
-        for (const skillId of Object.keys(skillsData)) {
-            categories.push(`skill_${skillId}`);
-        }
-        return categories.indexOf(categoryId);
     }
     
     // Load leaderboard data
@@ -299,131 +312,61 @@ class HiScoresManager {
         }
     }
     
-    // Fetch leaderboard data from Firebase with improved error handling
-async fetchLeaderboardData(category, page) {
-    if (!firebaseManager.db) {
-        console.error('Firebase database not initialized');
-        return [];
-    }
-    
-    // Check connection health before making queries
-    if (!firebaseManager.connectionHealthy) {
-        console.warn('Firebase connection unhealthy, skipping hiscores query');
-        return [];
-    }
-    
-    const { query, collection, orderBy, limit, getDocs, startAfter } = window.firestoreHelpers;
-    const startAt = page * this.pageSize;
-    let queryConstraints = [];
-    
-    try {
-        if (category === 'overall') {
-            queryConstraints = [
-                orderBy('totalLevel', 'desc'),
-                orderBy('totalXp', 'desc'),
-                orderBy('totalLevelFirstReached', 'asc'),
-                limit(this.pageSize)
-            ];
-        } else if (category === 'tasks') {
-            queryConstraints = [
-                orderBy('tasksCompleted', 'desc'),
-                limit(this.pageSize)
-            ];
-        } else if (category === 'pets') {
-            queryConstraints = [
-                orderBy('petsTotal', 'desc'),
-                limit(this.pageSize)
-            ];
-        } else if (category === 'shinyPets') {
-            queryConstraints = [
-                orderBy('petsShiny', 'desc'),
-                limit(this.pageSize)
-            ];
-        } else if (category === 'cluesTotal') {
-            queryConstraints = [
-                orderBy('cluesTotal', 'desc'),
-                limit(this.pageSize)
-            ];
-        } else if (category === 'cluesEasy') {
-            queryConstraints = [
-                orderBy('cluesEasy', 'desc'),
-                limit(this.pageSize)
-            ];
-        } else if (category === 'cluesMedium') {
-            queryConstraints = [
-                orderBy('cluesMedium', 'desc'),
-                limit(this.pageSize)
-            ];
-        } else if (category === 'cluesHard') {
-            queryConstraints = [
-                orderBy('cluesHard', 'desc'),
-                limit(this.pageSize)
-            ];
-        } else if (category === 'cluesElite') {
-            queryConstraints = [
-                orderBy('cluesElite', 'desc'),
-                limit(this.pageSize)
-            ];
-        } else if (category === 'cluesMaster') {
-            queryConstraints = [
-                orderBy('cluesMaster', 'desc'),
-                limit(this.pageSize)
-            ];
-        } else if (category.startsWith('skill_')) {
-            const skillId = category.replace('skill_', '');
-            queryConstraints = [
-                orderBy(`level_${skillId}`, 'desc'),
-                orderBy(`xp_${skillId}`, 'desc'),
-                orderBy(`levelFirst_${skillId}`, 'asc'),
-                limit(this.pageSize)
-            ];
-        } else {
+    // Fetch leaderboard data from Firebase Functions (uses client-side cache)
+    async fetchLeaderboardData(category, page) {
+        // Check client-side cache first
+        const cacheKey = `${category}-${page}`;
+        const cachedEntry = this.leaderboardCache.get(cacheKey);
+
+        if (cachedEntry && (Date.now() - cachedEntry.timestamp < this.clientCacheTimeout)) {
+            console.log(`[HiScoresManager] Using client-side cache for ${cacheKey}`);
+            this.lastUpdateTime = cachedEntry.metadata.lastUpdated;
+            this.totalPlayers = cachedEntry.metadata.totalPlayers;
+            return cachedEntry.data;
+        }
+
+        try {
+            if (!window.firebaseManager.functions) {
+                console.error('Firebase Functions not initialized');
+                return [];
+            }
+            
+            const getHiscores = httpsCallable(window.firebaseManager.functions, 'getHiscores');
+            const result = await getHiscores({
+                category: category,
+                page: page,
+                pageSize: this.pageSize
+            });
+            
+            if (!result.data.success) {
+                console.error('Failed to fetch hiscores:', result.data.message);
+                return [];
+            }
+            
+            this.lastUpdateTime = result.data.metadata.lastUpdated;
+            this.totalPlayers = result.data.metadata.totalPlayers;
+            
+            // Store in client-side cache
+            this.leaderboardCache.set(cacheKey, {
+                data: result.data.data,
+                metadata: result.data.metadata,
+                timestamp: Date.now()
+            });
+
+            return result.data.data;
+            
+        } catch (error) {
+            console.error('Failed to fetch leaderboard:', error);
+            if (error.code === 'functions/not-found') {
+                console.error('Hiscores function not deployed');
+            } else if (error.code === 'functions/permission-denied') {
+                console.error('Permission denied for hiscores access');
+            } else if (error.code === 'functions/unavailable') {
+                console.error('Firebase Functions temporarily unavailable');
+            }
             return [];
         }
-        
-        // Apply offset for pagination
-        if (startAt > 0) {
-            try {
-                const previousQuery = query(collection(firebaseManager.db, 'hiscores'), ...queryConstraints);
-                const previousPage = await getDocs(previousQuery);
-                if (previousPage.docs.length > 0) {
-                    const lastDoc = previousPage.docs[previousPage.docs.length - 1];
-                    queryConstraints.push(startAfter(lastDoc));
-                }
-            } catch (paginationError) {
-                console.error('Failed to apply pagination:', paginationError);
-                // Continue without pagination rather than failing entirely
-            }
-        }
-        
-        const q = query(collection(firebaseManager.db, 'hiscores'), ...queryConstraints);
-        const snapshot = await getDocs(q);
-        
-        return snapshot.docs.map((doc, index) => ({
-            rank: startAt + index + 1,
-            ...doc.data()
-        }));
-    } catch (error) {
-        console.error('Failed to fetch leaderboard:', error);
-        
-        // Handle specific error types
-        if (error.code === 'failed-precondition' && error.message.includes('index')) {
-            console.error('Missing index for query. Check the Firebase console for a link to create it.');
-            // Could show user a message about index creation needed
-        } else if (error.code === 'permission-denied') {
-            console.error('Permission denied for hiscores access');
-            // Could show user they need to be logged in
-        } else if (error.code === 'unavailable') {
-            console.error('Firebase service temporarily unavailable');
-            // Network issue - could retry later
-        } else if (error.message && error.message.includes('Failed to get document from cache')) {
-            console.error('Cache read failed, likely due to connection issues');
-        }
-        
-        // Return empty array so UI can handle gracefully
-        return [];
     }
-}
     
     // Display leaderboard
     displayLeaderboard(data) {
@@ -439,34 +382,21 @@ async fetchLeaderboardData(category, page) {
         const title = document.createElement('h2');
         title.className = 'hiscores-leaderboard-title';
 
-        // Add icon based on category
         let iconKey = null;
-        if (this.currentCategory === 'overall') {
-            iconKey = 'skill_skills';
-        } else if (this.currentCategory === 'tasks') {
-            iconKey = 'ui_tasks';
-        } else if (this.currentCategory === 'pets') {
-            iconKey = 'ui_pets';
-        } else if (this.currentCategory === 'shinyPets') {
-            iconKey = 'ui_pets_shiny';
-        } else if (this.currentCategory === 'cluesTotal') {
-            iconKey = 'ui_all_clue';
-        } else if (this.currentCategory === 'cluesEasy') {
-            iconKey = 'items_easy_clue';
-        } else if (this.currentCategory === 'cluesMedium') {
-            iconKey = 'items_medium_clue';
-        } else if (this.currentCategory === 'cluesHard') {
-            iconKey = 'items_hard_clue';
-        } else if (this.currentCategory === 'cluesElite') {
-            iconKey = 'items_elite_clue';
-        } else if (this.currentCategory === 'cluesMaster') {
-            iconKey = 'items_master_clue';
-        } else if (this.currentCategory.startsWith('skill_')) {
-            iconKey = this.currentCategory;
-        }
+        if (this.currentCategory === 'overall') { iconKey = 'skill_skills'; }
+        else if (this.currentCategory === 'tasks') { iconKey = 'ui_tasks'; }
+        else if (this.currentCategory === 'pets') { iconKey = 'ui_pets'; }
+        else if (this.currentCategory === 'shinyPets') { iconKey = 'ui_pets_shiny'; }
+        else if (this.currentCategory === 'cluesTotal') { iconKey = 'ui_all_clue'; }
+        else if (this.currentCategory === 'clueseasy') { iconKey = 'items_easy_clue'; }
+        else if (this.currentCategory === 'cluesmedium') { iconKey = 'items_medium_clue'; }
+        else if (this.currentCategory === 'clueshard') { iconKey = 'items_hard_clue'; }
+        else if (this.currentCategory === 'clueselite') { iconKey = 'items_elite_clue'; }
+        else if (this.currentCategory === 'cluesmaster') { iconKey = 'items_master_clue'; }
+        else if (this.currentCategory.startsWith('skill_')) { iconKey = this.currentCategory; }
 
         if (iconKey) {
-            const icon = loadingManager.getImage(iconKey);
+            const icon = window.loadingManager.getImage(iconKey);
             if (icon) {
                 const iconImg = document.createElement('img');
                 iconImg.className = 'hiscores-title-icon';
@@ -502,10 +432,17 @@ async fetchLeaderboardData(category, page) {
         data.forEach(player => {
             const row = document.createElement('tr');
             
-            if (player.uid === firebaseManager.currentUser?.uid) {
+            if (player.uid === window.firebaseManager.currentUser?.uid) { // Use window.firebaseManager
                 row.classList.add('hiscores-own-rank');
             }
             
+            // Map the lowercase category to the field name for clues
+            const clueFieldMap = {
+                'cluesTotal': 'cluesTotal', 'clueseasy': 'cluesEasy', 'cluesmedium': 'cluesMedium',
+                'clueshard': 'cluesHard', 'clueselite': 'cluesElite', 'cluesmaster': 'cluesMaster'
+            };
+            const clueField = clueFieldMap[this.currentCategory];
+
             if (this.currentCategory === 'overall') {
                 row.innerHTML = `
                     <td>${player.rank}</td>
@@ -514,12 +451,11 @@ async fetchLeaderboardData(category, page) {
                     <td>${formatNumber(player.totalXp)}</td>
                 `;
             } else if (this.currentCategory.startsWith('skill_')) {
-                const skillId = this.currentCategory.replace('skill_', '');
                 row.innerHTML = `
                     <td>${player.rank}</td>
                     <td class="hiscores-name" data-uid="${player.uid}">${player.username}</td>
-                    <td>${player[`level_${skillId}`] || 1}</td>
-                    <td>${formatNumber(player[`xp_${skillId}`] || 0)}</td>
+                    <td>${player.level || 1}</td>
+                    <td>${formatNumber(player.xp || 0)}</td>
                 `;
             } else if (this.currentCategory === 'tasks') {
                 row.innerHTML = `
@@ -539,9 +475,7 @@ async fetchLeaderboardData(category, page) {
                     <td class="hiscores-name" data-uid="${player.uid}">${player.username}</td>
                     <td>${player.petsShiny || 0}</td>
                 `;
-            } else if (this.currentCategory.startsWith('clues')) {
-                const clueField = this.currentCategory === 'cluesTotal' ? 'cluesTotal' :
-                                  this.currentCategory;
+            } else if (clueField) {
                 row.innerHTML = `
                     <td>${player.rank}</td>
                     <td class="hiscores-name" data-uid="${player.uid}">${player.username}</td>
@@ -581,7 +515,9 @@ async fetchLeaderboardData(category, page) {
         pageInfo.textContent = `Page ${this.currentPage + 1}`;
         pagination.appendChild(pageInfo);
         
-        if (data.length === this.pageSize) {
+        // Only show next button if there might be more data
+        // This is a heuristic; `totalPages` from metadata might be more accurate if available
+        if (data.length === this.pageSize) { 
             const nextBtn = document.createElement('button');
             nextBtn.textContent = 'Next →';
             nextBtn.addEventListener('click', () => {
@@ -601,14 +537,14 @@ async fetchLeaderboardData(category, page) {
         if (this.currentCategory === 'pets') return 'Pets Hiscores';
         if (this.currentCategory === 'shinyPets') return 'Shiny Pets Hiscores';
         if (this.currentCategory === 'cluesTotal') return 'All Clues Hiscores';
-        if (this.currentCategory === 'cluesEasy') return 'Easy Clues Hiscores';
-        if (this.currentCategory === 'cluesMedium') return 'Medium Clues Hiscores';
-        if (this.currentCategory === 'cluesHard') return 'Hard Clues Hiscores';
-        if (this.currentCategory === 'cluesElite') return 'Elite Clues Hiscores';
-        if (this.currentCategory === 'cluesMaster') return 'Master Clues Hiscores';
+        if (this.currentCategory === 'clueseasy') return 'Easy Clues Hiscores';
+        if (this.currentCategory === 'cluesmedium') return 'Medium Clues Hiscores';
+        if (this.currentCategory === 'clueshard') return 'Hard Clues Hiscores';
+        if (this.currentCategory === 'clueselite') return 'Elite Clues Hiscores';
+        if (this.currentCategory === 'cluesmaster') return 'Master Clues Hiscores';
         if (this.currentCategory.startsWith('skill_')) {
             const skillId = this.currentCategory.replace('skill_', '');
-            const skillsData = loadingManager.getData('skills');
+            const skillsData = window.loadingManager.getData('skills');
             return `${skillsData[skillId].name} Hiscores`;
         }
         return 'Hiscores';
@@ -619,27 +555,50 @@ async fetchLeaderboardData(category, page) {
         if (!username) return;
         
         try {
-            const { query, collection, where, limit, getDocs } = window.firestoreHelpers;
-            const q = query(
-                collection(firebaseManager.db, 'hiscores'),
-                where('username', '==', username),
-                limit(1)
-            );
-            const userQuery = await getDocs(q);
+            if (!window.firebaseManager.functions) {
+                console.error('Firebase Functions not initialized');
+                alert('Firebase Functions not initialized.');
+                return;
+            }
+
+            const getHiscores = httpsCallable(window.firebaseManager.functions, 'getHiscores');
+            const result = await getHiscores({
+                category: this.currentCategory,
+                searchUsername: username,
+                pageSize: this.pageSize
+            });
             
-            if (!userQuery.empty) {
-                const userData = userQuery.docs[0].data();
-                this.showPlayerStats(username);
+            if (result.data.success && result.data.data.length > 0) {
+                // If a user is found, the server returns the page centered on them
+                // Update current page to match the one returned by the server
+                this.currentPage = result.data.metadata.page || 0; 
+                this.displayLeaderboard(result.data.data);
+                
+                // Highlight the searched user
+                setTimeout(() => {
+                    const rows = document.querySelectorAll('.hiscores-table tbody tr');
+                    rows.forEach(row => {
+                        const nameCell = row.cells[1];
+                        if (nameCell && nameCell.textContent.toLowerCase() === username.toLowerCase()) {
+                            row.classList.add('hiscores-highlight');
+                            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                }, 100);
             } else {
-                alert('Player not found');
+                alert(result.data.message || `Player "${username}" not found in this category.`);
             }
         } catch (error) {
             console.error('Failed to search player:', error);
+            alert('Failed to search for player. Please try again.');
         }
     }
     
     // Search by rank
     async searchByRank(rank) {
+        if (!rank || rank <= 0) return;
+
+        // Calculate the page the rank falls on
         this.currentPage = Math.floor((rank - 1) / this.pageSize);
         await this.loadLeaderboard();
         
@@ -656,7 +615,7 @@ async fetchLeaderboardData(category, page) {
         }, 100);
     }
     
-    // Show individual player stats
+    // --- OPTIMIZED: Show individual player stats ---
     async showPlayerStats(username) {
         const container = document.getElementById('hiscores-leaderboard');
         if (!container) return;
@@ -664,22 +623,24 @@ async fetchLeaderboardData(category, page) {
         container.innerHTML = '<div class="hiscores-loading">Loading player stats...</div>';
         
         try {
-            const { query, collection, where, limit, getDocs } = window.firestoreHelpers;
-            const q = query(
-                collection(firebaseManager.db, 'hiscores'),
-                where('username', '==', username),
-                limit(1)
-            );
-            const userQuery = await getDocs(q);
+            if (!window.firebaseManager.functions) {
+                console.error('Firebase Functions not initialized');
+                alert('Firebase Functions not initialized.');
+                return;
+            }
+
+            // ONE call to the new Cloud Function to get the complete profile
+            const getPlayerHiscoresProfile = httpsCallable(window.firebaseManager.functions, 'getPlayerHiscoresProfile');
+            const result = await getPlayerHiscoresProfile({ username: username });
             
-            if (userQuery.empty) {
-                container.innerHTML = '<div class="hiscores-error">Player not found</div>';
+            if (!result.data.success || !result.data.data) {
+                container.innerHTML = '<div class="hiscores-error">Player not found or profile unavailable</div>';
                 return;
             }
             
-            const userData = userQuery.docs[0].data();
-            const uid = userQuery.docs[0].id;
-            
+            const profile = result.data.data;
+            const skillsData = window.loadingManager.getData('skills'); // Use window.loadingManager
+
             container.innerHTML = '';
             
             // Title
@@ -699,57 +660,26 @@ async fetchLeaderboardData(category, page) {
             const skillsBody = document.createElement('tbody');
             
             // Overall with icon
-            const overallRank = await this.getPlayerRank(uid, 'overall');
-            const overallRow = document.createElement('tr');
-            const overallNameCell = document.createElement('td');
-            overallNameCell.className = 'hiscores-skill-name-cell';
-
-            const overallIcon = loadingManager.getImage('skill_skills');
-            if (overallIcon) {
-                const iconImg = document.createElement('img');
-                iconImg.className = 'hiscores-inline-icon';
-                iconImg.src = overallIcon.src;
-                overallNameCell.appendChild(iconImg);
-            }
-            const overallText = document.createElement('span');
-            overallText.textContent = 'Overall';
-            overallNameCell.appendChild(overallText);
-
-            overallRow.appendChild(overallNameCell);
-            overallRow.innerHTML += `
-                <td>${overallRank}</td>
-                <td>${userData.totalLevel}</td>
-                <td>${formatNumber(userData.totalXp)}</td>
-            `;
-            skillsBody.appendChild(overallRow);
+            this.addProfileRow(
+                skillsBody, 
+                'Overall', 
+                'skill_skills', 
+                profile.ranks.overall, 
+                profile.values.totalLevel, 
+                formatNumber(profile.values.totalXp)
+            );
 
             // Individual skills with icons
-            const skillsData = loadingManager.getData('skills');
             for (const skillId of Object.keys(skillsData)) {
-                const skillRank = await this.getPlayerRankForSkill(uid, skillId);
-                const row = document.createElement('tr');
-                
-                const nameCell = document.createElement('td');
-                nameCell.className = 'hiscores-skill-name-cell';
-                
-                const skillIcon = loadingManager.getImage(`skill_${skillId}`);
-                if (skillIcon) {
-                    const iconImg = document.createElement('img');
-                    iconImg.className = 'hiscores-inline-icon';
-                    iconImg.src = skillIcon.src;
-                    nameCell.appendChild(iconImg);
-                }
-                const skillText = document.createElement('span');
-                skillText.textContent = skillsData[skillId].name;
-                nameCell.appendChild(skillText);
-                
-                row.appendChild(nameCell);
-                row.innerHTML += `
-                    <td>${skillRank}</td>
-                    <td>${userData[`level_${skillId}`] || 1}</td>
-                    <td>${formatNumber(userData[`xp_${skillId}`] || 0)}</td>
-                `;
-                skillsBody.appendChild(row);
+                const category = `skill_${skillId}`;
+                this.addProfileRow(
+                    skillsBody,
+                    skillsData[skillId].name,
+                    category,
+                    profile.ranks[category],
+                    profile.values[`level_${skillId}`],
+                    formatNumber(profile.values[`xp_${skillId}`])
+                );
             }
             
             skillsTable.appendChild(skillsBody);
@@ -766,144 +696,60 @@ async fetchLeaderboardData(category, page) {
             const catBody = document.createElement('tbody');
             
             // Tasks with icon
-            const tasksRank = await this.getPlayerRank(uid, 'tasks');
-            const tasksRow = document.createElement('tr');
-            const tasksNameCell = document.createElement('td');
-            tasksNameCell.className = 'hiscores-skill-name-cell';
-
-            const tasksIcon = loadingManager.getImage('ui_tasks');
-            if (tasksIcon) {
-                const iconImg = document.createElement('img');
-                iconImg.className = 'hiscores-inline-icon';
-                iconImg.src = tasksIcon.src;
-                tasksNameCell.appendChild(iconImg);
-            }
-            const tasksText = document.createElement('span');
-            tasksText.textContent = 'Tasks';
-            tasksNameCell.appendChild(tasksText);
-
-            tasksRow.appendChild(tasksNameCell);
-            tasksRow.innerHTML += `
-                <td>${tasksRank}</td>
-                <td>${formatNumber(userData.tasksCompleted || 0)}</td>
-            `;
-            catBody.appendChild(tasksRow);
-
+            this.addProfileRow(
+                catBody, 
+                'Tasks', 
+                'ui_tasks', 
+                profile.ranks.tasks, 
+                profile.values.tasksCompleted
+            );
+            
             // Pets with icon
-            const petsRank = await this.getPlayerRank(uid, 'pets');
-            const petsRow = document.createElement('tr');
-            const petsNameCell = document.createElement('td');
-            petsNameCell.className = 'hiscores-skill-name-cell';
-
-            const petsIcon = loadingManager.getImage('ui_pets');
-            if (petsIcon) {
-                const iconImg = document.createElement('img');
-                iconImg.className = 'hiscores-inline-icon';
-                iconImg.src = petsIcon.src;
-                petsNameCell.appendChild(iconImg);
-            }
-            const petsText = document.createElement('span');
-            petsText.textContent = 'Pets';
-            petsNameCell.appendChild(petsText);
-
-            petsRow.appendChild(petsNameCell);
-            petsRow.innerHTML += `
-                <td>${petsRank}</td>
-                <td>${userData.petsTotal || 0}</td>
-            `;
-            catBody.appendChild(petsRow);
-
+            this.addProfileRow(
+                catBody, 
+                'Pets', 
+                'ui_pets', 
+                profile.ranks.pets, 
+                profile.values.petsTotal
+            );
+            
             // Shiny Pets with icon
-            const shinyRank = await this.getPlayerRank(uid, 'shinyPets');
-            const shinyRow = document.createElement('tr');
-            const shinyNameCell = document.createElement('td');
-            shinyNameCell.className = 'hiscores-skill-name-cell';
-
-            const shinyIcon = loadingManager.getImage('ui_pets_shiny');
-            if (shinyIcon) {
-                const iconImg = document.createElement('img');
-                iconImg.className = 'hiscores-inline-icon';
-                iconImg.src = shinyIcon.src;
-                shinyNameCell.appendChild(iconImg);
-            }
-            const shinyText = document.createElement('span');
-            shinyText.textContent = 'Shiny Pets';
-            shinyNameCell.appendChild(shinyText);
-
-            shinyRow.appendChild(shinyNameCell);
-            shinyRow.innerHTML += `
-                <td>${shinyRank}</td>
-                <td>${userData.petsShiny || 0}</td>
-            `;
-            catBody.appendChild(shinyRow);
+            this.addProfileRow(
+                catBody, 
+                'Shiny Pets', 
+                'ui_pets_shiny', 
+                profile.ranks.shinyPets, 
+                profile.values.petsShiny
+            );
 
             // All Clues with icon
-            const cluesRank = await this.getPlayerRank(uid, 'cluesTotal');
-            const cluesRow = document.createElement('tr');
-            const cluesNameCell = document.createElement('td');
-            cluesNameCell.className = 'hiscores-skill-name-cell';
-
-            const cluesIcon = loadingManager.getImage('ui_all_clue');
-            if (cluesIcon) {
-                const iconImg = document.createElement('img');
-                iconImg.className = 'hiscores-inline-icon';
-                iconImg.src = cluesIcon.src;
-                cluesNameCell.appendChild(iconImg);
-            }
-            const cluesText = document.createElement('span');
-            cluesText.textContent = 'All Clues';
-            cluesNameCell.appendChild(cluesText);
-
-            cluesRow.appendChild(cluesNameCell);
-            cluesRow.innerHTML += `
-                <td>${cluesRank}</td>
-                <td>${userData.cluesTotal || 0}</td>
-            `;
-            catBody.appendChild(cluesRow);
+            this.addProfileRow(
+                catBody, 
+                'All Clues', 
+                'ui_all_clue', 
+                profile.ranks.cluesTotal, 
+                profile.values.cluesTotal
+            );
 
             // Individual Clue Tiers
             const clueTiers = [
-                { id: 'easy', name: 'Easy Clues' },
-                { id: 'medium', name: 'Medium Clues' },
-                { id: 'hard', name: 'Hard Clues' },
-                { id: 'elite', name: 'Elite Clues' },
-                { id: 'master', name: 'Master Clues' }
+                { id: 'easy', name: 'Easy Clues', icon: 'easy_clue', category: 'clueseasy' },
+                { id: 'medium', name: 'Medium Clues', icon: 'medium_clue', category: 'cluesmedium' },
+                { id: 'hard', name: 'Hard Clues', icon: 'hard_clue', category: 'clueshard' },
+                { id: 'elite', name: 'Elite Clues', icon: 'elite_clue', category: 'clueselite' },
+                { id: 'master', name: 'Master Clues', icon: 'master_clue', category: 'cluesmaster' }
             ];
             
             for (const tier of clueTiers) {
-                const tierRank = await this.getPlayerRank(uid, `clues${tier.id.charAt(0).toUpperCase() + tier.id.slice(1)}`);
-                const tierRow = document.createElement('tr');
-                const tierNameCell = document.createElement('td');
-                tierNameCell.className = 'hiscores-skill-name-cell';
-                
-                // Try to get icon or use direct path
-                const tierIcon = loadingManager.getImage(`items_${tier.id}_clue`);
-                if (tierIcon) {
-                    const iconImg = document.createElement('img');
-                    iconImg.className = 'hiscores-inline-icon';
-                    iconImg.src = tierIcon.src;
-                    tierNameCell.appendChild(iconImg);
-                } else {
-                    // Direct path fallback
-                    const iconImg = document.createElement('img');
-                    iconImg.className = 'hiscores-inline-icon';
-                    iconImg.src = `assets/items/${tier.id}_clue.png`;
-                    tierNameCell.appendChild(iconImg);
-                }
-                
-                const tierText = document.createElement('span');
-                tierText.textContent = tier.name;
-                tierNameCell.appendChild(tierText);
-                
-                tierRow.appendChild(tierNameCell);
-                
                 const fieldName = `clues${tier.id.charAt(0).toUpperCase() + tier.id.slice(1)}`;
-                tierRow.innerHTML += `
-                    <td>${tierRank}</td>
-                    <td>${userData[fieldName] || 0}</td>
-                `;
-                
-                catBody.appendChild(tierRow);
+                let iconKey = `items_${tier.icon}`;
+                this.addProfileRow(
+                    catBody,
+                    tier.name,
+                    iconKey, // Use iconKey directly, addProfileRow will handle direct: prefix if needed
+                    profile.ranks[tier.category],
+                    profile.values[fieldName]
+                );
             }
             
             catTable.appendChild(catBody);
@@ -920,109 +766,56 @@ async fetchLeaderboardData(category, page) {
             
         } catch (error) {
             console.error('Failed to load player stats:', error);
-            container.innerHTML = '<div class="hiscores-error">Failed to load player stats</div>';
-        }
-    }
-    
-    // Get player rank for a category
-    async getPlayerRank(uid, category) {
-        try {
-            const { getDoc, doc, query, collection, where, orderBy, endBefore, getDocs, getCountFromServer } = window.firestoreHelpers;
-            const playerDoc = await getDoc(doc(firebaseManager.db, 'hiscores', uid));
-            if (!playerDoc.exists()) return 'Unranked';
-            
-            const playerData = playerDoc.data();
-            
-            if (category === 'overall') {
-                const playerLevel = playerData.totalLevel;
-                const playerXp = playerData.totalXp;
-                const playerFirstReached = playerData.totalLevelFirstReached || firebaseManager.SENTINEL_DATE;
-                
-                // Use ORDER BY with endBefore to count players ahead
-                const q = query(
-                    collection(firebaseManager.db, 'hiscores'),
-                    orderBy('totalLevel', 'desc'),
-                    orderBy('totalXp', 'desc'),
-                    orderBy('totalLevelFirstReached', 'asc'),
-                    endBefore(playerLevel, playerXp, playerFirstReached)
-                );
-                
-                const snapshot = await getCountFromServer(q);
-                return snapshot.data().count + 1;
-                
-            } else if (category === 'tasks') {
-                const playerTasks = playerData.tasksCompleted || 0;
-                const q = query(
-                    collection(firebaseManager.db, 'hiscores'),
-                    where('tasksCompleted', '>', playerTasks)
-                );
-                const snapshot = await getDocs(q);
-                return snapshot.size + 1;
-            } else if (category === 'pets') {
-                const playerPets = playerData.petsTotal || 0;
-                const q = query(
-                    collection(firebaseManager.db, 'hiscores'),
-                    where('petsTotal', '>', playerPets)
-                );
-                const snapshot = await getDocs(q);
-                return snapshot.size + 1;
-            } else if (category === 'shinyPets') {
-                const playerShiny = playerData.petsShiny || 0;
-                const q = query(
-                    collection(firebaseManager.db, 'hiscores'),
-                    where('petsShiny', '>', playerShiny)
-                );
-                const snapshot = await getDocs(q);
-                return snapshot.size + 1;
-            } else if (category.startsWith('clues')) {
-                const clueField = category === 'cluesTotal' ? 'cluesTotal' : category;
-                const playerClues = playerData[clueField] || 0;
-                const q = query(
-                    collection(firebaseManager.db, 'hiscores'),
-                    where(clueField, '>', playerClues)
-                );
-                const snapshot = await getDocs(q);
-                return snapshot.size + 1;
-            }
-            
-            return 'Error';
-        } catch (error) {
-            console.error('Failed to get player rank:', error);
-            return 'Error';
+            container.innerHTML = `<div class="hiscores-error">Failed to load player stats: ${error.message}</div>`;
         }
     }
 
-    // Get player rank for a specific skill
-    async getPlayerRankForSkill(uid, skillId) {
-        try {
-            const { getDoc, doc, query, collection, orderBy, endBefore, getCountFromServer } = window.firestoreHelpers;
-            const playerDoc = await getDoc(doc(firebaseManager.db, 'hiscores', uid));
-            if (!playerDoc.exists()) return 'Unranked';
-            
-            const playerData = playerDoc.data();
-            const playerLevel = playerData[`level_${skillId}`] || 1;
-            const playerXp = playerData[`xp_${skillId}`] || 0;
-            const playerFirstReached = playerData[`levelFirst_${skillId}`] || firebaseManager.SENTINEL_DATE;
-            
-            // Use ORDER BY with endBefore to count players ahead
-            const q = query(
-                collection(firebaseManager.db, 'hiscores'),
-                orderBy(`level_${skillId}`, 'desc'),
-                orderBy(`xp_${skillId}`, 'desc'),
-                orderBy(`levelFirst_${skillId}`, 'asc'),
-                endBefore(playerLevel, playerXp, playerFirstReached)
-            );
-            
-            const snapshot = await getCountFromServer(q);
-            return snapshot.data().count + 1;
-            
-        } catch (error) {
-            console.error('Failed to get player skill rank:', error);
-            return 'Error';
+    // Helper for adding rows to player profile tables
+    addProfileRow(tbody, label, iconKey, rank, value, xpValue = null) {
+        const row = document.createElement('tr');
+        const nameCell = document.createElement('td');
+        nameCell.className = 'hiscores-skill-name-cell';
+
+        // Icon handling
+        if (iconKey) {
+            let iconSrc = null;
+            if (iconKey.startsWith('direct:')) {
+                iconSrc = iconKey.replace('direct:', '');
+            } else {
+                const icon = window.loadingManager.getImage(iconKey);
+                if (icon) {
+                    iconSrc = icon.src;
+                } else if (iconKey.startsWith('items_')) {
+                    const itemId = iconKey.replace('items_', '');
+                    iconSrc = `assets/items/${itemId}.png`; // Fallback for items
+                }
+            }
+            if (iconSrc) {
+                const iconImg = document.createElement('img');
+                iconImg.className = 'hiscores-inline-icon';
+                iconImg.src = iconSrc;
+                nameCell.appendChild(iconImg);
+            }
         }
+        const labelText = document.createElement('span');
+        labelText.textContent = label;
+        nameCell.appendChild(labelText);
+        row.appendChild(nameCell);
+
+        row.innerHTML += `<td>${rank || 'Unranked'}</td>`;
+        if (xpValue !== null) { // For skills (Level and XP)
+            row.innerHTML += `<td>${value}</td><td>${xpValue}</td>`;
+        } else { // For categories (Score)
+            row.innerHTML += `<td>${formatNumber(value || 0)}</td>`;
+        }
+        tbody.appendChild(row);
     }
     
-    // Compare two users
+    // --- REMOVED: getPlayerRank and getPlayerRankForSkill no longer make network calls ---
+    // These functions are now obsolete as the profile object contains all the ranks.
+    // They are replaced by accessing profile.ranks[category] directly.
+
+    // --- OPTIMIZED: Compare two users ---
     async compareUsersDisplay(user1, user2) {
         if (!user1 || !user2) {
             alert('Please enter two usernames to compare');
@@ -1035,32 +828,24 @@ async fetchLeaderboardData(category, page) {
         container.innerHTML = '<div class="hiscores-loading">Loading comparison...</div>';
         
         try {
-            const { query, collection, where, limit, getDocs } = window.firestoreHelpers;
-            
-            // Fetch both users
-            const q1 = query(
-                collection(firebaseManager.db, 'hiscores'),
-                where('username', '==', user1),
-                limit(1)
-            );
-            const user1Query = await getDocs(q1);
-            
-            const q2 = query(
-                collection(firebaseManager.db, 'hiscores'),
-                where('username', '==', user2),
-                limit(1)
-            );
-            const user2Query = await getDocs(q2);
-            
-            if (user1Query.empty || user2Query.empty) {
-                container.innerHTML = '<div class="hiscores-error">One or both players not found</div>';
+            if (!window.firebaseManager.functions) {
+                console.error('Firebase Functions not initialized');
+                alert('Firebase Functions not initialized.');
                 return;
             }
+
+            // ONE call to the new Cloud Function to get both complete profiles
+            const comparePlayersHiscores = httpsCallable(window.firebaseManager.functions, 'comparePlayersHiscores');
+            const result = await comparePlayersHiscores({ username1: user1, username2: user2 });
             
-            const user1Data = user1Query.docs[0].data();
-            const user2Data = user2Query.docs[0].data();
-            const user1Id = user1Query.docs[0].id;
-            const user2Id = user2Query.docs[0].id;
+            if (!result.data.success || !result.data.data) {
+                container.innerHTML = '<div class="hiscores-error">One or both players not found for comparison.</div>';
+                return;
+            }
+
+            const profile1 = result.data.data.player1;
+            const profile2 = result.data.data.player2;
+            const skillsData = window.loadingManager.getData('skills');
             
             container.innerHTML = '';
             
@@ -1078,8 +863,8 @@ async fetchLeaderboardData(category, page) {
             skillsHead.innerHTML = `
                 <tr>
                     <th>Skill</th>
-                    <th colspan="2">${user1}</th>
-                    <th colspan="2">${user2}</th>
+                    <th colspan="2">${profile1.username}</th>
+                    <th colspan="2">${profile2.username}</th>
                     <th>Winner</th>
                 </tr>
                 <tr class="hiscores-subheader">
@@ -1096,27 +881,25 @@ async fetchLeaderboardData(category, page) {
             const skillsBody = document.createElement('tbody');
             
             // Overall comparison with icon
-            const overallRank1 = await this.getPlayerRank(user1Id, 'overall');
-            const overallRank2 = await this.getPlayerRank(user2Id, 'overall');
-            await this.addCompareRowWithRank(
+            this.addCompareRowWithRank(
                 skillsBody, 
                 'Overall', 
                 'skill_skills',
-                overallRank1, user1Data.totalLevel,
-                overallRank2, user2Data.totalLevel
+                profile1.ranks.overall, profile1.values.totalLevel,
+                profile2.ranks.overall, profile2.values.totalLevel,
+                profile1.values.totalXp, profile2.values.totalXp // Pass XP for tie-breaking comparison
             );
             
             // Individual skills comparison with icons
-            const skillsData = loadingManager.getData('skills');
             for (const skillId of Object.keys(skillsData)) {
-                const rank1 = await this.getPlayerRankForSkill(user1Id, skillId);
-                const rank2 = await this.getPlayerRankForSkill(user2Id, skillId);
-                await this.addCompareRowWithRank(
+                const category = `skill_${skillId}`;
+                this.addCompareRowWithRank(
                     skillsBody,
                     skillsData[skillId].name,
-                    `skill_${skillId}`,
-                    rank1, user1Data[`level_${skillId}`] || 1,
-                    rank2, user2Data[`level_${skillId}`] || 1
+                    category,
+                    profile1.ranks[category], profile1.values[`level_${skillId}`],
+                    profile2.ranks[category], profile2.values[`level_${skillId}`],
+                    profile1.values[`xp_${skillId}`], profile2.values[`xp_${skillId}`] // Pass XP for tie-breaking
                 );
             }
             
@@ -1132,8 +915,8 @@ async fetchLeaderboardData(category, page) {
             catHead.innerHTML = `
                 <tr>
                     <th>Category</th>
-                    <th colspan="2">${user1}</th>
-                    <th colspan="2">${user2}</th>
+                    <th colspan="2">${profile1.username}</th>
+                    <th colspan="2">${profile2.username}</th>
                     <th>Winner</th>
                 </tr>
                 <tr class="hiscores-subheader">
@@ -1150,76 +933,60 @@ async fetchLeaderboardData(category, page) {
             const catBody = document.createElement('tbody');
             
             // Tasks comparison
-            const tasksRank1 = await this.getPlayerRank(user1Id, 'tasks');
-            const tasksRank2 = await this.getPlayerRank(user2Id, 'tasks');
-            await this.addCompareRowWithRank(
+            this.addCompareRowWithRank(
                 catBody,
                 'Tasks',
                 'ui_tasks',
-                tasksRank1, user1Data.tasksCompleted || 0,
-                tasksRank2, user2Data.tasksCompleted || 0
+                profile1.ranks.tasks, profile1.values.tasksCompleted,
+                profile2.ranks.tasks, profile2.values.tasksCompleted
             );
             
             // Pets comparison
-            const petsRank1 = await this.getPlayerRank(user1Id, 'pets');
-            const petsRank2 = await this.getPlayerRank(user2Id, 'pets');
-            await this.addCompareRowWithRank(
+            this.addCompareRowWithRank(
                 catBody,
                 'Pets',
                 'ui_pets',
-                petsRank1, user1Data.petsTotal || 0,
-                petsRank2, user2Data.petsTotal || 0
+                profile1.ranks.pets, profile1.values.petsTotal,
+                profile2.ranks.pets, profile2.values.petsTotal
             );
             
             // Shiny Pets comparison
-            const shinyRank1 = await this.getPlayerRank(user1Id, 'shinyPets');
-            const shinyRank2 = await this.getPlayerRank(user2Id, 'shinyPets');
-            await this.addCompareRowWithRank(
+            this.addCompareRowWithRank(
                 catBody,
                 'Shiny Pets',
                 'ui_pets_shiny',
-                shinyRank1, user1Data.petsShiny || 0,
-                shinyRank2, user2Data.petsShiny || 0
+                profile1.ranks.shinyPets, profile1.values.petsShiny,
+                profile2.ranks.shinyPets, profile2.values.petsShiny
             );
 
             // All Clues comparison
-            const cluesRank1 = await this.getPlayerRank(user1Id, 'cluesTotal');
-            const cluesRank2 = await this.getPlayerRank(user2Id, 'cluesTotal');
-            await this.addCompareRowWithRank(
+            this.addCompareRowWithRank(
                 catBody,
                 'All Clues',
                 'ui_all_clue',
-                cluesRank1, user1Data.cluesTotal || 0,
-                cluesRank2, user2Data.cluesTotal || 0
+                profile1.ranks.cluesTotal, profile1.values.cluesTotal,
+                profile2.ranks.cluesTotal, profile2.values.cluesTotal
             );
 
             // Individual Clue Tier comparisons
             const clueTiers = [
-                { id: 'easy', name: 'Easy Clues', icon: 'easy_clue' },
-                { id: 'medium', name: 'Medium Clues', icon: 'medium_clue' },
-                { id: 'hard', name: 'Hard Clues', icon: 'hard_clue' },
-                { id: 'elite', name: 'Elite Clues', icon: 'elite_clue' },
-                { id: 'master', name: 'Master Clues', icon: 'master_clue' }
+                { id: 'easy', name: 'Easy Clues', icon: 'easy_clue', category: 'clueseasy' },
+                { id: 'medium', name: 'Medium Clues', icon: 'medium_clue', category: 'cluesmedium' },
+                { id: 'hard', name: 'Hard Clues', icon: 'hard_clue', category: 'clueshard' },
+                { id: 'elite', name: 'Elite Clues', icon: 'elite_clue', category: 'clueselite' },
+                { id: 'master', name: 'Master Clues', icon: 'master_clue', category: 'cluesmaster' }
             ];
             
             for (const tier of clueTiers) {
                 const fieldName = `clues${tier.id.charAt(0).toUpperCase() + tier.id.slice(1)}`;
-                const tierRank1 = await this.getPlayerRank(user1Id, fieldName);
-                const tierRank2 = await this.getPlayerRank(user2Id, fieldName);
-                
-                // Try to use preloaded icon or fallback to direct path
                 let iconKey = `items_${tier.icon}`;
-                if (!loadingManager.getImage(iconKey)) {
-                    // If not preloaded, we'll handle it in addCompareRowWithRank
-                    iconKey = null;
-                }
                 
-                await this.addCompareRowWithRank(
+                this.addCompareRowWithRank(
                     catBody,
                     tier.name,
-                    iconKey || `direct:assets/items/${tier.icon}.png`, // Use direct path prefix
-                    tierRank1, user1Data[fieldName] || 0,
-                    tierRank2, user2Data[fieldName] || 0
+                    iconKey, // addCompareRowWithRank will handle direct: prefix if needed
+                    profile1.ranks[tier.category], profile1.values[fieldName],
+                    profile2.ranks[tier.category], profile2.values[fieldName]
                 );
             }
             
@@ -1237,12 +1004,13 @@ async fetchLeaderboardData(category, page) {
             
         } catch (error) {
             console.error('Failed to compare users:', error);
-            container.innerHTML = '<div class="hiscores-error">Failed to compare users</div>';
+            container.innerHTML = `<div class="hiscores-error">Failed to compare users: ${error.message}</div>`;
         }
     }
 
-    // New helper method for comparison rows with ranks
-    async addCompareRowWithRank(tbody, label, iconKey, rank1, value1, rank2, value2) {
+    // Helper method for adding rows to player profile comparison tables
+    // Now accepts an optional tieBreakerValue1/2 for cases like XP for same level
+    async addCompareRowWithRank(tbody, label, iconKey, rank1, value1, rank2, value2, tieBreakerValue1 = 0, tieBreakerValue2 = 0) {
         const row = document.createElement('tr');
         
         // Name cell with icon
@@ -1250,28 +1018,23 @@ async fetchLeaderboardData(category, page) {
         labelCell.className = 'hiscores-skill-name-cell';
         
         if (iconKey) {
+            let iconSrc = null;
             if (iconKey.startsWith('direct:')) {
-                // Handle direct path
+                iconSrc = iconKey.replace('direct:', '');
+            } else {
+                const icon = window.loadingManager.getImage(iconKey);
+                if (icon) {
+                    iconSrc = icon.src;
+                } else if (iconKey.startsWith('items_')) {
+                    const itemId = iconKey.replace('items_', '');
+                    iconSrc = `assets/items/${itemId}.png`;
+                }
+            }
+            if (iconSrc) {
                 const iconImg = document.createElement('img');
                 iconImg.className = 'hiscores-inline-icon';
-                iconImg.src = iconKey.replace('direct:', '');
+                iconImg.src = iconSrc;
                 labelCell.appendChild(iconImg);
-            } else {
-                // Try preloaded image
-                const icon = loadingManager.getImage(iconKey);
-                if (icon) {
-                    const iconImg = document.createElement('img');
-                    iconImg.className = 'hiscores-inline-icon';
-                    iconImg.src = icon.src;
-                    labelCell.appendChild(iconImg);
-                } else if (iconKey.startsWith('items_')) {
-                    // Fallback for items not preloaded
-                    const itemId = iconKey.replace('items_', '');
-                    const iconImg = document.createElement('img');
-                    iconImg.className = 'hiscores-inline-icon';
-                    iconImg.src = `assets/items/${itemId}.png`;
-                    labelCell.appendChild(iconImg);
-                }
             }
         }
         const labelText = document.createElement('span');
@@ -1281,54 +1044,75 @@ async fetchLeaderboardData(category, page) {
         // User 1 data
         const rank1Cell = document.createElement('td');
         rank1Cell.className = 'hiscores-compare-rank';
-        rank1Cell.textContent = rank1;
+        rank1Cell.textContent = rank1 || 'Unranked'; // Display 'Unranked' if rank is null/undefined
         
+        const value1Formatted = typeof value1 === 'number' && value1 > 10000 ? formatNumber(value1) : value1;
         const value1Cell = document.createElement('td');
         value1Cell.className = 'hiscores-compare-value';
-        value1Cell.textContent = typeof value1 === 'number' && value1 > 10000 ? 
-            formatNumber(value1) : value1;
+        value1Cell.textContent = value1Formatted || '0';
         
         // User 2 data
         const rank2Cell = document.createElement('td');
         rank2Cell.className = 'hiscores-compare-rank';
-        rank2Cell.textContent = rank2;
+        rank2Cell.textContent = rank2 || 'Unranked'; // Display 'Unranked' if rank is null/undefined
         
+        const value2Formatted = typeof value2 === 'number' && value2 > 10000 ? formatNumber(value2) : value2;
         const value2Cell = document.createElement('td');
         value2Cell.className = 'hiscores-compare-value';
-        value2Cell.textContent = typeof value2 === 'number' && value2 > 10000 ? 
-            formatNumber(value2) : value2;
+        value2Cell.textContent = value2Formatted || '0';
         
         // Winner cell
         const winnerCell = document.createElement('td');
         winnerCell.className = 'hiscores-compare-winner';
         
         // Determine winner (lower rank number is better, unless it's "Unranked")
-        const rank1Num = rank1 === 'Unranked' ? Infinity : parseInt(rank1);
-        const rank2Num = rank2 === 'Unranked' ? Infinity : parseInt(rank2);
+        const rank1Num = (rank1 === 'Unranked' || rank1 === undefined || rank1 === null) ? Infinity : parseInt(rank1);
+        const rank2Num = (rank2 === 'Unranked' || rank2 === undefined || rank2 === null) ? Infinity : parseInt(rank2);
         
-        let winner = 0; // 0 for tie, 1 for user1, 2 for user2
-        
+        // Use a more robust comparison that considers value and tie-breaker (like XP for levels)
+        let winnerIndicator = '=';
+        let color1 = ''; // Default
+        let color2 = ''; // Default
+
         if (rank1Num < rank2Num) {
-            winnerCell.textContent = '←';
-            winnerCell.style.color = '#2ecc71';
-            rank1Cell.style.color = '#2ecc71';
-            value1Cell.style.color = '#2ecc71';
-            rank2Cell.style.color = '#e74c3c';
-            value2Cell.style.color = '#e74c3c';
-            winner = 1;
+            winnerIndicator = '←';
+            color1 = '#2ecc71'; // Green for winner
+            color2 = '#e74c3c'; // Red for loser
         } else if (rank2Num < rank1Num) {
-            winnerCell.textContent = '→';
-            winnerCell.style.color = '#2ecc71';
-            rank2Cell.style.color = '#2ecc71';
-            value2Cell.style.color = '#2ecc71';
-            rank1Cell.style.color = '#e74c3c';
-            value1Cell.style.color = '#e74c3c';
-            winner = 2;
-        } else {
-            winnerCell.textContent = '=';
-            winnerCell.style.color = '#f39c12';
-            winner = 0;
+            winnerIndicator = '→';
+            color1 = '#e74c3c';
+            color2 = '#2ecc71';
+        } else if (rank1Num !== Infinity && value1 !== undefined && value2 !== undefined) {
+             // If ranks are tied, use value (level/score). Higher is better.
+            if (value1 > value2) {
+                winnerIndicator = '←';
+                color1 = '#2ecc71';
+                color2 = '#e74c3c';
+            } else if (value2 > value1) {
+                winnerIndicator = '→';
+                color1 = '#e74c3c';
+                color2 = '#2ecc71';
+            } else if (tieBreakerValue1 !== undefined && tieBreakerValue2 !== undefined) {
+                 // If value also tied, use tieBreakerValue (XP). Higher is better.
+                if (tieBreakerValue1 > tieBreakerValue2) {
+                    winnerIndicator = '←';
+                    color1 = '#2ecc71';
+                    color2 = '#e74c3c';
+                } else if (tieBreakerValue2 > tieBreakerValue1) {
+                    winnerIndicator = '→';
+                    color1 = '#e74c3c';
+                    color2 = '#2ecc71';
+                }
+            }
         }
+
+        winnerCell.textContent = winnerIndicator;
+        winnerCell.style.color = (winnerIndicator === '=') ? '#f39c12' : '#2ecc71'; // Gold for tie, Green for winner
+
+        rank1Cell.style.color = color1;
+        value1Cell.style.color = color1;
+        rank2Cell.style.color = color2;
+        value2Cell.style.color = color2;
         
         row.appendChild(labelCell);
         row.appendChild(rank1Cell);
@@ -1338,37 +1122,9 @@ async fetchLeaderboardData(category, page) {
         row.appendChild(winnerCell);
         
         tbody.appendChild(row);
-        
-        return winner; // Return the winner for tally tracking
     }
     
-    // Add a comparison row
-    addCompareRow(tbody, label, value1, value2, format = false) {
-        const row = document.createElement('tr');
-        
-        const labelCell = document.createElement('td');
-        labelCell.textContent = label;
-        
-        const value1Cell = document.createElement('td');
-        value1Cell.textContent = format ? formatNumber(value1) : value1;
-        
-        const value2Cell = document.createElement('td');
-        value2Cell.textContent = format ? formatNumber(value2) : value2;
-        
-        // Color coding
-        if (value1 > value2) {
-            value1Cell.style.color = '#2ecc71';
-            value2Cell.style.color = '#e74c3c';
-        } else if (value2 > value1) {
-            value1Cell.style.color = '#e74c3c';
-            value2Cell.style.color = '#2ecc71';
-        }
-        
-        row.appendChild(labelCell);
-        row.appendChild(value1Cell);
-        row.appendChild(value2Cell);
-        tbody.appendChild(row);
-    }
+    // addCompareRow is no longer needed as addCompareRowWithRank is more comprehensive
 }
 
 // Create global instance

@@ -209,10 +209,17 @@ if (firebaseManager.currentUser) {
     if (!loadSuccess) {
         console.log('No save data loaded, generating initial tasks...');
         taskManager.generateInitialTasks();
+		
+		// Give starting coins if this is a new player
+if (!firebaseManager.currentUser || !window.bank.getItemCount('coins')) {
+    window.bank.deposit('coins', 500);
+}
+
     }
 } else {
     // Offline mode or not logged in - initialize tasks normally
     taskManager.initialize();
+	
 }
 
 // Always ensure we have a full task queue
@@ -225,17 +232,6 @@ taskManager.ensureFullTaskQueue();
 
     // Canvas sizing is handled by scalingSystem
     map.render();
-
-    // Set up pause control with icon toggle
-    document.getElementById('pause-toggle').addEventListener('click', () => {
-        gameState.paused = !gameState.paused;
-        const pauseBtn = document.getElementById('pause-toggle');
-        const icon = pauseBtn.querySelector('.pause-icon');
-        if (icon) {
-            icon.textContent = gameState.paused ? '▶' : '⏸';
-            pauseBtn.title = gameState.paused ? 'Resume AI' : 'Pause AI';
-        }
-    });
 
     // Set up ESC key handler for closing popups
     document.addEventListener('keydown', (e) => {

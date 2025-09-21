@@ -49,10 +49,6 @@ class UIManager {
     const buttons = document.querySelectorAll('.panel-btn');
     
     buttons.forEach(btn => {
-        // Skip the pause button - it has its own handler
-        if (btn.id === 'pause-toggle') {
-            return;
-        }
         
         btn.addEventListener('click', (e) => {
             const panel = btn.dataset.panel;
@@ -1233,7 +1229,7 @@ if (!isFloating && window.clueManager) {
             rerollBtn.textContent = '↻';
             
             // Check if enough RuneCred
-            const hasEnoughCred = window.runeCreditManager && runeCreditManager.runeCred >= 1;
+            const hasEnoughCred = window.runeCreditManager && runeCreditManager.runeCred >= 5;
             if (!hasEnoughCred) {
                 rerollBtn.classList.add('disabled');
                 rerollBtn.disabled = true;
@@ -1245,7 +1241,7 @@ if (!isFloating && window.clueManager) {
             const currentRuneCred = window.runeCreditManager ? runeCreditManager.runeCred : 0;
             rerollTooltip.innerHTML = `
                 <div class="reroll-tooltip-header">Reroll All Options</div>
-                <div class="reroll-tooltip-cost">Cost: 1 Rune Cred</div>
+                <div class="reroll-tooltip-cost">Cost: 5 Rune Cred</div>
                 <div class="reroll-tooltip-balance ${hasEnoughCred ? '' : 'insufficient'}">
                     You have: ${currentRuneCred} Rune Cred
                 </div>
@@ -1405,7 +1401,7 @@ createSelectableTaskElement(taskSlot, slotIndex) {
     rerollDiv.innerHTML = '↻';
     
     // Check if enough RuneCred
-    const hasEnoughCred = window.runeCreditManager && runeCreditManager.runeCred >= 1;
+    const hasEnoughCred = window.runeCreditManager && runeCreditManager.runeCred >= 5;
     if (!hasEnoughCred) {
         rerollDiv.classList.add('disabled');
     }
@@ -1416,7 +1412,7 @@ createSelectableTaskElement(taskSlot, slotIndex) {
     const currentRuneCred = window.runeCreditManager ? runeCreditManager.runeCred : 0;
     rerollTooltip.innerHTML = `
         <div class="reroll-tooltip-header">Reroll Other Options</div>
-        <div class="reroll-tooltip-cost">Cost: 1 Rune Cred</div>
+        <div class="reroll-tooltip-cost">Cost: 5 Rune Cred</div>
         <div class="reroll-tooltip-balance ${hasEnoughCred ? '' : 'insufficient'}">
             You have: ${currentRuneCred} Rune Cred
         </div>

@@ -3,6 +3,7 @@ class SkillCustomizationUI {
         this.isOpen = false;
         this.currentSkillId = null; // null means global Skill Customization
         this.overlay = null;
+        this.selectedElement = null; // Track currently selected task or node
         this.initialize();
     }
     
@@ -76,9 +77,22 @@ class SkillCustomizationUI {
         this.isOpen = false;
         this.overlay.style.display = 'none';
         this.currentSkillId = null;
+        this.clearSelection();
+    }
+    
+    clearSelection() {
+        if (this.selectedElement) {
+            this.selectedElement.classList.remove('hover-outline-green');
+            this.selectedElement.classList.remove('hover-outline-red');
+            this.clearTaskHighlights();
+            this.clearNodeHighlights();
+            this.selectedElement = null;
+        }
     }
     
     render() {
+        this.clearSelection(); // Clear any existing selection when re-rendering
+        
         if (window.runeCreditManager) {
             runeCreditManager.updateSpeedBonuses();
         }
@@ -1134,20 +1148,37 @@ class SkillCustomizationUI {
             row.classList.add('unavailable');
         }
         
-        // Add hover events for highlighting nodes
-        row.addEventListener('mouseenter', () => {
-            if (hasLevel) {
-                row.classList.add('hover-outline-green');
+        // Add click events for highlighting nodes
+        row.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            // If this element is already selected, deselect it
+            if (this.selectedElement === row) {
+                row.classList.remove('hover-outline-green');
+                row.classList.remove('hover-outline-red');
+                this.clearNodeHighlights();
+                this.selectedElement = null;
             } else {
-                row.classList.add('hover-outline-red');
+                // Clear any previous selection
+                if (this.selectedElement) {
+                    this.selectedElement.classList.remove('hover-outline-green');
+                    this.selectedElement.classList.remove('hover-outline-red');
+                    if (this.selectedElement.classList.contains('task-row')) {
+                        this.clearNodeHighlights();
+                    } else {
+                        this.clearTaskHighlights();
+                    }
+                }
+                
+                // Select this element
+                if (hasLevel) {
+                    row.classList.add('hover-outline-green');
+                } else {
+                    row.classList.add('hover-outline-red');
+                }
+                this.highlightNodesForTask(task.itemId, hasLevel);
+                this.selectedElement = row;
             }
-            this.highlightNodesForTask(task.itemId, hasLevel);
-        });
-        
-        row.addEventListener('mouseleave', () => {
-            row.classList.remove('hover-outline-green');
-            row.classList.remove('hover-outline-red');
-            this.clearNodeHighlights();
         });
         
         // Task info
@@ -1390,25 +1421,37 @@ class SkillCustomizationUI {
             row.classList.add('unavailable');
         }
         
-        // Add hover events for highlighting
-        // IMPORTANT: These work the same for both available and unavailable nodes
-        row.addEventListener('mouseenter', () => {
-            // Add hover outline class based on availability
-            if (hasUsableActivities) {
-                row.classList.add('hover-outline-green');
+        // Add click events for highlighting
+        row.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            // If this element is already selected, deselect it
+            if (this.selectedElement === row) {
+                row.classList.remove('hover-outline-green');
+                row.classList.remove('hover-outline-red');
+                this.clearTaskHighlights();
+                this.selectedElement = null;
             } else {
-                row.classList.add('hover-outline-red');
+                // Clear any previous selection
+                if (this.selectedElement) {
+                    this.selectedElement.classList.remove('hover-outline-green');
+                    this.selectedElement.classList.remove('hover-outline-red');
+                    if (this.selectedElement.classList.contains('task-row')) {
+                        this.clearNodeHighlights();
+                    } else {
+                        this.clearTaskHighlights();
+                    }
+                }
+                
+                // Select this element
+                if (hasUsableActivities) {
+                    row.classList.add('hover-outline-green');
+                } else {
+                    row.classList.add('hover-outline-red');
+                }
+                this.highlightTasksForNode(nodeId, currentLevel);
+                this.selectedElement = row;
             }
-            // Highlight matching tasks
-            this.highlightTasksForNode(nodeId, currentLevel);
-        });
-        
-        row.addEventListener('mouseleave', () => {
-            // Remove both possible hover outline classes
-            row.classList.remove('hover-outline-green');
-            row.classList.remove('hover-outline-red');
-            // Clear task highlights
-            this.clearTaskHighlights();
         });
         
         // Node info with bank distance
@@ -1462,16 +1505,16 @@ class SkillCustomizationUI {
             controlsDiv.appendChild(weightEmoji);
             
             const weightUp = this.createControlButton('+', () => {
-                if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, true)) {
-                    this.render();
-                }
-            }, nodeLevel);
-            
-            const weightDown = this.createControlButton('-', () => {
-                if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, false)) {
-                    this.render();
-                }
-            }, nodeLevel);
+    if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, true)) {
+        this.render();
+    }
+}, nodeLevel, 'weight', true, this.currentSkillId, nodeId);
+
+const weightDown = this.createControlButton('-', () => {
+    if (runeCreditManager.modifyNodeWeight(this.currentSkillId, nodeId, false)) {
+        this.render();
+    }
+}, nodeLevel, 'weight', false, this.currentSkillId, nodeId);
             
             controlsDiv.appendChild(weightUp);
             controlsDiv.appendChild(weightDown);

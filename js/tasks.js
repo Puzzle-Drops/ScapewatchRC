@@ -550,7 +550,7 @@ if (this.currentTask) {
         }
 
         // Check and spend RuneCred
-        if (!window.runeCreditManager || !runeCreditManager.spendRuneCred(1)) {
+        if (!window.runeCreditManager || !runeCreditManager.spendRuneCred(5)) {
             console.log('Insufficient Rune Cred for reroll');
             return false;
         }
@@ -597,7 +597,7 @@ if (this.currentTask) {
         }
 
         // Check and spend RuneCred
-        if (!window.runeCreditManager || !runeCreditManager.spendRuneCred(1)) {
+        if (!window.runeCreditManager || !runeCreditManager.spendRuneCred(5)) {
             console.log('Insufficient Rune Cred for reroll');
             return false;
         }
