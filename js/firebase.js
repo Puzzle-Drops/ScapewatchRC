@@ -83,13 +83,13 @@ class FirebaseManager {
     initialize() {
         // Your Firebase configuration
         const firebaseConfig = {
-            apiKey: "",
-            authDomain: "",
-            projectId: "",
-            storageBucket: "",
-            messagingSenderId: "",
-            appId: "",
-            measurementId: ""
+            apiKey: "AIzaSyDNTjUANEOUzcx13IhqZAT-grfMNPL8ia8",
+            authDomain: "scapewatch-f2d9d.firebaseapp.com",
+            projectId: "scapewatch-f2d9d",
+            storageBucket: "scapewatch-f2d9d.firebasestorage.app",
+            messagingSenderId: "631909394106",
+            appId: "1:631909394106:web:86cf7b0a7d97675216c483",
+            measurementId: "G-HJFKPL6N2B"
         };
 
         // Initialize Firebase
