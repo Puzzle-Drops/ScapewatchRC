@@ -2,9 +2,6 @@ class RuneCreditManager {
     constructor() {
         // TOGGLE THIS FLAG TO ENABLE/DISABLE SAVING AND LOADING
         this.enablePersistence = false; // Set to true to enable localStorage save/load
-    
-        // Account seed for deterministic pet rolls (prevents save scumming)
-        this.accountSeed = null; // Will be set when loading from Firebase or generated for offline
         
         // Three-tier credit system
         this.skillCredits = {}; // skillId -> amount (start at 10)
@@ -166,52 +163,14 @@ onTaskComplete(task) {
         
         return true;
     }
-
-    // Generate deterministic account seed if needed
-    getOrGenerateAccountSeed() {
-        if (!this.accountSeed) {
-            // Generate a seed from the account UID if we have it
-            if (window.firebaseManager && firebaseManager.currentUser) {
-                // Create a simple hash from UID
-                let hash = 0;
-                const str = firebaseManager.currentUser.uid + "petSeed";
-                for (let i = 0; i < str.length; i++) {
-                    const char = str.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash; // Convert to 32-bit integer
-                }
-                this.accountSeed = Math.abs(hash);
-                console.log('Generated account seed from UID');
-            } else {
-                // Offline mode - use a random seed that persists for the session
-                this.accountSeed = Math.floor(Math.random() * 1000000);
-                console.log('Generated random account seed for offline mode');
-            }
-        }
-        return this.accountSeed;
-    }
-    
-    // Deterministic pet roll based on account seed and task number
-    getDeterministicRoll(taskNumber, rollType = 'pet') {
-        const seed = this.getOrGenerateAccountSeed();
-        
-        // Create different seeds for pet roll vs shiny roll
-        const rollSeed = rollType === 'shiny' ? 
-            seed + taskNumber + 999999 : // Different seed for shiny
-            seed + taskNumber;
-        
-        // Simple deterministic random using sine
-        const x = Math.sin(rollSeed) * 10000;
-        return x - Math.floor(x); // Get decimal part as 0-1 value
-    }
     
     // Roll for pet drop when completing a task
 rollForPet(skillId) {
-    // 1/1000 chance for pet - NOW DETERMINISTIC
-    const petRoll = this.getDeterministicRoll(this.totalTasksCompleted, 'pet');
+    // 1/1000 chance for pet
+    const petRoll = Math.random();
     if (petRoll < 1/1000) {
-        // We got a pet! Now check if it's shiny (1/10 chance) - ALSO DETERMINISTIC
-        const shinyRoll = this.getDeterministicRoll(this.totalTasksCompleted, 'shiny');
+        // We got a pet! Now check if it's shiny (1/10 chance)
+        const shinyRoll = Math.random();
         const isShiny = shinyRoll < 1/10;
 
         // Get skill name for display
