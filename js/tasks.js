@@ -412,11 +412,6 @@ async completeTask(task) {
         }
     }
     
-    // FORCE SAVE after ENTIRE task transition is complete
-    // This prevents pet roll exploitation and ensures consistent state
-    if (window.firebaseManager && !firebaseManager.isOfflineMode) {
-        await firebaseManager.forceSave();
-    }
 }
 
     // Skip the current task when it's impossible
