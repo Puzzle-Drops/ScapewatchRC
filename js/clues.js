@@ -250,11 +250,6 @@ this.updateCompletedCluesDisplay();
         // Update floating display
         this.updateCompletedCluesDisplay();
         
-        // Force save and update hiscores after casket obtained
-        if (window.firebaseManager && !firebaseManager.isOfflineMode) {
-            await firebaseManager.forceSave();
-        }
-        
         return true;
     }
 
@@ -282,12 +277,6 @@ this.updateCompletedCluesDisplay();
         
         // Show rewards modal (items are already in bank)
         this.showCasketRewards(tier, rewards);
-        
-        // Force save to prevent save scumming
-        if (window.firebaseManager && !firebaseManager.isOfflineMode) {
-            await firebaseManager.forceSave();
-            console.log('Game saved after casket opening');
-        }
         
         return true;
     }
