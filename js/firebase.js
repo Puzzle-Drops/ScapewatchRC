@@ -61,7 +61,7 @@ class FirebaseManager {
         this.saveDebounceTimer = null;
         this.sessionId = null;
         this.sessionListener = null;
-        this.SAVE_INTERVAL = 10 * 60 * 1000; // 10 minutes in milliseconds
+        this.SAVE_INTERVAL = 30 * 60 * 1000; // 10 minutes in milliseconds
         
         // New properties for connection management
         this.connectionRetryCount = 0;
@@ -698,9 +698,18 @@ class FirebaseManager {
                 }
             }
             
-            // Force save on logout (bypass throttle)
+// Only save on logout if last save was more than 15 minutes ago
+        const now = Date.now();
+        const timeSinceLastSave = now - this.lastSaveTime;
+        const FIFTEEN_MINUTES = 15 * 60 * 1000;
+        
+        if (timeSinceLastSave > FIFTEEN_MINUTES) {
+            console.log('Last save was more than 15 minutes ago, saving before logout');
             await this.forceSave();
+        } else {
+            console.log(`Skipping logout save (last save was ${Math.floor(timeSinceLastSave / 1000)} seconds ago)`);
         }
+    }
         
         // Clear session in database
         if (this.currentUser) {
