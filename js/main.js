@@ -104,7 +104,7 @@ async function startGame() {
     
     // Log environment detection
     if (typeof nw !== 'undefined') {
-        console.log('Running in NW.js desktop app - F11 fullscreen enabled');
+        console.log('Running in NW.js desktop app');
     } else {
         console.log('Running in web browser');
     }
@@ -243,10 +243,10 @@ taskManager.ensureFullTaskQueue();
     // Set up ESC key handler for closing popups
     document.addEventListener('keydown', (e) => {
         // F11 fullscreen toggle for NW.js
-        if ((e.key === 'F11' || e.keyCode === 122)) {
-            console.log('F11: Toggled fullscreen mode');
+        if ((e.key === 'F11' || e.keyCode === 122) && typeof nw !== 'undefined') {
             e.preventDefault();
             nw.Window.get().toggleFullscreen();
+            console.log('F11: Toggled fullscreen mode');
             return;
         }
         
