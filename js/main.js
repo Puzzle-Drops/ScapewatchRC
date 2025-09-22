@@ -418,20 +418,23 @@ function updateAutoSaveTimer() {
     }
     
     // Calculate next save time
-    if (firebaseManager.lastSaveTime > 0) {
-        const nextSaveTimestamp = firebaseManager.lastSaveTime + firebaseManager.SAVE_INTERVAL;
-        const now = Date.now();
-        const timeUntilSave = nextSaveTimestamp - now;
-        
-        if (timeUntilSave > 0) {
-            // Convert to minutes and seconds
-            const minutes = Math.floor(timeUntilSave / 60000);
-            const seconds = Math.floor((timeUntilSave % 60000) / 1000);
-            nextSaveElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        } else {
-            nextSaveElement.textContent = 'Saving soon...';
-        }
+if (firebaseManager.lastSaveTime > 0) {
+    const nextSaveTimestamp = firebaseManager.lastSaveTime + firebaseManager.SAVE_INTERVAL;
+    const now = Date.now();
+    const timeUntilSave = nextSaveTimestamp - now;
+    
+    if (timeUntilSave > 0) {
+        // Convert to minutes and seconds
+        const minutes = Math.floor(timeUntilSave / 60000);
+        const seconds = Math.floor((timeUntilSave % 60000) / 1000);
+        nextSaveElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+        nextSaveElement.textContent = 'Saving soon...';
     }
+} else {
+    // If no lastSaveTime yet, show that first save will be in 30 minutes
+    nextSaveElement.textContent = '30:00';
+}
 }
 
 // Make functions globally available
