@@ -102,6 +102,13 @@ async function startGame() {
     // Hide loading screen
     document.getElementById('loading-screen').style.display = 'none';
     
+    // Log environment detection
+    if (typeof nw !== 'undefined') {
+        console.log('Running in NW.js desktop app - F11 fullscreen enabled');
+    } else {
+        console.log('Running in web browser');
+    }
+    
     // Check if user is logged in
     if (!gameState.isLoggedIn && !firebaseManager.isOfflineMode) {
         // Show login screen
