@@ -1319,21 +1319,24 @@ class FirebaseManager {
     }
 
 startAutoSave() {
-        // Save every 30 minutes
-        this.saveTimer = setInterval(() => {
-            this.saveGame();
-        }, this.SAVE_INTERVAL);
+    // Initialize the last save time to NOW so countdown works immediately
+    this.lastSaveTime = Date.now();
+    
+    // Save every 30 minutes
+    this.saveTimer = setInterval(() => {
+        this.saveGame();
+    }, this.SAVE_INTERVAL);
 
-        // Also save on important events (force save, bypasses throttle)
-        window.addEventListener('beforeunload', () => {
-            this.forceSave();
-        });
-        
-        // Initialize auto-save display
-        if (window.createAutoSaveTimer) {
-            window.createAutoSaveTimer();
-        }
+    // Also save on important events (force save, bypasses throttle)
+    window.addEventListener('beforeunload', () => {
+        this.forceSave();
+    });
+    
+    // Initialize auto-save display
+    if (window.createAutoSaveTimer) {
+        window.createAutoSaveTimer();
     }
+}
 
     stopAutoSave() {
         if (this.saveTimer) {
