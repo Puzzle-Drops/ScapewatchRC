@@ -58,10 +58,12 @@ class FirebaseManager {
         this.isOfflineMode = false;
         this.saveTimer = null;
         this.lastSaveTime = 0;
+        this.lastSaveStatus = null;
+        this.lastSaveTimestamp = null;
         this.saveDebounceTimer = null;
         this.sessionId = null;
         this.sessionListener = null;
-        this.SAVE_INTERVAL = 30 * 60 * 1000; // 10 minutes in milliseconds
+        this.SAVE_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
         
         // New properties for connection management
         this.connectionRetryCount = 0;
@@ -863,10 +865,16 @@ class FirebaseManager {
                 };
                 
                 localStorage.setItem('scapewatch_offline_save', JSON.stringify(offlineSave));
+                this.lastSaveTimestamp = Date.now();
+                this.lastSaveStatus = 'Success';
                 this.showSaveIndicator();
+                this.updateAutoSaveDisplay(); // Update the display
                 console.log('Game saved to localStorage (offline mode)');
             } catch (error) {
                 console.error('Failed to save to localStorage:', error);
+                this.lastSaveTimestamp = Date.now();
+                this.lastSaveStatus = 'Failed';
+                this.updateAutoSaveDisplay(); // Update the display
             }
             return;
         }
@@ -903,13 +911,19 @@ class FirebaseManager {
             });
 
             this.lastSaveTime = now;
+            this.lastSaveTimestamp = now;
+            this.lastSaveStatus = 'Success';
             this.showSaveIndicator();
+            this.updateAutoSaveDisplay(); // Update the display
             console.log('Game saved to staging successfully');
             
             // Update hi-scores after successful save
             await this.updateHiscores();
         } catch (error) {
             console.error('Failed to save game:', error);
+            this.lastSaveTimestamp = Date.now();
+            this.lastSaveStatus = 'Failed';
+            this.updateAutoSaveDisplay(); // Update the display
             this.handleConnectionError(error);
         }
     }
@@ -1297,8 +1311,15 @@ class FirebaseManager {
         }, 2000);
     }
 
-    startAutoSave() {
-        // Save every 10 minutes
+    updateAutoSaveDisplay() {
+        // Update the auto-save timer display if it exists
+        if (window.updateAutoSaveTimer) {
+            window.updateAutoSaveTimer();
+        }
+    }
+
+startAutoSave() {
+        // Save every 30 minutes
         this.saveTimer = setInterval(() => {
             this.saveGame();
         }, this.SAVE_INTERVAL);
@@ -1307,6 +1328,11 @@ class FirebaseManager {
         window.addEventListener('beforeunload', () => {
             this.forceSave();
         });
+        
+        // Initialize auto-save display
+        if (window.createAutoSaveTimer) {
+            window.createAutoSaveTimer();
+        }
     }
 
     stopAutoSave() {
