@@ -4209,3 +4209,39 @@ span.control-emoji {
 .reroll-option.disabled:hover {
     background: rgba(255, 255, 255, 0.1);
 }
+
+/* Auto-save timer display */
+.auto-save-timer {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 15px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 14px;
+    z-index: 999;
+    font-family: 'Courier New', monospace;
+    min-width: 300px;
+}
+
+.save-timer-line {
+    margin: 3px 0;
+}
+
+#last-save-time, #next-save-time {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+#last-save-status {
+    margin-left: 5px;
+}
+
+.save-success {
+    color: #2ecc71;
+}
+
+.save-failed {
+    color: #e74c3c;
+}
