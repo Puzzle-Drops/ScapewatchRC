@@ -1,14 +1,14 @@
 {
   "name": "scapewatch",
-  "main": "index.html",
-  "version": "1.0.0",
+  "main": "https://puzzle-drops.github.io/ScapewatchRC/",
+  "version": "0.0.3",
   "window": {
     "title": "Scapewatch",
     "width": 2560,
     "height": 1440,
     "min_width": 1280,
     "min_height": 720,
-    "fullscreen": false,
+    "fullscreen": true,
     "kiosk": false
   },
   "chromium-args": "--disable-raf-throttling --disable-background-timer-throttling --disable-renderer-backgrounding --enable-fullscreen-tab",
