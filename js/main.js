@@ -378,6 +378,66 @@ function showAccountInfo() {
     document.getElementById('game-container').appendChild(accountDiv);
 }
 
+// Create auto-save timer display
+function createAutoSaveTimer() {
+    const timerDiv = document.createElement('div');
+    timerDiv.id = 'auto-save-timer';
+    timerDiv.className = 'auto-save-timer';
+    timerDiv.innerHTML = `
+        <div class="save-timer-line">Last Auto Save: <span id="last-save-time">Never</span> <span id="last-save-status"></span></div>
+        <div class="save-timer-line">Next Auto Save: <span id="next-save-time">Calculating...</span></div>
+    `;
+    document.getElementById('game-container').appendChild(timerDiv);
+    
+    // Start the countdown update interval
+    updateAutoSaveTimer(); // Initial update
+    setInterval(updateAutoSaveTimer, 1000); // Update every second
+}
+
+// Update auto-save timer display
+function updateAutoSaveTimer() {
+    if (!firebaseManager) return;
+    
+    const lastSaveElement = document.getElementById('last-save-time');
+    const statusElement = document.getElementById('last-save-status');
+    const nextSaveElement = document.getElementById('next-save-time');
+    
+    if (!lastSaveElement || !nextSaveElement) return;
+    
+    // Update last save time
+    if (firebaseManager.lastSaveTimestamp) {
+        const lastSaveDate = new Date(firebaseManager.lastSaveTimestamp);
+        const timeStr = lastSaveDate.toLocaleTimeString();
+        lastSaveElement.textContent = timeStr;
+        
+        // Update status
+        if (firebaseManager.lastSaveStatus) {
+            statusElement.textContent = `(${firebaseManager.lastSaveStatus})`;
+            statusElement.className = firebaseManager.lastSaveStatus === 'Success' ? 'save-success' : 'save-failed';
+        }
+    }
+    
+    // Calculate next save time
+    if (firebaseManager.lastSaveTime > 0) {
+        const nextSaveTimestamp = firebaseManager.lastSaveTime + firebaseManager.SAVE_INTERVAL;
+        const now = Date.now();
+        const timeUntilSave = nextSaveTimestamp - now;
+        
+        if (timeUntilSave > 0) {
+            // Convert to minutes and seconds
+            const minutes = Math.floor(timeUntilSave / 60000);
+            const seconds = Math.floor((timeUntilSave % 60000) / 1000);
+            nextSaveElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+            nextSaveElement.textContent = 'Saving soon...';
+        }
+    }
+}
+
+// Make functions globally available
+window.createAutoSaveTimer = createAutoSaveTimer;
+window.updateAutoSaveTimer = updateAutoSaveTimer;
+
 function gameLoop(currentTime) {
     if (!gameState.running) return;
 
