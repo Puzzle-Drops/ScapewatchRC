@@ -29,6 +29,10 @@ class Player {
         this.pathPrepEndTime = 0;
         this.pathPrepDuration = 600; // 0.6 seconds
 
+        // Clue proximity checking timer
+        this.lastClueProximityCheck = 0;
+        this.clueProximityCheckInterval = 200; // Check every 200ms
+
         this.lastWaterCheck = 0;
         this.isOnWaterCache = false;
         this.waterCheckInterval = 100; // Only check every 100ms
@@ -38,6 +42,13 @@ class Player {
         // Update animation system
         if (window.playerAnimation) {
             playerAnimation.update(deltaTime, this);
+        }
+
+        // Check clue proximity every 200ms
+        const now = Date.now();
+        if (window.clueManager && now - this.lastClueProximityCheck >= this.clueProximityCheckInterval) {
+            this.lastClueProximityCheck = now;
+            clueManager.checkProximityCompletion(this.position);
         }
 
         // Track water movement for sailing XP
