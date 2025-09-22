@@ -143,6 +143,80 @@ if (window.ui) {
 }
     }
     
+    // Check if player is near any incomplete clue steps (called every 200ms)
+    checkProximityCompletion(playerPosition) {
+        // Early exit if no active clues
+        if (Object.keys(this.clues).length === 0) return;
+        
+        const proximityRadius = 5;
+        const proximityRadiusSquared = proximityRadius * proximityRadius;
+        
+        // Check all active clues for proximity to incomplete steps
+        for (const [tier, clueData] of Object.entries(this.clues)) {
+            let stepCompleted = false;
+            
+            // Check each step in this clue
+            for (let i = 0; i < clueData.steps.length; i++) {
+                // Skip completed steps
+                if (clueData.completed[i]) continue;
+                
+                // Get the node for this step
+                const nodeId = clueData.steps[i];
+                const node = window.nodes ? nodes.getNode(nodeId) : null;
+                if (!node) continue;
+                
+                // Check distance (squared to avoid sqrt)
+                const dx = playerPosition.x - node.position.x;
+                const dy = playerPosition.y - node.position.y;
+                const distanceSquared = dx * dx + dy * dy;
+                
+                if (distanceSquared <= proximityRadiusSquared) {
+                    // Mark this step as complete
+                    clueData.completed[i] = true;
+                    stepCompleted = true;
+                    
+                    const completedNode = nodes.getNode(nodeId);
+                    const completedNodeName = completedNode ? completedNode.name : nodeId;
+                    console.log(`Clue step completed by proximity: ${completedNodeName} (distance: ${Math.sqrt(distanceSquared).toFixed(1)} tiles)`);
+                    
+                    // Show step completion celebration
+                    if (window.xpDropManager) {
+                        xpDropManager.showClueStepComplete(tier);
+                    }
+                    
+                    // Check if entire clue is complete
+                    if (this.isClueComplete(tier)) {
+                        console.log(`${this.CLUE_CONFIG[tier].itemName} completed! Click it in bank to receive casket.`);
+                        
+                        // Show clue completion celebration
+                        if (window.xpDropManager) {
+                            xpDropManager.showClueComplete(tier);
+                        }
+                    }
+                    
+                    // Only complete one step per check to avoid multiple celebrations
+                    break;
+                }
+            }
+            
+            // If we completed a step, update UI and save
+            if (stepCompleted) {
+                // Update UI if bank is open
+                if (window.ui && ui.bankOpen) {
+                    ui.updateBank();
+                }
+                
+                this.saveClueData();
+                
+                // Update floating display
+                this.updateCompletedCluesDisplay();
+                
+                // Only process one clue completion per proximity check
+                return;
+            }
+        }
+    }
+    
 // Called when player arrives at a node
 onNodeVisit(nodeId) {
     // Get the node we're visiting and its nearest bank
@@ -170,7 +244,7 @@ onNodeVisit(nodeId) {
                 
                 const completedNode = nodes.getNode(effectiveNodeId);
                 completedNodeName = completedNode ? completedNode.name : effectiveNodeId;
-                console.log(`Clue step completed: ${completedNodeName} (via ${nodeId === effectiveNodeId ? 'direct visit' : 'nearest bank'})`);
+                console.log(`Clue step completed by arrival: ${completedNodeName} (via ${nodeId === effectiveNodeId ? 'direct visit' : 'nearest bank'})`);
                 
                 // Show step completion celebration
                 if (window.xpDropManager) {
