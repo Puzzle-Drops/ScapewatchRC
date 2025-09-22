@@ -235,6 +235,14 @@ taskManager.ensureFullTaskQueue();
 
     // Set up ESC key handler for closing popups
     document.addEventListener('keydown', (e) => {
+        // F11 fullscreen toggle for NW.js
+        if ((e.key === 'F11' || e.keyCode === 122) && typeof nw !== 'undefined') {
+            console.log('F11: Toggled fullscreen mode');
+            e.preventDefault();
+            nw.Window.get().toggleFullscreen();
+            return;
+        }
+        
         if (e.key === 'Escape' || e.keyCode === 27) {
             // Check and close popups in priority order (most recent/important first)
             
