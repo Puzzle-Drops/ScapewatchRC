@@ -25,7 +25,7 @@ class MapRenderer {
     this.isTransitioning = false;
     this.transitionStartTime = 0; // Track when transition started
     this.transitionSpeed = 0.12; // Lerp speed for smooth recentering (balanced for 5-10 second animation)
-    this.panSpeed = 60; // Keyboard pan speed (pixels per frame)
+    this.panSpeed = 75; // Keyboard pan speed (pixels per frame)
     this.maxPanDistance = 4000; // Maximum distance camera can pan from player
     this.isPannedAway = false; // Track if we're detached from player
     
@@ -863,10 +863,10 @@ const dashSize = Math.max(0.5, Math.min(20, 1 * inverseZoomScale));
         let showBankInfo = false;
         let bankName = '';
         if (this.hoveredNode.type === 'bank') {
-            contentLines += 1; // Add line for "Bank" text
+            contentLines += 2; // Add lines for spacing + "Bank" text
             showBankInfo = true;
         } else if (this.hoveredNode.nearestBank) {
-            contentLines += 2; // Add lines for bank name and distance
+            contentLines += 3; // Add lines for spacing + bank name + distance
             showBankInfo = true;
             const bankNode = nodes.getNode(this.hoveredNode.nearestBank);
             if (bankNode) {
@@ -934,22 +934,25 @@ const dashSize = Math.max(0.5, Math.min(20, 1 * inverseZoomScale));
         
         // Draw bank info
         if (showBankInfo) {
+            // Add vertical spacing before bank section
+            currentY += lineHeight;
+            
             if (this.hoveredNode.type === 'bank') {
                 // This is a bank node
                 this.ctx.fillStyle = '#FFD700';
                 this.ctx.font = `bold ${fontSize}px Arial`;
-                this.ctx.fillText('🏦 Bank', tooltipX + padding, currentY);
+                this.ctx.fillText('Bank', tooltipX + padding, currentY);
             } else if (this.hoveredNode.nearestBank) {
                 // Draw bank name
                 this.ctx.fillStyle = '#FFD700';
                 this.ctx.font = `${fontSize}px Arial`;
-                this.ctx.fillText(`🏦 Bank: ${bankName}`, tooltipX + padding, currentY);
+                this.ctx.fillText(`Bank: ${bankName}`, tooltipX + padding, currentY);
                 currentY += lineHeight;
                 
                 // Draw distance
                 this.ctx.fillStyle = '#aaa';
                 const distance = this.hoveredNode.nearestBankDistance || 0;
-                this.ctx.fillText(`📏 Distance: ${distance} tiles`, tooltipX + padding, currentY);
+                this.ctx.fillText(`Distance: ${distance} tiles`, tooltipX + padding, currentY);
             }
         }
     }
