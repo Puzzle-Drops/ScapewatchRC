@@ -23,7 +23,8 @@ class MapRenderer {
     this.lastMousePos = { x: 0, y: 0 };
     this.lastInteractionTime = Date.now();
     this.isTransitioning = false;
-    this.transitionSpeed = 0.1; // Lerp speed for smooth recentering
+    this.transitionStartTime = 0; // Track when transition started
+    this.transitionSpeed = 0.2; // Lerp speed for smooth recentering (increased for faster completion)
     this.panSpeed = 15; // Keyboard pan speed (pixels per frame)
     this.maxPanDistance = 4000; // Maximum distance camera can pan from player
     this.isPannedAway = false; // Track if we're detached from player
@@ -88,6 +89,8 @@ class MapRenderer {
                 if (!this.isPannedAway) {
                     this.fixedCameraPosition = { x: this.camera.x, y: this.camera.y };
                     this.isPannedAway = true;
+                    this.isTransitioning = false; // Cancel any ongoing transition
+                    this.transitionStartTime = 0;
                 }
                 
                 // Update fixed camera position
@@ -167,6 +170,8 @@ class MapRenderer {
             if (!this.isPannedAway) {
                 this.fixedCameraPosition = { x: this.camera.x, y: this.camera.y };
                 this.isPannedAway = true;
+                this.isTransitioning = false; // Cancel any ongoing transition
+                this.transitionStartTime = 0;
             }
             
             // Apply pan to fixed camera position
@@ -199,29 +204,44 @@ class MapRenderer {
                 const targetX = player.position.x;
                 const targetY = player.position.y;
                 
-                // Lerp camera position towards player
-                this.fixedCameraPosition.x += (targetX - this.fixedCameraPosition.x) * this.transitionSpeed;
-                this.fixedCameraPosition.y += (targetY - this.fixedCameraPosition.y) * this.transitionSpeed;
-                
-                // Also lerp zoom back to 14
-                this.camera.zoom += (14 - this.camera.zoom) * this.transitionSpeed;
-                
-                // Check if close enough to target
+                // Calculate current distance to target
                 const distance = Math.sqrt(
                     Math.pow(targetX - this.fixedCameraPosition.x, 2) +
                     Math.pow(targetY - this.fixedCameraPosition.y, 2)
                 );
+                const zoomDiff = Math.abs(this.camera.zoom - 14);
                 
-                if (distance < 0.5 && Math.abs(this.camera.zoom - 14) < 0.1) {
+                // Check if transition is taking too long
+                const transitionDuration = Date.now() - this.transitionStartTime;
+                
+                // Force complete if:
+                // 1. Very close (normal completion)
+                // 2. After 2 seconds and reasonably close
+                // 3. After 3 seconds regardless (fallback for slow machines)
+                const veryClose = distance < 1 && zoomDiff < 0.5;
+                const closeEnoughAfter2Sec = transitionDuration > 2000 && (distance < 20 && zoomDiff < 1);
+                const timeoutFallback = transitionDuration > 3000;
+                
+                if (veryClose || closeEnoughAfter2Sec || timeoutFallback) {
                     // Snap to player position and clear fixed camera
                     this.fixedCameraPosition = null;
                     this.isPannedAway = false;
                     this.isTransitioning = false;
                     this.camera.zoom = 14;
+                    this.transitionStartTime = 0;
+                    console.log('Camera recentered on player');
+                } else {
+                    // Continue lerping towards player
+                    this.fixedCameraPosition.x += (targetX - this.fixedCameraPosition.x) * this.transitionSpeed;
+                    this.fixedCameraPosition.y += (targetY - this.fixedCameraPosition.y) * this.transitionSpeed;
+                    
+                    // Also lerp zoom back to 14
+                    this.camera.zoom += (14 - this.camera.zoom) * this.transitionSpeed;
                 }
             } else {
                 // If somehow we're transitioning without a fixed position, stop
                 this.isTransitioning = false;
+                this.transitionStartTime = 0;
             }
         }
     }
@@ -229,6 +249,7 @@ class MapRenderer {
     startRecenter(smooth = true) {
         if (smooth) {
             this.isTransitioning = true;
+            this.transitionStartTime = Date.now(); // Track when transition started
             // Smooth transition will be handled in checkAutoRecenter
         } else {
             // Instant recenter
@@ -236,6 +257,7 @@ class MapRenderer {
             this.isPannedAway = false;
             this.isTransitioning = false;
             this.camera.zoom = 14; // Reset zoom to default
+            this.transitionStartTime = 0;
         }
         
         // Reset interaction time so it doesn't immediately try to recenter again
