@@ -4245,3 +4245,142 @@ span.control-emoji {
 .save-failed {
     color: #e74c3c;
 }
+
+/* ==================== EQUIPMENT PANEL ==================== */
+.equipment-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.equipment-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+    background: #1a1a1a;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.equipment-tab {
+    flex: 1;
+    padding: 10px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 3px;
+    color: #999;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.equipment-tab:hover {
+    background: #333;
+    color: #ccc;
+}
+
+.equipment-tab.active {
+    background: #3a3a3a;
+    color: #f39c12;
+    border-color: #f39c12;
+}
+
+.equipment-gear-score {
+    text-align: center;
+    padding: 15px;
+    background: #1a1a1a;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.gear-score-label {
+    font-size: 24px;
+    color: #999;
+    margin-right: 10px;
+}
+
+.gear-score-value {
+    font-size: 48px;
+    font-weight: bold;
+    color: #f39c12;
+    font-family: 'Courier New', monospace;
+}
+
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 20px;
+}
+
+.equipment-slot {
+    width: 120px;
+    height: 120px;
+    background: #222;
+    border: 2px solid #444;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.equipment-slot-empty {
+    background: transparent;
+    border: none;
+}
+
+.equipment-slot:not(.equipment-slot-empty):hover {
+    border-color: #f39c12;
+    background: #2a2a2a;
+}
+
+.equipment-item-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.equipment-slot-icon {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    opacity: 0.3;
+}
+
+.equipment-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 100;
+    margin-bottom: 5px;
+}
+
+.equipment-slot:hover .equipment-tooltip {
+    opacity: 1;
+}
+
+.equipment-tooltip-name {
+    color: #f39c12;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.equipment-tooltip-bonus {
+    color: #2ecc71;
+    font-size: 14px;
+}
+
