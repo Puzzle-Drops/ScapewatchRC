@@ -4330,7 +4330,6 @@ span.control-emoji {
 .equipment-line {
     stroke: #444;
     stroke-width: 2;
-    stroke-dasharray: 5, 5;  /* Remove this line if you want solid lines */
     opacity: 0.5;
 }
 
