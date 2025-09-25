@@ -2056,8 +2056,8 @@ slotDiv.appendChild(imgElement);
             [null, 'head', null],
             ['cape', 'neck', 'blessing'],
             ['weapon', 'body', 'shield'],
-            ['accessory', 'legs', 'combat_ring'],
-            ['hands', 'feet', 'utility_ring']
+            ['accessory', 'legs', 'combatring'],
+            ['hands', 'feet', 'utilityring']
         ];
         
         // Create grid slots
