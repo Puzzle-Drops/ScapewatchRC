@@ -305,6 +305,9 @@ dismissPet(petElement, skillId) {
                 }
                 this.updateShop();
                 break;
+            case 'equipment':
+                this.updateEquipment();
+                break;
         }
     }
 
@@ -1972,6 +1975,153 @@ slotDiv.appendChild(imgElement);
             color: '#FFD700'  // Gold
         };
     }
+
+    // ==================== EQUIPMENT DISPLAY ====================
+    
+    initializeEquipment() {
+        // Initialize equipment data structure if needed
+        if (!window.equipmentPanels) {
+            window.equipmentPanels = {
+                melee: {},
+                ranged: {},
+                magic: {}
+            };
+            window.gearScores = {
+                melee: 0,
+                ranged: 0,
+                magic: 0
+            };
+        }
+        
+        // Set up tab switching
+        this.setupEquipmentTabs();
+    }
+    
+    setupEquipmentTabs() {
+        const tabs = document.querySelectorAll('.equipment-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update display for selected style
+                const style = tab.dataset.style;
+                this.displayEquipmentForStyle(style);
+            });
+        });
+    }
+    
+    updateEquipment() {
+        // Initialize if first time
+        if (!window.equipmentPanels) {
+            this.initializeEquipment();
+        }
+        
+        // Update equipment panels from bank
+        this.updateEquipmentPanels();
+        
+        // Display current tab
+        const activeTab = document.querySelector('.equipment-tab.active');
+        const style = activeTab ? activeTab.dataset.style : 'melee';
+        this.displayEquipmentForStyle(style);
+    }
+    
+    updateEquipmentPanels() {
+        // This will be called when banking to update best equipment
+        // For now, just ensure structure exists
+        if (!window.equipmentPanels) {
+            window.equipmentPanels = {
+                melee: {},
+                ranged: {},
+                magic: {}
+            };
+            window.gearScores = {
+                melee: 0,
+                ranged: 0,
+                magic: 0
+            };
+        }
+    }
+    
+    displayEquipmentForStyle(style) {
+        const grid = document.getElementById('equipment-grid');
+        if (!grid) return;
+        
+        // Clear grid
+        grid.innerHTML = '';
+        
+        // Equipment slot layout (5 rows x 3 columns)
+        const slotLayout = [
+            [null, 'head', null],
+            ['cape', 'neck', 'blessing'],
+            ['weapon', 'body', 'shield'],
+            ['accessory', 'legs', 'combat_ring'],
+            ['hands', 'feet', 'utility_ring']
+        ];
+        
+        // Create grid slots
+        for (const row of slotLayout) {
+            for (const slot of row) {
+                const slotDiv = this.createEquipmentSlot(slot, style);
+                grid.appendChild(slotDiv);
+            }
+        }
+        
+        // Update gear score display
+        const scoreElement = document.getElementById('gear-score-value');
+        if (scoreElement) {
+            scoreElement.textContent = window.gearScores ? window.gearScores[style] : 0;
+        }
+    }
+    
+    createEquipmentSlot(slotType, combatStyle) {
+        const slotDiv = document.createElement('div');
+        slotDiv.className = 'equipment-slot';
+        
+        if (!slotType) {
+            // Empty placeholder slot
+            slotDiv.classList.add('equipment-slot-empty');
+            return slotDiv;
+        }
+        
+        // Add slot type class for styling
+        slotDiv.classList.add(`equipment-slot-${slotType}`);
+        
+        // Get equipped item for this slot/style (if any)
+        const equippedItem = window.equipmentPanels && 
+                           window.equipmentPanels[combatStyle] && 
+                           window.equipmentPanels[combatStyle][slotType];
+        
+        if (equippedItem) {
+            // Show equipped item
+            const img = document.createElement('img');
+            img.src = `assets/items/${equippedItem.itemId}.png`;
+            img.className = 'equipment-item-image';
+            slotDiv.appendChild(img);
+            
+            // Add tooltip
+            const tooltip = document.createElement('div');
+            tooltip.className = 'equipment-tooltip';
+            tooltip.innerHTML = `
+                <div class="equipment-tooltip-name">${equippedItem.name}</div>
+                <div class="equipment-tooltip-bonus">+${equippedItem.combatBonus} Combat Bonus</div>
+            `;
+            slotDiv.appendChild(tooltip);
+        } else {
+            // Show empty slot icon
+            const img = document.createElement('img');
+            img.src = `assets/ui/${slotType}slot.png`;
+            img.className = 'equipment-slot-icon';
+            img.style.opacity = '0.3';
+            slotDiv.appendChild(img);
+        }
+        
+        return slotDiv;
+    }
+
+
+    
 }
 
 // Make UIManager available globally
