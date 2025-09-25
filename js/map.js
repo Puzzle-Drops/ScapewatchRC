@@ -14,6 +14,27 @@ class MapRenderer {
         maxZoom: 50, // Maximum zoom in (see less of the map, bigger sprites)
         zoomSpeed: 1 // How much to zoom per wheel tick
     };
+    
+    // Camera panning system
+    this.cameraOffset = { x: 0, y: 0 }; // Offset from player position
+    this.targetCameraOffset = { x: 0, y: 0 }; // Target for smooth transitions
+    this.isDragging = false;
+    this.dragStart = { x: 0, y: 0 };
+    this.lastMousePos = { x: 0, y: 0 };
+    this.lastInteractionTime = Date.now();
+    this.isTransitioning = false;
+    this.transitionSpeed = 0.1; // Lerp speed for smooth recentering
+    this.panSpeed = 15; // Keyboard pan speed (pixels per frame)
+    this.maxPanDistance = 500; // Maximum distance camera can pan from player
+    
+    // Keyboard pan state
+    this.keysPressed = {
+        up: false,
+        down: false,
+        left: false,
+        right: false
+    };
+    
     this.worldMap = loadingManager.getImage('worldMap');
     this.showNodeText = true; // Flag for showing node text
     this.showCollisionDebug = false; // Flag for showing collision areas
@@ -28,6 +49,9 @@ class MapRenderer {
     
     // Set up zoom controls
     this.setupZoomControls();
+    
+    // Set up pan controls
+    this.setupPanControls();
 }
 
     setupMouseTracking() {
@@ -36,6 +60,9 @@ class MapRenderer {
             const rect = this.canvas.getBoundingClientRect();
             const screenX = e.clientX - rect.left;
             const screenY = e.clientY - rect.top;
+            
+            // Store last mouse position for dragging
+            this.lastMousePos = { x: e.clientX, y: e.clientY };
             
             // Convert to game coordinates using scaling system
             const gameCoords = scalingSystem.screenToGame(e.clientX, e.clientY);
@@ -46,11 +73,152 @@ class MapRenderer {
             
             // Check if hovering over a node
             this.hoveredNode = this.getNodeAtPosition(this.mouseWorldPos.x, this.mouseWorldPos.y);
+            
+            // Handle drag movement
+            if (this.isDragging) {
+                const deltaX = e.clientX - this.dragStart.x;
+                const deltaY = e.clientY - this.dragStart.y;
+                
+                // Convert screen delta to world delta based on zoom
+                const worldDeltaX = -deltaX / this.camera.zoom;
+                const worldDeltaY = -deltaY / this.camera.zoom;
+                
+                // Update camera offset
+                this.cameraOffset.x = this.dragStartOffset.x + worldDeltaX;
+                this.cameraOffset.y = this.dragStartOffset.y + worldDeltaY;
+                
+                // Clamp to max pan distance
+                this.clampCameraOffset();
+                
+                // Update target to match current (no transition during drag)
+                this.targetCameraOffset.x = this.cameraOffset.x;
+                this.targetCameraOffset.y = this.cameraOffset.y;
+                
+                // Update last interaction time
+                this.lastInteractionTime = Date.now();
+            }
         });
         
         this.canvas.addEventListener('mouseleave', () => {
             this.hoveredNode = null;
+            this.isDragging = false; // Stop dragging if mouse leaves canvas
         });
+    }
+    
+    setupPanControls() {
+        // Mouse down to start drag
+        this.canvas.addEventListener('mousedown', (e) => {
+            // Only start drag on left click
+            if (e.button === 0) {
+                this.isDragging = true;
+                this.dragStart = { x: e.clientX, y: e.clientY };
+                this.dragStartOffset = { x: this.cameraOffset.x, y: this.cameraOffset.y };
+                this.canvas.style.cursor = 'grabbing';
+                
+                // Prevent text selection during drag
+                e.preventDefault();
+            }
+        });
+        
+        // Mouse up to stop drag
+        window.addEventListener('mouseup', (e) => {
+            if (e.button === 0 && this.isDragging) {
+                this.isDragging = false;
+                this.canvas.style.cursor = 'grab';
+            }
+        });
+        
+        // Set default cursor
+        this.canvas.style.cursor = 'grab';
+    }
+    
+    clampCameraOffset() {
+        // Limit how far camera can pan from player
+        const distance = Math.sqrt(this.cameraOffset.x * this.cameraOffset.x + this.cameraOffset.y * this.cameraOffset.y);
+        if (distance > this.maxPanDistance) {
+            const scale = this.maxPanDistance / distance;
+            this.cameraOffset.x *= scale;
+            this.cameraOffset.y *= scale;
+        }
+    }
+    
+    updateKeyboardPanning() {
+        // Check if any pan keys are pressed
+        let panX = 0;
+        let panY = 0;
+        
+        if (this.keysPressed.up) panY -= this.panSpeed;
+        if (this.keysPressed.down) panY += this.panSpeed;
+        if (this.keysPressed.left) panX -= this.panSpeed;
+        if (this.keysPressed.right) panX += this.panSpeed;
+        
+        if (panX !== 0 || panY !== 0) {
+            // Apply pan adjusted for zoom level
+            this.cameraOffset.x += panX / this.camera.zoom;
+            this.cameraOffset.y += panY / this.camera.zoom;
+            
+            // Clamp to max distance
+            this.clampCameraOffset();
+            
+            // Update target to match current
+            this.targetCameraOffset.x = this.cameraOffset.x;
+            this.targetCameraOffset.y = this.cameraOffset.y;
+            
+            // Update interaction time
+            this.lastInteractionTime = Date.now();
+        }
+    }
+    
+    checkAutoRecenter() {
+        // Check if we should auto-recenter after 10 seconds of no interaction
+        const timeSinceInteraction = Date.now() - this.lastInteractionTime;
+        
+        if (timeSinceInteraction > 10000 && !this.isTransitioning) {
+            // Start smooth transition back to player
+            this.startRecenter(true); // true = smooth transition
+        }
+        
+        // Handle smooth transitions
+        if (this.isTransitioning) {
+            // Lerp camera offset towards target
+            this.cameraOffset.x += (this.targetCameraOffset.x - this.cameraOffset.x) * this.transitionSpeed;
+            this.cameraOffset.y += (this.targetCameraOffset.y - this.cameraOffset.y) * this.transitionSpeed;
+            
+            // Check if close enough to target
+            const distance = Math.sqrt(
+                Math.pow(this.targetCameraOffset.x - this.cameraOffset.x, 2) +
+                Math.pow(this.targetCameraOffset.y - this.cameraOffset.y, 2)
+            );
+            
+            if (distance < 0.5) {
+                this.cameraOffset.x = this.targetCameraOffset.x;
+                this.cameraOffset.y = this.targetCameraOffset.y;
+                this.isTransitioning = false;
+            }
+        }
+    }
+    
+    startRecenter(smooth = true) {
+        this.targetCameraOffset = { x: 0, y: 0 };
+        
+        if (smooth) {
+            this.isTransitioning = true;
+        } else {
+            // Instant recenter
+            this.cameraOffset.x = 0;
+            this.cameraOffset.y = 0;
+            this.isTransitioning = false;
+        }
+        
+        // Reset interaction time so it doesn't immediately try to recenter again
+        this.lastInteractionTime = Date.now();
+    }
+    
+    setPanKey(direction, pressed) {
+        this.keysPressed[direction] = pressed;
+        if (pressed) {
+            this.lastInteractionTime = Date.now();
+        }
     }
     
     getNodeAtPosition(x, y) {
@@ -177,7 +345,13 @@ zoomCamera(newZoom) {
         this.ctx.fillStyle = '#000';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Update camera to follow player
+        // Update keyboard panning
+        this.updateKeyboardPanning();
+        
+        // Check for auto-recenter
+        this.checkAutoRecenter();
+
+        // Update camera to follow player with offset
         this.updateCamera();
 
         // Save context state
@@ -231,6 +405,9 @@ zoomCamera(newZoom) {
 
         // Draw player
         this.drawPlayer();
+        
+        // Draw player indicator if camera is panned away
+        this.drawPlayerIndicator();
 
         // Restore context state
         this.ctx.restore();
@@ -238,12 +415,50 @@ zoomCamera(newZoom) {
         // Draw node tooltip if hovering
         this.drawNodeTooltip();
         
+        // Draw pan instructions if camera is offset
+        this.drawPanInstructions();
     }
 
     updateCamera() {
-        // Camera instantly follows the player position (no lerp, no rounding)
-        this.camera.x = player.position.x;
-        this.camera.y = player.position.y;
+        // Camera follows player position plus offset
+        this.camera.x = player.position.x + this.cameraOffset.x;
+        this.camera.y = player.position.y + this.cameraOffset.y;
+    }
+    
+    drawPlayerIndicator() {
+        // Only show indicator if camera is panned away from player
+        const offsetDistance = Math.sqrt(this.cameraOffset.x * this.cameraOffset.x + this.cameraOffset.y * this.cameraOffset.y);
+        if (offsetDistance > 10) {
+            // Draw a pulsing circle at player position
+            const time = Date.now() / 1000;
+            const pulse = Math.sin(time * 3) * 0.2 + 0.8;
+            
+            this.ctx.beginPath();
+            this.ctx.arc(player.position.x, player.position.y, 3 * pulse, 0, Math.PI * 2);
+            this.ctx.strokeStyle = `rgba(46, 204, 113, ${pulse})`;
+            this.ctx.lineWidth = 0.5;
+            this.ctx.stroke();
+            
+            // Draw outer ring
+            this.ctx.beginPath();
+            this.ctx.arc(player.position.x, player.position.y, 5 * pulse, 0, Math.PI * 2);
+            this.ctx.strokeStyle = `rgba(46, 204, 113, ${pulse * 0.5})`;
+            this.ctx.lineWidth = 0.3;
+            this.ctx.stroke();
+        }
+    }
+    
+    drawPanInstructions() {
+        // Show instructions when camera is panned
+        const offsetDistance = Math.sqrt(this.cameraOffset.x * this.cameraOffset.x + this.cameraOffset.y * this.cameraOffset.y);
+        if (offsetDistance > 10) {
+            this.ctx.save();
+            this.ctx.font = '16px Arial';
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('Press SPACE to recenter on player', this.canvas.width / 2, this.canvas.height - 30);
+            this.ctx.restore();
+        }
     }
 
     drawNodes() {
