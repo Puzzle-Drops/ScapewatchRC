@@ -240,7 +240,17 @@ taskManager.ensureFullTaskQueue();
     // Canvas sizing is handled by scalingSystem
     map.render();
 
-    // Set up ESC key handler for closing popups
+    // Set up keyboard handlers for map panning and other controls
+    setupKeyboardControls();
+
+    // Start game loop
+    gameState.running = true;
+    gameState.lastTime = performance.now();
+    requestAnimationFrame(gameLoop);
+}
+
+// Setup keyboard controls for map panning and other features
+function setupKeyboardControls() {
     document.addEventListener('keydown', (e) => {
         // F11 fullscreen toggle for NW.js
         if ((e.key === 'F11' || e.keyCode === 122) && typeof nw !== 'undefined') {
@@ -250,6 +260,59 @@ taskManager.ensureFullTaskQueue();
             return;
         }
         
+        // Map panning controls
+        if (window.map) {
+            // Arrow keys for map panning
+            switch(e.key) {
+                case 'ArrowUp':
+                    map.setPanKey('up', true);
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    map.setPanKey('down', true);
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    map.setPanKey('left', true);
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    map.setPanKey('right', true);
+                    e.preventDefault();
+                    break;
+                    
+                // WASD for map panning
+                case 'w':
+                case 'W':
+                    map.setPanKey('up', true);
+                    e.preventDefault();
+                    break;
+                case 's':
+                case 'S':
+                    map.setPanKey('down', true);
+                    e.preventDefault();
+                    break;
+                case 'a':
+                case 'A':
+                    map.setPanKey('left', true);
+                    e.preventDefault();
+                    break;
+                case 'd':
+                case 'D':
+                    map.setPanKey('right', true);
+                    e.preventDefault();
+                    break;
+                    
+                // Spacebar to recenter on player
+                case ' ':
+                case 'Spacebar':
+                    map.startRecenter(true); // true = smooth recenter
+                    e.preventDefault();
+                    break;
+            }
+        }
+        
+        // ESC key handler for closing popups
         if (e.key === 'Escape' || e.keyCode === 27) {
             // Check and close popups in priority order (most recent/important first)
             
@@ -275,11 +338,52 @@ taskManager.ensureFullTaskQueue();
             }
         }
     });
-
-    // Start game loop
-    gameState.running = true;
-    gameState.lastTime = performance.now();
-    requestAnimationFrame(gameLoop);
+    
+    // Key up handler for map panning
+    document.addEventListener('keyup', (e) => {
+        if (window.map) {
+            switch(e.key) {
+                case 'ArrowUp':
+                    map.setPanKey('up', false);
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    map.setPanKey('down', false);
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    map.setPanKey('left', false);
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    map.setPanKey('right', false);
+                    e.preventDefault();
+                    break;
+                    
+                // WASD for map panning
+                case 'w':
+                case 'W':
+                    map.setPanKey('up', false);
+                    e.preventDefault();
+                    break;
+                case 's':
+                case 'S':
+                    map.setPanKey('down', false);
+                    e.preventDefault();
+                    break;
+                case 'a':
+                case 'A':
+                    map.setPanKey('left', false);
+                    e.preventDefault();
+                    break;
+                case 'd':
+                case 'D':
+                    map.setPanKey('right', false);
+                    e.preventDefault();
+                    break;
+            }
+        }
+    });
 }
 
 // Setup authentication handlers
