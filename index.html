@@ -114,7 +114,9 @@
 
 <!-- Panel selector buttons -->
 <div class="panel-selector">
-
+    <button class="panel-btn" data-panel="equipment" title="Equipment">
+        <img src="assets/ui/equipment.png" alt="Equipment">
+    </button>
     <button class="panel-btn" data-panel="skills" title="Skills">
         <img src="assets/ui/skills.png" alt="Skills">
     </button>
@@ -154,6 +156,25 @@
                         <!-- Shop Panel -->
                         <div id="shop-panel" class="panel">
                             <div id="shop-container" class="shop-container"></div>
+                        </div>
+                        
+                        <!-- Equipment Panel -->
+                        <div id="equipment-panel" class="panel">
+                            <div id="equipment-container" class="equipment-container">
+                                <!-- Equipment tabs for combat styles -->
+                                <div class="equipment-tabs">
+                                    <button class="equipment-tab active" data-style="melee">Melee</button>
+                                    <button class="equipment-tab" data-style="ranged">Ranged</button>
+                                    <button class="equipment-tab" data-style="magic">Magic</button>
+                                </div>
+                                <!-- Gear score display -->
+                                <div class="equipment-gear-score">
+                                    <span class="gear-score-label">Gear Score:</span>
+                                    <span class="gear-score-value" id="gear-score-value">0</span>
+                                </div>
+                                <!-- Equipment slots grid -->
+                                <div id="equipment-grid" class="equipment-grid"></div>
+                            </div>
                         </div>
                         
                     </div>
