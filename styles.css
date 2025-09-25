@@ -4292,7 +4292,7 @@ span.control-emoji {
     padding: 15px;
     background: #1a1a1a;
     border-radius: 5px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .gear-score-label {
@@ -4312,7 +4312,7 @@ span.control-emoji {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    padding: 20px;
+    padding: 10px 20px;
 }
 
 .equipment-slot {
