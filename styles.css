@@ -4313,6 +4313,25 @@ span.control-emoji {
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     padding: 10px 20px;
+    position: relative;  /* Added for SVG positioning */
+}
+
+/* Equipment connection lines */
+.equipment-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.equipment-line {
+    stroke: #444;
+    stroke-width: 2;
+    stroke-dasharray: 5, 5;  /* Remove this line if you want solid lines */
+    opacity: 0.5;
 }
 
 .equipment-slot {
@@ -4327,6 +4346,7 @@ span.control-emoji {
     justify-content: center;
     position: relative;
     transition: all 0.3s;
+    z-index: 1;  /* Added to ensure slots appear above lines */
 }
 
 .equipment-slot-empty {
@@ -4383,4 +4403,3 @@ span.control-emoji {
     color: #2ecc71;
     font-size: 14px;
 }
-
