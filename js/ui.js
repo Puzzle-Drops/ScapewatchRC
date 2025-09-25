@@ -2113,6 +2113,7 @@ slotDiv.appendChild(imgElement);
                 grid.appendChild(slotDiv);
             }
         }
+    }
     
     createEquipmentSlot(slotType, combatStyle) {
         const slotDiv = document.createElement('div');
