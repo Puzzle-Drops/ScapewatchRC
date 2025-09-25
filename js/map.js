@@ -24,8 +24,8 @@ class MapRenderer {
     this.lastInteractionTime = Date.now();
     this.isTransitioning = false;
     this.transitionStartTime = 0; // Track when transition started
-    this.transitionSpeed = 0.2; // Lerp speed for smooth recentering (increased for faster completion)
-    this.panSpeed = 15; // Keyboard pan speed (pixels per frame)
+    this.transitionSpeed = 0.12; // Lerp speed for smooth recentering (balanced for 5-10 second animation)
+    this.panSpeed = 60; // Keyboard pan speed (pixels per frame)
     this.maxPanDistance = 4000; // Maximum distance camera can pan from player
     this.isPannedAway = false; // Track if we're detached from player
     
@@ -189,10 +189,10 @@ class MapRenderer {
     }
     
     checkAutoRecenter() {
-        // Check if we should auto-recenter after 10 seconds of no interaction
+        // Check if we should auto-recenter after 30 seconds of no interaction
         const timeSinceInteraction = Date.now() - this.lastInteractionTime;
         
-        if (timeSinceInteraction > 10000 && this.isPannedAway && !this.isTransitioning) {
+        if (timeSinceInteraction > 30000 && this.isPannedAway && !this.isTransitioning) {
             // Start smooth transition back to player
             this.startRecenter(true); // true = smooth transition
         }
@@ -216,13 +216,13 @@ class MapRenderer {
                 
                 // Force complete if:
                 // 1. Very close (normal completion)
-                // 2. After 2 seconds and reasonably close
-                // 3. After 3 seconds regardless (fallback for slow machines)
+                // 2. After 5 seconds and reasonably close
+                // 3. After 10 seconds regardless (fallback for slow machines)
                 const veryClose = distance < 1 && zoomDiff < 0.5;
-                const closeEnoughAfter2Sec = transitionDuration > 2000 && (distance < 20 && zoomDiff < 1);
-                const timeoutFallback = transitionDuration > 3000;
+                const closeEnoughAfter5Sec = transitionDuration > 5000 && (distance < 20 && zoomDiff < 1);
+                const timeoutFallback = transitionDuration > 10000;
                 
-                if (veryClose || closeEnoughAfter2Sec || timeoutFallback) {
+                if (veryClose || closeEnoughAfter5Sec || timeoutFallback) {
                     // Snap to player position and clear fixed camera
                     this.fixedCameraPosition = null;
                     this.isPannedAway = false;
@@ -278,6 +278,7 @@ class MapRenderer {
         for (const [id, node] of Object.entries(allNodes)) {
             const dist = distance(x, y, node.position.x, node.position.y);
             if (dist <= hoverRadius) {
+                // Make sure we return the full node object with all properties
                 return node;
             }
         }
@@ -454,6 +455,9 @@ zoomCamera(newZoom) {
 
         // Draw nodes
         this.drawNodes();
+        
+        // Draw bank path for hovered node
+        this.drawNodeBankPath();
 
         // Draw player path
         this.drawPlayerPath();
@@ -718,6 +722,62 @@ drawPlayerCircle(x, y) {
     this.ctx.stroke();
 }
 
+    drawNodeBankPath() {
+        // Only draw if we're hovering a node with a bank path
+        if (!this.hoveredNode || !this.hoveredNode.pathToBank || this.hoveredNode.type === 'bank') {
+            return;
+        }
+        
+        const pathToBank = this.hoveredNode.pathToBank;
+        if (pathToBank.length === 0) return;
+        
+        // INVERSE scale path visuals - thicker when zoomed OUT (same as player path)
+        const inverseZoomScale = 14 / this.camera.zoom;
+        const lineWidth = Math.max(0.2, Math.min(8, 0.3 * inverseZoomScale));
+        const dotRadius = Math.max(0.2, Math.min(6, 0.25 * inverseZoomScale));
+        const dashSize = Math.max(0.5, Math.min(20, 0.8 * inverseZoomScale));
+        
+        // Draw the path
+        this.ctx.beginPath();
+        
+        // Start from the node position
+        this.ctx.moveTo(this.hoveredNode.position.x, this.hoveredNode.position.y);
+        
+        // Draw through all waypoints
+        for (const waypoint of pathToBank) {
+            this.ctx.lineTo(waypoint.x, waypoint.y);
+        }
+        
+        // Use a different color for bank paths (golden/yellow)
+        this.ctx.strokeStyle = 'rgba(243, 156, 18, 0.6)';
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.setLineDash([dashSize, dashSize]);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+        
+        // Draw waypoint markers
+        this.ctx.fillStyle = 'rgba(243, 156, 18, 0.8)';
+        for (const waypoint of pathToBank) {
+            this.ctx.beginPath();
+            this.ctx.arc(waypoint.x, waypoint.y, dotRadius, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        
+        // Draw a special marker at the bank destination
+        if (pathToBank.length > 0) {
+            const bankPos = pathToBank[pathToBank.length - 1];
+            // Draw bank icon or special marker
+            const bankIcon = loadingManager.getImage('skill_bank');
+            if (bankIcon) {
+                // Draw a glowing effect
+                this.ctx.beginPath();
+                this.ctx.arc(bankPos.x, bankPos.y, 3, 0, Math.PI * 2);
+                this.ctx.fillStyle = 'rgba(243, 156, 18, 0.3)';
+                this.ctx.fill();
+            }
+        }
+    }
+
     drawPlayerPath() {
     if (!player.path || player.path.length === 0) return;
 
@@ -762,33 +822,59 @@ const dashSize = Math.max(0.5, Math.min(20, 1 * inverseZoomScale));
 }
 
     drawNodeTooltip() {
-        if (!this.hoveredNode || !this.hoveredNode.activities || this.hoveredNode.activities.length === 0) {
+        if (!this.hoveredNode) {
             return;
+        }
+        
+        // Skip tooltip for nodes without activities and non-bank nodes without bank info
+        if (!this.hoveredNode.activities || this.hoveredNode.activities.length === 0) {
+            // Still show tooltip for banks
+            if (this.hoveredNode.type !== 'bank') {
+                return;
+            }
         }
         
         // Get activity names
         const activities = loadingManager.getData('activities');
         const activityNames = [];
         
-        for (const activityId of this.hoveredNode.activities) {
-            const activity = activities[activityId];
-            if (activity) {
-                activityNames.push(activity.name);
+        if (this.hoveredNode.activities) {
+            for (const activityId of this.hoveredNode.activities) {
+                const activity = activities[activityId];
+                if (activity) {
+                    activityNames.push(activity.name);
+                }
             }
         }
-        
-        if (activityNames.length === 0) return;
         
         // Convert node position to screen coordinates
         const screenX = (this.hoveredNode.position.x - this.camera.x) * this.camera.zoom + this.canvas.width / 2;
         const screenY = (this.hoveredNode.position.y - this.camera.y) * this.camera.zoom + this.canvas.height / 2;
         
-        // Tooltip configuration
+        // Calculate tooltip height based on content
         const padding = 12;
         const lineHeight = 28;
         const fontSize = 20;
         const tooltipWidth = 320;
-        const tooltipHeight = (lineHeight * 2) + (activityNames.length * lineHeight) + (padding * 2);
+        
+        let contentLines = 2 + activityNames.length; // Header + separator + activities
+        
+        // Add lines for bank info if available
+        let showBankInfo = false;
+        let bankName = '';
+        if (this.hoveredNode.type === 'bank') {
+            contentLines += 1; // Add line for "Bank" text
+            showBankInfo = true;
+        } else if (this.hoveredNode.nearestBank) {
+            contentLines += 2; // Add lines for bank name and distance
+            showBankInfo = true;
+            const bankNode = nodes.getNode(this.hoveredNode.nearestBank);
+            if (bankNode) {
+                bankName = bankNode.name;
+            }
+        }
+        
+        const tooltipHeight = (lineHeight * contentLines) + (padding * 2);
         
         // Position tooltip to the right of the node, offset by zoom
         const offsetX = 5 * this.camera.zoom;
@@ -823,22 +909,49 @@ const dashSize = Math.max(0.5, Math.min(20, 1 * inverseZoomScale));
         this.ctx.textBaseline = 'top';
         this.ctx.fillText(this.hoveredNode.name, tooltipX + padding, tooltipY + padding);
         
+        let currentY = tooltipY + padding + lineHeight;
+        
         // Draw separator line
         this.ctx.strokeStyle = '#555';
         this.ctx.lineWidth = 1;
         this.ctx.beginPath();
-        this.ctx.moveTo(tooltipX + padding, tooltipY + padding + lineHeight);
-        this.ctx.lineTo(tooltipX + tooltipWidth - padding, tooltipY + padding + lineHeight);
+        this.ctx.moveTo(tooltipX + padding, currentY);
+        this.ctx.lineTo(tooltipX + tooltipWidth - padding, currentY);
         this.ctx.stroke();
         
-        // Draw activity names
-        this.ctx.fillStyle = '#fff';
-        this.ctx.font = `${fontSize}px Arial`;
+        currentY += lineHeight;
         
-        activityNames.forEach((name, index) => {
-            const y = tooltipY + padding + ((index + 1) * lineHeight);
-            this.ctx.fillText(`• ${name}`, tooltipX + padding, y);
-        });
+        // Draw activity names
+        if (activityNames.length > 0) {
+            this.ctx.fillStyle = '#fff';
+            this.ctx.font = `${fontSize}px Arial`;
+            
+            for (const name of activityNames) {
+                this.ctx.fillText(`• ${name}`, tooltipX + padding, currentY);
+                currentY += lineHeight;
+            }
+        }
+        
+        // Draw bank info
+        if (showBankInfo) {
+            if (this.hoveredNode.type === 'bank') {
+                // This is a bank node
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.font = `bold ${fontSize}px Arial`;
+                this.ctx.fillText('🏦 Bank', tooltipX + padding, currentY);
+            } else if (this.hoveredNode.nearestBank) {
+                // Draw bank name
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.font = `${fontSize}px Arial`;
+                this.ctx.fillText(`🏦 Bank: ${bankName}`, tooltipX + padding, currentY);
+                currentY += lineHeight;
+                
+                // Draw distance
+                this.ctx.fillStyle = '#aaa';
+                const distance = this.hoveredNode.nearestBankDistance || 0;
+                this.ctx.fillText(`📏 Distance: ${distance} tiles`, tooltipX + padding, currentY);
+            }
+        }
     }
 
     handleClick(screenX, screenY) {
