@@ -2051,29 +2051,68 @@ slotDiv.appendChild(imgElement);
         // Clear grid
         grid.innerHTML = '';
         
+        // Add SVG for connection lines (behind items)
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.classList.add('equipment-lines');
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '100%');
+        
+        // Create the connection lines
+        // Line 1: Head (col 2, row 1) to Feet (col 2, row 5)
+        const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line1.setAttribute('x1', '50%');
+        line1.setAttribute('y1', '10%');  // Center of row 1
+        line1.setAttribute('x2', '50%');
+        line1.setAttribute('y2', '90%');  // Center of row 5
+        line1.classList.add('equipment-line');
+        
+        // Line 2: Cape (col 1, row 2) to Blessing (col 3, row 2)
+        const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line2.setAttribute('x1', '16.66%');  // Center of col 1
+        line2.setAttribute('y1', '30%');      // Center of row 2
+        line2.setAttribute('x2', '83.33%');  // Center of col 3
+        line2.setAttribute('y2', '30%');     // Center of row 2
+        line2.classList.add('equipment-line');
+        
+        // Line 3: Cape (col 1, row 2) to Hands (col 1, row 5)
+        const line3 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line3.setAttribute('x1', '16.66%');  // Center of col 1
+        line3.setAttribute('y1', '30%');     // Center of row 2
+        line3.setAttribute('x2', '16.66%');  // Center of col 1
+        line3.setAttribute('y2', '90%');     // Center of row 5
+        line3.classList.add('equipment-line');
+        
+        // Line 4: Blessing (col 3, row 2) to Unique Ring (col 3, row 5)
+        const line4 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line4.setAttribute('x1', '83.33%');  // Center of col 3
+        line4.setAttribute('y1', '30%');     // Center of row 2
+        line4.setAttribute('x2', '83.33%');  // Center of col 3
+        line4.setAttribute('y2', '90%');     // Center of row 5
+        line4.classList.add('equipment-line');
+        
+        svg.appendChild(line1);
+        svg.appendChild(line2);
+        svg.appendChild(line3);
+        svg.appendChild(line4);
+        
+        grid.appendChild(svg);
+        
         // Equipment slot layout (5 rows x 3 columns)
         const slotLayout = [
             [null, 'head', null],
             ['cape', 'neck', 'blessing'],
             ['weapon', 'body', 'shield'],
             ['accessory', 'legs', 'combatring'],
-            ['hands', 'feet', 'utilityring']
+            ['hands', 'feet', 'uniquering']
         ];
         
-        // Create grid slots
+        // Create grid slots (these will appear on top of the SVG)
         for (const row of slotLayout) {
             for (const slot of row) {
                 const slotDiv = this.createEquipmentSlot(slot, style);
                 grid.appendChild(slotDiv);
             }
         }
-        
-        // Update gear score display
-        const scoreElement = document.getElementById('gear-score-value');
-        if (scoreElement) {
-            scoreElement.textContent = window.gearScores ? window.gearScores[style] : 0;
-        }
-    }
     
     createEquipmentSlot(slotType, combatStyle) {
         const slotDiv = document.createElement('div');
