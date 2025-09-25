@@ -306,7 +306,7 @@ function setupKeyboardControls() {
                 // Spacebar to recenter on player
                 case ' ':
                 case 'Spacebar':
-                    map.startRecenter(true); // true = smooth recenter
+                    map.startRecenter(true); // true = smooth recenter with zoom reset
                     e.preventDefault();
                     break;
             }
