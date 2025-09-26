@@ -642,34 +642,51 @@ class SmithingSkill extends BaseSkill {
     }
     
     handleBanking(task) {
-        // Deposit all first
-        bank.depositAll();
-        console.log('Deposited all items for smithing');
+    // Deposit all first
+    bank.depositAll();
+    console.log('Deposited all items for smithing');
+    
+    // Mark that we've banked
+    const taskId = task ? `${task.itemId}_${task.targetCount}_${task.nodeId}` : null;
+    this.currentTaskId = taskId;
+    this.hasBankedForTask = true;
+    
+    let withdrawnAny = false;
+    
+    if (task && task.isSmithingTask) {
+        const recipe = task.recipe;
+        const craftsRemaining = Math.ceil((task.targetCount - (task.itemsProduced || 0)) / recipe.output.quantity);
         
-        // Mark that we've banked
-        const taskId = task ? `${task.itemId}_${task.targetCount}_${task.nodeId}` : null;
-        this.currentTaskId = taskId;
-        this.hasBankedForTask = true;
+        // Calculate how many we can actually make based on bank materials
+        let maxCraftable = craftsRemaining;
+        for (const input of recipe.inputs) {
+            const bankCount = bank.getItemCount(input.itemId);
+            const canMake = Math.floor(bankCount / input.quantity);
+            maxCraftable = Math.min(maxCraftable, canMake);
+        }
         
-        let withdrawnAny = false;
+        if (maxCraftable === 0) {
+            console.log('No materials in bank for smithing task');
+            return false;
+        }
         
-        if (task && task.isSmithingTask) {
-            const recipe = task.recipe;
-            const craftsRemaining = Math.ceil((task.targetCount - (task.itemsProduced || 0)) / recipe.output.quantity);
+        // SPECIAL HANDLING FOR IRON SMELTING (50% failure rate)
+        // Always fill inventory with iron ore to account for failures
+        if (recipe.output.itemId === 'iron_bar' && recipe.inputs.length === 1) {
+            const ironOreCount = bank.getItemCount('iron_ore');
+            const toWithdraw = Math.min(28, ironOreCount); // Fill inventory
             
-            // Calculate how many we can actually make based on bank materials
-            let maxCraftable = craftsRemaining;
-            for (const input of recipe.inputs) {
-                const bankCount = bank.getItemCount(input.itemId);
-                const canMake = Math.floor(bankCount / input.quantity);
-                maxCraftable = Math.min(maxCraftable, canMake);
-            }
-            
-            if (maxCraftable === 0) {
-                console.log('No materials in bank for smithing task');
+            const withdrawn = bank.withdrawUpTo('iron_ore', toWithdraw);
+            if (withdrawn > 0) {
+                inventory.addItem('iron_ore', withdrawn);
+                console.log(`Withdrew ${withdrawn} iron ore (filling inventory due to 50% failure rate)`);
+                withdrawnAny = true;
+            } else {
+                console.log('Failed to withdraw iron ore');
                 return false;
             }
-            
+        } else {
+            // NORMAL SMITHING/SMELTING - use ratio-based withdrawal
             // Calculate optimal withdrawal based on recipe ratios and inventory space
             const totalSlots = 28;
             
@@ -712,9 +729,10 @@ class SmithingSkill extends BaseSkill {
                 console.log(`Inventory setup for ${toMake} ${recipe.output.itemId}: ${invSummary}`);
             }
         }
-        
-        return withdrawnAny;
     }
+    
+    return withdrawnAny;
+}
     
     canContinueTask(task) {
         if (!task || !task.isSmithingTask) return true;
