@@ -4257,7 +4257,7 @@ span.control-emoji {
 .equipment-tabs {
     display: flex;
     gap: 5px;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     background: #1a1a1a;
     padding: 5px;
     border-radius: 5px;
