@@ -477,41 +477,48 @@ getAllPossibleTasksForUI() {
     }
     
     handleBanking(task) {
-        // Deposit all first
-        bank.depositAll();
-        console.log('Deposited all items for construction');
+    // Deposit all first
+    bank.depositAll();
+    console.log('Deposited all items for construction');
+    
+    // Mark that we've banked
+    const taskId = task ? `${task.itemId}_${task.targetCount}_${task.nodeId}` : null;
+    this.currentTaskId = taskId;
+    this.hasBankedForTask = true;
+    
+    let withdrawnAny = false;
+    
+    if (task && task.isConstructionTask) {
+        const plankId = task.itemId;
+        const bankCount = bank.getItemCount(plankId);
+        const tablesRemaining = task.targetCount - (task.tablesBuilt || 0);
+        const planksNeeded = tablesRemaining * 5;
         
-        // Mark that we've banked
-        const taskId = task ? `${task.itemId}_${task.targetCount}_${task.nodeId}` : null;
-        this.currentTaskId = taskId;
-        this.hasBankedForTask = true;
-        
-        let withdrawnAny = false;
-        
-        if (task && task.isConstructionTask) {
-            const plankId = task.itemId;
-            const bankCount = bank.getItemCount(plankId);
-            const tablesRemaining = task.targetCount - (task.tablesBuilt || 0);
-            const planksNeeded = tablesRemaining * 5;
+        if (bankCount > 0 && planksNeeded > 0) {
+            // Withdraw up to 25 planks (5 tables worth) or whatever we need/have
+            const toWithdraw = Math.min(25, Math.min(bankCount, planksNeeded));
+            const withdrawn = bank.withdrawUpTo(plankId, toWithdraw);
             
-            if (bankCount > 0 && planksNeeded > 0) {
-                // Withdraw up to 25 planks (5 tables worth) or whatever we need/have
-                const toWithdraw = Math.min(25, Math.min(bankCount, planksNeeded));
-                const withdrawn = bank.withdrawUpTo(plankId, toWithdraw);
+            if (withdrawn > 0) {
+                inventory.addItem(plankId, withdrawn);
+                const tablesCanBuild = Math.floor(withdrawn / 5);
+                console.log(`Withdrew ${withdrawn} ${plankId} for ${tablesCanBuild} tables`);
+                withdrawnAny = true;
                 
-                if (withdrawn > 0) {
-                    inventory.addItem(plankId, withdrawn);
-                    const tablesCanBuild = Math.floor(withdrawn / 5);
-                    console.log(`Withdrew ${withdrawn} ${plankId} for ${tablesCanBuild} tables`);
-                    withdrawnAny = true;
+                // CHECK: Did we get enough planks to build at least one table?
+                if (withdrawn < 5) {
+                    console.log(`Only withdrew ${withdrawn} planks - not enough to build a table (need 5)`);
+                    return false; // Banking failed - can't build anything
                 }
-            } else {
-                console.log(`No ${plankId} in bank for construction task`);
             }
+        } else {
+            console.log(`No ${plankId} in bank for construction task`);
+            return false; // Explicitly return false when no planks
         }
-        
-        return withdrawnAny;
     }
+    
+    return withdrawnAny;
+}
     
     canContinueTask(task) {
         if (!task || !task.isConstructionTask) return true;
