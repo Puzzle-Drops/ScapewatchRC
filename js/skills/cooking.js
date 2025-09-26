@@ -561,44 +561,45 @@ class CookingSkill extends BaseSkill {
     
     // Handle banking for cooking tasks
     handleBanking(task) {
-        // Deposit all first
-        bank.depositAll();
-        console.log('Deposited all items for cooking');
+    // Deposit all first
+    bank.depositAll();
+    console.log('Deposited all items for cooking');
+    
+    // Mark that we've banked for this task
+    const taskId = task ? `${task.itemId}_${task.targetCount}_${task.nodeId}` : null;
+    this.currentTaskId = taskId;
+    this.hasBankedForTask = true;
+    
+    let withdrawnAny = false;
+    let totalWithdrawn = 0;
+    
+    // If we have a specific cooking task, ONLY withdraw that raw food
+    if (task && task.isCookingTask) {
+        const taskRawItemId = task.itemId;
+        const bankCount = bank.getItemCount(taskRawItemId);
+        const needed = task.targetCount - (task.rawFoodConsumed || 0);
         
-        // Mark that we've banked for this task
-        const taskId = task ? `${task.itemId}_${task.targetCount}_${task.nodeId}` : null;
-        this.currentTaskId = taskId;
-        this.hasBankedForTask = true;
-        
-        let withdrawnAny = false;
-        let totalWithdrawn = 0;
-        
-        // If we have a specific cooking task, ONLY withdraw that raw food
-        if (task && task.isCookingTask) {
-            const taskRawItemId = task.itemId;
-            const bankCount = bank.getItemCount(taskRawItemId);
-            const needed = task.targetCount - (task.rawFoodConsumed || 0);
+        if (bankCount > 0 && needed > 0) {
+            // ALWAYS withdraw full inventory of raw food to account for burning
+            const toWithdraw = Math.min(28, bankCount); // Fill inventory, ignore 'needed'
+            const withdrawn = bank.withdrawUpTo(taskRawItemId, toWithdraw);
             
-            if (bankCount > 0 && needed > 0) {
-                const toWithdraw = Math.min(28, Math.min(bankCount, needed));
-                const withdrawn = bank.withdrawUpTo(taskRawItemId, toWithdraw);
-                
-                if (withdrawn > 0) {
-                    inventory.addItem(taskRawItemId, withdrawn);
-                    console.log(`Withdrew ${withdrawn} ${taskRawItemId} for cooking task`);
-                    withdrawnAny = true;
-                    totalWithdrawn += withdrawn;
-                }
-            } else {
-                console.log(`No ${taskRawItemId} in bank for cooking task`);
+            if (withdrawn > 0) {
+                inventory.addItem(taskRawItemId, withdrawn);
+                console.log(`Withdrew ${withdrawn} ${taskRawItemId} for cooking task (filling inventory to account for burns)`);
+                withdrawnAny = true;
+                totalWithdrawn += withdrawn;
             }
+        } else {
+            console.log(`No ${taskRawItemId} in bank for cooking task`);
         }
-        
-        // DON'T fill with other raw food - only cook what the task requires
-        // This keeps things clean and predictable
-        
-        return withdrawnAny;
     }
+    
+    // DON'T fill with other raw food - only cook what the task requires
+    // This keeps things clean and predictable
+    
+    return withdrawnAny;
+}
     
     // Check if we can continue with this task
     canContinueTask(task) {
