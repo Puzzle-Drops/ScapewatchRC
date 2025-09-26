@@ -69,44 +69,55 @@ setTimeout(() => {
             return;
         }
 
+        // Check if we're selecting a genuinely new task
+        const previousTask = this.currentTask;
+        const newTask = taskManager.currentTask;
+        
         // Always work on the current task from task manager
-        this.currentTask = taskManager.currentTask;
+        this.currentTask = newTask;
         
         if (!this.currentTask) {
             console.log('No current task available');
             return;
         }
 
-        // Reset banking flag when selecting a new task
-        this.hasBankedForCurrentTask = false;
-        console.log('Working on task:', this.currentTask.description);
+        // Only reset banking flag if this is actually a different task
+        if (!previousTask || 
+            previousTask.nodeId !== newTask.nodeId ||
+            previousTask.activityId !== newTask.activityId ||
+            previousTask.skill !== newTask.skill ||
+            previousTask.targetCount !== newTask.targetCount) {
+            // This is genuinely a new task, reset banking flag
+            this.hasBankedForCurrentTask = false;
+            console.log('Working on new task:', this.currentTask.description);
+        } else {
+            // Same task, preserve banking flag
+            console.log('Continuing task:', this.currentTask.description, '(banking flag preserved)');
+        }
     }
 
     // Check if current task is still valid
-isCurrentTaskValid() {
-    if (!this.currentTask) return false;
-    if (!window.taskManager) return false;
-    
-    // During load recovery, be more lenient with task validation
-    if (this.isResumingFromLoad && taskManager.currentTask) {
-        // Check if it's the same task by comparing properties, not reference
-        const isSameTask = this.currentTask.nodeId === taskManager.currentTask.nodeId &&
-                          this.currentTask.activityId === taskManager.currentTask.activityId &&
-                          this.currentTask.skill === taskManager.currentTask.skill &&
-                          this.currentTask.targetCount === taskManager.currentTask.targetCount;
+    isCurrentTaskValid() {
+        if (!this.currentTask) return false;
+        if (!window.taskManager) return false;
         
-        if (isSameTask) {
-            // Update our reference to the actual task object
-            this.currentTask = taskManager.currentTask;
-            // Clear the resuming flag after successful validation
-            this.isResumingFromLoad = false;
-            return true;
+        // Always check by comparing task properties, not just reference
+        // This prevents issues when task object gets recreated but is logically the same
+        if (taskManager.currentTask) {
+            const isSameTask = this.currentTask.nodeId === taskManager.currentTask.nodeId &&
+                              this.currentTask.activityId === taskManager.currentTask.activityId &&
+                              this.currentTask.skill === taskManager.currentTask.skill &&
+                              this.currentTask.targetCount === taskManager.currentTask.targetCount;
+            
+            if (isSameTask) {
+                // Update our reference to the actual task object to stay in sync
+                this.currentTask = taskManager.currentTask;
+                return true;
+            }
         }
+        
+        return false;
     }
-    
-    // Check if our task is still the current task in task manager
-    return this.currentTask === taskManager.currentTask;
-}
 
     // ==================== DECISION MAKING & EXECUTION ====================
 
@@ -771,8 +782,14 @@ if (!this.isCurrentTaskValid()) {
                 }
                 
                 // Re-validate current task after banking
+                // But preserve the banking flag since we just banked!
+                const bankingFlagBefore = this.hasBankedForCurrentTask;
                 if (!this.isCurrentTaskValid()) {
                     this.selectNextTask();
+                    // If we're still on the same task, restore the banking flag
+                    if (this.hasBankedForCurrentTask === false && bankingFlagBefore === true) {
+                        this.hasBankedForCurrentTask = true;
+                    }
                 }
                 
                 // Start banking animation
