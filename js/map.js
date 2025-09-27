@@ -25,7 +25,7 @@ class MapRenderer {
     this.isTransitioning = false;
     this.transitionStartTime = 0; // Track when transition started
     this.transitionSpeed = 0.12; // Lerp speed for smooth recentering (balanced for 5-10 second animation)
-    this.panSpeed = 75; // Keyboard pan speed (pixels per frame)
+    this.panSpeed = 15; // Keyboard pan speed (pixels per frame)
     this.maxPanDistance = 4000; // Maximum distance camera can pan from player
     this.isPannedAway = false; // Track if we're detached from player
     
