@@ -2143,19 +2143,22 @@ slotDiv.appendChild(imgElement);
     }
     
     setupEquipmentTabs() {
-        const tabs = document.querySelectorAll('.equipment-tab');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Update active tab
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Update display for selected style
-                const style = tab.dataset.style;
-                this.displayEquipmentForStyle(style);
-            });
+    const tabs = document.querySelectorAll('.equipment-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Update active tab
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // Ensure equipment is scanned from bank
+            this.updateEquipmentPanels();
+            
+            // Update display for selected style
+            const style = tab.dataset.style;
+            this.displayEquipmentForStyle(style);
         });
-    }
+    });
+}
     
     updateEquipment() {
         // Initialize if first time
@@ -2173,8 +2176,11 @@ slotDiv.appendChild(imgElement);
     }
     
     updateEquipmentPanels() {
-        // This will be called when banking to update best equipment
-        // For now, just ensure structure exists
+    // Scan the bank for best equipment
+    if (window.bank) {
+        bank.scanAndEquipBestItems();
+    } else {
+        // Fallback: ensure structure exists
         if (!window.equipmentPanels) {
             window.equipmentPanels = {
                 melee: {},
@@ -2188,13 +2194,20 @@ slotDiv.appendChild(imgElement);
             };
         }
     }
+}
     
     displayEquipmentForStyle(style) {
-        const grid = document.getElementById('equipment-grid');
-        if (!grid) return;
-        
-        // Clear grid
-        grid.innerHTML = '';
+    const grid = document.getElementById('equipment-grid');
+    if (!grid) return;
+    
+    // Update gear score display
+    const gearScoreElement = document.getElementById('gear-score-value');
+    if (gearScoreElement && window.gearScores) {
+        gearScoreElement.textContent = window.gearScores[style] || 0;
+    }
+    
+    // Clear grid
+    grid.innerHTML = '';
         
         // Add SVG for connection lines (behind items)
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
