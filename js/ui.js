@@ -1596,6 +1596,9 @@ if (window.clueManager) {
     const bankGrid = document.getElementById('bank-grid');
     if (!bankGrid) return;
     
+    // Update bank header with total value and clue counts
+    this.updateBankHeader();
+    
     bankGrid.innerHTML = '';
 
     const bankItems = bank.getAllItems();
@@ -1618,6 +1621,73 @@ if (window.clueManager) {
             bankGrid.appendChild(slotDiv);
         }
     }
+}
+
+    // Update bank header with total value and clue counts
+updateBankHeader() {
+    const modal = document.querySelector('#bank-modal .modal-content');
+    if (!modal) return;
+    
+    // Find or create header
+    let header = modal.querySelector('.bank-header');
+    if (!header) {
+        header = document.createElement('div');
+        header.className = 'bank-header';
+        modal.insertBefore(header, modal.firstChild);
+    }
+    
+    // Calculate total bank value
+    let totalValue = 0;
+    const bankItems = bank.getAllItems();
+    const itemsData = loadingManager.getData('items');
+    
+    for (const [itemId, quantity] of Object.entries(bankItems)) {
+        const itemData = itemsData[itemId];
+        if (itemData && itemData.basePrice) {
+            totalValue += itemData.basePrice * quantity;
+        }
+    }
+    
+    // Get clue completion counts
+    let totalClues = 0;
+    const clueData = window.clueManager ? clueManager.completedClues : {};
+    for (const tier of ['easy', 'medium', 'hard', 'elite', 'master']) {
+        totalClues += (clueData[tier] || 0);
+    }
+    
+    // Build header HTML
+    let headerHTML = `
+        <div class="bank-header-left">
+            <h2>Bank: <span class="bank-value">${formatNumber(totalValue)}</span></h2>
+        </div>
+        <div class="bank-header-right">
+    `;
+    
+    // Add total clues with all_clue icon
+    if (totalClues > 0) {
+        headerHTML += `
+            <div class="clue-count-item">
+                <img src="assets/ui/all_clue.png" class="clue-count-icon" alt="Total">
+                <span class="clue-count-number">${totalClues}</span>
+            </div>
+        `;
+        
+        // Add individual clue tiers
+        for (const tier of ['easy', 'medium', 'hard', 'elite', 'master']) {
+            const count = clueData[tier] || 0;
+            if (count > 0) {
+                headerHTML += `
+                    <div class="clue-count-item">
+                        <img src="assets/items/${tier}_clue.png" class="clue-count-icon" alt="${tier}">
+                        <span class="clue-count-number">${count}</span>
+                    </div>
+                `;
+            }
+        }
+    }
+    
+    headerHTML += `</div>`;
+    header.innerHTML = headerHTML;
 }
 
 // ==================== SHOP DISPLAY ====================
@@ -1750,12 +1820,12 @@ createShopItem(stockKey, stock) {
     nameDiv.className = 'shop-item-name';
     nameDiv.textContent = itemData ? itemData.name : stock.itemId;
     
-    // Current price with range
-    const priceDiv = document.createElement('div');
-    priceDiv.className = 'shop-item-price';
-    const minPrice = Math.ceil(stock.basePrice * 0.5);
-    const maxPrice = Math.floor(stock.basePrice * 2);
-    priceDiv.innerHTML = `Price: <span class="price-amount">${stock.currentPrice} gp</span> <span class="price-range">(${minPrice}-${maxPrice})</span>`;
+// Current price with range
+const priceDiv = document.createElement('div');
+priceDiv.className = 'shop-item-price';
+const minPrice = Math.ceil(stock.basePrice * 0.5);
+const maxPrice = Math.floor(stock.basePrice * 2);
+priceDiv.innerHTML = `Price: <span class="price-amount">${formatNumber(stock.currentPrice)} gp</span> <span class="price-range">(${formatNumber(minPrice)}-${formatNumber(maxPrice)})</span>`;
     
     // Total cost display (initially hidden)
     const totalCostDiv = document.createElement('div');
