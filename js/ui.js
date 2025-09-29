@@ -2166,11 +2166,6 @@ slotDiv.appendChild(imgElement);
         this.initializeEquipment();
     }
     
-    // Scan bank for best equipment
-    if (window.bank) {
-        bank.scanAndEquipBestItems();
-    }
-    
     // Display current tab
     const activeTab = document.querySelector('.equipment-tab.active');
     const style = activeTab ? activeTab.dataset.style : 'melee';
