@@ -2161,41 +2161,22 @@ slotDiv.appendChild(imgElement);
 }
     
     updateEquipment() {
-        // Initialize if first time
-        if (!window.equipmentPanels) {
-            this.initializeEquipment();
-        }
-        
-        // Update equipment panels from bank
-        this.updateEquipmentPanels();
-        
-        // Display current tab
-        const activeTab = document.querySelector('.equipment-tab.active');
-        const style = activeTab ? activeTab.dataset.style : 'melee';
-        this.displayEquipmentForStyle(style);
+    // Initialize if first time
+    if (!window.equipmentPanels) {
+        this.initializeEquipment();
     }
     
-    updateEquipmentPanels() {
-    // Scan the bank for best equipment
+    // Scan bank for best equipment
     if (window.bank) {
         bank.scanAndEquipBestItems();
-    } else {
-        // Fallback: ensure structure exists
-        if (!window.equipmentPanels) {
-            window.equipmentPanels = {
-                melee: {},
-                ranged: {},
-                magic: {}
-            };
-            window.gearScores = {
-                melee: 0,
-                ranged: 0,
-                magic: 0
-            };
-        }
     }
-}
     
+    // Display current tab
+    const activeTab = document.querySelector('.equipment-tab.active');
+    const style = activeTab ? activeTab.dataset.style : 'melee';
+    this.displayEquipmentForStyle(style);
+}
+
     displayEquipmentForStyle(style) {
     const grid = document.getElementById('equipment-grid');
     if (!grid) return;
