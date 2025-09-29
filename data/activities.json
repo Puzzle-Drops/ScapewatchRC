@@ -1991,6 +1991,63 @@
         "requiredLevel": 1,
         "baseDuration": 600,
         "xpPerAction": 0
-    }
+    },
+"goblin_attack": {
+    "id": "goblin_attack",
+    "name": "Fight Goblins (Attack)",
+    "skill": "attack",
+    "monsterName": "Goblin",
+    "requiredLevel": 1,
+    "requiredSlayerLevel": 1,
+    "hitpoints": 12,
+    "attack": 5,
+    "strength": 3,
+    "defence": 4,
+    "xpPerKill": {
+        "prayer": 4
+    },
+    "dropTable": [
+        { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
+        { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
+    ]
+},
+"goblin_strength": {
+    "id": "goblin_strength",
+    "name": "Fight Goblins (Strength)",
+    "skill": "strength",
+    "monsterName": "Goblin",
+    "requiredLevel": 1,
+    "requiredSlayerLevel": 1,
+    "hitpoints": 12,
+    "attack": 5,
+    "strength": 3,
+    "defence": 4,
+    "xpPerKill": {
+        "prayer": 4
+    },
+    "dropTable": [
+        { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
+        { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
+    ]
+},
+"goblin_defence": {
+    "id": "goblin_defence",
+    "name": "Fight Goblins (Defence)",
+    "skill": "defence",
+    "monsterName": "Goblin",
+    "requiredLevel": 1,
+    "requiredSlayerLevel": 1,
+    "hitpoints": 12,
+    "attack": 5,
+    "strength": 3,
+    "defence": 4,
+    "xpPerKill": {
+        "prayer": 4
+    },
+    "dropTable": [
+        { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
+        { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
+    ]
+}
     
 }
