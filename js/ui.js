@@ -1637,16 +1637,30 @@ updateBankHeader() {
     }
     
     // Calculate total bank value
-    let totalValue = 0;
-    const bankItems = bank.getAllItems();
-    const itemsData = loadingManager.getData('items');
-    
-    for (const [itemId, quantity] of Object.entries(bankItems)) {
-        const itemData = itemsData[itemId];
-        if (itemData && itemData.basePrice) {
-            totalValue += itemData.basePrice * quantity;
+let totalValue = 0;
+const bankItems = bank.getAllItems();
+const shopData = loadingManager.getData('shop');
+
+// Create a map of itemId to basePrice from shop.json
+const itemPrices = {};
+for (const category of ['supplies', 'resources', 'runes']) {
+    if (shopData[category]) {
+        for (const item of shopData[category]) {
+            itemPrices[item.itemId] = item.basePrice;
         }
     }
+}
+
+for (const [itemId, quantity] of Object.entries(bankItems)) {
+    if (itemId === 'coins') {
+        // Coins are always worth 1 gp each
+        totalValue += quantity;
+    } else if (itemPrices[itemId]) {
+        // Item exists in shop, use its base price
+        totalValue += itemPrices[itemId] * quantity;
+    }
+    // Items not in shop are worth 0 (no else needed)
+}
     
     // Get clue completion counts
     let totalClues = 0;
