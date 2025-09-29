@@ -1268,5 +1268,14 @@
     "stackable": true,
     "maxStack": 2147483647,
     "category": "ammo"
+},
+"goblin_mail": {
+    "id": "goblin_mail",
+    "name": "Goblin Mail",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "melee",
+    "combatBonus": 1
 }
 }
