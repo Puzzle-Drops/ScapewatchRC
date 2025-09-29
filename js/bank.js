@@ -95,7 +95,7 @@ class Bank {
 
         inventory.clear();
         
-        // NEW: Scan and equip best equipment after banking
+        // Scan and equip best equipment after banking
         this.scanAndEquipBestItems();
         
         // Note: deposit() and clear() already notify UI, no need to do it again
@@ -130,6 +130,12 @@ class Bank {
     
     // Scan bank for equipment and auto-equip best items
     scanAndEquipBestItems() {
+        // Prevent recursive calls
+        if (this._scanningEquipment) {
+            return;
+        }
+        this._scanningEquipment = true;
+        
         // Initialize equipment panels if needed
         if (!window.equipmentPanels) {
             window.equipmentPanels = {
@@ -167,18 +173,31 @@ class Bank {
             if (quantity <= 0) continue;
             
             const slot = itemData.equipmentSlot;
-            const style = itemData.combatStyle;
+            const combatStyles = itemData.combatStyle;
             const bonus = itemData.combatBonus || 0;
             
-            if (!slot || !style) continue;
+            if (!slot || !combatStyles) continue;
             
-            // Check if this is better than current best for this slot/style
-            if (!bestItems[style][slot] || bestItems[style][slot].combatBonus < bonus) {
-                bestItems[style][slot] = {
-                    itemId: itemId,
-                    name: itemData.name,
-                    combatBonus: bonus
-                };
+            // Handle both single style (string) and multiple styles (array)
+            const styles = Array.isArray(combatStyles) ? combatStyles : [combatStyles];
+            
+            // Check each applicable combat style
+            for (const style of styles) {
+                // Normalize style names (handle both "magic" and "mage")
+                const normalizedStyle = style === 'mage' ? 'magic' : style;
+                
+                // Skip if not a valid style
+                if (!['melee', 'ranged', 'magic'].includes(normalizedStyle)) continue;
+                
+                // Check if this is better than current best for this slot/style
+                if (!bestItems[normalizedStyle][slot] || bestItems[normalizedStyle][slot].combatBonus < bonus) {
+                    bestItems[normalizedStyle][slot] = {
+                        itemId: itemId,
+                        name: itemData.name,
+                        combatBonus: bonus,
+                        combatStyle: normalizedStyle
+                    };
+                }
             }
         }
         
