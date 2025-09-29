@@ -73,32 +73,35 @@ class Bank {
     }
 
     depositAll() {
-    const inventory = window.inventory;
-    let deposited = 0;
+        const inventory = window.inventory;
+        let deposited = 0;
 
-    for (let i = 0; i < inventory.maxSlots; i++) {
-        const slot = inventory.slots[i];
-        if (slot) {
-            // Check if this is a noted item that needs conversion
-            const itemData = loadingManager.getData('items')[slot.itemId];
-            if (itemData && itemData.category === 'note' && itemData.convertsTo) {
-                // Convert noted item to regular item
-                this.deposit(itemData.convertsTo, slot.quantity);
-                console.log(`Converted ${slot.quantity} ${itemData.name} to ${itemData.convertsTo}`);
-            } else {
-                // Regular deposit
-                this.deposit(slot.itemId, slot.quantity);
+        for (let i = 0; i < inventory.maxSlots; i++) {
+            const slot = inventory.slots[i];
+            if (slot) {
+                // Check if this is a noted item that needs conversion
+                const itemData = loadingManager.getData('items')[slot.itemId];
+                if (itemData && itemData.category === 'note' && itemData.convertsTo) {
+                    // Convert noted item to regular item
+                    this.deposit(itemData.convertsTo, slot.quantity);
+                    console.log(`Converted ${slot.quantity} ${itemData.name} to ${itemData.convertsTo}`);
+                } else {
+                    // Regular deposit
+                    this.deposit(slot.itemId, slot.quantity);
+                }
+                deposited += slot.quantity;
             }
-            deposited += slot.quantity;
         }
-    }
 
-    inventory.clear();
-    
-    // Note: deposit() and clear() already notify UI, no need to do it again
-    
-    return deposited;
-}
+        inventory.clear();
+        
+        // NEW: Scan and equip best equipment after banking
+        this.scanAndEquipBestItems();
+        
+        // Note: deposit() and clear() already notify UI, no need to do it again
+        
+        return deposited;
+    }
 
     depositItem(itemId) {
         const inventory = window.inventory;
@@ -122,6 +125,83 @@ class Bank {
     getUniqueItems() {
         return Object.keys(this.items).length;
     }
+
+            // ==================== EQUIPMENT MANAGEMENT ====================
+    
+    // Scan bank for equipment and auto-equip best items
+    scanAndEquipBestItems() {
+        // Initialize equipment panels if needed
+        if (!window.equipmentPanels) {
+            window.equipmentPanels = {
+                melee: {},
+                ranged: {},
+                magic: {}
+            };
+            window.gearScores = {
+                melee: 0,
+                ranged: 0,
+                magic: 0
+            };
+        }
+        
+        // Clear current equipment
+        for (const style of ['melee', 'ranged', 'magic']) {
+            window.equipmentPanels[style] = {};
+            window.gearScores[style] = 0;
+        }
+        
+        // Track best item per slot per combat style
+        const bestItems = {
+            melee: {},
+            ranged: {},
+            magic: {}
+        };
+        
+        // Scan all items in bank
+        const items = loadingManager.getData('items');
+        for (const [itemId, quantity] of Object.entries(this.items)) {
+            const itemData = items[itemId];
+            
+            // Skip non-equipment
+            if (!itemData || itemData.category !== 'equipment') continue;
+            if (quantity <= 0) continue;
+            
+            const slot = itemData.equipmentSlot;
+            const style = itemData.combatStyle;
+            const bonus = itemData.combatBonus || 0;
+            
+            if (!slot || !style) continue;
+            
+            // Check if this is better than current best for this slot/style
+            if (!bestItems[style][slot] || bestItems[style][slot].combatBonus < bonus) {
+                bestItems[style][slot] = {
+                    itemId: itemId,
+                    name: itemData.name,
+                    combatBonus: bonus
+                };
+            }
+        }
+        
+        // Equip the best items and calculate gear scores
+        for (const style of ['melee', 'ranged', 'magic']) {
+            let totalBonus = 0;
+            for (const [slot, item] of Object.entries(bestItems[style])) {
+                window.equipmentPanels[style][slot] = item;
+                totalBonus += item.combatBonus;
+            }
+            window.gearScores[style] = totalBonus;
+        }
+        
+        console.log('Equipment panels updated:', window.equipmentPanels);
+        console.log('Gear scores:', window.gearScores);
+        
+        // Update UI if equipment panel is open
+        if (window.ui && window.ui.currentPanel === 'equipment') {
+            window.ui.updateEquipment();
+        }
+    }
+
+    
 }
 
 // Make Bank available globally
