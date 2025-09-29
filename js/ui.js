@@ -1887,10 +1887,11 @@ createShopItem(stockKey, stock) {
         priceDiv.innerHTML = `Buy price: <span class="price-amount">${formatNumber(stock.currentPrice)} gp</span> <span class="price-range">(${formatNumber(minPrice)}-${formatNumber(maxPrice)})</span>`;
     }
     
-    // Total cost/gain display (initially hidden)
+    // Total cost/gain display (ALWAYS VISIBLE to reserve space)
     const totalDiv = document.createElement('div');
     totalDiv.className = shop.isSellMode ? 'shop-total-gain' : 'shop-total-cost';
-    totalDiv.style.display = 'none';
+    totalDiv.style.visibility = 'hidden';  // Use visibility instead of display
+    totalDiv.textContent = '\u00A0';  // Non-breaking space to maintain height
     
     rightTopSection.appendChild(nameDiv);
     rightTopSection.appendChild(priceDiv);
@@ -1911,7 +1912,7 @@ createShopItem(stockKey, stock) {
                 const sellPrice = Math.max(1, Math.floor(stock.currentPrice * 0.2));
                 const totalGain = quantity * sellPrice;
                 totalDiv.textContent = `+${formatNumber(totalGain)} gp`;
-                totalDiv.style.display = 'block';
+                totalDiv.style.visibility = 'visible';  // Show the text
                 
                 const currentBankCount = window.bank ? bank.getItemCount(stock.itemId) : 0;
                 actionBtn.disabled = currentBankCount < quantity;
@@ -1919,13 +1920,14 @@ createShopItem(stockKey, stock) {
                 // Buy mode calculations
                 const totalCost = quantity * stock.currentPrice;
                 totalDiv.textContent = `-${formatNumber(totalCost)} gp`;
-                totalDiv.style.display = 'block';
+                totalDiv.style.visibility = 'visible';  // Show the text
                 
                 const bankGold = window.bank ? bank.getItemCount('coins') : 0;
                 actionBtn.disabled = bankGold < totalCost;
             }
         } else {
-            totalDiv.style.display = 'none';
+            totalDiv.textContent = '\u00A0';  // Keep non-breaking space
+            totalDiv.style.visibility = 'hidden';  // Hide but maintain space
             actionBtn.disabled = true;
         }
     });
@@ -1936,7 +1938,8 @@ createShopItem(stockKey, stock) {
         if (quantity > 0) {
             if (shop.transactItem(stockKey, quantity)) {
                 quantityInput.value = '';
-                totalDiv.style.display = 'none';
+                totalDiv.textContent = '\u00A0';  // Reset to space
+                totalDiv.style.visibility = 'hidden';
                 actionBtn.disabled = true;
                 this.updateShop(); // Refresh display
             }
