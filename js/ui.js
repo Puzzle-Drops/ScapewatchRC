@@ -1715,21 +1715,43 @@ updateShop() {
     shopContainer.innerHTML = '';
     
     // Shop header with bank gold display
-    const headerDiv = document.createElement('div');
-    headerDiv.className = 'shop-header';
-    
-    const titleDiv = document.createElement('div');
-    titleDiv.className = 'shop-title';
-    titleDiv.textContent = 'SHOP';
-    
-    const goldDiv = document.createElement('div');
-    goldDiv.className = 'shop-gold';
-    const bankGold = window.bank ? bank.getItemCount('coins') : 0;
-    goldDiv.textContent = `Bank: ${formatNumber(bankGold)} gp`;
-    
-    headerDiv.appendChild(titleDiv);
-    headerDiv.appendChild(goldDiv);
-    shopContainer.appendChild(headerDiv);
+const headerDiv = document.createElement('div');
+headerDiv.className = 'shop-header';
+
+const titleDiv = document.createElement('div');
+titleDiv.className = 'shop-title';
+titleDiv.textContent = 'SHOP';
+
+// Add Buy/Sell toggle
+const toggleDiv = document.createElement('div');
+toggleDiv.className = 'shop-mode-toggle';
+
+const buyBtn = document.createElement('button');
+buyBtn.className = 'shop-toggle-btn' + (!shop.isSellMode ? ' active' : '');
+buyBtn.textContent = 'Buy';
+buyBtn.addEventListener('click', () => {
+    shop.toggleMode('buy');
+});
+
+const sellBtn = document.createElement('button');
+sellBtn.className = 'shop-toggle-btn' + (shop.isSellMode ? ' active' : '');
+sellBtn.textContent = 'Sell';
+sellBtn.addEventListener('click', () => {
+    shop.toggleMode('sell');
+});
+
+toggleDiv.appendChild(buyBtn);
+toggleDiv.appendChild(sellBtn);
+
+const goldDiv = document.createElement('div');
+goldDiv.className = 'shop-gold';
+const bankGold = window.bank ? bank.getItemCount('coins') : 0;
+goldDiv.textContent = `Bank: ${formatNumber(bankGold)} gp`;
+
+headerDiv.appendChild(titleDiv);
+headerDiv.appendChild(toggleDiv);
+headerDiv.appendChild(goldDiv);
+shopContainer.appendChild(headerDiv);
     
     // SUPPLIES category
     const suppliesDiv = document.createElement('div');
@@ -1821,11 +1843,11 @@ createShopItem(stockKey, stock) {
     leftColumn.appendChild(iconDiv);
     leftColumn.appendChild(quantityInput);
     
-    // RIGHT COLUMN - Name, price with range, total cost, buy button
+    // RIGHT COLUMN - Name, price/inventory, total cost/gain, button
     const rightColumn = document.createElement('div');
     rightColumn.className = 'shop-column-right';
     
-    // Top section for name, price, and total cost
+    // Top section for name and price/inventory info
     const rightTopSection = document.createElement('div');
     rightTopSection.className = 'shop-right-top';
     
@@ -1834,59 +1856,84 @@ createShopItem(stockKey, stock) {
     nameDiv.className = 'shop-item-name';
     nameDiv.textContent = itemData ? itemData.name : stock.itemId;
     
-// Current price with range
-const priceDiv = document.createElement('div');
-priceDiv.className = 'shop-item-price';
-const minPrice = Math.ceil(stock.basePrice * 0.5);
-const maxPrice = Math.floor(stock.basePrice * 2);
-priceDiv.innerHTML = `Price: <span class="price-amount">${formatNumber(stock.currentPrice)} gp</span> <span class="price-range">(${formatNumber(minPrice)}-${formatNumber(maxPrice)})</span>`;
+    // Price or inventory display (changes based on mode)
+    const priceDiv = document.createElement('div');
+    priceDiv.className = 'shop-item-price';
     
-    // Total cost display (initially hidden)
-    const totalCostDiv = document.createElement('div');
-    totalCostDiv.className = 'shop-total-cost';
-    totalCostDiv.style.display = 'none';
+    if (window.shop && shop.isSellMode) {
+        // SELL MODE
+        const bankCount = window.bank ? bank.getItemCount(stock.itemId) : 0;
+        const sellPrice = Math.max(1, Math.floor(stock.currentPrice * 0.2));
+        priceDiv.innerHTML = `
+            <div>You have: <span class="price-amount">${formatNumber(bankCount)}</span></div>
+            <div>Sell price: <span class="price-amount">${formatNumber(sellPrice)} gp</span> each</div>
+            <div class="price-range">(20% of shop's ${formatNumber(stock.currentPrice)} gp)</div>
+        `;
+    } else {
+        // BUY MODE (original)
+        const minPrice = Math.ceil(stock.basePrice * 0.5);
+        const maxPrice = Math.floor(stock.basePrice * 2);
+        priceDiv.innerHTML = `Price: <span class="price-amount">${formatNumber(stock.currentPrice)} gp</span> <span class="price-range">(${formatNumber(minPrice)}-${formatNumber(maxPrice)})</span>`;
+    }
+    
+    // Total cost/gain display (initially hidden)
+    const totalDiv = document.createElement('div');
+    totalDiv.className = shop.isSellMode ? 'shop-total-gain' : 'shop-total-cost';
+    totalDiv.style.display = 'none';
     
     rightTopSection.appendChild(nameDiv);
     rightTopSection.appendChild(priceDiv);
-    rightTopSection.appendChild(totalCostDiv);
+    rightTopSection.appendChild(totalDiv);
     
-    // Buy button (aligned with amount input)
-    const buyBtn = document.createElement('button');
-    buyBtn.className = 'shop-buy-btn';
-    buyBtn.textContent = 'Buy';
-    buyBtn.disabled = true;
+    // Buy/Sell button
+    const actionBtn = document.createElement('button');
+    actionBtn.className = shop.isSellMode ? 'shop-sell-btn' : 'shop-buy-btn';
+    actionBtn.textContent = shop.isSellMode ? 'Sell' : 'Buy';
+    actionBtn.disabled = true;
     
-    // Update total cost on input
+    // Update total on input
     quantityInput.addEventListener('input', () => {
         const quantity = parseInt(quantityInput.value) || 0;
         if (quantity > 0) {
-            const totalCost = quantity * stock.currentPrice;
-            totalCostDiv.textContent = `-${formatNumber(totalCost)} gp`;
-            totalCostDiv.style.display = 'block';
-            
-            const bankGold = window.bank ? bank.getItemCount('coins') : 0;
-            buyBtn.disabled = bankGold < totalCost;
+            if (shop.isSellMode) {
+                // Sell mode calculations
+                const sellPrice = Math.max(1, Math.floor(stock.currentPrice * 0.2));
+                const totalGain = quantity * sellPrice;
+                totalDiv.textContent = `+${formatNumber(totalGain)} gp`;
+                totalDiv.style.display = 'block';
+                
+                const bankCount = window.bank ? bank.getItemCount(stock.itemId) : 0;
+                actionBtn.disabled = bankCount < quantity;
+            } else {
+                // Buy mode calculations
+                const totalCost = quantity * stock.currentPrice;
+                totalDiv.textContent = `-${formatNumber(totalCost)} gp`;
+                totalDiv.style.display = 'block';
+                
+                const bankGold = window.bank ? bank.getItemCount('coins') : 0;
+                actionBtn.disabled = bankGold < totalCost;
+            }
         } else {
-            totalCostDiv.style.display = 'none';
-            buyBtn.disabled = true;
+            totalDiv.style.display = 'none';
+            actionBtn.disabled = true;
         }
     });
     
-    // Buy button handler
-    buyBtn.addEventListener('click', () => {
+    // Button handler
+    actionBtn.addEventListener('click', () => {
         const quantity = parseInt(quantityInput.value) || 0;
         if (quantity > 0) {
-            if (shop.buyItem(stockKey, quantity)) {
+            if (shop.transactItem(stockKey, quantity)) {
                 quantityInput.value = '';
-                totalCostDiv.style.display = 'none';
-                buyBtn.disabled = true;
+                totalDiv.style.display = 'none';
+                actionBtn.disabled = true;
                 this.updateShop(); // Refresh display
             }
         }
     });
     
     rightColumn.appendChild(rightTopSection);
-    rightColumn.appendChild(buyBtn);
+    rightColumn.appendChild(actionBtn);
     
     // Assemble
     itemContainer.appendChild(leftColumn);
