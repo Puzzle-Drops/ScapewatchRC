@@ -1067,6 +1067,22 @@ body {
     font-weight: bold;
 }
 
+/* Shop item count overlay (same style as bank) */
+.shop-item-icon {
+    position: relative;  /* Make sure icon is positioned for absolute child */
+}
+
+.shop-item-count {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    font-size: 24px;
+    padding: 1px 3px;
+    border-radius: 2px;
+    z-index: 10;
+    pointer-events: none;  /* Don't interfere with clicking */
+}
+
 /* Universal modal close button (X) */
 .modal-close-x,
 .skill-customization-close {
