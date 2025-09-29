@@ -1812,11 +1812,11 @@ createShopItem(stockKey, stock) {
     const itemContainer = document.createElement('div');
     itemContainer.className = 'shop-item-container';
     
-    // LEFT COLUMN - Icon and amount input
+    // LEFT COLUMN - Icon with quantity overlay and amount input
     const leftColumn = document.createElement('div');
     leftColumn.className = 'shop-column-left';
     
-    // Icon
+    // Icon with quantity overlay (same as bank)
     const iconDiv = document.createElement('div');
     iconDiv.className = 'shop-item-icon';
     const itemData = loadingManager.getData('items')[stock.itemId];
@@ -1832,6 +1832,20 @@ createShopItem(stockKey, stock) {
     };
     iconDiv.appendChild(img);
     
+    // Add bank quantity overlay (same style as bank slots)
+    const bankCount = window.bank ? bank.getItemCount(stock.itemId) : 0;
+    if (bankCount > 0) {
+        const countDiv = document.createElement('div');
+        countDiv.className = 'item-count shop-item-count';
+        
+        // Use the same formatting as bank
+        const formatted = this.formatItemCount(bankCount);
+        countDiv.textContent = formatted.text;
+        countDiv.style.color = formatted.color;
+        
+        iconDiv.appendChild(countDiv);
+    }
+    
     // Amount input (at bottom)
     const quantityInput = document.createElement('input');
     quantityInput.type = 'number';
@@ -1843,11 +1857,11 @@ createShopItem(stockKey, stock) {
     leftColumn.appendChild(iconDiv);
     leftColumn.appendChild(quantityInput);
     
-    // RIGHT COLUMN - Name, price, inventory, total cost/gain, button
+    // RIGHT COLUMN - Name, price, total cost/gain, button
     const rightColumn = document.createElement('div');
     rightColumn.className = 'shop-column-right';
     
-    // Top section for name, price, and inventory info
+    // Top section for name and price info
     const rightTopSection = document.createElement('div');
     rightTopSection.className = 'shop-right-top';
     
@@ -1859,12 +1873,6 @@ createShopItem(stockKey, stock) {
     // Price display (changes label based on mode)
     const priceDiv = document.createElement('div');
     priceDiv.className = 'shop-item-price';
-    
-    // Bank count display (shown for both modes)
-    const bankDiv = document.createElement('div');
-    bankDiv.className = 'shop-item-bank';
-    const bankCount = window.bank ? bank.getItemCount(stock.itemId) : 0;
-    bankDiv.innerHTML = `Banked: <span class="bank-amount">${formatNumber(bankCount)}</span>`;
     
     if (window.shop && shop.isSellMode) {
         // SELL MODE
@@ -1886,7 +1894,6 @@ createShopItem(stockKey, stock) {
     
     rightTopSection.appendChild(nameDiv);
     rightTopSection.appendChild(priceDiv);
-    rightTopSection.appendChild(bankDiv);
     rightTopSection.appendChild(totalDiv);
     
     // Buy/Sell button
@@ -1906,8 +1913,8 @@ createShopItem(stockKey, stock) {
                 totalDiv.textContent = `+${formatNumber(totalGain)} gp`;
                 totalDiv.style.display = 'block';
                 
-                const bankCount = window.bank ? bank.getItemCount(stock.itemId) : 0;
-                actionBtn.disabled = bankCount < quantity;
+                const currentBankCount = window.bank ? bank.getItemCount(stock.itemId) : 0;
+                actionBtn.disabled = currentBankCount < quantity;
             } else {
                 // Buy mode calculations
                 const totalCost = quantity * stock.currentPrice;
