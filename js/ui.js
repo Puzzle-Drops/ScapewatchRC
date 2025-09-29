@@ -2176,8 +2176,13 @@ slotDiv.appendChild(imgElement);
     
     // Update gear score display
     const gearScoreElement = document.getElementById('gear-score-value');
+    const gearScoreLabel = document.querySelector('.gear-score-label');
     if (gearScoreElement && window.gearScores) {
         gearScoreElement.textContent = window.gearScores[style] || 0;
+    }
+    if (gearScoreLabel) {
+        const styleLabel = style.charAt(0).toUpperCase() + style.slice(1);
+        gearScoreLabel.textContent = `${styleLabel} Gear Score:`;
     }
     
     // Clear grid
@@ -2275,9 +2280,10 @@ slotDiv.appendChild(imgElement);
             // Add tooltip
             const tooltip = document.createElement('div');
             tooltip.className = 'equipment-tooltip';
+            const styleLabel = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
             tooltip.innerHTML = `
                 <div class="equipment-tooltip-name">${equippedItem.name}</div>
-                <div class="equipment-tooltip-bonus">+${equippedItem.combatBonus} Combat Bonus</div>
+                <div class="equipment-tooltip-bonus">+${equippedItem.combatBonus} ${styleLabel} Bonus</div>
             `;
             slotDiv.appendChild(tooltip);
         } else {
