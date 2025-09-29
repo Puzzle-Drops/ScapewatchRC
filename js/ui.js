@@ -1843,11 +1843,11 @@ createShopItem(stockKey, stock) {
     leftColumn.appendChild(iconDiv);
     leftColumn.appendChild(quantityInput);
     
-    // RIGHT COLUMN - Name, price/inventory, total cost/gain, button
+    // RIGHT COLUMN - Name, price, inventory, total cost/gain, button
     const rightColumn = document.createElement('div');
     rightColumn.className = 'shop-column-right';
     
-    // Top section for name and price/inventory info
+    // Top section for name, price, and inventory info
     const rightTopSection = document.createElement('div');
     rightTopSection.className = 'shop-right-top';
     
@@ -1856,24 +1856,27 @@ createShopItem(stockKey, stock) {
     nameDiv.className = 'shop-item-name';
     nameDiv.textContent = itemData ? itemData.name : stock.itemId;
     
-    // Price or inventory display (changes based on mode)
+    // Price display (changes label based on mode)
     const priceDiv = document.createElement('div');
     priceDiv.className = 'shop-item-price';
     
+    // Bank count display (shown for both modes)
+    const bankDiv = document.createElement('div');
+    bankDiv.className = 'shop-item-bank';
+    const bankCount = window.bank ? bank.getItemCount(stock.itemId) : 0;
+    bankDiv.innerHTML = `Banked: <span class="bank-amount">${formatNumber(bankCount)}</span>`;
+    
     if (window.shop && shop.isSellMode) {
         // SELL MODE
-        const bankCount = window.bank ? bank.getItemCount(stock.itemId) : 0;
         const sellPrice = Math.max(1, Math.floor(stock.currentPrice * 0.2));
-        priceDiv.innerHTML = `
-            <div>You have: <span class="price-amount">${formatNumber(bankCount)}</span></div>
-            <div>Sell price: <span class="price-amount">${formatNumber(sellPrice)} gp</span> each</div>
-            <div class="price-range">(20% of shop's ${formatNumber(stock.currentPrice)} gp)</div>
-        `;
+        const minSellPrice = Math.max(1, Math.floor(Math.ceil(stock.basePrice * 0.5) * 0.2));
+        const maxSellPrice = Math.max(1, Math.floor(Math.floor(stock.basePrice * 2) * 0.2));
+        priceDiv.innerHTML = `Sell price: <span class="price-amount">${formatNumber(sellPrice)} gp</span> <span class="price-range">(${formatNumber(minSellPrice)}-${formatNumber(maxSellPrice)})</span>`;
     } else {
-        // BUY MODE (original)
+        // BUY MODE
         const minPrice = Math.ceil(stock.basePrice * 0.5);
         const maxPrice = Math.floor(stock.basePrice * 2);
-        priceDiv.innerHTML = `Price: <span class="price-amount">${formatNumber(stock.currentPrice)} gp</span> <span class="price-range">(${formatNumber(minPrice)}-${formatNumber(maxPrice)})</span>`;
+        priceDiv.innerHTML = `Buy price: <span class="price-amount">${formatNumber(stock.currentPrice)} gp</span> <span class="price-range">(${formatNumber(minPrice)}-${formatNumber(maxPrice)})</span>`;
     }
     
     // Total cost/gain display (initially hidden)
@@ -1883,6 +1886,7 @@ createShopItem(stockKey, stock) {
     
     rightTopSection.appendChild(nameDiv);
     rightTopSection.appendChild(priceDiv);
+    rightTopSection.appendChild(bankDiv);
     rightTopSection.appendChild(totalDiv);
     
     // Buy/Sell button
