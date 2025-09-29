@@ -1,6 +1,7 @@
 class ShopSystem {
     constructor() {
         this.isOpen = false;
+        this.isSellMode = false;
         this.currentStock = {
             supplies: null,
             resources1: null,
@@ -159,6 +160,24 @@ class ShopSystem {
         this.isOpen = false;
     }
 
+    // Toggle between buy and sell modes
+toggleMode(mode) {
+    this.isSellMode = (mode === 'sell');
+    // Update display if shop is open
+    if (this.isOpen && window.ui) {
+        window.ui.updateShop();
+    }
+}
+
+    // Buy or sell an item depending on mode
+transactItem(stockKey, quantity) {
+    if (this.isSellMode) {
+        return this.sellItem(stockKey, quantity);
+    } else {
+        return this.buyItem(stockKey, quantity);
+    }
+}
+
     // Buy an item - now takes stockKey instead of category
     buyItem(stockKey, quantity) {
         const stock = this.currentStock[stockKey];
@@ -203,6 +222,52 @@ class ShopSystem {
         
         return true;
     }
+
+    sellItem(stockKey, quantity) {
+    const stock = this.currentStock[stockKey];
+    if (!stock) {
+        console.error(`No stock in slot: ${stockKey}`);
+        return false;
+    }
+    
+    // Check if player has enough items in bank
+    const bankCount = window.bank ? bank.getItemCount(stock.itemId) : 0;
+    if (bankCount < quantity) {
+        console.log(`Not enough items in bank! Have ${bankCount}, trying to sell ${quantity}`);
+        return false;
+    }
+    
+    // Calculate sell price (20% of current price, minimum 1 gp)
+    const sellPrice = Math.max(1, Math.floor(stock.currentPrice * 0.2));
+    const totalGain = sellPrice * quantity;
+    
+    // Get item data
+    const itemData = loadingManager.getData('items')[stock.itemId];
+    if (!itemData) {
+        console.error(`Item data not found for ${stock.itemId}`);
+        return false;
+    }
+    
+    // Perform the transaction - withdraw items from bank
+    const withdrawn = bank.withdraw(stock.itemId, quantity);
+    if (withdrawn !== quantity) {
+        console.error('Failed to withdraw items from bank!');
+        return false;
+    }
+    
+    // Add gold to bank
+    bank.deposit('coins', totalGain);
+    
+    console.log(`Sold ${quantity} ${itemData.name} for ${totalGain} gold`);
+    
+    // Update displays
+    if (window.ui) {
+        window.ui.updateBank();
+        window.ui.updateShop();
+    }
+    
+    return true;
+}
 
     // Get current stock for save/load
     getState() {
