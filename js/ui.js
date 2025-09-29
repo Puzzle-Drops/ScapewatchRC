@@ -2150,10 +2150,8 @@ slotDiv.appendChild(imgElement);
             tabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             
-            // Ensure equipment is scanned from bank
-            this.updateEquipmentPanels();
-            
-            // Update display for selected style
+            // Just update the display for selected style
+            // No need to scan - equipment data already exists
             const style = tab.dataset.style;
             this.displayEquipmentForStyle(style);
         });
