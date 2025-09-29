@@ -194,8 +194,7 @@ class Bank {
                     bestItems[normalizedStyle][slot] = {
                         itemId: itemId,
                         name: itemData.name,
-                        combatBonus: bonus,
-                        combatStyle: normalizedStyle
+                        combatBonus: bonus
                     };
                 }
             }
@@ -214,10 +213,13 @@ class Bank {
         console.log('Equipment panels updated:', window.equipmentPanels);
         console.log('Gear scores:', window.gearScores);
         
-        // Update UI if equipment panel is open
+        // Update UI if equipment panel is open (skip scanning to prevent recursion)
         if (window.ui && window.ui.currentPanel === 'equipment') {
             window.ui.updateEquipment();
         }
+        
+        // Clear recursion guard
+        this._scanningEquipment = false;
     }
 
     
