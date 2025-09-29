@@ -1055,6 +1055,18 @@ body {
     opacity: 0.5;
 }
 
+/* Shop bank amount display */
+.shop-item-bank {
+    font-size: 16px;
+    color: #aaa;
+    margin-top: 4px;
+}
+
+.bank-amount {
+    color: #5DADE2;
+    font-weight: bold;
+}
+
 /* Universal modal close button (X) */
 .modal-close-x,
 .skill-customization-close {
