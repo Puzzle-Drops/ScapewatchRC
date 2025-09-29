@@ -3044,4 +3044,4 @@ cmdCompleteAllClues() {
 }
 
 // Create global instance
-//window.devConsole = new DevConsole();
+window.devConsole = new DevConsole();
