@@ -765,6 +765,7 @@ body {
     display: flex;
     gap: 20px;
     align-items: center;
+    margin-right: 50px;
 }
 
 .clue-count-item {
@@ -3143,7 +3144,7 @@ span.control-emoji {
 /* Floating Current Task Display */
 .floating-current-task {
     position: fixed;
-    top: 20px;
+    top: 0px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 500;
