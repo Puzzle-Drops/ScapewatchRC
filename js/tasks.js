@@ -269,7 +269,8 @@ updateTaskProgress(task) {
         task.isFletchingTask ||
         task.isFarmingTask ||
         task.isSmithingTask ||
-        task.isCraftingTask) {
+        task.isCraftingTask ||
+        task.isCombatTask) {
         return;
     }
     
@@ -304,6 +305,7 @@ updateProgressForItem(itemId) {
         !this.currentTask.isFarmingTask &&
         !this.currentTask.isSmithingTask &&
         !this.currentTask.isCraftingTask &&
+        !this.currentTask.isCombatTask &&
         this.currentTask.itemId === itemId) {
         this.updateTaskProgress(this.currentTask);
     }
@@ -324,7 +326,8 @@ updateProgressForItem(itemId) {
                 this.currentTask.isHerbloreTask ||
                 this.currentTask.isFletchingTask ||
                 this.currentTask.isFarmingTask ||
-                this.currentTask.isHuntingTask) {
+                this.currentTask.isHuntingTask ||
+                this.currentTask.isCombatTask) {
                 // These tasks manage their own progress through their skills
                 // Just check if complete
                 if (this.currentTask.progress >= 1) {
