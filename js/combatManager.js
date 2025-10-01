@@ -21,6 +21,15 @@ class CombatManager {
         // XP batching for combined drops
         this.xpBatch = {};
         
+        // Death animation tracking
+        this.monsterDying = false;
+        this.playerDying = false;
+        this.deathAnimationTimer = 0;
+        this.DEATH_FADE_DURATION = 2400; // 2.4s fade out
+        this.RESPAWN_WAIT_DURATION = 2400; // 2.4s wait after fade
+        this.pendingMonsterRespawn = false;
+        this.pendingPlayerRespawn = false;
+        
         // UI Elements
         this.playerPanel = null;
         this.monsterPanel = null;
@@ -164,6 +173,25 @@ class CombatManager {
     // Update combat (called from Player update loop)
     updateCombat(deltaTime) {
         if (!this.inCombat) return;
+        
+        // Handle death animations
+        if (this.monsterDying || this.playerDying) {
+            this.deathAnimationTimer += deltaTime;
+            
+            // Check if it's time to respawn
+            if (this.deathAnimationTimer >= this.DEATH_FADE_DURATION + this.RESPAWN_WAIT_DURATION) {
+                if (this.pendingMonsterRespawn) {
+                    this.executeMonsterRespawn();
+                }
+                if (this.pendingPlayerRespawn) {
+                    this.executePlayerRespawn();
+                }
+            }
+            
+            // Update UI even during death animations
+            this.updateCombatUI();
+            return; // Don't process normal combat during death animations
+        }
         
         // Update phase timer
         this.phaseTimer += deltaTime;
@@ -414,6 +442,17 @@ class CombatManager {
     handleMonsterDeath() {
         console.log(`Defeated ${this.currentMonster.name}!`);
         
+        // Start death animation
+        this.monsterDying = true;
+        this.deathAnimationTimer = 0;
+        this.pendingMonsterRespawn = true;
+        
+        // Apply death animation to monster panel
+        const monsterImage = this.monsterPanel?.querySelector('.combat-character-image');
+        if (monsterImage) {
+            monsterImage.classList.add('combat-death-animation');
+        }
+        
         // Batch kill XP
         if (this.currentMonster.xpRewards) {
             for (const [skill, xp] of Object.entries(this.currentMonster.xpRewards)) {
@@ -424,25 +463,33 @@ class CombatManager {
         // Flush any remaining XP
         this.flushXpBatch();
         
-        // Roll for loot
-        const loot = this.rollLoot(this.currentMonster.dropTable);
+        // Store loot to give after animation
+        this.pendingLoot = this.rollLoot(this.currentMonster.dropTable);
+    }
+    
+    // Execute the actual monster respawn after animation
+    executeMonsterRespawn() {
+        console.log('Respawning monster after death animation');
         
-        // Add loot to inventory/bank
-        for (const drop of loot) {
-            const added = inventory.addItem(drop.itemId, drop.quantity);
-            if (added < drop.quantity) {
-                // Inventory full, rest goes to bank
-                bank.deposit(drop.itemId, drop.quantity - added);
-                console.log(`Inventory full, banking ${drop.quantity - added} ${drop.itemId}`);
-                
-                // Should probably bank at this point
-                if (window.player) {
-                    player.stopActivity();
-                }
-                if (window.ai) {
-                    ai.decisionCooldown = 0;
+        // Give loot
+        if (this.pendingLoot) {
+            for (const drop of this.pendingLoot) {
+                const added = inventory.addItem(drop.itemId, drop.quantity);
+                if (added < drop.quantity) {
+                    // Inventory full, rest goes to bank
+                    bank.deposit(drop.itemId, drop.quantity - added);
+                    console.log(`Inventory full, banking ${drop.quantity - added} ${drop.itemId}`);
+                    
+                    // Should probably bank at this point
+                    if (window.player) {
+                        player.stopActivity();
+                    }
+                    if (window.ai) {
+                        ai.decisionCooldown = 0;
+                    }
                 }
             }
+            this.pendingLoot = null;
         }
         
         // Update combat task progress
@@ -468,11 +515,37 @@ class CombatManager {
         // Track kills this trip
         this.killsThisTrip++;
         
-        // Respawn monster
+        // Reset monster HP and prayer
         this.monsterHp = this.monsterMaxHp;
-        this.monsterPrayerPoints = this.monsterMaxPrayer; // Reset monster prayer
+        this.monsterPrayerPoints = this.monsterMaxPrayer;
         
-        // Reset combat phase
+        // Remove death animation and add respawn animation
+        const monsterImage = this.monsterPanel?.querySelector('.combat-character-image');
+        if (monsterImage) {
+            monsterImage.classList.remove('combat-death-animation');
+            monsterImage.classList.add('combat-respawn-animation');
+            
+            // Add shake to container
+            const imageSection = this.monsterPanel?.querySelector('.combat-image-section');
+            if (imageSection) {
+                imageSection.classList.add('respawn-shake');
+            }
+            
+            // Remove animations after they complete
+            setTimeout(() => {
+                monsterImage.classList.remove('combat-respawn-animation');
+                if (imageSection) {
+                    imageSection.classList.remove('respawn-shake');
+                }
+            }, 600);
+        }
+        
+        // Reset death state
+        this.monsterDying = false;
+        this.pendingMonsterRespawn = false;
+        this.deathAnimationTimer = 0;
+        
+        // Reset combat phase to continue fighting
         this.combatPhase = 'player_attack';
         this.phaseTimer = 0;
     }
@@ -505,7 +578,23 @@ class CombatManager {
     
     // Handle player death
     handlePlayerDeath() {
-        console.log('Player died! Teleporting to Lumbridge bank...');
+        console.log('Player died! Starting death animation...');
+        
+        // Start death animation
+        this.playerDying = true;
+        this.deathAnimationTimer = 0;
+        this.pendingPlayerRespawn = true;
+        
+        // Apply death animation to player panel
+        const playerImage = this.playerPanel?.querySelector('.combat-character-image');
+        if (playerImage) {
+            playerImage.classList.add('combat-death-animation');
+        }
+    }
+    
+    // Execute the actual player respawn after animation
+    executePlayerRespawn() {
+        console.log('Respawning player at Lumbridge bank...');
         
         // Stop combat
         this.inCombat = false;
@@ -540,6 +629,11 @@ class CombatManager {
             ai.currentTask = null;
             ai.decisionCooldown = 0;
         }
+        
+        // Reset death state
+        this.playerDying = false;
+        this.pendingPlayerRespawn = false;
+        this.deathAnimationTimer = 0;
         
         // Remove UI
         this.removeCombatUI();
