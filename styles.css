@@ -3241,6 +3241,46 @@ span.control-emoji {
     white-space: nowrap;
 }
 
+/* Combined XP Drops */
+.xp-drop-combined {
+    animation: xpDropAnimation 1.8s ease-out forwards;
+}
+
+.xp-drop-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+}
+
+.xp-drop-pair {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.xp-drop-icon-small {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.xp-drop-text-small {
+    font-size: 28px;
+    font-weight: bold;
+    color: #FFD700;
+    text-shadow: 
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        2px 2px 0 #000,
+        0 -2px 0 #000,
+        0 2px 0 #000,
+        -2px 0 0 #000,
+        2px 0 0 #000;
+}
+
 @keyframes xpDropAnimation {
     0% {
         bottom: 0;
