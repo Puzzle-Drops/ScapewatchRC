@@ -249,6 +249,54 @@ class CombatSkill extends BaseSkill {
         
         return currentLevel >= requiredLevel && slayerLevel >= requiredSlayerLevel;
     }
+    
+    // ==================== UI DISPLAY METHODS ====================
+    
+    getAllPossibleTasksForUI() {
+        const tasks = [];
+        const activities = loadingManager.getData('activities');
+        
+        // Track unique monsters (since each has 3 activity variants for attack/str/def)
+        const uniqueMonsters = new Map();
+        
+        for (const [activityId, activity] of Object.entries(activities)) {
+            // Only look at activities for this specific skill
+            if (activity.skill !== this.id) continue;
+            
+            // Must be a monster activity (has monsterName)
+            if (!activity.monsterName) continue;
+            
+            // Add to unique monsters map if not already there
+            if (!uniqueMonsters.has(activity.monsterName)) {
+                uniqueMonsters.set(activity.monsterName, {
+                    monsterName: activity.monsterName,
+                    requiredLevel: activity.requiredLevel || 1,
+                    requiredSlayerLevel: activity.requiredSlayerLevel || 1
+                });
+            }
+        }
+        
+        // Convert to task format for UI
+        for (const [monsterName, monsterData] of uniqueMonsters) {
+            tasks.push({
+                itemId: monsterName,  // Use monster name as "itemId" for consistency
+                displayName: monsterName.charAt(0).toUpperCase() + monsterName.slice(1) + 's',
+                minCount: 10,  // Base kill counts
+                maxCount: 30,
+                requiredLevel: monsterData.requiredLevel
+            });
+        }
+        
+        // Sort by level requirement
+        tasks.sort((a, b) => a.requiredLevel - b.requiredLevel);
+        
+        return tasks;
+    }
+    
+    getBaseTaskCounts(monsterName) {
+        // Combat tasks always have 10-30 base kills
+        return { min: 10, max: 30 };
+    }
 }
 
 // Make CombatSkill available globally
