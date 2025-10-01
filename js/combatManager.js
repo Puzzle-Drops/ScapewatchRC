@@ -11,12 +11,30 @@ class CombatManager {
         this.combatStyle = 'melee';
         this.ateThisCycle = false;
         this.combatRoundTimer = 0;
-        this.COMBAT_ROUND_DURATION = 2400; // 2.4 seconds
+        this.BASE_COMBAT_ROUND_DURATION = 2400; // 2.4 seconds
         
         // Track current combat task if any
         this.currentTask = null;
         this.killsThisTrip = 0;
     }
+
+    // Get the actual combat round duration with all modifiers applied
+getCombatRoundDuration() {
+    let duration = this.BASE_COMBAT_ROUND_DURATION;
+    
+    // Apply dev console action speed modifier
+    if (window.devConsole && window.devConsole.speedModifiers) {
+        duration = duration * window.devConsole.speedModifiers.actionDuration;
+    }
+    
+    // Apply RuneCred speed bonuses based on current task skill
+    if (window.runeCreditManager && this.currentTask && this.currentTask.skill) {
+        const speedBonus = runeCreditManager.getSkillSpeedBonus(this.currentTask.skill);
+        duration = duration / (1 + speedBonus);
+    }
+    
+    return duration;
+}
     
     // Start combat with a monster
     startCombat(activityId, task = null) {
@@ -41,7 +59,7 @@ class CombatManager {
         this.monsterMaxHp = this.currentMonster.maxHp;
         
         // Set up player
-        this.playerMaxHp = 10 + skills.getLevel('hitpoints');
+        this.playerMaxHp = skills.getLevel('hitpoints');
         this.playerHp = this.playerMaxHp; // Start at full HP
         
         // Set up prayer
@@ -65,18 +83,21 @@ class CombatManager {
     }
     
     // Update combat (called from Player update loop)
-    updateCombat(deltaTime) {
-        if (!this.inCombat) return;
-        
-        // Update combat round timer
-        this.combatRoundTimer += deltaTime;
-        
-        // Check if it's time for a combat round
-        if (this.combatRoundTimer >= this.COMBAT_ROUND_DURATION) {
-            this.combatRoundTimer = 0;
-            this.processCombatRound();
-        }
+updateCombat(deltaTime) {
+    if (!this.inCombat) return;
+    
+    // Update combat round timer
+    this.combatRoundTimer += deltaTime;
+    
+    // Get the current round duration with all modifiers
+    const roundDuration = this.getCombatRoundDuration();
+    
+    // Check if it's time for a combat round
+    if (this.combatRoundTimer >= roundDuration) {
+        this.combatRoundTimer = 0;
+        this.processCombatRound();
     }
+}
     
     // Process one round of combat
     processCombatRound() {
