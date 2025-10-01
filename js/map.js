@@ -606,32 +606,45 @@ zoomCamera(newZoom) {
                 this.ctx.drawImage(furnaceIcon, x - 2, y - 2, 4, 4);
             }
         } else if (node.type === 'skill' && node.activities) {
-            // Get unique skills from activities
-            const skillSet = new Set();
-            const activities = loadingManager.getData('activities');
-            
-            for (const activityId of node.activities) {
-                const activity = activities[activityId];
-                if (activity && activity.skill) {
-                    skillSet.add(activity.skill);
-                }
-            }
-            
-            const uniqueSkills = Array.from(skillSet);
-            const iconSize = 4;
-            const spacing = 0.5;
-            const totalWidth = uniqueSkills.length * iconSize + (uniqueSkills.length - 1) * spacing;
-            const startX = x - totalWidth / 2;
-            
-            // Draw skill icons
-            uniqueSkills.forEach((skill, index) => {
-                const skillIcon = loadingManager.getImage(`skill_${skill}`);
-                if (skillIcon) {
-                    const iconX = startX + index * (iconSize + spacing);
-                    this.ctx.drawImage(skillIcon, iconX, y - 2, iconSize, iconSize);
-                }
-            });
+    // Get unique skills from activities
+    const skillSet = new Set();
+    const activities = loadingManager.getData('activities');
+    
+    for (const activityId of node.activities) {
+        const activity = activities[activityId];
+        if (activity && activity.skill) {
+            skillSet.add(activity.skill);
         }
+    }
+    
+    // Check if this node has any combat skills
+    const combatSkills = ['attack', 'strength', 'defence', 'ranged', 'magic'];
+    const hasCombatSkills = Array.from(skillSet).some(skill => combatSkills.includes(skill));
+    
+    if (hasCombatSkills) {
+        // Node has combat skills - show only combat icon
+        const combatIcon = loadingManager.getImage('skill_combat');
+        if (combatIcon) {
+            this.ctx.drawImage(combatIcon, x - 2, y - 2, 4, 4);
+        }
+    } else {
+        // No combat skills - show individual skill icons
+        const uniqueSkills = Array.from(skillSet);
+        const iconSize = 4;
+        const spacing = 0.5;
+        const totalWidth = uniqueSkills.length * iconSize + (uniqueSkills.length - 1) * spacing;
+        const startX = x - totalWidth / 2;
+        
+        // Draw skill icons
+        uniqueSkills.forEach((skill, index) => {
+            const skillIcon = loadingManager.getImage(`skill_${skill}`);
+            if (skillIcon) {
+                const iconX = startX + index * (iconSize + spacing);
+                this.ctx.drawImage(skillIcon, iconX, y - 2, iconSize, iconSize);
+            }
+        });
+    }
+}
 
         // Node name (only if flag is set)
         if (this.showNodeText) {
