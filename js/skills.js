@@ -26,7 +26,7 @@ class SkillsManager {
         }
     }
 
-    addXp(skillId, amount) {
+    addXp(skillId, amount, suppressDrop = false) {
     const skill = this.skills[skillId];
     if (!skill) {
         console.error(`Skill ${skillId} not found`);
@@ -40,9 +40,11 @@ class SkillsManager {
     
     skill.xp = newXp;
     
-    // Trigger XP drop animation
+    // Trigger XP drop animation (unless suppressed for batching)
     if (window.xpDropManager && actualGained > 0) {
-        xpDropManager.addDrop(skillId, actualGained);
+        if (!suppressDrop) {
+            xpDropManager.addDrop(skillId, actualGained);
+        }
         
         // Check for XP milestones (10M, 20M, etc.)
         xpDropManager.checkXPMilestones(skillId, newXp);
