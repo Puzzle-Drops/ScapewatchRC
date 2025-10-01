@@ -771,6 +771,9 @@ class CombatManager {
         // Update image
         const img = this.monsterPanel.querySelector('.combat-character-image');
         img.src = `assets/combat/${this.currentMonster.name}.png`;
+
+        console.log("img name!!!");
+        console.log(this.currentMonster.name);
         
         // Update name and "combat level" (use max HP as proxy)
         const monsterName = this.currentMonster.name.charAt(0).toUpperCase() + this.currentMonster.name.slice(1);
