@@ -513,16 +513,54 @@ zoomCamera(newZoom) {
     }
     
     drawPanInstructions() {
-        // Show instructions when camera is panned
-        if (this.isPannedAway) {
-            this.ctx.save();
-            this.ctx.font = '16px Arial';
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            this.ctx.textAlign = 'center';
-            this.ctx.fillText('Press SPACE to recenter on player', this.canvas.width / 2, this.canvas.height - 30);
-            this.ctx.restore();
+    // Show clickable text when camera is panned
+    if (this.isPannedAway) {
+        // Create or update the recenter button
+        if (!this.recenterButton) {
+            this.recenterButton = document.createElement('div');
+            this.recenterButton.className = 'recenter-button';
+            this.recenterButton.textContent = 'Recenter on player';
+            this.recenterButton.style.cssText = `
+                position: absolute;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 30px;
+                cursor: pointer;
+                padding: 5px 10px;
+                background: rgba(0, 0, 0, 0.5);
+                border-radius: 5px;
+                transition: all 0.2s;
+                pointer-events: auto;
+                z-index: 100;
+                user-select: none;
+            `;
+            this.recenterButton.addEventListener('click', () => {
+                this.startRecenter(true);
+            });
+            this.recenterButton.addEventListener('mouseenter', () => {
+                this.recenterButton.style.color = 'rgba(255, 255, 255, 1)';
+                this.recenterButton.style.background = 'rgba(0, 0, 0, 0.7)';
+            });
+            this.recenterButton.addEventListener('mouseleave', () => {
+                this.recenterButton.style.color = 'rgba(255, 255, 255, 0.7)';
+                this.recenterButton.style.background = 'rgba(0, 0, 0, 0.5)';
+            });
+            // Add to map container
+            const mapContainer = document.querySelector('.map-container');
+            if (mapContainer) {
+                mapContainer.appendChild(this.recenterButton);
+            }
+        }
+        this.recenterButton.style.display = 'block';
+    } else {
+        // Hide the button when not panned
+        if (this.recenterButton) {
+            this.recenterButton.style.display = 'none';
         }
     }
+}
 
     drawNodes() {
         const allNodes = nodes.getAllNodes();
