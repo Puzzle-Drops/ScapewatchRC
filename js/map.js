@@ -985,9 +985,7 @@ const dashSize = Math.max(0.5, Math.min(20, 1 * inverseZoomScale));
 // Add keyboard shortcuts for debug features
 window.addEventListener('keydown', (e) => {
     if (window.map) {
-        if (e.key === 'c' || e.key === 'C') {
-            map.toggleCollisionDebug();
-        } else if (e.key === 'n' || e.key === 'N') {
+        if (e.key === 'n' || e.key === 'N') {
             map.toggleNodeText();
         }
     }
