@@ -169,11 +169,10 @@ class CombatSkill extends BaseSkill {
     // ==================== BANKING ====================
     
     needsBankingForTask(task) {
-        // Combat always needs banking before starting to:
-        // 1. Deposit all items
-        // 2. Update equipment
-        // 3. Withdraw food
-        return true;
+        // Combat only needs initial banking to deposit items and update equipment
+        // We don't need to withdraw food since we eat directly from bank
+        // The AI tracks if we've already banked for this task
+        return false;  // Let AI's hasBankedForCurrentTask flag handle this
     }
     
     handleBanking(task) {
@@ -183,60 +182,32 @@ class CombatSkill extends BaseSkill {
         
         // Equipment is auto-updated by depositAll() now
         
-        // Calculate how much food we need
-        const foodNeeded = this.calculateFoodNeeded();
-        
-        // Withdraw food from bank
-        const foodWithdrawn = this.withdrawFood(foodNeeded);
-        
-        if (foodWithdrawn < foodNeeded) {
-            console.log(`Only withdrew ${foodWithdrawn} food, needed ${foodNeeded}`);
-            // Could still continue with less food
+        // Check if we have any food in bank (but don't withdraw it)
+        const foodCount = this.countFoodInBank();
+        if (foodCount === 0) {
+            console.log('Warning: No food in bank for combat!');
+            // Could still continue without food, player might die though
+        } else {
+            console.log(`${foodCount} food available in bank for combat`);
         }
         
+        // Combat eats directly from bank, so we don't withdraw anything
         return true;
     }
-    
-    calculateFoodNeeded() {
-        // For now, simple calculation - bring as much as possible
-        // Later we can make this smarter based on monster difficulty
-        return 28; // Full inventory
-    }
-    
-    withdrawFood(amount) {
-        // Find all food in bank and withdraw best ones
-        const foods = [];
+
+    countFoodInBank() {
+        // Count total food items in bank
+        let totalFood = 0;
         const items = loadingManager.getData('items');
         
         for (const [itemId, quantity] of Object.entries(bank.items)) {
             const itemData = items[itemId];
             if (itemData && itemData.category === 'food' && itemData.healAmount) {
-                foods.push({
-                    itemId: itemId,
-                    healAmount: itemData.healAmount,
-                    quantity: quantity
-                });
+                totalFood += quantity;
             }
         }
         
-        // Sort by heal amount (highest first for efficiency)
-        foods.sort((a, b) => b.healAmount - a.healAmount);
-        
-        let withdrawn = 0;
-        for (const food of foods) {
-            if (withdrawn >= amount) break;
-            
-            const toWithdraw = Math.min(food.quantity, amount - withdrawn);
-            const actualWithdrawn = bank.withdraw(food.itemId, toWithdraw);
-            
-            if (actualWithdrawn > 0) {
-                inventory.addItem(food.itemId, actualWithdrawn);
-                withdrawn += actualWithdrawn;
-                console.log(`Withdrew ${actualWithdrawn} ${food.itemId}`);
-            }
-        }
-        
-        return withdrawn;
+        return totalFood;
     }
     
     // ==================== CORE BEHAVIOR ====================
