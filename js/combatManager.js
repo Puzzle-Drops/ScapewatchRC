@@ -951,14 +951,14 @@ class CombatManager {
     
     // Animation methods
     animateAttack(panel, type) {
-        if (!panel) return;
-        
-        const imageSection = panel.querySelector('.combat-image-section');
-        imageSection.classList.add('combat-attack-animation');
-        setTimeout(() => {
-            imageSection.classList.remove('combat-attack-animation');
-        }, 300);
-    }
+    if (!panel) return;
+    
+    const characterImage = panel.querySelector('.combat-character-image');
+    characterImage.classList.add('combat-attack-animation');
+    setTimeout(() => {
+        characterImage.classList.remove('combat-attack-animation');
+    }, 300);
+}
     
     animateEating(panel, foodId) {
         if (!panel) return;
