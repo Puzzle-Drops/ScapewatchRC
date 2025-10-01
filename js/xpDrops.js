@@ -86,6 +86,86 @@ textElement.textContent = `+${formatNumber(roundedAmount)}`;
         // Clean up old drops from tracking array
         this.cleanupOldDrops();
     }
+
+    addCombinedDrop(xpGains) {
+        // Define skill display order (left to right)
+        const skillOrder = ['hitpoints', 'attack', 'strength', 'defence', 'ranged', 'magic', 'prayer', 'slayer'];
+        
+        // Sort XP gains by priority
+        const sortedGains = [];
+        for (const skill of skillOrder) {
+            if (xpGains[skill]) {
+                sortedGains.push({ skillId: skill, amount: xpGains[skill] });
+            }
+        }
+        
+        // Add any skills not in priority order at the end
+        for (const [skillId, amount] of Object.entries(xpGains)) {
+            if (!skillOrder.includes(skillId)) {
+                sortedGains.push({ skillId, amount });
+            }
+        }
+        
+        // Don't show drops for 0 total XP
+        if (sortedGains.length === 0) return;
+        
+        // Create combined drop element
+        const drop = document.createElement('div');
+        drop.className = 'xp-drop xp-drop-combined';
+        drop.id = `xp-drop-${this.dropId++}`;
+        
+        // Create container for all skill+xp pairs
+        const dropContent = document.createElement('div');
+        dropContent.className = 'xp-drop-content';
+        
+        for (const gain of sortedGains) {
+            // Create skill+xp pair
+            const skillPair = document.createElement('span');
+            skillPair.className = 'xp-drop-pair';
+            
+            // Add icon
+            const iconElement = document.createElement('img');
+            const skillIcon = loadingManager.getImage(`skill_${gain.skillId}`);
+            if (skillIcon) {
+                iconElement.src = skillIcon.src;
+                iconElement.className = 'xp-drop-icon-small';
+            } else {
+                iconElement.style.display = 'none';
+            }
+            
+            // Add XP text
+            const textElement = document.createElement('span');
+            textElement.className = 'xp-drop-text-small';
+            const roundedAmount = Math.round(gain.amount * 10) / 10;
+            textElement.textContent = `+${formatNumber(roundedAmount)}`;
+            
+            skillPair.appendChild(iconElement);
+            skillPair.appendChild(textElement);
+            dropContent.appendChild(skillPair);
+        }
+        
+        drop.appendChild(dropContent);
+        
+        // Add to container
+        this.container.appendChild(drop);
+        
+        // Remove after animation completes (1.8s)
+        setTimeout(() => {
+            if (drop.parentNode) {
+                drop.parentNode.removeChild(drop);
+            }
+        }, 1800);
+        
+        // Track drop
+        this.drops.push({
+            id: drop.id,
+            element: drop,
+            timestamp: Date.now()
+        });
+        
+        // Clean up old drops from tracking array
+        this.cleanupOldDrops();
+    }
     
     // Check for XP milestones
     checkXPMilestones(skillId, newXP) {
