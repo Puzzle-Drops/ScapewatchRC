@@ -4828,18 +4828,18 @@ span.control-emoji {
 
 /* ==================== COMBAT ANIMATIONS ==================== */
 
-/* Attack Animation - Lunge */
-.combat-attack-animation {
+/* Attack Animation - Applied to character image only */
+.combat-character-image.combat-attack-animation {
     animation: combatLunge 0.3s ease-out;
 }
 
-/* Player attacks to the right */
-.combat-panel-player .combat-attack-animation {
+/* Player image attacks to the right */
+.combat-panel-player .combat-character-image.combat-attack-animation {
     animation: combatLungeRight 0.3s ease-out;
 }
 
-/* Monster attacks to the left */
-.combat-panel-monster .combat-attack-animation {
+/* Monster image attacks to the left */
+.combat-panel-monster .combat-character-image.combat-attack-animation {
     animation: combatLungeLeft 0.3s ease-out;
 }
 
