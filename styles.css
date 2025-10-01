@@ -4583,7 +4583,7 @@ span.control-emoji {
 .combat-panel {
     position: absolute;
     width: 500px;
-    height: 640px;
+    height: 1040px;
     background: rgba(0, 0, 0, 0.9);
     border: 2px solid #444;
     border-radius: 8px;
