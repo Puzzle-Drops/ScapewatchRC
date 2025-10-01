@@ -1722,7 +1722,18 @@ const weightDown = this.createControlButton('-', () => {
             const canDoActivity = currentLevel >= activityRequiredLevel;
             
             // Map activity to task itemIds based on skill type
-            if (this.currentSkillId === 'fletching') {
+            if (this.currentSkillId === 'attack' || 
+                this.currentSkillId === 'strength' || 
+                this.currentSkillId === 'defence' || 
+                this.currentSkillId === 'ranged' || 
+                this.currentSkillId === 'magic') {
+                // For combat skills, check if this activity has a monster
+                if (activity.monsterName) {
+                    // Use monster name as the task identifier
+                    const canDoMonster = currentLevel >= activityRequiredLevel;
+                    possibleTaskIds.set(activity.monsterName, canDoMonster);
+                }
+            } else if (this.currentSkillId === 'fletching') {
                 // For fletching, ALL tasks work at ALL bank nodes
                 // BUT each task has its own level requirement
                 const skill = window.skillRegistry ? skillRegistry.getSkill('fletching') : null;
@@ -2014,7 +2025,19 @@ const weightDown = this.createControlButton('-', () => {
                 // Check if this activity can produce the task item
                 let canProduce = false;
                 
-                if (this.currentSkillId === 'fletching') {
+// Check if this activity can produce the task item
+                let canProduce = false;
+                
+                if (this.currentSkillId === 'attack' || 
+                    this.currentSkillId === 'strength' || 
+                    this.currentSkillId === 'defence' || 
+                    this.currentSkillId === 'ranged' || 
+                    this.currentSkillId === 'magic') {
+                    // For combat skills, check if this activity's monster matches the task
+                    if (activity.monsterName === taskItemId) {
+                        canProduce = true;
+                    }
+                } else if (this.currentSkillId === 'fletching') {
                     // For fletching, ALL tasks can be done at ALL bank nodes
                     if (node.type === 'bank') {
                         canProduce = true;
