@@ -1,0 +1,284 @@
+class CombatSkill extends BaseSkill {
+    constructor(id, name) {
+        super(id, name);
+        this.requiresBankingBeforeTask = true; // Combat always needs pre-banking for food
+    }
+    
+    // ==================== TASK GENERATION ====================
+    
+    getTaskVerb() {
+        return 'Kill';
+    }
+    
+    generateTask() {
+        // Get all available monsters for this combat skill at current level
+        const availableMonsters = this.getAvailableMonsters();
+        if (availableMonsters.length === 0) {
+            console.log(`No monsters available for ${this.name} at current level`);
+            return null;
+        }
+        
+        // Select a monster using weighted distribution
+        const selectedMonster = this.selectWeightedMonster(availableMonsters);
+        if (!selectedMonster) {
+            console.log(`Failed to select monster for ${this.name}`);
+            return null;
+        }
+        
+        // Find viable nodes for this monster
+        const viableNodes = this.findViableNodesForMonster(selectedMonster.activityId);
+        if (viableNodes.length === 0) {
+            console.log(`No viable nodes found for monster ${selectedMonster.monsterName}`);
+            return null;
+        }
+        
+        // Select a node using weighted distribution
+        const selectedNode = this.selectWeightedNode(viableNodes);
+        
+        // Determine kill count (base 10-30 modified by RuneCred)
+        const killCount = this.determineKillCount(selectedMonster.monsterName);
+        
+        // Get node data for description
+        const nodeData = nodes.getNode(selectedNode.nodeId);
+        
+        return {
+            skill: this.id,
+            monsterName: selectedMonster.monsterName,
+            targetCount: killCount,
+            nodeId: selectedNode.nodeId,
+            activityId: selectedNode.activityId,
+            combatStyle: 'melee',
+            killsCompleted: 0,
+            isCombatTask: true,
+            description: `Kill ${killCount} ${selectedMonster.monsterName}s with Melee at ${nodeData.name}`,
+            startingCount: 0,
+            progress: 0
+        };
+    }
+    
+    getAvailableMonsters() {
+        const monsters = [];
+        const activities = loadingManager.getData('activities');
+        const currentLevel = skills.getLevel(this.id);
+        
+        // Also need to check slayer level for some monsters
+        const slayerLevel = skills.getLevel('slayer');
+        
+        // Track unique monsters (since each has 3 activity variants)
+        const uniqueMonsters = new Map();
+        
+        for (const [activityId, activity] of Object.entries(activities)) {
+            // Only look at activities for this specific skill
+            if (activity.skill !== this.id) continue;
+            
+            // Must be a monster activity (has monsterName)
+            if (!activity.monsterName) continue;
+            
+            // Check level requirements
+            const requiredLevel = activity.requiredLevel || 1;
+            if (currentLevel < requiredLevel) continue;
+            
+            const requiredSlayerLevel = activity.requiredSlayerLevel || 1;
+            if (slayerLevel < requiredSlayerLevel) continue;
+            
+            // Add to unique monsters map
+            if (!uniqueMonsters.has(activity.monsterName)) {
+                uniqueMonsters.set(activity.monsterName, {
+                    monsterName: activity.monsterName,
+                    activityId: activityId,
+                    requiredLevel: requiredLevel,
+                    requiredSlayerLevel: requiredSlayerLevel,
+                    hitpoints: activity.hitpoints
+                });
+            }
+        }
+        
+        return Array.from(uniqueMonsters.values());
+    }
+    
+    selectWeightedMonster(monsters) {
+        if (monsters.length === 0) return null;
+        
+        // Use RuneCred weights if available
+        if (window.runeCreditManager) {
+            const weightedMonsters = [];
+            let totalWeight = 0;
+            
+            for (const monster of monsters) {
+                // Use monster name as the "item" for weight lookup
+                const weight = runeCreditManager.getTaskWeight(this.id, monster.monsterName);
+                totalWeight += weight;
+                weightedMonsters.push({ monster, weight: totalWeight });
+            }
+            
+            const random = Math.random() * totalWeight;
+            for (const weighted of weightedMonsters) {
+                if (random < weighted.weight) {
+                    return weighted.monster;
+                }
+            }
+            
+            return monsters[0]; // Fallback
+        }
+        
+        // Default: equal weights
+        return monsters[Math.floor(Math.random() * monsters.length)];
+    }
+    
+    findViableNodesForMonster(activityId) {
+        const viableNodes = [];
+        const allNodes = nodes.getAllNodes();
+        
+        for (const [nodeId, node] of Object.entries(allNodes)) {
+            if (!node.activities) continue;
+            
+            // Check if node has this activity
+            if (node.activities.includes(activityId)) {
+                viableNodes.push({
+                    nodeId: nodeId,
+                    activityId: activityId
+                });
+            }
+        }
+        
+        return viableNodes;
+    }
+    
+    determineKillCount(monsterName) {
+        let minCount = 10;
+        let maxCount = 30;
+        
+        // Apply RuneCred quantity modifier
+        if (window.runeCreditManager) {
+            const modifier = runeCreditManager.getQuantityModifier(this.id, monsterName);
+            minCount = Math.round(minCount * modifier);
+            maxCount = Math.round(maxCount * modifier);
+        }
+        
+        // Clamp and ensure valid range
+        minCount = Math.max(1, minCount);
+        maxCount = Math.max(minCount, maxCount);
+        
+        // Random between min and max
+        const range = maxCount - minCount;
+        const count = minCount + Math.round(Math.random() * range);
+        
+        return count;
+    }
+    
+    // ==================== BANKING ====================
+    
+    needsBankingForTask(task) {
+        // Combat always needs banking before starting to:
+        // 1. Deposit all items
+        // 2. Update equipment
+        // 3. Withdraw food
+        return true;
+    }
+    
+    handleBanking(task) {
+        // Deposit all items first
+        const deposited = bank.depositAll();
+        console.log(`Deposited ${deposited} items before combat`);
+        
+        // Equipment is auto-updated by depositAll() now
+        
+        // Calculate how much food we need
+        const foodNeeded = this.calculateFoodNeeded();
+        
+        // Withdraw food from bank
+        const foodWithdrawn = this.withdrawFood(foodNeeded);
+        
+        if (foodWithdrawn < foodNeeded) {
+            console.log(`Only withdrew ${foodWithdrawn} food, needed ${foodNeeded}`);
+            // Could still continue with less food
+        }
+        
+        return true;
+    }
+    
+    calculateFoodNeeded() {
+        // For now, simple calculation - bring as much as possible
+        // Later we can make this smarter based on monster difficulty
+        return 28; // Full inventory
+    }
+    
+    withdrawFood(amount) {
+        // Find all food in bank and withdraw best ones
+        const foods = [];
+        const items = loadingManager.getData('items');
+        
+        for (const [itemId, quantity] of Object.entries(bank.items)) {
+            const itemData = items[itemId];
+            if (itemData && itemData.category === 'food' && itemData.healAmount) {
+                foods.push({
+                    itemId: itemId,
+                    healAmount: itemData.healAmount,
+                    quantity: quantity
+                });
+            }
+        }
+        
+        // Sort by heal amount (highest first for efficiency)
+        foods.sort((a, b) => b.healAmount - a.healAmount);
+        
+        let withdrawn = 0;
+        for (const food of foods) {
+            if (withdrawn >= amount) break;
+            
+            const toWithdraw = Math.min(food.quantity, amount - withdrawn);
+            const actualWithdrawn = bank.withdraw(food.itemId, toWithdraw);
+            
+            if (actualWithdrawn > 0) {
+                inventory.addItem(food.itemId, actualWithdrawn);
+                withdrawn += actualWithdrawn;
+                console.log(`Withdrew ${actualWithdrawn} ${food.itemId}`);
+            }
+        }
+        
+        return withdrawn;
+    }
+    
+    // ==================== CORE BEHAVIOR ====================
+    
+    getDuration(baseDuration, level, activityData) {
+        // Combat has fixed 2.4 second rounds
+        let duration = 2400; // 2.4 seconds in milliseconds
+        
+        // Apply speed bonus from RuneCred system
+        if (window.runeCreditManager) {
+            const speedBonus = runeCreditManager.getSkillSpeedBonus(this.id);
+            duration = duration / (1 + speedBonus);
+        }
+        
+        return duration;
+    }
+    
+    processRewards(activityData, level) {
+        // Combat rewards are handled by CombatManager after kills
+        // This shouldn't be called directly
+        return [];
+    }
+    
+    shouldGrantXP(rewards, activityData) {
+        // XP is granted per damage in combat, not per action
+        return false;
+    }
+    
+    canPerformActivity(activityId) {
+        const activityData = loadingManager.getData('activities')[activityId];
+        if (!activityData) return false;
+        
+        const requiredLevel = activityData.requiredLevel || 1;
+        const currentLevel = skills.getLevel(this.id);
+        
+        // Check slayer requirement too
+        const requiredSlayerLevel = activityData.requiredSlayerLevel || 1;
+        const slayerLevel = skills.getLevel('slayer');
+        
+        return currentLevel >= requiredLevel && slayerLevel >= requiredSlayerLevel;
+    }
+}
+
+// Make CombatSkill available globally
+window.CombatSkill = CombatSkill;
