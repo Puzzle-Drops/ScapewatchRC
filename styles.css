@@ -4826,11 +4826,6 @@ span.control-emoji {
     100% { border-color: #444; }
 }
 
-/* Hide prayer section for monsters */
-.combat-panel-monster .combat-prayer-section {
-    display: none !important;
-}
-
 /* ==================== COMBAT ANIMATIONS ==================== */
 
 /* Attack Animation - Lunge */
