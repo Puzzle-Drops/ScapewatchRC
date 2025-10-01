@@ -22,6 +22,13 @@ syncAfterLoad() {
         this.currentTask = taskManager.currentTask;
         console.log(`AI resumed task: ${this.currentTask.description}`);
         console.log(`Banking flag preserved: ${this.hasBankedForCurrentTask}`);
+
+        // Check if we're resuming a combat task
+        if (this.currentTask.isCombatTask && window.player && player.combatManager && player.combatManager.inCombat) {
+            console.log(`Resuming combat task: ${this.currentTask.killsCompleted}/${this.currentTask.targetCount} kills`);
+            // Sync the combat manager's task reference
+            player.combatManager.currentTask = this.currentTask;
+        }
         
         // Verify we're on the right path
         if (player.isMoving() && player.targetNode) {
