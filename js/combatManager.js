@@ -833,9 +833,6 @@ class CombatManager {
         this.monsterPanel.querySelector('.combat-prayer-text').textContent = 
             `${this.monsterPrayerPoints}/${this.monsterMaxPrayer} Prayer`;
         
-        // Always show prayer section (even if 0/0)
-        this.monsterPanel.querySelector('.combat-prayer-section').style.display = '';
-        
         // Update monster stats
         this.monsterPanel.querySelector('[data-stat="hitpoints"]').textContent = this.currentMonster.maxHp;
         this.monsterPanel.querySelector('[data-stat="prayer"]').textContent = this.currentMonster.prayer || 0;
