@@ -25,6 +25,9 @@ class UIManager {
         // Set up modal close buttons
         this.setupModalButtons();
 
+        // Initialize equipment system
+        this.initializeEquipment();
+
         // Initialize pet notification container
         this.initializePetNotifications();
         
@@ -2143,19 +2146,29 @@ slotDiv.appendChild(imgElement);
     }
     
     setupEquipmentTabs() {
-    const tabs = document.querySelectorAll('.equipment-tab');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
+    // Use event delegation on the parent container for better reliability
+    const tabContainer = document.querySelector('.equipment-tabs');
+    if (tabContainer) {
+        tabContainer.addEventListener('click', (e) => {
+            const tab = e.target.closest('.equipment-tab');
+            if (!tab) return;
+            
+            // Prevent any default behavior
+            e.preventDefault();
+            e.stopPropagation();
+            
             // Update active tab
+            const tabs = document.querySelectorAll('.equipment-tab');
             tabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             
-            // Just update the display for selected style
-            // No need to scan - equipment data already exists
+            // Get the style and update display
             const style = tab.dataset.style;
-            this.displayEquipmentForStyle(style);
+            if (style) {
+                this.displayEquipmentForStyle(style);
+            }
         });
-    });
+    }
 }
     
     updateEquipment() {
