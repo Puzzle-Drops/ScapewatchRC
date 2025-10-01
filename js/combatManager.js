@@ -4,6 +4,8 @@ class CombatManager {
         this.currentMonster = null;
         this.monsterHp = 0;
         this.monsterMaxHp = 0;
+        this.monsterPrayerPoints = 0;
+        this.monsterMaxPrayer = 0;
         this.playerHp = 0;
         this.playerMaxHp = 0;
         this.prayerPoints = 0;
@@ -119,12 +121,17 @@ class CombatManager {
             strength: activityData.strength || 1,
             defence: activityData.defence || 1,
             maxHp: activityData.hitpoints || 10,
+            prayer: activityData.prayer || 0,  // Add prayer stat (default 0)
             dropTable: activityData.dropTable || [],
             xpRewards: activityData.xpPerKill || {}
         };
         
         this.monsterHp = this.currentMonster.maxHp;
         this.monsterMaxHp = this.currentMonster.maxHp;
+        
+        // Set up monster prayer
+        this.monsterMaxPrayer = this.currentMonster.prayer || 0;
+        this.monsterPrayerPoints = this.monsterMaxPrayer;
         
         // Set up player
         this.playerMaxHp = skills.getLevel('hitpoints');
@@ -203,22 +210,20 @@ class CombatManager {
                 break;
                 
             case 'monster_attack':
-    // Check for player death
-    if (this.playerHp <= 0) {
-        this.handlePlayerDeath();
-        return;
-    }
-    
-    // Determine if we should eat
-    this.checkShouldEat();
-    
-    // ALWAYS go to eat phase (even if not eating, for timing)
-    this.combatPhase = 'eat_food';
-    break;
+                // Check for player death
+                if (this.playerHp <= 0) {
+                    this.handlePlayerDeath();
+                    return;
+                }
+                
+                // Determine if we should eat
+                this.checkShouldEat();
+                
+                // ALWAYS go to eat phase (even if not eating, for timing)
+                this.combatPhase = 'eat_food';
+                break;
                 
             case 'eat_food':
-                // Drain prayer after eating
-                this.drainPrayer();
                 // Flush XP batch
                 this.flushXpBatch();
                 // Back to player attack
@@ -286,6 +291,11 @@ class CombatManager {
             // Show miss hitsplat
             this.showHitsplat(this.monsterPanel, 0);
         }
+        
+        // Drain player prayer after attack
+        if (this.prayerPoints > 0) {
+            this.prayerPoints--;
+        }
     }
     
     // Execute monster attack
@@ -302,12 +312,22 @@ class CombatManager {
             defenceLevel = Math.floor(defenceLevel * 1.5);
         }
         
+        // Get monster's attack level (with prayer bonus if active)
+        let monsterAttack = this.currentMonster.attack;
+        let monsterStrength = this.currentMonster.strength;
+        
+        // Apply monster prayer bonus if active
+        if (this.monsterPrayerPoints > 0) {
+            monsterAttack = Math.floor(monsterAttack * 1.5);
+            monsterStrength = Math.floor(monsterStrength * 1.5);
+        }
+        
         // Calculate monster hit chance
-        const hitChance = (this.currentMonster.attack + 8) / (2 * (defenceLevel + defenceBonus + 8));
+        const hitChance = (monsterAttack + 8) / (2 * (defenceLevel + defenceBonus + 8));
         
         if (Math.random() < Math.max(0.05, Math.min(0.95, hitChance))) {
             // Monster hits
-            const maxHit = Math.ceil((this.currentMonster.strength + 1) / 2);
+            const maxHit = Math.ceil((monsterStrength + 1) / 2);
             const damage = Math.floor(Math.random() * (maxHit + 1));
             
             this.playerHp -= damage;
@@ -322,6 +342,11 @@ class CombatManager {
             console.log('Monster misses');
             // Show miss hitsplat
             this.showHitsplat(this.playerPanel, 0);
+        }
+        
+        // Drain monster prayer after attack
+        if (this.monsterPrayerPoints > 0) {
+            this.monsterPrayerPoints--;
         }
     }
     
@@ -365,31 +390,24 @@ class CombatManager {
     }
     
     executeEatFood() {
-    // Only eat if we have food to eat
-    if (this.foodToEat) {
-        // Animate eating
-        this.animateEating(this.playerPanel, this.foodToEat.itemId);
-        
-        // Consume food from bank
-        bank.withdraw(this.foodToEat.itemId, 1);
-        this.playerHp = Math.min(this.playerMaxHp, this.playerHp + this.foodToEat.healAmount);
-        console.log(`Ate ${this.foodToEat.itemId} from bank, healed ${this.foodToEat.healAmount} HP`);
-        
-        // Show heal splat
-        this.showHealSplat(this.playerPanel, this.foodToEat.healAmount);
-        
-        // Reset
-        this.shouldEatThisRound = false;
-        this.foodToEat = null;
-    }
-    // Even if not eating, this phase takes 1.2s for consistent timing
-}
-    
-    // Drain prayer
-    drainPrayer() {
-        if (this.prayerPoints > 0) {
-            this.prayerPoints--;
+        // Only eat if we have food to eat
+        if (this.foodToEat) {
+            // Animate eating
+            this.animateEating(this.playerPanel, this.foodToEat.itemId);
+            
+            // Consume food from bank
+            bank.withdraw(this.foodToEat.itemId, 1);
+            this.playerHp = Math.min(this.playerMaxHp, this.playerHp + this.foodToEat.healAmount);
+            console.log(`Ate ${this.foodToEat.itemId} from bank, healed ${this.foodToEat.healAmount} HP`);
+            
+            // Show heal splat
+            this.showHealSplat(this.playerPanel, this.foodToEat.healAmount);
+            
+            // Reset
+            this.shouldEatThisRound = false;
+            this.foodToEat = null;
         }
+        // Even if not eating, this phase takes 1.2s for consistent timing
     }
     
     // Handle monster death
@@ -452,6 +470,7 @@ class CombatManager {
         
         // Respawn monster
         this.monsterHp = this.monsterMaxHp;
+        this.monsterPrayerPoints = this.monsterMaxPrayer; // Reset monster prayer
         
         // Reset combat phase
         this.combatPhase = 'player_attack';
@@ -553,6 +572,26 @@ class CombatManager {
             combatStyle: this.combatStyle,
             killsThisTrip: this.killsThisTrip
         };
+    }
+    
+    // Calculate monster combat level using same formula as player
+    calculateMonsterCombatLevel() {
+        if (!this.currentMonster) return 1;
+        
+        const attack = this.currentMonster.attack || 1;
+        const strength = this.currentMonster.strength || 1;
+        const defence = this.currentMonster.defence || 1;
+        const hitpoints = this.currentMonster.maxHp || 10;
+        const prayer = this.currentMonster.prayer || 0;
+        
+        // Using the same formula as player combat level calculation
+        const base = 0.25 * (defence + hitpoints + Math.floor(prayer / 2));
+        const melee = 0.325 * (attack + strength);
+        // Monsters typically don't have ranged/magic, but if they did:
+        // const range = 0.325 * (Math.floor(ranged * 1.5));
+        // const mage = 0.325 * (Math.floor(magic * 1.5));
+        
+        return Math.floor(base + melee);
     }
     
     // ==================== COMBAT UI METHODS ====================
@@ -771,13 +810,10 @@ class CombatManager {
         // Update image
         const img = this.monsterPanel.querySelector('.combat-character-image');
         img.src = `assets/combat/${this.currentMonster.name}.png`;
-
-        //console.log("img name!!!");
-        //console.log(this.currentMonster.name);
         
-        // Update name and "combat level" (use max HP as proxy)
+        // Update name and combat level (using proper formula)
         const monsterName = this.currentMonster.name.charAt(0).toUpperCase() + this.currentMonster.name.slice(1);
-        const monsterCombatLevel = Math.floor(Math.sqrt(this.currentMonster.maxHp) * 5); // Rough estimate
+        const monsterCombatLevel = this.calculateMonsterCombatLevel();
         
         this.monsterPanel.querySelector('.combat-name').textContent = monsterName;
         this.monsterPanel.querySelector('.combat-level').textContent = `Combat Level: ${monsterCombatLevel}`;
@@ -789,15 +825,42 @@ class CombatManager {
         hpFill.style.background = 'linear-gradient(90deg, #c0392b, #e74c3c)';
         this.monsterPanel.querySelector('.combat-hp-text').textContent = `${this.monsterHp}/${this.monsterMaxHp} HP`;
         
-        // Hide prayer bar for monster
-        this.monsterPanel.querySelector('.combat-prayer-section').style.display = 'none';
+        // Update Prayer bar for monster
+        const monsterPrayerPercent = this.monsterMaxPrayer > 0 ? 
+            (this.monsterPrayerPoints / this.monsterMaxPrayer) * 100 : 0;
+        const monsterPrayerFill = this.monsterPanel.querySelector('.combat-prayer-fill');
+        monsterPrayerFill.style.width = `${monsterPrayerPercent}%`;
+        this.monsterPanel.querySelector('.combat-prayer-text').textContent = 
+            `${this.monsterPrayerPoints}/${this.monsterMaxPrayer} Prayer`;
+        
+        // Only hide prayer section if monster has no prayer
+        if (this.monsterMaxPrayer === 0) {
+            this.monsterPanel.querySelector('.combat-prayer-section').style.display = 'none';
+        } else {
+            this.monsterPanel.querySelector('.combat-prayer-section').style.display = '';
+        }
         
         // Update monster stats
         this.monsterPanel.querySelector('[data-stat="hitpoints"]').textContent = this.currentMonster.maxHp;
-        this.monsterPanel.querySelector('[data-stat="prayer"]').textContent = '0';
-        this.monsterPanel.querySelector('[data-stat="attack"]').textContent = this.currentMonster.attack;
-        this.monsterPanel.querySelector('[data-stat="strength"]').textContent = this.currentMonster.strength;
-        this.monsterPanel.querySelector('[data-stat="defence"]').textContent = this.currentMonster.defence;
+        this.monsterPanel.querySelector('[data-stat="prayer"]').textContent = this.currentMonster.prayer || 0;
+        
+        // Apply prayer boost visual to monster stats if prayer is active
+        const monsterStatElements = ['attack', 'strength', 'defence'];
+        monsterStatElements.forEach(stat => {
+            const statElement = this.monsterPanel.querySelector(`[data-stat="${stat}"]`);
+            if (statElement) {
+                let level = this.currentMonster[stat] || 1;
+                if (this.monsterPrayerPoints > 0) {
+                    level = Math.floor(level * 1.5);
+                    statElement.classList.add('prayer-boosted');
+                } else {
+                    statElement.classList.remove('prayer-boosted');
+                }
+                statElement.textContent = level;
+            }
+        });
+        
+        // Update non-combat stats
         this.monsterPanel.querySelector('[data-stat="magic"]').textContent = '1';
         this.monsterPanel.querySelector('[data-stat="ranged"]').textContent = '1';
         this.monsterPanel.querySelector('[data-stat="slayer"]').textContent = '1';
@@ -807,8 +870,12 @@ class CombatManager {
         this.monsterPanel.querySelector('.gear-ranged .gear-value').textContent = '+0';
         this.monsterPanel.querySelector('.gear-magic .gear-value').textContent = '+0';
         
-        // Calculate monster max hit
-        const monsterMaxHit = Math.ceil((this.currentMonster.strength + 1) / 2);
+        // Calculate monster max hit (with prayer bonus if active)
+        let monsterStrength = this.currentMonster.strength;
+        if (this.monsterPrayerPoints > 0) {
+            monsterStrength = Math.floor(monsterStrength * 1.5);
+        }
+        const monsterMaxHit = Math.ceil((monsterStrength + 1) / 2);
         this.monsterPanel.querySelector('.max-hit-value').textContent = monsterMaxHit;
         
         // Calculate monster accuracy vs player
@@ -867,12 +934,18 @@ class CombatManager {
         let defenceLevel = skills.getLevel('defence');
         const defenceBonus = window.gearScores ? window.gearScores[this.combatStyle] : 0;
         
-        // Apply prayer bonus
+        // Apply prayer bonus to player defence
         if (this.prayerPoints > 0) {
             defenceLevel = Math.floor(defenceLevel * 1.5);
         }
         
-        const hitChance = (this.currentMonster.attack + 8) / (2 * (defenceLevel + defenceBonus + 8));
+        // Get monster attack (with prayer bonus if active)
+        let monsterAttack = this.currentMonster.attack;
+        if (this.monsterPrayerPoints > 0) {
+            monsterAttack = Math.floor(monsterAttack * 1.5);
+        }
+        
+        const hitChance = (monsterAttack + 8) / (2 * (defenceLevel + defenceBonus + 8));
         return Math.max(0.05, Math.min(0.95, hitChance));
     }
     
