@@ -676,6 +676,11 @@ class FirebaseManager {
 
     // Logout
     async logout() {
+        // Clean up any active combat UI before logout
+        if (window.player && player.combatManager && player.combatManager.uiCreated) {
+            player.combatManager.removeCombatUI();
+        }
+        
         // Ensure tasks are fully populated, then save and update hi-scores
         if (!this.isOfflineMode) {
             // Ensure task queue is complete before saving
@@ -765,6 +770,46 @@ class FirebaseManager {
             }
         }
         
+        // Prepare combat data if in combat
+        let combatData = null;
+        if (window.player && player.combatManager && player.combatManager.inCombat) {
+            const cm = player.combatManager;
+            
+            // Flush any pending XP before saving
+            if (cm.xpBatch && Object.keys(cm.xpBatch).length > 0) {
+                cm.flushXpBatch();
+            }
+            
+            combatData = {
+                inCombat: true,
+                currentActivity: player.currentActivity, // Store the activity ID that started combat
+                monsterHp: cm.monsterHp,
+                monsterMaxHp: cm.monsterMaxHp,
+                monsterPrayerPoints: cm.monsterPrayerPoints,
+                monsterMaxPrayer: cm.monsterMaxPrayer,
+                playerHp: cm.playerHp,
+                playerMaxHp: cm.playerMaxHp,
+                prayerPoints: cm.prayerPoints,
+                maxPrayer: cm.maxPrayer,
+                combatStyle: cm.combatStyle,
+                killsThisTrip: cm.killsThisTrip,
+                combatPhase: cm.combatPhase,
+                phaseTimer: cm.phaseTimer,
+                
+                // Store death animation state
+                monsterDying: cm.monsterDying,
+                playerDying: cm.playerDying,
+                deathAnimationTimer: cm.deathAnimationTimer,
+                
+                // Store the current combat task if any
+                currentTask: cm.currentTask ? {
+                    ...cm.currentTask,
+                    // Make sure to include killsCompleted for combat tasks
+                    killsCompleted: cm.currentTask.killsCompleted || 0
+                } : null
+            };
+        }
+        
         const saveData = {
             // Player data
             player: {
@@ -779,6 +824,9 @@ class FirebaseManager {
                 activityProgress: player.activityProgress,
                 activityStartTime: player.activityStartTime
             },
+            
+            // Combat data (new)
+            combat: combatData,
             
             // AI state
             ai: {
@@ -800,9 +848,22 @@ class FirebaseManager {
             
             // Task system - now with limited completed tasks but preserved total count
             tasks: {
-                current: taskManager.currentTask,
-                next: taskManager.nextTask,
-                queue: taskManager.tasks,
+                current: taskManager.currentTask ? {
+                    ...taskManager.currentTask,
+                    // Ensure combat task fields are preserved
+                    killsCompleted: taskManager.currentTask.killsCompleted || 0
+                } : null,
+                next: taskManager.nextTask ? {
+                    ...taskManager.nextTask,
+                    killsCompleted: taskManager.nextTask.killsCompleted || 0
+                } : null,
+                queue: taskManager.tasks.map(slot => ({
+                    ...slot,
+                    options: slot.options.map(opt => ({
+                        ...opt,
+                        killsCompleted: opt.killsCompleted || 0
+                    }))
+                })),
                 completed: recentCompletedTasks, // Only the most recent 10
                 // CRITICAL: This tracks the TRUE total number of tasks completed
                 // Used to maintain accurate task numbering even when we only save 10
@@ -1053,6 +1114,11 @@ class FirebaseManager {
             }
         }
         
+        // Preserve combat task fields
+        if (task.isCombatTask && task.killsCompleted === undefined) {
+            task.killsCompleted = 0;
+        }
+        
         return true;
     }
 
@@ -1171,8 +1237,89 @@ class FirebaseManager {
             if (saveData.ai.failedNodes) {
                 ai.failedNodes = new Set(saveData.ai.failedNodes);
             }
-            // Sync AI state after loading
-            ai.syncAfterLoad();
+            
+            // Don't sync AI immediately if we're loading combat
+            if (!saveData.combat || !saveData.combat.inCombat) {
+                // Sync AI state after loading
+                ai.syncAfterLoad();
+            }
+        }
+        
+        // Load combat state (NEW)
+        if (saveData.combat && saveData.combat.inCombat && window.player) {
+            console.log('Restoring combat state from save...');
+            
+            // Ensure player has a combat manager
+            if (!player.combatManager) {
+                player.combatManager = new CombatManager();
+            }
+            
+            const cm = player.combatManager;
+            const combatData = saveData.combat;
+            
+            // Restore the activity ID (this is what triggered the combat)
+            const activityId = combatData.currentActivity;
+            const activityData = loadingManager.getData('activities')[activityId];
+            
+            if (activityData && activityData.monsterName) {
+                // Set up the monster
+                cm.currentMonster = {
+                    name: activityData.monsterName,
+                    attack: activityData.attack || 1,
+                    strength: activityData.strength || 1,
+                    defence: activityData.defence || 1,
+                    maxHp: activityData.hitpoints || 10,
+                    prayer: activityData.prayer || 0,
+                    dropTable: activityData.dropTable || [],
+                    xpRewards: activityData.xpPerKill || {}
+                };
+                
+                // Restore combat state
+                cm.inCombat = true;
+                cm.monsterHp = combatData.monsterHp;
+                cm.monsterMaxHp = combatData.monsterMaxHp;
+                cm.monsterPrayerPoints = combatData.monsterPrayerPoints;
+                cm.monsterMaxPrayer = combatData.monsterMaxPrayer;
+                cm.playerHp = combatData.playerHp;
+                cm.playerMaxHp = combatData.playerMaxHp;
+                cm.prayerPoints = combatData.prayerPoints;
+                cm.maxPrayer = combatData.maxPrayer;
+                cm.combatStyle = combatData.combatStyle;
+                cm.killsThisTrip = combatData.killsThisTrip || 0;
+                cm.combatPhase = combatData.combatPhase || 'player_attack';
+                cm.phaseTimer = combatData.phaseTimer || 0;
+                
+                // Restore death animation state
+                cm.monsterDying = combatData.monsterDying || false;
+                cm.playerDying = combatData.playerDying || false;
+                cm.deathAnimationTimer = combatData.deathAnimationTimer || 0;
+                
+                // Restore combat task
+                cm.currentTask = combatData.currentTask;
+                
+                // Set player's current activity to the combat activity
+                player.currentActivity = activityId;
+                
+                // Recreate combat UI after a short delay to ensure everything is loaded
+                setTimeout(() => {
+                    cm.createCombatUI();
+                    console.log('Combat UI recreated');
+                    
+                    // NOW sync AI after combat is restored
+                    if (window.ai) {
+                        ai.syncAfterLoad();
+                    }
+                }, 100);
+                
+                console.log(`Combat restored: Fighting ${cm.currentMonster.name} (${cm.monsterHp}/${cm.monsterMaxHp} HP)`);
+            } else {
+                console.error('Failed to restore combat - activity data not found');
+                
+                // Sync AI anyway if combat restore failed
+                if (window.ai) {
+                    ai.syncAfterLoad();
+                }
+            }
         }
 
         // Load skills
