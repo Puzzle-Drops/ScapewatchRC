@@ -16,25 +16,58 @@ class CombatManager {
         // Track current combat task if any
         this.currentTask = null;
         this.killsThisTrip = 0;
+        
+        // XP batching for combined drops
+        this.xpBatch = {};
+    }
+    
+    // Add XP to batch instead of directly to skills
+    batchXp(skillId, amount) {
+        if (!this.xpBatch[skillId]) {
+            this.xpBatch[skillId] = 0;
+        }
+        this.xpBatch[skillId] += amount;
+    }
+    
+    // Send batched XP to skills and create combined drop
+    flushXpBatch() {
+        if (Object.keys(this.xpBatch).length === 0) return;
+        
+        // Award XP to skills (this updates levels but doesn't create drops)
+        const actualGains = {};
+        for (const [skillId, amount] of Object.entries(this.xpBatch)) {
+            const actualGained = skills.addXp(skillId, amount, true); // true = suppress individual drops
+            if (actualGained > 0) {
+                actualGains[skillId] = actualGained;
+            }
+        }
+        
+        // Create combined XP drop
+        if (window.xpDropManager && Object.keys(actualGains).length > 0) {
+            xpDropManager.addCombinedDrop(actualGains);
+        }
+        
+        // Clear batch
+        this.xpBatch = {};
     }
 
     // Get the actual combat round duration with all modifiers applied
-getCombatRoundDuration() {
-    let duration = this.BASE_COMBAT_ROUND_DURATION;
-    
-    // Apply dev console action speed modifier
-    if (window.devConsole && window.devConsole.speedModifiers) {
-        duration = duration * window.devConsole.speedModifiers.actionDuration;
+    getCombatRoundDuration() {
+        let duration = this.BASE_COMBAT_ROUND_DURATION;
+        
+        // Apply dev console action speed modifier
+        if (window.devConsole && window.devConsole.speedModifiers) {
+            duration = duration * window.devConsole.speedModifiers.actionDuration;
+        }
+        
+        // Apply RuneCred speed bonuses based on current task skill
+        if (window.runeCreditManager && this.currentTask && this.currentTask.skill) {
+            const speedBonus = runeCreditManager.getSkillSpeedBonus(this.currentTask.skill);
+            duration = duration / (1 + speedBonus);
+        }
+        
+        return duration;
     }
-    
-    // Apply RuneCred speed bonuses based on current task skill
-    if (window.runeCreditManager && this.currentTask && this.currentTask.skill) {
-        const speedBonus = runeCreditManager.getSkillSpeedBonus(this.currentTask.skill);
-        duration = duration / (1 + speedBonus);
-    }
-    
-    return duration;
-}
     
     // Start combat with a monster
     startCombat(activityId, task = null) {
@@ -83,21 +116,21 @@ getCombatRoundDuration() {
     }
     
     // Update combat (called from Player update loop)
-updateCombat(deltaTime) {
-    if (!this.inCombat) return;
-    
-    // Update combat round timer
-    this.combatRoundTimer += deltaTime;
-    
-    // Get the current round duration with all modifiers
-    const roundDuration = this.getCombatRoundDuration();
-    
-    // Check if it's time for a combat round
-    if (this.combatRoundTimer >= roundDuration) {
-        this.combatRoundTimer = 0;
-        this.processCombatRound();
+    updateCombat(deltaTime) {
+        if (!this.inCombat) return;
+        
+        // Update combat round timer
+        this.combatRoundTimer += deltaTime;
+        
+        // Get the current round duration with all modifiers
+        const roundDuration = this.getCombatRoundDuration();
+        
+        // Check if it's time for a combat round
+        if (this.combatRoundTimer >= roundDuration) {
+            this.combatRoundTimer = 0;
+            this.processCombatRound();
+        }
     }
-}
     
     // Process one round of combat
     processCombatRound() {
@@ -128,6 +161,9 @@ updateCombat(deltaTime) {
         } else if (this.playerHp <= 0) {
             this.handlePlayerDeath();
         }
+        
+        // Flush XP batch to create combined drop
+        this.flushXpBatch();
     }
     
     // Player attacks monster
@@ -168,13 +204,13 @@ updateCombat(deltaTime) {
             this.monsterHp -= damage;
             console.log(`Player hits ${damage} damage (${this.monsterHp}/${this.monsterMaxHp} HP)`);
             
-            // Grant combat XP (4 XP per damage)
+            // Batch combat XP (4 XP per damage)
             if (this.currentTask) {
-                skills.addXp(this.currentTask.skill, damage * 4);
+                this.batchXp(this.currentTask.skill, damage * 4);
             }
             
-            // Grant Hitpoints XP (1.33 XP per damage)
-            skills.addXp('hitpoints', Math.floor(damage * 1.33));
+            // Batch Hitpoints XP (1.33 XP per damage)
+            this.batchXp('hitpoints', Math.floor(damage * 1.33));
         } else {
             console.log('Player misses');
         }
@@ -263,10 +299,10 @@ updateCombat(deltaTime) {
     handleMonsterDeath() {
         console.log(`Defeated ${this.currentMonster.name}!`);
         
-        // Grant kill XP
+        // Batch kill XP
         if (this.currentMonster.xpRewards) {
             for (const [skill, xp] of Object.entries(this.currentMonster.xpRewards)) {
-                skills.addXp(skill, xp);
+                this.batchXp(skill, xp);
             }
         }
         
@@ -300,6 +336,14 @@ updateCombat(deltaTime) {
             
             if (window.taskManager) {
                 taskManager.setTaskProgress(this.currentTask, progress);
+            }
+            
+            // Check if task is complete
+            if (progress >= 1) {
+                console.log('Combat task completed! Restoring HP and Prayer');
+                // Restore full HP and prayer on task completion
+                this.playerHp = this.playerMaxHp;
+                this.prayerPoints = this.maxPrayer;
             }
         }
         
@@ -352,10 +396,13 @@ updateCombat(deltaTime) {
                 player.currentNode = 'lumbridge_bank';
             }
             
-            // Reset HP to full
-            this.playerHp = this.playerMaxHp;
             player.stopActivity();
         }
+        
+        // Reset HP and prayer to full on death
+        this.playerHp = this.playerMaxHp;
+        this.prayerPoints = this.maxPrayer;
+        console.log('HP and Prayer restored to full after death');
         
         // Skip current combat task
         if (window.taskManager && this.currentTask) {
