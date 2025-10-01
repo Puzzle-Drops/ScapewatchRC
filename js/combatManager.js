@@ -9,9 +9,8 @@ class CombatManager {
         this.prayerPoints = 0;
         this.maxPrayer = 0;
         this.combatStyle = 'melee';
-        this.ateThisCycle = false;
         this.combatRoundTimer = 0;
-        this.BASE_COMBAT_ROUND_DURATION = 2400; // 2.4 seconds
+        this.BASE_COMBAT_ROUND_DURATION = 2400; // 2.4 seconds total
         
         // Track current combat task if any
         this.currentTask = null;
@@ -24,6 +23,19 @@ class CombatManager {
         this.playerPanel = null;
         this.monsterPanel = null;
         this.uiCreated = false;
+        
+        // Combat phases
+        this.combatPhase = 'player_attack'; // 'player_attack', 'monster_attack', 'eat_food'
+        this.phaseTimer = 0;
+        this.PHASE_DURATIONS = {
+            player_attack: 600,    // 0.6s
+            monster_attack: 600,   // 0.6s
+            eat_food: 1200        // 1.2s
+        };
+        
+        // Track if we need to eat this round
+        this.shouldEatThisRound = false;
+        this.foodToEat = null;
     }
     
     // Add XP to batch instead of directly to skills
@@ -74,6 +86,24 @@ class CombatManager {
         return duration;
     }
     
+    // Get phase duration with modifiers
+    getPhaseDuration(phase) {
+        let duration = this.PHASE_DURATIONS[phase];
+        
+        // Apply dev console action speed modifier
+        if (window.devConsole && window.devConsole.speedModifiers) {
+            duration = duration * window.devConsole.speedModifiers.actionDuration;
+        }
+        
+        // Apply RuneCred speed bonuses
+        if (window.runeCreditManager && this.currentTask && this.currentTask.skill) {
+            const speedBonus = runeCreditManager.getSkillSpeedBonus(this.currentTask.skill);
+            duration = duration / (1 + speedBonus);
+        }
+        
+        return duration;
+    }
+    
     // Start combat with a monster
     startCombat(activityId, task = null) {
         const activityData = loadingManager.getData('activities')[activityId];
@@ -114,7 +144,8 @@ class CombatManager {
         this.inCombat = true;
         this.killsThisTrip = 0;
         this.combatRoundTimer = 0;
-        this.ateThisCycle = false;
+        this.combatPhase = 'player_attack';
+        this.phaseTimer = 0;
         
         // Create UI
         this.createCombatUI();
@@ -127,58 +158,86 @@ class CombatManager {
     updateCombat(deltaTime) {
         if (!this.inCombat) return;
         
-        // Update combat round timer
-        this.combatRoundTimer += deltaTime;
+        // Update phase timer
+        this.phaseTimer += deltaTime;
         
-        // Get the current round duration with all modifiers
-        const roundDuration = this.getCombatRoundDuration();
+        // Get current phase duration
+        const phaseDuration = this.getPhaseDuration(this.combatPhase);
         
-        // Check if it's time for a combat round
-        if (this.combatRoundTimer >= roundDuration) {
-            this.combatRoundTimer = 0;
-            this.processCombatRound();
+        // Check if phase is complete
+        if (this.phaseTimer >= phaseDuration) {
+            this.completePhase();
+            this.phaseTimer = 0;
+            this.nextPhase();
         }
         
         // Update UI
         this.updateCombatUI();
     }
     
-    // Process one round of combat
-    processCombatRound() {
-        // Reset eating flag
-        this.ateThisCycle = false;
-        
-        // Player attacks monster
-        this.playerAttack();
-        
-        // If monster is still alive, it attacks back
-        if (this.monsterHp > 0) {
-            this.monsterAttack();
+    // Complete the current phase action
+    completePhase() {
+        switch(this.combatPhase) {
+            case 'player_attack':
+                this.executePlayerAttack();
+                break;
+            case 'monster_attack':
+                this.executeMonsterAttack();
+                break;
+            case 'eat_food':
+                this.executeEatFood();
+                break;
         }
-        
-        // Check if should eat (once per cycle)
-        if (!this.ateThisCycle && this.playerHp < this.playerMaxHp) {
-            this.smartEatFromBank();
-        }
-        
-        // Drain prayer if active
-        if (this.prayerPoints > 0) {
-            this.prayerPoints--;
-        }
-        
-        // Check for death
-        if (this.monsterHp <= 0) {
-            this.handleMonsterDeath();
-        } else if (this.playerHp <= 0) {
-            this.handlePlayerDeath();
-        }
-        
-        // Flush XP batch to create combined drop
-        this.flushXpBatch();
     }
     
-    // Player attacks monster
-    playerAttack() {
+    // Move to next phase
+    nextPhase() {
+        switch(this.combatPhase) {
+            case 'player_attack':
+                // Check for monster death before monster attacks
+                if (this.monsterHp <= 0) {
+                    this.handleMonsterDeath();
+                    return;
+                }
+                this.combatPhase = 'monster_attack';
+                break;
+                
+            case 'monster_attack':
+                // Check for player death
+                if (this.playerHp <= 0) {
+                    this.handlePlayerDeath();
+                    return;
+                }
+                
+                // Determine if we should eat
+                this.checkShouldEat();
+                
+                if (this.shouldEatThisRound) {
+                    this.combatPhase = 'eat_food';
+                } else {
+                    // Skip eat phase, drain prayer, flush XP, go to player attack
+                    this.drainPrayer();
+                    this.flushXpBatch();
+                    this.combatPhase = 'player_attack';
+                }
+                break;
+                
+            case 'eat_food':
+                // Drain prayer after eating
+                this.drainPrayer();
+                // Flush XP batch
+                this.flushXpBatch();
+                // Back to player attack
+                this.combatPhase = 'player_attack';
+                break;
+        }
+    }
+    
+    // Execute player attack
+    executePlayerAttack() {
+        // Animate player attack
+        this.animateAttack(this.playerPanel, 'player');
+        
         // Determine attack and strength values based on combat style
         let attackLevel, strengthLevel, gearBonus;
         
@@ -215,6 +274,9 @@ class CombatManager {
             this.monsterHp -= damage;
             console.log(`Player hits ${damage} damage (${this.monsterHp}/${this.monsterMaxHp} HP)`);
             
+            // Show hitsplat on monster panel
+            this.showHitsplat(this.monsterPanel, damage);
+            
             // Flash monster panel
             this.flashPanel(this.monsterPanel, 'damage');
             
@@ -227,11 +289,16 @@ class CombatManager {
             this.batchXp('hitpoints', Math.floor(damage * 1.33));
         } else {
             console.log('Player misses');
+            // Show miss hitsplat
+            this.showHitsplat(this.monsterPanel, 0);
         }
     }
     
-    // Monster attacks player
-    monsterAttack() {
+    // Execute monster attack
+    executeMonsterAttack() {
+        // Animate monster attack
+        this.animateAttack(this.monsterPanel, 'monster');
+        
         // Get player's defence level and bonus
         let defenceLevel = skills.getLevel('defence');
         const defenceBonus = window.gearScores ? window.gearScores[this.combatStyle] : 0;
@@ -252,17 +319,25 @@ class CombatManager {
             this.playerHp -= damage;
             console.log(`Monster hits ${damage} damage (${this.playerHp}/${this.playerMaxHp} HP)`);
             
+            // Show hitsplat on player panel
+            this.showHitsplat(this.playerPanel, damage);
+            
             // Flash player panel
             this.flashPanel(this.playerPanel, 'damage');
         } else {
             console.log('Monster misses');
+            // Show miss hitsplat
+            this.showHitsplat(this.playerPanel, 0);
         }
     }
     
-    // Smart food consumption from bank
-    smartEatFromBank() {
+    // Check if we should eat
+    checkShouldEat() {
+        this.shouldEatThisRound = false;
+        this.foodToEat = null;
+        
         const missingHp = this.playerMaxHp - this.playerHp;
-        if (missingHp <= 0) return false;
+        if (missingHp <= 0) return;
         
         // Get all food from bank
         const items = loadingManager.getData('items');
@@ -279,37 +354,47 @@ class CombatManager {
             }
         }
         
-        if (foods.length === 0) {
-            console.log('No food in bank!');
-            return false;
-        }
+        if (foods.length === 0) return;
         
         // Sort foods by heal amount (smallest first)
         foods.sort((a, b) => a.healAmount - b.healAmount);
         
         // Find optimal food (smallest that heals without waste)
-        let optimalFood = null;
-        
         for (const food of foods) {
             if (food.healAmount <= missingHp) {
-                optimalFood = food;
+                this.shouldEatThisRound = true;
+                this.foodToEat = food;
             } else {
                 break; // Foods are sorted, no point checking larger heals
             }
         }
+    }
+    
+    // Execute eat food
+    executeEatFood() {
+        if (!this.foodToEat) return;
         
-        // If we found optimal food, eat it
-        if (optimalFood) {
-            bank.withdraw(optimalFood.itemId, 1);
-            this.playerHp = Math.min(this.playerMaxHp, this.playerHp + optimalFood.healAmount);
-            this.ateThisCycle = true;
-            console.log(`Ate ${optimalFood.itemId} from bank, healed ${optimalFood.healAmount} HP`);
-            return true;
+        // Animate eating
+        this.animateEating(this.playerPanel, this.foodToEat.itemId);
+        
+        // Consume food from bank
+        bank.withdraw(this.foodToEat.itemId, 1);
+        this.playerHp = Math.min(this.playerMaxHp, this.playerHp + this.foodToEat.healAmount);
+        console.log(`Ate ${this.foodToEat.itemId} from bank, healed ${this.foodToEat.healAmount} HP`);
+        
+        // Show heal splat
+        this.showHealSplat(this.playerPanel, this.foodToEat.healAmount);
+        
+        // Reset
+        this.shouldEatThisRound = false;
+        this.foodToEat = null;
+    }
+    
+    // Drain prayer
+    drainPrayer() {
+        if (this.prayerPoints > 0) {
+            this.prayerPoints--;
         }
-        
-        // No optimal food found (all foods would overheal)
-        console.log('No suitable food (all would waste healing)');
-        return false;
     }
     
     // Handle monster death
@@ -322,6 +407,9 @@ class CombatManager {
                 this.batchXp(skill, xp);
             }
         }
+        
+        // Flush any remaining XP
+        this.flushXpBatch();
         
         // Roll for loot
         const loot = this.rollLoot(this.currentMonster.dropTable);
@@ -369,6 +457,10 @@ class CombatManager {
         
         // Respawn monster
         this.monsterHp = this.monsterMaxHp;
+        
+        // Reset combat phase
+        this.combatPhase = 'player_attack';
+        this.phaseTimer = 0;
     }
     
     // Roll loot from drop table
@@ -510,12 +602,13 @@ class CombatManager {
                 <!-- Character Image -->
                 <div class="combat-image-section">
                     <img class="combat-character-image" src="" alt="${type}">
+                    <img class="combat-food-overlay" src="" alt="food" style="display: none;">
                 </div>
                 
                 <!-- Name and Combat Level -->
                 <div class="combat-name-section">
-                    <span class="combat-level">Combat Level: </span>
-                    <span class="combat-name"></span>
+                    <div class="combat-name"></div>
+                    <div class="combat-level">Combat Level: </div>
                 </div>
                 
                 <!-- HP Bar -->
@@ -612,9 +705,11 @@ class CombatManager {
         img.src = 'assets/combat/player1.png';
         
         // Update name and combat level
+        const playerName = window.firebaseManager ? (firebaseManager.username || 'Player') : 'Player';
         const combatLevel = skills.getCombatLevel();
+        
+        this.playerPanel.querySelector('.combat-name').textContent = playerName;
         this.playerPanel.querySelector('.combat-level').textContent = `Combat Level: ${combatLevel}`;
-        this.playerPanel.querySelector('.combat-name').textContent = window.firebaseManager ? (firebaseManager.username || 'Player') : 'Player';
         
         // Update HP bar
         const hpPercent = (this.playerHp / this.playerMaxHp) * 100;
@@ -683,9 +778,11 @@ class CombatManager {
         img.src = `assets/combat/${this.currentMonster.name}.png`;
         
         // Update name and "combat level" (use max HP as proxy)
+        const monsterName = this.currentMonster.name.charAt(0).toUpperCase() + this.currentMonster.name.slice(1);
         const monsterCombatLevel = Math.floor(Math.sqrt(this.currentMonster.maxHp) * 5); // Rough estimate
+        
+        this.monsterPanel.querySelector('.combat-name').textContent = monsterName;
         this.monsterPanel.querySelector('.combat-level').textContent = `Combat Level: ${monsterCombatLevel}`;
-        this.monsterPanel.querySelector('.combat-name').textContent = this.currentMonster.name.charAt(0).toUpperCase() + this.currentMonster.name.slice(1);
         
         // Update HP bar
         const hpPercent = (this.monsterHp / this.monsterMaxHp) * 100;
@@ -779,6 +876,61 @@ class CombatManager {
         
         const hitChance = (this.currentMonster.attack + 8) / (2 * (defenceLevel + defenceBonus + 8));
         return Math.max(0.05, Math.min(0.95, hitChance));
+    }
+    
+    // Animation methods
+    animateAttack(panel, type) {
+        if (!panel) return;
+        
+        const imageSection = panel.querySelector('.combat-image-section');
+        imageSection.classList.add('combat-attack-animation');
+        setTimeout(() => {
+            imageSection.classList.remove('combat-attack-animation');
+        }, 300);
+    }
+    
+    animateEating(panel, foodId) {
+        if (!panel) return;
+        
+        const foodOverlay = panel.querySelector('.combat-food-overlay');
+        foodOverlay.src = `assets/items/${foodId}.png`;
+        foodOverlay.style.display = 'block';
+        foodOverlay.classList.add('combat-eat-animation');
+        
+        setTimeout(() => {
+            foodOverlay.style.display = 'none';
+            foodOverlay.classList.remove('combat-eat-animation');
+        }, 800);
+    }
+    
+    showHitsplat(panel, damage) {
+        if (!panel) return;
+        
+        const hitsplat = document.createElement('div');
+        hitsplat.className = damage > 0 ? 'combat-hitsplat' : 'combat-hitsplat-miss';
+        hitsplat.textContent = damage > 0 ? damage : 'Miss';
+        
+        const imageSection = panel.querySelector('.combat-image-section');
+        imageSection.appendChild(hitsplat);
+        
+        setTimeout(() => {
+            hitsplat.remove();
+        }, 1500);
+    }
+    
+    showHealSplat(panel, amount) {
+        if (!panel) return;
+        
+        const healsplat = document.createElement('div');
+        healsplat.className = 'combat-healsplat';
+        healsplat.textContent = `+${amount}`;
+        
+        const imageSection = panel.querySelector('.combat-image-section');
+        imageSection.appendChild(healsplat);
+        
+        setTimeout(() => {
+            healsplat.remove();
+        }, 1500);
     }
     
     flashPanel(panel, type = 'damage') {
