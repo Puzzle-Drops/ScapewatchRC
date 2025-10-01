@@ -4577,3 +4577,252 @@ span.control-emoji {
     color: #2ecc71;
     font-size: 14px;
 }
+
+/* ==================== COMBAT UI PANELS ==================== */
+
+.combat-panel {
+    position: absolute;
+    width: 500px;
+    height: 640px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #444;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 150;
+    pointer-events: auto;
+}
+
+.combat-panel-inner {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Character Image Section */
+.combat-image-section {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.combat-character-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Name and Combat Level */
+.combat-name-section {
+    text-align: center;
+    padding: 10px;
+    background: #2a2a2a;
+    border-radius: 6px;
+}
+
+.combat-level {
+    color: #f39c12;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.combat-name {
+    color: #FFD700;
+    font-size: 20px;
+    font-weight: bold;
+    display: block;
+    margin-top: 5px;
+}
+
+/* HP Bar Section */
+.combat-hp-section {
+    padding: 10px;
+    background: #2a2a2a;
+    border-radius: 6px;
+}
+
+.combat-hp-bar {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.combat-hp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    transition: width 0.3s ease;
+}
+
+.combat-hp-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFD700;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 2px rgba(0,0,0,0.8);
+}
+
+/* Prayer Bar Section */
+.combat-prayer-section {
+    padding: 10px;
+    background: #2a2a2a;
+    border-radius: 6px;
+}
+
+.combat-prayer-bar {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.combat-prayer-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #9b59b6, #8e44ad);
+    transition: width 0.3s ease;
+}
+
+.combat-prayer-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFD700;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 2px rgba(0,0,0,0.8);
+}
+
+/* Combat Stats Grid */
+.combat-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 15px;
+    background: #2a2a2a;
+    border-radius: 6px;
+}
+
+.combat-stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    background: #1a1a1a;
+    border-radius: 4px;
+}
+
+.combat-stat-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.combat-stat-value {
+    color: #FFD700;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+.combat-stat-value.prayer-boosted {
+    color: #f39c12;
+    text-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
+}
+
+/* Gear & Combat Info Section */
+.combat-info-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background: #2a2a2a;
+    border-radius: 6px;
+}
+
+.combat-gear-scores {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.combat-gear-score {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    background: #1a1a1a;
+    border-radius: 4px;
+    font-size: 18px;
+}
+
+.combat-gear-score.active-style {
+    background: #3a3025;
+    border: 1px solid #f39c12;
+}
+
+.gear-icon {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.gear-value {
+    margin-left: auto;
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.combat-calculations {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #444;
+}
+
+.combat-max-hit,
+.combat-accuracy {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 10px;
+    background: #1a1a1a;
+    border-radius: 4px;
+    font-size: 18px;
+}
+
+.max-hit-value,
+.accuracy-value {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+/* Flash animations for damage */
+.combat-panel-flash-damage {
+    animation: flashDamage 0.2s ease;
+}
+
+@keyframes flashDamage {
+    0% { border-color: #444; }
+    50% { border-color: #e74c3c; box-shadow: 0 0 20px rgba(231, 76, 60, 0.5); }
+    100% { border-color: #444; }
+}
+
+/* Hide prayer section for monsters */
+.combat-panel-monster .combat-prayer-section {
+    display: none !important;
+}
