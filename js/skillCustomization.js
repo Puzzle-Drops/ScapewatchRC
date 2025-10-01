@@ -12,6 +12,11 @@ class SkillCustomizationUI {
         this.createOverlay();
     }
     
+    // Helper function to check if a skill is a combat skill
+    isCombatSkill(skillId) {
+        return ['attack', 'strength', 'defence', 'ranged', 'magic'].includes(skillId);
+    }
+    
     createOverlay() {
         this.overlay = document.createElement('div');
         this.overlay.id = 'skill-customization-overlay';
@@ -1196,8 +1201,16 @@ class SkillCustomizationUI {
         maxQty = Math.max(1, maxQty);
         maxQty = Math.max(minQty, maxQty);
         
-        const itemData = loadingManager.getData('items')[task.itemId];
-        const itemName = task.displayName || (itemData ? itemData.name : task.itemId);
+        // Handle combat tasks (which use monster names) vs regular tasks
+        let itemName;
+        if (this.isCombatSkill(this.currentSkillId)) {
+            // Combat task - use displayName directly
+            itemName = task.displayName || task.itemId;
+        } else {
+            // Regular task - look up item data
+            const itemData = loadingManager.getData('items')[task.itemId];
+            itemName = task.displayName || (itemData ? itemData.name : task.itemId);
+        }
         
         const levelReq = task.requiredLevel || 1;
         const levelClass = hasLevel ? 'task-level-has' : 'task-level-needs';
@@ -1722,11 +1735,7 @@ const weightDown = this.createControlButton('-', () => {
             const canDoActivity = currentLevel >= activityRequiredLevel;
             
             // Map activity to task itemIds based on skill type
-            if (this.currentSkillId === 'attack' || 
-                this.currentSkillId === 'strength' || 
-                this.currentSkillId === 'defence' || 
-                this.currentSkillId === 'ranged' || 
-                this.currentSkillId === 'magic') {
+            if (this.isCombatSkill(this.currentSkillId)) {
                 // For combat skills, check if this activity has a monster
                 if (activity.monsterName) {
                     // Use monster name as the task identifier
@@ -2025,14 +2034,7 @@ const weightDown = this.createControlButton('-', () => {
                 // Check if this activity can produce the task item
                 let canProduce = false;
                 
-// Check if this activity can produce the task item
-                let canProduce = false;
-                
-                if (this.currentSkillId === 'attack' || 
-                    this.currentSkillId === 'strength' || 
-                    this.currentSkillId === 'defence' || 
-                    this.currentSkillId === 'ranged' || 
-                    this.currentSkillId === 'magic') {
+                if (this.isCombatSkill(this.currentSkillId)) {
                     // For combat skills, check if this activity's monster matches the task
                     if (activity.monsterName === taskItemId) {
                         canProduce = true;
