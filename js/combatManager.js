@@ -19,6 +19,11 @@ class CombatManager {
         
         // XP batching for combined drops
         this.xpBatch = {};
+        
+        // UI Elements
+        this.playerPanel = null;
+        this.monsterPanel = null;
+        this.uiCreated = false;
     }
     
     // Add XP to batch instead of directly to skills
@@ -111,6 +116,9 @@ class CombatManager {
         this.combatRoundTimer = 0;
         this.ateThisCycle = false;
         
+        // Create UI
+        this.createCombatUI();
+        
         console.log(`Starting combat with ${this.currentMonster.name}`);
         return true;
     }
@@ -130,6 +138,9 @@ class CombatManager {
             this.combatRoundTimer = 0;
             this.processCombatRound();
         }
+        
+        // Update UI
+        this.updateCombatUI();
     }
     
     // Process one round of combat
@@ -204,6 +215,9 @@ class CombatManager {
             this.monsterHp -= damage;
             console.log(`Player hits ${damage} damage (${this.monsterHp}/${this.monsterMaxHp} HP)`);
             
+            // Flash monster panel
+            this.flashPanel(this.monsterPanel, 'damage');
+            
             // Batch combat XP (4 XP per damage)
             if (this.currentTask) {
                 this.batchXp(this.currentTask.skill, damage * 4);
@@ -237,6 +251,9 @@ class CombatManager {
             
             this.playerHp -= damage;
             console.log(`Monster hits ${damage} damage (${this.playerHp}/${this.playerMaxHp} HP)`);
+            
+            // Flash player panel
+            this.flashPanel(this.playerPanel, 'damage');
         } else {
             console.log('Monster misses');
         }
@@ -417,6 +434,9 @@ class CombatManager {
             ai.currentTask = null;
             ai.decisionCooldown = 0;
         }
+        
+        // Remove UI
+        this.removeCombatUI();
     }
     
     // Stop combat
@@ -424,6 +444,10 @@ class CombatManager {
         this.inCombat = false;
         this.currentMonster = null;
         this.currentTask = null;
+        
+        // Remove UI
+        this.removeCombatUI();
+        
         console.log('Combat stopped');
     }
     
@@ -442,6 +466,354 @@ class CombatManager {
             combatStyle: this.combatStyle,
             killsThisTrip: this.killsThisTrip
         };
+    }
+    
+    // ==================== COMBAT UI METHODS ====================
+    
+    createCombatUI() {
+        if (this.uiCreated) return;
+        
+        // Create player panel (left side)
+        this.playerPanel = this.createPanel('player', 510, 180);
+        
+        // Create monster panel (right side)
+        this.monsterPanel = this.createPanel('monster', 1550, 180);
+        
+        // Add panels to game container
+        const gameContainer = document.getElementById('game-container');
+        if (gameContainer) {
+            gameContainer.appendChild(this.playerPanel);
+            gameContainer.appendChild(this.monsterPanel);
+        }
+        
+        this.uiCreated = true;
+        
+        // Initial update
+        this.updateCombatUI();
+        
+        // Fade in animation
+        setTimeout(() => {
+            this.playerPanel.style.opacity = '1';
+            this.monsterPanel.style.opacity = '1';
+        }, 10);
+    }
+    
+    createPanel(type, x, y) {
+        const panel = document.createElement('div');
+        panel.className = `combat-panel combat-panel-${type}`;
+        panel.style.left = `${x}px`;
+        panel.style.top = `${y}px`;
+        
+        // Create inner structure
+        panel.innerHTML = `
+            <div class="combat-panel-inner">
+                <!-- Character Image -->
+                <div class="combat-image-section">
+                    <img class="combat-character-image" src="" alt="${type}">
+                </div>
+                
+                <!-- Name and Combat Level -->
+                <div class="combat-name-section">
+                    <span class="combat-level">Combat Level: </span>
+                    <span class="combat-name"></span>
+                </div>
+                
+                <!-- HP Bar -->
+                <div class="combat-hp-section">
+                    <div class="combat-hp-bar">
+                        <div class="combat-hp-fill"></div>
+                        <div class="combat-hp-text">0/0 HP</div>
+                    </div>
+                </div>
+                
+                <!-- Prayer Bar -->
+                <div class="combat-prayer-section">
+                    <div class="combat-prayer-bar">
+                        <div class="combat-prayer-fill"></div>
+                        <div class="combat-prayer-text">0/0 Prayer</div>
+                    </div>
+                </div>
+                
+                <!-- Combat Stats Grid -->
+                <div class="combat-stats-grid">
+                    <div class="combat-stat">
+                        <img src="assets/skills/hitpoints.png" class="combat-stat-icon">
+                        <span class="combat-stat-value" data-stat="hitpoints">1</span>
+                    </div>
+                    <div class="combat-stat">
+                        <img src="assets/skills/prayer.png" class="combat-stat-icon">
+                        <span class="combat-stat-value" data-stat="prayer">1</span>
+                    </div>
+                    <div class="combat-stat">
+                        <img src="assets/skills/attack.png" class="combat-stat-icon">
+                        <span class="combat-stat-value" data-stat="attack">1</span>
+                    </div>
+                    <div class="combat-stat">
+                        <img src="assets/skills/magic.png" class="combat-stat-icon">
+                        <span class="combat-stat-value" data-stat="magic">1</span>
+                    </div>
+                    <div class="combat-stat">
+                        <img src="assets/skills/strength.png" class="combat-stat-icon">
+                        <span class="combat-stat-value" data-stat="strength">1</span>
+                    </div>
+                    <div class="combat-stat">
+                        <img src="assets/skills/ranged.png" class="combat-stat-icon">
+                        <span class="combat-stat-value" data-stat="ranged">1</span>
+                    </div>
+                    <div class="combat-stat">
+                        <img src="assets/skills/defence.png" class="combat-stat-icon">
+                        <span class="combat-stat-value" data-stat="defence">1</span>
+                    </div>
+                    <div class="combat-stat">
+                        <img src="assets/skills/slayer.png" class="combat-stat-icon">
+                        <span class="combat-stat-value" data-stat="slayer">1</span>
+                    </div>
+                </div>
+                
+                <!-- Gear & Combat Info -->
+                <div class="combat-info-section">
+                    <div class="combat-gear-scores">
+                        <div class="combat-gear-score gear-melee">
+                            <span class="gear-icon">⚔️</span> Melee: <span class="gear-value">+0</span>
+                        </div>
+                        <div class="combat-gear-score gear-ranged">
+                            <span class="gear-icon">🏹</span> Ranged: <span class="gear-value">+0</span>
+                        </div>
+                        <div class="combat-gear-score gear-magic">
+                            <span class="gear-icon">✨</span> Magic: <span class="gear-value">+0</span>
+                        </div>
+                    </div>
+                    <div class="combat-calculations">
+                        <div class="combat-max-hit">Max Hit: <span class="max-hit-value">0</span></div>
+                        <div class="combat-accuracy">Accuracy: <span class="accuracy-value">0%</span></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        return panel;
+    }
+    
+    updateCombatUI() {
+        if (!this.uiCreated || !this.inCombat) return;
+        
+        // Update player panel
+        this.updatePlayerPanel();
+        
+        // Update monster panel
+        this.updateMonsterPanel();
+    }
+    
+    updatePlayerPanel() {
+        if (!this.playerPanel) return;
+        
+        // Update image
+        const img = this.playerPanel.querySelector('.combat-character-image');
+        img.src = 'assets/combat/player1.png';
+        
+        // Update name and combat level
+        const combatLevel = skills.getCombatLevel();
+        this.playerPanel.querySelector('.combat-level').textContent = `Combat Level: ${combatLevel}`;
+        this.playerPanel.querySelector('.combat-name').textContent = window.firebaseManager ? (firebaseManager.username || 'Player') : 'Player';
+        
+        // Update HP bar
+        const hpPercent = (this.playerHp / this.playerMaxHp) * 100;
+        const hpFill = this.playerPanel.querySelector('.combat-hp-fill');
+        hpFill.style.width = `${hpPercent}%`;
+        
+        // Color based on HP percentage
+        if (hpPercent > 50) {
+            hpFill.style.background = 'linear-gradient(90deg, #27ae60, #2ecc71)';
+        } else if (hpPercent > 25) {
+            hpFill.style.background = 'linear-gradient(90deg, #f39c12, #f1c40f)';
+        } else {
+            hpFill.style.background = 'linear-gradient(90deg, #c0392b, #e74c3c)';
+        }
+        
+        this.playerPanel.querySelector('.combat-hp-text').textContent = `${this.playerHp}/${this.playerMaxHp} HP`;
+        
+        // Update Prayer bar
+        const prayerPercent = (this.prayerPoints / this.maxPrayer) * 100;
+        const prayerFill = this.playerPanel.querySelector('.combat-prayer-fill');
+        prayerFill.style.width = `${prayerPercent}%`;
+        this.playerPanel.querySelector('.combat-prayer-text').textContent = `${this.prayerPoints}/${this.maxPrayer} Prayer`;
+        
+        // Update combat stats
+        const stats = ['hitpoints', 'prayer', 'attack', 'magic', 'strength', 'ranged', 'defence', 'slayer'];
+        stats.forEach(stat => {
+            const statElement = this.playerPanel.querySelector(`[data-stat="${stat}"]`);
+            if (statElement) {
+                let level = skills.getLevel(stat);
+                // Apply prayer bonus for combat stats
+                if (this.prayerPoints > 0 && ['attack', 'strength', 'defence'].includes(stat)) {
+                    level = Math.floor(level * 1.5);
+                    statElement.classList.add('prayer-boosted');
+                } else {
+                    statElement.classList.remove('prayer-boosted');
+                }
+                statElement.textContent = level;
+            }
+        });
+        
+        // Update gear scores
+        if (window.gearScores) {
+            this.playerPanel.querySelector('.gear-melee .gear-value').textContent = `+${gearScores.melee || 0}`;
+            this.playerPanel.querySelector('.gear-ranged .gear-value').textContent = `+${gearScores.ranged || 0}`;
+            this.playerPanel.querySelector('.gear-magic .gear-value').textContent = `+${gearScores.magic || 0}`;
+        }
+        
+        // Highlight current combat style
+        this.playerPanel.querySelectorAll('.combat-gear-score').forEach(el => el.classList.remove('active-style'));
+        this.playerPanel.querySelector(`.gear-${this.combatStyle}`).classList.add('active-style');
+        
+        // Calculate and update max hit
+        const maxHit = this.calculatePlayerMaxHit();
+        this.playerPanel.querySelector('.max-hit-value').textContent = maxHit;
+        
+        // Calculate and update accuracy vs monster
+        const accuracy = this.calculatePlayerAccuracy();
+        this.playerPanel.querySelector('.accuracy-value').textContent = `${Math.round(accuracy * 100)}%`;
+    }
+    
+    updateMonsterPanel() {
+        if (!this.monsterPanel || !this.currentMonster) return;
+        
+        // Update image
+        const img = this.monsterPanel.querySelector('.combat-character-image');
+        img.src = `assets/combat/${this.currentMonster.name}.png`;
+        
+        // Update name and "combat level" (use max HP as proxy)
+        const monsterCombatLevel = Math.floor(Math.sqrt(this.currentMonster.maxHp) * 5); // Rough estimate
+        this.monsterPanel.querySelector('.combat-level').textContent = `Combat Level: ${monsterCombatLevel}`;
+        this.monsterPanel.querySelector('.combat-name').textContent = this.currentMonster.name.charAt(0).toUpperCase() + this.currentMonster.name.slice(1);
+        
+        // Update HP bar
+        const hpPercent = (this.monsterHp / this.monsterMaxHp) * 100;
+        const hpFill = this.monsterPanel.querySelector('.combat-hp-fill');
+        hpFill.style.width = `${hpPercent}%`;
+        hpFill.style.background = 'linear-gradient(90deg, #c0392b, #e74c3c)';
+        this.monsterPanel.querySelector('.combat-hp-text').textContent = `${this.monsterHp}/${this.monsterMaxHp} HP`;
+        
+        // Hide prayer bar for monster
+        this.monsterPanel.querySelector('.combat-prayer-section').style.display = 'none';
+        
+        // Update monster stats
+        this.monsterPanel.querySelector('[data-stat="hitpoints"]').textContent = this.currentMonster.maxHp;
+        this.monsterPanel.querySelector('[data-stat="prayer"]').textContent = '0';
+        this.monsterPanel.querySelector('[data-stat="attack"]').textContent = this.currentMonster.attack;
+        this.monsterPanel.querySelector('[data-stat="strength"]').textContent = this.currentMonster.strength;
+        this.monsterPanel.querySelector('[data-stat="defence"]').textContent = this.currentMonster.defence;
+        this.monsterPanel.querySelector('[data-stat="magic"]').textContent = '1';
+        this.monsterPanel.querySelector('[data-stat="ranged"]').textContent = '1';
+        this.monsterPanel.querySelector('[data-stat="slayer"]').textContent = '1';
+        
+        // Monster doesn't have gear scores
+        this.monsterPanel.querySelector('.gear-melee .gear-value').textContent = '+0';
+        this.monsterPanel.querySelector('.gear-ranged .gear-value').textContent = '+0';
+        this.monsterPanel.querySelector('.gear-magic .gear-value').textContent = '+0';
+        
+        // Calculate monster max hit
+        const monsterMaxHit = Math.ceil((this.currentMonster.strength + 1) / 2);
+        this.monsterPanel.querySelector('.max-hit-value').textContent = monsterMaxHit;
+        
+        // Calculate monster accuracy vs player
+        const monsterAccuracy = this.calculateMonsterAccuracy();
+        this.monsterPanel.querySelector('.accuracy-value').textContent = `${Math.round(monsterAccuracy * 100)}%`;
+    }
+    
+    calculatePlayerMaxHit() {
+        let strengthLevel, gearBonus;
+        
+        if (this.combatStyle === 'melee') {
+            strengthLevel = skills.getLevel('strength');
+            gearBonus = window.gearScores ? window.gearScores.melee : 0;
+        } else if (this.combatStyle === 'ranged') {
+            strengthLevel = skills.getLevel('ranged');
+            gearBonus = window.gearScores ? window.gearScores.ranged : 0;
+        } else {
+            strengthLevel = skills.getLevel('magic');
+            gearBonus = window.gearScores ? window.gearScores.magic : 0;
+        }
+        
+        // Apply prayer bonus
+        if (this.prayerPoints > 0) {
+            strengthLevel = Math.floor(strengthLevel * 1.5);
+        }
+        
+        return Math.ceil((strengthLevel + gearBonus + 1) / 2);
+    }
+    
+    calculatePlayerAccuracy() {
+        if (!this.currentMonster) return 0;
+        
+        let attackLevel, gearBonus;
+        
+        if (this.combatStyle === 'melee') {
+            attackLevel = skills.getLevel('attack');
+            gearBonus = window.gearScores ? window.gearScores.melee : 0;
+        } else if (this.combatStyle === 'ranged') {
+            attackLevel = skills.getLevel('ranged');
+            gearBonus = window.gearScores ? window.gearScores.ranged : 0;
+        } else {
+            attackLevel = skills.getLevel('magic');
+            gearBonus = window.gearScores ? window.gearScores.magic : 0;
+        }
+        
+        // Apply prayer bonus
+        if (this.prayerPoints > 0) {
+            attackLevel = Math.floor(attackLevel * 1.5);
+        }
+        
+        const hitChance = (attackLevel + gearBonus + 8) / (2 * (this.currentMonster.defence + 8));
+        return Math.max(0.05, Math.min(0.95, hitChance));
+    }
+    
+    calculateMonsterAccuracy() {
+        let defenceLevel = skills.getLevel('defence');
+        const defenceBonus = window.gearScores ? window.gearScores[this.combatStyle] : 0;
+        
+        // Apply prayer bonus
+        if (this.prayerPoints > 0) {
+            defenceLevel = Math.floor(defenceLevel * 1.5);
+        }
+        
+        const hitChance = (this.currentMonster.attack + 8) / (2 * (defenceLevel + defenceBonus + 8));
+        return Math.max(0.05, Math.min(0.95, hitChance));
+    }
+    
+    flashPanel(panel, type = 'damage') {
+        if (!panel) return;
+        
+        panel.classList.add(`combat-panel-flash-${type}`);
+        setTimeout(() => {
+            panel.classList.remove(`combat-panel-flash-${type}`);
+        }, 200);
+    }
+    
+    removeCombatUI() {
+        if (this.playerPanel) {
+            // Fade out animation
+            this.playerPanel.style.opacity = '0';
+            setTimeout(() => {
+                if (this.playerPanel && this.playerPanel.parentNode) {
+                    this.playerPanel.parentNode.removeChild(this.playerPanel);
+                }
+                this.playerPanel = null;
+            }, 300);
+        }
+        
+        if (this.monsterPanel) {
+            // Fade out animation
+            this.monsterPanel.style.opacity = '0';
+            setTimeout(() => {
+                if (this.monsterPanel && this.monsterPanel.parentNode) {
+                    this.monsterPanel.parentNode.removeChild(this.monsterPanel);
+                }
+                this.monsterPanel = null;
+            }, 300);
+        }
+        
+        this.uiCreated = false;
     }
 }
 
