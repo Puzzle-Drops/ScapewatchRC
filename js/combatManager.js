@@ -28,8 +28,8 @@ class CombatManager {
         this.combatPhase = 'player_attack'; // 'player_attack', 'monster_attack', 'eat_food'
         this.phaseTimer = 0;
         this.PHASE_DURATIONS = {
-            player_attack: 600,    // 0.6s
-            monster_attack: 600,   // 0.6s
+            player_attack: 1200,    // 1.2s
+            monster_attack: 1200,   // 1.2s
             eat_food: 1200        // 1.2s
         };
         
@@ -203,24 +203,18 @@ class CombatManager {
                 break;
                 
             case 'monster_attack':
-                // Check for player death
-                if (this.playerHp <= 0) {
-                    this.handlePlayerDeath();
-                    return;
-                }
-                
-                // Determine if we should eat
-                this.checkShouldEat();
-                
-                if (this.shouldEatThisRound) {
-                    this.combatPhase = 'eat_food';
-                } else {
-                    // Skip eat phase, drain prayer, flush XP, go to player attack
-                    this.drainPrayer();
-                    this.flushXpBatch();
-                    this.combatPhase = 'player_attack';
-                }
-                break;
+    // Check for player death
+    if (this.playerHp <= 0) {
+        this.handlePlayerDeath();
+        return;
+    }
+    
+    // Determine if we should eat
+    this.checkShouldEat();
+    
+    // ALWAYS go to eat phase (even if not eating, for timing)
+    this.combatPhase = 'eat_food';
+    break;
                 
             case 'eat_food':
                 // Drain prayer after eating
@@ -370,10 +364,9 @@ class CombatManager {
         }
     }
     
-    // Execute eat food
     executeEatFood() {
-        if (!this.foodToEat) return;
-        
+    // Only eat if we have food to eat
+    if (this.foodToEat) {
         // Animate eating
         this.animateEating(this.playerPanel, this.foodToEat.itemId);
         
@@ -389,6 +382,8 @@ class CombatManager {
         this.shouldEatThisRound = false;
         this.foodToEat = null;
     }
+    // Even if not eating, this phase takes 1.2s for consistent timing
+}
     
     // Drain prayer
     drainPrayer() {
