@@ -12,6 +12,8 @@ class Player {
     this.baseLandSpeed = 4;  // Base land speed (tiles/sec)
     this.baseWaterSpeed = 6; // Base water speed (tiles/sec)
     this.speedMultiplier = 1;  // Dev console speed multiplier
+
+    this.combatManager = null;
     
     this.path = [];
     this.pathIndex = 0;
@@ -65,6 +67,11 @@ class Player {
             if (sailingSkill && sailingSkill.resetWaterTracking) {
                 sailingSkill.resetWaterTracking();
             }
+        }
+
+        // Update combat if active
+        if (this.combatManager && this.combatManager.inCombat) {
+            this.combatManager.updateCombat(deltaTime);
         }
     
         // Handle movement along path (don't move while banking or preparing path)
@@ -587,20 +594,41 @@ if (window.clueManager) {
             return;
         }
 
-        // Check level requirement
+        // Check if this is a combat activity
+        if (activityData.monsterName) {
+            // This is combat!
+            if (!this.combatManager) {
+                this.combatManager = new CombatManager();
+            }
+            
+            // Get current combat task if any
+            let combatTask = null;
+            if (window.ai && window.ai.currentTask && window.ai.currentTask.isCombatTask) {
+                combatTask = window.ai.currentTask;
+            }
+            
+            // Start combat
+            if (this.combatManager.startCombat(activityId, combatTask)) {
+                this.currentActivity = activityId;
+                console.log(`Started combat activity: ${activityData.name}`);
+            }
+            return;
+        }
+
+        // Check level requirement (non-combat)
         const skill = skillRegistry.getSkillForActivity(activityId);
         if (skill && !skill.canPerformActivity(activityId)) {
             console.log(`Cannot perform activity ${activityId} - requirements not met`);
             return;
         }
 
-        // Check required items
+        // Check required items (non-combat)
         if (!this.hasRequiredItems(activityId)) {
             console.log(`Cannot perform activity ${activityId} - missing required items`);
             return;
         }
 
-        // Let skill handle pre-activity logic
+        // Let skill handle pre-activity logic (non-combat)
         if (skill && skill.beforeActivityStart) {
             if (!skill.beforeActivityStart(activityData)) {
                 console.log(`Activity ${activityId} cancelled by skill`);
@@ -618,6 +646,11 @@ if (window.clueManager) {
     stopActivity() {
         if (this.currentActivity) {
             console.log(`Stopped activity: ${this.currentActivity}`);
+            
+            // Check if this was combat
+            if (this.combatManager && this.combatManager.inCombat) {
+                this.combatManager.stopCombat();
+            }
             
             // Notify the skill that the activity was stopped
             const skill = skillRegistry.getSkillForActivity(this.currentActivity);
