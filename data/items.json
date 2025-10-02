@@ -1,10 +1,10 @@
 {
-    "coins": {
-        "id": "coins",
-        "name": "Coins",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "currency"
+  "coins": {
+    "id": "coins",
+    "name": "Coins",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "currency"
     },
   "easy_clue": {
     "id": "easy_clue",
@@ -1070,111 +1070,156 @@
         "stackable": false,
         "category": "resource"
     },
-    "air_rune": {
-        "id": "air_rune",
-        "name": "Air rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "water_rune": {
-        "id": "water_rune",
-        "name": "Water rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "earth_rune": {
-        "id": "earth_rune",
-        "name": "Earth rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "fire_rune": {
-        "id": "fire_rune",
-        "name": "Fire rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "nature_rune": {
-        "id": "nature_rune",
-        "name": "Nature rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "law_rune": {
-        "id": "law_rune",
-        "name": "Law rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "astral_rune": {
-        "id": "astral_rune",
-        "name": "Astral rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "cosmic_rune": {
-        "id": "cosmic_rune",
-        "name": "Cosmic rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "mind_rune": {
-        "id": "mind_rune",
-        "name": "Mind rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "body_rune": {
-        "id": "body_rune",
-        "name": "Body rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "chaos_rune": {
-        "id": "chaos_rune",
-        "name": "Chaos rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "death_rune": {
-        "id": "death_rune",
-        "name": "Death rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "soul_rune": {
-        "id": "soul_rune",
-        "name": "Soul rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "blood_rune": {
-        "id": "blood_rune",
-        "name": "Blood rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
-    "wrath_rune": {
-        "id": "wrath_rune",
-        "name": "Wrath rune",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "runes"
-    },
+"air_rune": {
+    "id": "air_rune",
+    "name": "Air rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 1
+},
+"water_rune": {
+    "id": "water_rune",
+    "name": "Water rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 1
+},
+"earth_rune": {
+    "id": "earth_rune",
+    "name": "Earth rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 1
+},
+"fire_rune": {
+    "id": "fire_rune",
+    "name": "Fire rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 1
+},
+"mind_rune": {
+    "id": "mind_rune",
+    "name": "Mind rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 2
+},
+"body_rune": {
+    "id": "body_rune",
+    "name": "Body rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 2
+},
+"cosmic_rune": {
+    "id": "cosmic_rune",
+    "name": "Cosmic rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 4
+},
+"chaos_rune": {
+    "id": "chaos_rune",
+    "name": "Chaos rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 6
+},
+"nature_rune": {
+    "id": "nature_rune",
+    "name": "Nature rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 8
+},
+"law_rune": {
+    "id": "law_rune",
+    "name": "Law rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 8
+},
+"astral_rune": {
+    "id": "astral_rune",
+    "name": "Astral rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 14
+},
+"death_rune": {
+    "id": "death_rune",
+    "name": "Death rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 16
+},
+"blood_rune": {
+    "id": "blood_rune",
+    "name": "Blood rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 21
+},
+"soul_rune": {
+    "id": "soul_rune",
+    "name": "Soul rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 22
+},
+"wrath_rune": {
+    "id": "wrath_rune",
+    "name": "Wrath rune",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "magic",
+    "combatBonus": 24
+},
     "small_pouch": {
         "id": "small_pouch",
         "name": "Small pouch",
@@ -1213,61 +1258,85 @@
         "maxStack": 9999999999,
         "category": "resource"
     },
-    "bronze_arrow": {
-        "id": "bronze_arrow",
-        "name": "Bronze arrow",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "ammo"
-    },
-    "iron_arrow": {
-        "id": "iron_arrow",
-        "name": "Iron arrow",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "ammo"
-    },
-    "steel_arrow": {
-        "id": "steel_arrow",
-        "name": "Steel arrow",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "ammo"
-    },
-    "mithril_arrow": {
-        "id": "mithril_arrow",
-        "name": "Mithril arrow",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "ammo"
-    },
-    "adamant_arrow": {
-        "id": "adamant_arrow",
-        "name": "Adamant arrow",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "ammo"
-    },
-    "rune_arrow": {
-        "id": "rune_arrow",
-        "name": "Rune arrow",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "ammo"
-    },
-    "amethyst_arrow": {
-        "id": "amethyst_arrow",
-        "name": "Amethyst arrow",
-        "stackable": true,
-        "maxStack": 9999999999,
-        "category": "ammo"
-    },
-    "chinchompa": {
+"bronze_arrow": {
+    "id": "bronze_arrow",
+    "name": "Bronze arrow",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "ranged",
+    "combatBonus": 1
+},
+"iron_arrow": {
+    "id": "iron_arrow",
+    "name": "Iron arrow",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "ranged",
+    "combatBonus": 3
+},
+"steel_arrow": {
+    "id": "steel_arrow",
+    "name": "Steel arrow",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "ranged",
+    "combatBonus": 5
+},
+"mithril_arrow": {
+    "id": "mithril_arrow",
+    "name": "Mithril arrow",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "ranged",
+    "combatBonus": 7
+},
+"adamant_arrow": {
+    "id": "adamant_arrow",
+    "name": "Adamant arrow",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "ranged",
+    "combatBonus": 10
+},
+"rune_arrow": {
+    "id": "rune_arrow",
+    "name": "Rune arrow",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "ranged",
+    "combatBonus": 15
+},
+"amethyst_arrow": {
+    "id": "amethyst_arrow",
+    "name": "Amethyst arrow",
+    "stackable": true,
+    "maxStack": 9999999999,
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "ranged",
+    "combatBonus": 20
+},
+"chinchompa": {
     "id": "chinchompa",
     "name": "Chinchompa",
     "stackable": true,
     "maxStack": 2147483647,
-    "category": "ammo"
+    "category": "equipment",
+    "equipmentSlot": "blessing",
+    "combatStyle": "ranged",
+    "combatBonus": 17
 },
 "goblin_mail": {
     "id": "goblin_mail",
