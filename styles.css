@@ -5377,7 +5377,7 @@ span.control-emoji {
         1px 1px 0 #000;
 }
 
-.blessing-option.selected .blessing-item-container {
+.blessing-selector-container:hover .blessing-option.selected .blessing-item-container {
     border: 2px solid #f39c12;
     border-radius: 6px;
 }
