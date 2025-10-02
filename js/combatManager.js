@@ -313,8 +313,8 @@ completePhase() {
         
         if (hit) {
             // Calculate damage
-            const maxHit = Math.ceil((strengthLevel + gearBonus + 1) / 2);
-            const rawDamage = Math.floor(Math.random() * (maxHit + 1));
+            const maxHit = Math.max(1, Math.ceil((strengthLevel + gearBonus + 4) / 4));
+            const rawDamage = Math.max(1, Math.floor(Math.random() * (maxHit + 1)));
             
             // Clamp damage to monster's remaining HP
             const actualDamage = Math.min(rawDamage, this.monsterHp);
@@ -377,8 +377,8 @@ completePhase() {
         
         if (Math.random() < Math.max(0.05, Math.min(0.95, hitChance))) {
             // Monster hits
-            const maxHit = Math.ceil((monsterStrength + 1) / 2);
-            const rawDamage = Math.floor(Math.random() * (maxHit + 1));
+            const maxHit = Math.max(1, Math.ceil((monsterStrength + 4) / 4));
+            const rawDamage = Math.max(1, Math.floor(Math.random() * (maxHit + 1)));
             
             // Clamp damage to player's remaining HP
             const actualDamage = Math.min(rawDamage, this.playerHp);
@@ -1027,7 +1027,7 @@ if (this.currentTask) {
         if (this.monsterPrayerPoints > 0) {
             monsterStrength = Math.floor(monsterStrength * 1.5);
         }
-        const monsterMaxHit = Math.ceil((monsterStrength + 1) / 2);
+        const monsterMaxHit = Math.max(1, Math.ceil((monsterStrength + 4) / 4));
         this.monsterPanel.querySelector('.max-hit-value').textContent = monsterMaxHit;
         
         // Calculate monster accuracy vs player
@@ -1053,8 +1053,8 @@ if (this.currentTask) {
         if (this.prayerPoints > 0) {
             strengthLevel = Math.floor(strengthLevel * 1.5);
         }
-        
-        return Math.ceil((strengthLevel + gearBonus + 1) / 2);
+
+        return Math.max(1, Math.ceil((strengthLevel + gearBonus + 4) / 4));
     }
     
     calculatePlayerAccuracy() {
