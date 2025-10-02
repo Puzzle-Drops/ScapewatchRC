@@ -4977,22 +4977,56 @@ span.control-emoji {
 
 /* ==================== DEATH AND RESPAWN ANIMATIONS ==================== */
 
-/* Death fade out animation */
+/* Death fade out animation with shake */
 .combat-death-animation {
-    animation: deathFade 2.4s ease-out forwards;
+    animation: deathShakeFade 2.4s ease-out forwards;
 }
 
-@keyframes deathFade {
+@keyframes deathShakeFade {
     0% { 
         opacity: 1;
         filter: brightness(1) grayscale(0);
+        transform: translateX(0) rotate(0deg);
+    }
+    10% {
+        transform: translateX(-8px) rotate(-2deg);
+    }
+    20% {
+        transform: translateX(8px) rotate(2deg);
+        filter: brightness(0.8) grayscale(0.2);
+    }
+    30% {
+        transform: translateX(-6px) rotate(-1.5deg);
+    }
+    40% {
+        transform: translateX(6px) rotate(1.5deg);
+        filter: brightness(0.6) grayscale(0.4);
     }
     50% {
+        transform: translateX(-4px) rotate(-1deg);
         filter: brightness(0.5) grayscale(0.5);
+        opacity: 0.8;
+    }
+    60% {
+        transform: translateX(4px) rotate(1deg);
+    }
+    70% {
+        transform: translateX(-2px) rotate(-0.5deg);
+        filter: brightness(0.4) grayscale(0.7);
+        opacity: 0.6;
+    }
+    80% {
+        transform: translateX(2px) rotate(0.5deg);
+    }
+    90% {
+        transform: translateX(-1px) rotate(0deg);
+        filter: brightness(0.3) grayscale(0.9);
+        opacity: 0.4;
     }
     100% { 
-        opacity: 0;
-        filter: brightness(0.2) grayscale(1);
+        opacity: 0.3;  /* Changed from 0 to 0.3 */
+        filter: brightness(0.25) grayscale(1);
+        transform: translateX(0) rotate(0deg);
     }
 }
 
@@ -5003,21 +5037,26 @@ span.control-emoji {
 
 @keyframes monsterRespawn {
     0% { 
-        opacity: 0;
+        opacity: 0.3;  /* Changed from 0 to 0.3 to match death end state */
         transform: scale(0.5) rotate(-5deg);
+        filter: brightness(0.25) grayscale(1);  /* Start from death filter state */
     }
     25% {
         transform: scale(1.1) rotate(5deg);
+        filter: brightness(0.5) grayscale(0.5);
     }
     50% {
         transform: scale(0.95) rotate(-3deg);
+        filter: brightness(0.75) grayscale(0.25);
     }
     75% {
         transform: scale(1.05) rotate(2deg);
+        filter: brightness(0.9) grayscale(0.1);
     }
     100% { 
         opacity: 1;
         transform: scale(1) rotate(0deg);
+        filter: brightness(1) grayscale(0);  /* Reset all filters */
     }
 }
 
