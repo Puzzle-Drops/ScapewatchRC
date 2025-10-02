@@ -25,6 +25,8 @@ class SkillRegistry {
         this.register(new AttackSkill());
         this.register(new StrengthSkill());
         this.register(new DefenceSkill());
+        this.register(new MagicSkill());
+        this.register(new RangedSkill());
         
         this.initialized = true;
         console.log('Skill registry initialized with', Object.keys(this.skills).length, 'skills');
