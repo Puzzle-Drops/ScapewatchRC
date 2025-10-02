@@ -5050,8 +5050,10 @@ span.control-emoji {
     position: absolute;
     display: flex;
     gap: 10px;
-    z-index: 1000;
-    transform: translateX(-50%);
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -5064,7 +5066,7 @@ span.control-emoji {
 
 @keyframes lootRise {
     0% {
-        transform: translateX(-50%) translateY(0);
+        transform: translate(-50%, -50%) translateY(0);
         opacity: 0;
     }
     20% {
@@ -5074,7 +5076,7 @@ span.control-emoji {
         opacity: 1;
     }
     100% {
-        transform: translateX(-50%) translateY(-60px);
+        transform: translate(-50%, -50%) translateY(-60px);
         opacity: 0;
     }
 }
