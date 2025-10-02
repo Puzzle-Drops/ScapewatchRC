@@ -530,6 +530,7 @@ if (this.currentTask) {
         // Restore full HP and prayer on task completion
         this.playerHp = this.playerMaxHp;
         this.prayerPoints = this.maxPrayer;
+        this.removeCombatUI();
     }
 }
         
