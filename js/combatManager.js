@@ -1170,21 +1170,11 @@ if (this.currentTask) {
     // Show loot animation
     showLootAnimation(loot) {
         if (!loot || loot.length === 0) return;
+        if (!this.monsterPanel) return;
         
         // Create loot display container
         const lootContainer = document.createElement('div');
         lootContainer.className = 'combat-loot-display';
-        
-        // Position it where the monster panel is
-        if (this.monsterPanel) {
-            const rect = this.monsterPanel.getBoundingClientRect();
-            lootContainer.style.left = `${rect.left + rect.width/2}px`;
-            lootContainer.style.top = `${rect.top + 100}px`;
-        } else {
-            // Fallback position
-            lootContainer.style.left = '1550px';
-            lootContainer.style.top = '280px';
-        }
         
         // Add each loot item
         for (const drop of loot) {
@@ -1192,10 +1182,10 @@ if (this.currentTask) {
             lootContainer.appendChild(itemElement);
         }
         
-        // Add to game container
-        const gameContainer = document.getElementById('game-container');
-        if (gameContainer) {
-            gameContainer.appendChild(lootContainer);
+        // Add to monster's image section (like hitsplats)
+        const imageSection = this.monsterPanel.querySelector('.combat-image-section');
+        if (imageSection) {
+            imageSection.appendChild(lootContainer);
         }
         
         // Start animation
