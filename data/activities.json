@@ -2048,6 +2048,44 @@
         { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
         { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
     ]
+},
+"goblin_magic": {
+    "id": "goblin_magic",
+    "name": "Fight Goblins (Magic)",
+    "skill": "magic",
+    "monsterName": "Goblin",
+    "requiredLevel": 1,
+    "requiredSlayerLevel": 1,
+    "hitpoints": 12,
+    "attack": 5,
+    "strength": 3,
+    "defence": 4,
+    "xpPerKill": {
+        "prayer": 4
+    },
+    "dropTable": [
+        { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
+        { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
+    ]
+},
+"goblin_ranged": {
+    "id": "goblin_ranged",
+    "name": "Fight Goblins (Ranged)",
+    "skill": "ranged",
+    "monsterName": "Goblin",
+    "requiredLevel": 1,
+    "requiredSlayerLevel": 1,
+    "hitpoints": 12,
+    "attack": 5,
+    "strength": 3,
+    "defence": 4,
+    "xpPerKill": {
+        "prayer": 4
+    },
+    "dropTable": [
+        { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
+        { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
+    ]
 }
     
 }
