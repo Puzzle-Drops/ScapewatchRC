@@ -211,29 +211,38 @@ class CombatManager {
     }
     
     // Complete the current phase action
-    completePhase() {
-        switch(this.combatPhase) {
-            case 'player_attack':
-                this.executePlayerAttack();
-                break;
-            case 'monster_attack':
-                this.executeMonsterAttack();
-                break;
-            case 'eat_food':
-                this.executeEatFood();
-                break;
-        }
+completePhase() {
+    switch(this.combatPhase) {
+        case 'player_attack':
+            this.executePlayerAttack();
+            
+            // Check for monster death immediately after player attack
+            if (this.monsterHp <= 0) {
+                this.handleMonsterDeath();
+                // Monster died, flush XP and exit early
+                this.flushXpBatch();
+                return; // Don't continue to next phase
+            }
+            
+            // Monster survived, flush XP from the attack
+            this.flushXpBatch();
+            break;
+            
+        case 'monster_attack':
+            this.executeMonsterAttack();
+            break;
+            
+        case 'eat_food':
+            this.executeEatFood();
+            break;
     }
+}
     
     // Move to next phase
     nextPhase() {
         switch(this.combatPhase) {
             case 'player_attack':
-                // Check for monster death before monster attacks
-                if (this.monsterHp <= 0) {
-                    this.handleMonsterDeath();
-                    return;
-                }
+                // Monster death is now checked in completePhase()
                 this.combatPhase = 'monster_attack';
                 break;
                 
@@ -252,8 +261,6 @@ class CombatManager {
                 break;
                 
             case 'eat_food':
-                // Flush XP batch
-                this.flushXpBatch();
                 // Back to player attack
                 this.combatPhase = 'player_attack';
                 break;
