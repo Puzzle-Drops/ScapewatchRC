@@ -2265,7 +2265,7 @@ slotDiv.appendChild(imgElement);
         }
     }
     
-    createEquipmentSlot(slotType, combatStyle) {
+createEquipmentSlot(slotType, combatStyle) {
     const slotDiv = document.createElement('div');
     slotDiv.className = 'equipment-slot';
     
@@ -2278,6 +2278,126 @@ slotDiv.appendChild(imgElement);
     // Add slot type class for styling
     slotDiv.classList.add(`equipment-slot-${slotType}`);
     
+    // Special handling for blessing slot in ranged/magic modes
+    if (slotType === 'blessing' && (combatStyle === 'ranged' || combatStyle === 'magic')) {
+        const blessingOptions = this.getBlessingOptions(combatStyle);
+        
+        // Get currently equipped item
+        const equippedItem = window.equipmentPanels && 
+                           window.equipmentPanels[combatStyle] && 
+                           window.equipmentPanels[combatStyle][slotType];
+        
+        if (blessingOptions.length > 0) {
+            // Create selector container
+            const selectorContainer = document.createElement('div');
+            selectorContainer.className = 'blessing-selector-container';
+            
+            const optionsWrapper = document.createElement('div');
+            optionsWrapper.className = 'blessing-options-wrapper';
+            
+            // Add each option
+            blessingOptions.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'blessing-option';
+                
+                // Check if this is the currently equipped item
+                if (equippedItem && equippedItem.itemId === option.itemId) {
+                    optionDiv.classList.add('selected');
+                }
+                
+                // Container for the item display
+                const itemContainer = document.createElement('div');
+                itemContainer.className = 'blessing-item-container';
+                
+                // Background (equipped slot or empty slot)
+                const bgImg = document.createElement('img');
+                if (equippedItem && equippedItem.itemId === option.itemId) {
+                    bgImg.src = 'assets/ui/equippedslot.png';
+                } else {
+                    bgImg.src = 'assets/ui/blessingslot.png';
+                }
+                bgImg.className = 'blessing-slot-bg';
+                itemContainer.appendChild(bgImg);
+                
+                // Item image
+                const itemImg = document.createElement('img');
+                itemImg.src = `assets/items/${option.itemId}.png`;
+                itemImg.className = 'blessing-item-image';
+                itemContainer.appendChild(itemImg);
+                
+                // Quantity badge
+                const quantityDiv = document.createElement('div');
+                quantityDiv.className = 'blessing-quantity-badge';
+                const formatted = this.formatItemCount(option.quantity);
+                quantityDiv.textContent = formatted.text;
+                quantityDiv.style.color = formatted.color;
+                itemContainer.appendChild(quantityDiv);
+                
+                optionDiv.appendChild(itemContainer);
+                
+                // Tooltip
+                const tooltip = document.createElement('div');
+                tooltip.className = 'blessing-tooltip';
+                const styleLabel = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
+                tooltip.innerHTML = `
+                    <div class="blessing-tooltip-name">${option.name}</div>
+                    <div class="blessing-tooltip-bonus">+${option.combatBonus} ${styleLabel} Bonus</div>
+                    <div class="blessing-tooltip-quantity">Quantity: ${formatNumber(option.quantity)}</div>
+                `;
+                optionDiv.appendChild(tooltip);
+                
+                // Click handler to equip
+                optionDiv.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Update equipment
+                    if (!window.equipmentPanels[combatStyle]) {
+                        window.equipmentPanels[combatStyle] = {};
+                    }
+                    
+                    const items = loadingManager.getData('items');
+                    const itemData = items[option.itemId];
+                    
+                    window.equipmentPanels[combatStyle]['blessing'] = {
+                        itemId: option.itemId,
+                        name: itemData.name,
+                        combatBonus: option.combatBonus
+                    };
+                    
+                    // Update gear score
+                    bank.updateGearScore(combatStyle);
+                    
+                    // Refresh display
+                    this.displayEquipmentForStyle(combatStyle);
+                });
+                
+                optionsWrapper.appendChild(optionDiv);
+            });
+            
+            // If no item is equipped but we have options, show empty slot at the end
+            if (!equippedItem && blessingOptions.length > 0) {
+                const emptyOption = document.createElement('div');
+                emptyOption.className = 'blessing-option selected';
+                
+                const itemContainer = document.createElement('div');
+                itemContainer.className = 'blessing-item-container';
+                
+                const bgImg = document.createElement('img');
+                bgImg.src = 'assets/ui/blessingslot.png';
+                bgImg.className = 'blessing-slot-bg';
+                itemContainer.appendChild(bgImg);
+                
+                emptyOption.appendChild(itemContainer);
+                optionsWrapper.appendChild(emptyOption);
+            }
+            
+            selectorContainer.appendChild(optionsWrapper);
+            slotDiv.appendChild(selectorContainer);
+            
+            return slotDiv;
+        }
+    }
+    
+    // Normal equipment slot handling (unchanged)
     // Get equipped item for this slot/style (if any)
     const equippedItem = window.equipmentPanels && 
                        window.equipmentPanels[combatStyle] && 
@@ -2344,6 +2464,46 @@ slotDiv.appendChild(imgElement);
     }
     
     return slotDiv;
+}
+
+// Helper method to get available blessing options from bank
+getBlessingOptions(combatStyle) {
+    const options = [];
+    const items = loadingManager.getData('items');
+    const bankItems = bank.getAllItems();
+    
+    // Determine what item category we're looking for
+    const validCategory = combatStyle === 'ranged' ? 'ammo' : 
+                          combatStyle === 'magic' ? 'rune' : null;
+    
+    if (!validCategory) return options;
+    
+    // Find all matching items in bank
+    for (const [itemId, quantity] of Object.entries(bankItems)) {
+        const itemData = items[itemId];
+        if (!itemData || quantity <= 0) continue;
+        
+        // Check if item matches our category and has combat bonus
+        if (itemData.category === validCategory && itemData.combatBonus) {
+            // Check if it matches our combat style
+            if ((combatStyle === 'ranged' && itemData.combatBonus.ranged) ||
+                (combatStyle === 'magic' && itemData.combatBonus.magic)) {
+                
+                const bonus = itemData.combatBonus[combatStyle] || 0;
+                options.push({
+                    itemId: itemId,
+                    name: itemData.name,
+                    combatBonus: bonus,
+                    quantity: quantity
+                });
+            }
+        }
+    }
+    
+    // Sort by combat bonus (lowest to highest)
+    options.sort((a, b) => a.combatBonus - b.combatBonus);
+    
+    return options;
 }
 
     // Create item count display specifically for equipment slots
