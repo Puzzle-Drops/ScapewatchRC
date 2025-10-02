@@ -314,25 +314,28 @@ completePhase() {
         if (hit) {
             // Calculate damage
             const maxHit = Math.ceil((strengthLevel + gearBonus + 1) / 2);
-            const damage = Math.floor(Math.random() * (maxHit + 1));
+            const rawDamage = Math.floor(Math.random() * (maxHit + 1));
             
-            // Apply damage (clamp to 0 to prevent negative HP)
-            this.monsterHp = Math.max(0, this.monsterHp - damage);
-            console.log(`Player hits ${damage} damage (${this.monsterHp}/${this.monsterMaxHp} HP)`);
+            // Clamp damage to monster's remaining HP
+            const actualDamage = Math.min(rawDamage, this.monsterHp);
             
-            // Show hitsplat on monster panel
-            this.showHitsplat(this.monsterPanel, damage);
+            // Apply damage
+            this.monsterHp = Math.max(0, this.monsterHp - actualDamage);
+            console.log(`Player hits ${actualDamage} damage (${this.monsterHp}/${this.monsterMaxHp} HP)`);
+            
+            // Show hitsplat with actual damage dealt
+            this.showHitsplat(this.monsterPanel, actualDamage);
             
             // Flash monster panel
             this.flashPanel(this.monsterPanel, 'damage');
             
-            // Batch combat XP (4 XP per damage)
+            // Batch combat XP based on ACTUAL damage dealt (4 XP per damage)
             if (this.currentTask) {
-                this.batchXp(this.currentTask.skill, damage * 4);
+                this.batchXp(this.currentTask.skill, actualDamage * 4);
             }
             
-            // Batch Hitpoints XP (1.33 XP per damage)
-            this.batchXp('hitpoints', Math.floor(damage * 1.33));
+            // Batch Hitpoints XP based on ACTUAL damage (1.33 XP per damage)
+            this.batchXp('hitpoints', Math.floor(actualDamage * 1.33));
         } else {
             console.log('Player misses');
             // Show miss hitsplat
@@ -375,14 +378,17 @@ completePhase() {
         if (Math.random() < Math.max(0.05, Math.min(0.95, hitChance))) {
             // Monster hits
             const maxHit = Math.ceil((monsterStrength + 1) / 2);
-            const damage = Math.floor(Math.random() * (maxHit + 1));
+            const rawDamage = Math.floor(Math.random() * (maxHit + 1));
             
-            // Apply damage (clamp to 0 to prevent negative HP)
-            this.playerHp = Math.max(0, this.playerHp - damage);
-            console.log(`Monster hits ${damage} damage (${this.playerHp}/${this.playerMaxHp} HP)`);
+            // Clamp damage to player's remaining HP
+            const actualDamage = Math.min(rawDamage, this.playerHp);
             
-            // Show hitsplat on player panel
-            this.showHitsplat(this.playerPanel, damage);
+            // Apply damage
+            this.playerHp = Math.max(0, this.playerHp - actualDamage);
+            console.log(`Monster hits ${actualDamage} damage (${this.playerHp}/${this.playerMaxHp} HP)`);
+            
+            // Show hitsplat with actual damage dealt
+            this.showHitsplat(this.playerPanel, actualDamage);
             
             // Flash player panel
             this.flashPanel(this.playerPanel, 'damage');
