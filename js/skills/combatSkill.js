@@ -41,19 +41,31 @@ class CombatSkill extends BaseSkill {
         // Get node data for description
         const nodeData = nodes.getNode(selectedNode.nodeId);
         
-        return {
-            skill: this.id,
-            monsterName: selectedMonster.monsterName,
-            targetCount: killCount,
-            nodeId: selectedNode.nodeId,
-            activityId: selectedNode.activityId,
-            combatStyle: 'melee',
-            killsCompleted: 0,
-            isCombatTask: true,
-            description: `Kill ${killCount} ${selectedMonster.monsterName}s with Melee at ${nodeData.name}`,
-            startingCount: 0,
-            progress: 0
-        };
+        // Determine combat style based on skill
+let combatStyle = 'melee';
+let styleText = 'Melee';
+if (this.id === 'magic') {
+    combatStyle = 'magic';
+    styleText = 'Magic';
+} else if (this.id === 'ranged') {
+    combatStyle = 'ranged';
+    styleText = 'Ranged';
+}
+// attack, strength, defence all use melee
+
+return {
+    skill: this.id,
+    monsterName: selectedMonster.monsterName,
+    targetCount: killCount,
+    nodeId: selectedNode.nodeId,
+    activityId: selectedNode.activityId,
+    combatStyle: combatStyle,
+    killsCompleted: 0,
+    isCombatTask: true,
+    description: `Kill ${killCount} ${selectedMonster.monsterName}s with ${styleText} at ${nodeData.name}`,
+    startingCount: 0,
+    progress: 0
+};
     }
     
     getAvailableMonsters() {
