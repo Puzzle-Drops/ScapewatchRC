@@ -56,6 +56,18 @@ class CombatManager {
         }
         this.xpBatch[skillId] += amount;
     }
+
+    // Get combat activity progress for visual display
+    getCombatActivityProgress() {
+        if (!this.inCombat) return 0;
+        
+        // Only show progress during player attack phase
+        if (this.combatPhase === 'player_attack') {
+            return this.phaseTimer / this.getPhaseDuration('player_attack');
+        }
+        
+        return 0; // No circle during other phases
+    }
     
     // Send batched XP to skills and create combined drop
     flushXpBatch() {
@@ -473,6 +485,13 @@ completePhase() {
         
         // Store loot to give after animation
         this.pendingLoot = this.rollLoot(this.currentMonster.dropTable);
+        
+        // Show loot animation after 1.2 seconds
+        if (this.pendingLoot && this.pendingLoot.length > 0) {
+            setTimeout(() => {
+                this.showLootAnimation(this.pendingLoot);
+            }, 1200);
+        }
     }
     
     // Execute the actual monster respawn after animation
@@ -1147,6 +1166,97 @@ if (this.currentTask) {
         
         this.uiCreated = false;
     }
+
+    // Show loot animation
+    showLootAnimation(loot) {
+        if (!loot || loot.length === 0) return;
+        
+        // Create loot display container
+        const lootContainer = document.createElement('div');
+        lootContainer.className = 'combat-loot-display';
+        
+        // Position it where the monster panel is
+        if (this.monsterPanel) {
+            const rect = this.monsterPanel.getBoundingClientRect();
+            lootContainer.style.left = `${rect.left + rect.width/2}px`;
+            lootContainer.style.top = `${rect.top + 100}px`;
+        } else {
+            // Fallback position
+            lootContainer.style.left = '1550px';
+            lootContainer.style.top = '280px';
+        }
+        
+        // Add each loot item
+        for (const drop of loot) {
+            const itemElement = this.createLootItemElement(drop.itemId, drop.quantity);
+            lootContainer.appendChild(itemElement);
+        }
+        
+        // Add to game container
+        const gameContainer = document.getElementById('game-container');
+        if (gameContainer) {
+            gameContainer.appendChild(lootContainer);
+        }
+        
+        // Start animation
+        setTimeout(() => {
+            lootContainer.classList.add('loot-animate');
+        }, 10);
+        
+        // Remove after animation completes (3 seconds)
+        setTimeout(() => {
+            if (lootContainer.parentNode) {
+                lootContainer.parentNode.removeChild(lootContainer);
+            }
+        }, 3000);
+    }
+    
+    // Create individual loot item element
+    createLootItemElement(itemId, quantity) {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'loot-item';
+        
+        // Get item data
+        const items = loadingManager.getData('items');
+        const itemData = items[itemId];
+        
+        // Determine image source
+        let imageSrc;
+        if (itemId === 'coins') {
+            // Use special coin images based on quantity
+            const coinImage = window.ui ? ui.getCoinImage(quantity) : 'coins_1';
+            imageSrc = `assets/items/${coinImage}.png`;
+        } else {
+            imageSrc = `assets/items/${itemId}.png`;
+        }
+        
+        // Create image
+        const img = document.createElement('img');
+        img.src = imageSrc;
+        img.alt = itemData ? itemData.name : itemId;
+        itemDiv.appendChild(img);
+        
+        // Add quantity badge if more than 1
+        if (quantity > 1) {
+            const quantityBadge = document.createElement('div');
+            quantityBadge.className = 'loot-quantity';
+            quantityBadge.textContent = this.formatQuantity(quantity);
+            itemDiv.appendChild(quantityBadge);
+        }
+        
+        return itemDiv;
+    }
+    
+    // Format quantity for display (K, M notation)
+    formatQuantity(quantity) {
+        if (quantity >= 1000000) {
+            return Math.floor(quantity / 1000000) + 'M';
+        } else if (quantity >= 10000) {
+            return Math.floor(quantity / 1000) + 'K';
+        }
+        return quantity.toString();
+    }
+    
 }
 
 // Make CombatManager available globally
