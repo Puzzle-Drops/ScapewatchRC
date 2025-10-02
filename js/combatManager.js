@@ -284,36 +284,13 @@ completePhase() {
         // Animate player attack
         this.animateAttack(this.playerPanel, 'player');
         
-        // Determine attack and strength values based on combat style
-        let attackLevel, strengthLevel, gearBonus;
-        
-        if (this.combatStyle === 'melee') {
-            attackLevel = skills.getLevel('attack');
-            strengthLevel = skills.getLevel('strength');
-            gearBonus = window.gearScores ? window.gearScores.melee : 0;
-        } else if (this.combatStyle === 'ranged') {
-            attackLevel = skills.getLevel('ranged');
-            strengthLevel = skills.getLevel('ranged');
-            gearBonus = window.gearScores ? window.gearScores.ranged : 0;
-        } else { // magic
-            attackLevel = skills.getLevel('magic');
-            strengthLevel = skills.getLevel('magic');
-            gearBonus = window.gearScores ? window.gearScores.magic : 0;
-        }
-        
-        // Apply prayer bonus (1.5x rounded down)
-        if (this.prayerPoints > 0) {
-            attackLevel = Math.floor(attackLevel * 1.5);
-            strengthLevel = Math.floor(strengthLevel * 1.5);
-        }
-        
-        // Calculate hit chance
-        const hitChance = (attackLevel + gearBonus + 8) / (4 * (this.currentMonster.defence + 8));
-        const hit = Math.random() < Math.max(0.05, Math.min(0.95, hitChance));
+        // Use centralized accuracy calculation
+        const hitChance = this.calculatePlayerAccuracy();
+        const hit = Math.random() < hitChance;
         
         if (hit) {
-            // Calculate damage
-            const maxHit = Math.max(1, Math.ceil((strengthLevel + gearBonus + 4) / 4));
+            // Calculate damage using centralized max hit calculation
+            const maxHit = this.calculatePlayerMaxHit();
             const rawDamage = Math.max(1, Math.floor(Math.random() * (maxHit + 1)));
             
             // Clamp damage to monster's remaining HP
@@ -353,31 +330,12 @@ completePhase() {
         // Animate monster attack
         this.animateAttack(this.monsterPanel, 'monster');
         
-        // Get player's defence level and bonus (gear bonus divided by 10 for defense)
-        let defenceLevel = skills.getLevel('defence');
-        const defenceBonus = window.gearScores ? Math.floor(window.gearScores[this.combatStyle] / 10) : 0;
+        // Use centralized accuracy calculation
+        const hitChance = this.calculateMonsterAccuracy();
         
-        // Apply prayer bonus to defence
-        if (this.prayerPoints > 0) {
-            defenceLevel = Math.floor(defenceLevel * 1.5);
-        }
-        
-        // Get monster's attack level (with prayer bonus if active)
-        let monsterAttack = this.currentMonster.attack;
-        let monsterStrength = this.currentMonster.strength;
-        
-        // Apply monster prayer bonus if active
-        if (this.monsterPrayerPoints > 0) {
-            monsterAttack = Math.floor(monsterAttack * 1.5);
-            monsterStrength = Math.floor(monsterStrength * 1.5);
-        }
-        
-        // Calculate monster hit chance
-        const hitChance = (monsterAttack + 8) / (4 * (defenceLevel + defenceBonus + 8));
-        
-        if (Math.random() < Math.max(0.05, Math.min(0.95, hitChance))) {
-            // Monster hits
-            const maxHit = Math.max(1, Math.ceil((monsterStrength + 4) / 4));
+        if (Math.random() < hitChance) {
+            // Monster hits - use centralized max hit calculation
+            const maxHit = this.calculateMonsterMaxHit();
             const rawDamage = Math.max(1, Math.floor(Math.random() * (maxHit + 1)));
             
             // Clamp damage to player's remaining HP
@@ -1022,18 +980,17 @@ if (this.currentTask) {
         this.monsterPanel.querySelector('.gear-ranged .gear-value').textContent = '+0';
         this.monsterPanel.querySelector('.gear-magic .gear-value').textContent = '+0';
         
-        // Calculate monster max hit (with prayer bonus if active)
-        let monsterStrength = this.currentMonster.strength;
-        if (this.monsterPrayerPoints > 0) {
-            monsterStrength = Math.floor(monsterStrength * 1.5);
-        }
-        const monsterMaxHit = Math.max(1, Math.ceil((monsterStrength + 4) / 4));
+        // Calculate monster max hit using centralized function
+        const monsterMaxHit = this.calculateMonsterMaxHit();
         this.monsterPanel.querySelector('.max-hit-value').textContent = monsterMaxHit;
         
         // Calculate monster accuracy vs player
         const monsterAccuracy = this.calculateMonsterAccuracy();
         this.monsterPanel.querySelector('.accuracy-value').textContent = `${Math.round(monsterAccuracy * 100)}%`;
     }
+    
+    // ==================== CENTRALIZED COMBAT CALCULATIONS ====================
+    // These 4 methods are the ONLY place combat math should happen
     
     calculatePlayerMaxHit() {
         let strengthLevel, gearBonus;
@@ -1078,7 +1035,7 @@ if (this.currentTask) {
             attackLevel = Math.floor(attackLevel * 1.5);
         }
         
-        const hitChance = (attackLevel + gearBonus + 8) / (4 * (this.currentMonster.defence + 8));
+        const hitChance = (attackLevel + gearBonus + 12) / (4 * (this.currentMonster.defence + 8));
         return Math.max(0.05, Math.min(0.95, hitChance));
     }
     
@@ -1097,8 +1054,20 @@ if (this.currentTask) {
             monsterAttack = Math.floor(monsterAttack * 1.5);
         }
         
-        const hitChance = (monsterAttack + 8) / (4 * (defenceLevel + defenceBonus + 8));
+        const hitChance = (monsterAttack + 12) / (4 * (defenceLevel + defenceBonus + 8));
         return Math.max(0.05, Math.min(0.95, hitChance));
+    }
+    
+    calculateMonsterMaxHit() {
+        if (!this.currentMonster) return 1;
+        
+        // Get monster strength (with prayer bonus if active)
+        let monsterStrength = this.currentMonster.strength;
+        if (this.monsterPrayerPoints > 0) {
+            monsterStrength = Math.floor(monsterStrength * 1.5);
+        }
+        
+        return Math.max(1, Math.ceil((monsterStrength + 4) / 4));
     }
     
     // Animation methods
