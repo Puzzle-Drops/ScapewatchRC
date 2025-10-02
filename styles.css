@@ -5185,9 +5185,27 @@ span.control-emoji {
 
 /* ==================== EQUIPMENT ITEM OVERLAY ==================== */
 
-/* Ensure equipment slot has relative positioning for overlay */
+/* Ensure equipment slot has relative positioning */
 .equipment-slot {
     position: relative;
+}
+
+/* Container that acts like the equipped slot (same size as empty slot icons) */
+.equipped-slot-container {
+    position: relative;
+    width: 80%;
+    height: 80%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Background image for equipped slots */
+.equipment-slot-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 /* Equipped item overlay (on top of equippedslot.png background) */
@@ -5203,11 +5221,11 @@ span.control-emoji {
     pointer-events: none;
 }
 
-/* Keep the existing equipment-item-count styles for blessing slot quantities */
+/* Quantity display - now positioned inside the equipped slot container */
 .equipment-item-count {
     position: absolute;
-    top: 2px;
-    left: 2px;
+    top: 4px;
+    left: 4px;
     font-size: 24px;
     padding: 1px 3px;
     border-radius: 2px;
