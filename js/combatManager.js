@@ -300,6 +300,12 @@ completePhase() {
                     window.equipmentPanels[this.combatStyle].blessing = null;
                     console.log(`Ran out of ${blessing.name} blessings`);
                     
+                    // Try to auto-equip new ammo from bank
+                    if (window.bank) {
+                        console.log('Scanning bank for new ammo to equip...');
+                        bank.scanAndEquipBestItems();
+                    }
+                    
                     // Update equipment UI if open
                     if (window.ui && window.ui.currentPanel === 'equipment') {
                         window.ui.updateEquipment();
@@ -309,6 +315,12 @@ completePhase() {
                 // No blessings in bank, remove from equipment
                 window.equipmentPanels[this.combatStyle].blessing = null;
                 console.log(`No ${blessing.name} in bank for ${this.combatStyle} attack`);
+                
+                // Try to auto-equip new ammo from bank
+                if (window.bank) {
+                    console.log('Scanning bank for new ammo to equip...');
+                    bank.scanAndEquipBestItems();
+                }
                 
                 // Update equipment UI if open
                 if (window.ui && window.ui.currentPanel === 'equipment') {
