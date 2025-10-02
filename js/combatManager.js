@@ -297,8 +297,8 @@ class CombatManager {
             const maxHit = Math.ceil((strengthLevel + gearBonus + 1) / 2);
             const damage = Math.floor(Math.random() * (maxHit + 1));
             
-            // Apply damage
-            this.monsterHp -= damage;
+            // Apply damage (clamp to 0 to prevent negative HP)
+            this.monsterHp = Math.max(0, this.monsterHp - damage);
             console.log(`Player hits ${damage} damage (${this.monsterHp}/${this.monsterMaxHp} HP)`);
             
             // Show hitsplat on monster panel
@@ -358,7 +358,8 @@ class CombatManager {
             const maxHit = Math.ceil((monsterStrength + 1) / 2);
             const damage = Math.floor(Math.random() * (maxHit + 1));
             
-            this.playerHp -= damage;
+            // Apply damage (clamp to 0 to prevent negative HP)
+            this.playerHp = Math.max(0, this.playerHp - damage);
             console.log(`Monster hits ${damage} damage (${this.playerHp}/${this.playerMaxHp} HP)`);
             
             // Show hitsplat on player panel
@@ -852,8 +853,8 @@ if (this.currentTask) {
         this.playerPanel.querySelector('.combat-name').textContent = playerName;
         this.playerPanel.querySelector('.combat-level').textContent = `Combat Level: ${combatLevel}`;
         
-        // Update HP bar
-        const hpPercent = (this.playerHp / this.playerMaxHp) * 100;
+        // Update HP bar (clamp percentage between 0 and 100)
+        const hpPercent = Math.max(0, Math.min(100, (this.playerHp / this.playerMaxHp) * 100));
         const hpFill = this.playerPanel.querySelector('.combat-hp-fill');
         hpFill.style.width = `${hpPercent}%`;
         
@@ -925,8 +926,8 @@ if (this.currentTask) {
         this.monsterPanel.querySelector('.combat-name').textContent = monsterName;
         this.monsterPanel.querySelector('.combat-level').textContent = `Combat Level: ${monsterCombatLevel}`;
         
-        // Update HP bar
-        const hpPercent = (this.monsterHp / this.monsterMaxHp) * 100;
+        // Update HP bar (clamp percentage between 0 and 100)
+        const hpPercent = Math.max(0, Math.min(100, (this.monsterHp / this.monsterMaxHp) * 100));
         const hpFill = this.monsterPanel.querySelector('.combat-hp-fill');
         hpFill.style.width = `${hpPercent}%`;
         hpFill.style.background = 'linear-gradient(90deg, #c0392b, #e74c3c)';
