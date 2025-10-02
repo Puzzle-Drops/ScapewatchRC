@@ -24,11 +24,15 @@ syncAfterLoad() {
         console.log(`Banking flag preserved: ${this.hasBankedForCurrentTask}`);
 
         // Check if we're resuming a combat task
-        if (this.currentTask.isCombatTask && window.player && player.combatManager && player.combatManager.inCombat) {
-            console.log(`Resuming combat task: ${this.currentTask.killsCompleted}/${this.currentTask.targetCount} kills`);
-            // Sync the combat manager's task reference
-            player.combatManager.currentTask = this.currentTask;
-        }
+if (this.currentTask.isCombatTask && window.player && player.combatManager && player.combatManager.inCombat) {
+    console.log(`Resuming combat task: ${this.currentTask.killsCompleted}/${this.currentTask.targetCount} kills`);
+    // Sync the combat manager's task reference
+    player.combatManager.currentTask = this.currentTask;
+    // Initialize killsCompleted if somehow missing
+    if (this.currentTask.killsCompleted === undefined) {
+        this.currentTask.killsCompleted = 0;
+    }
+}
         
         // Verify we're on the right path
         if (player.isMoving() && player.targetNode) {
@@ -396,6 +400,21 @@ if (!this.isCurrentTaskValid()) {
             player.moveTo(task.nodeId);
             return;
         }
+
+        // Check if we're continuing combat at the same node with a new task
+if (task.isCombatTask && player.combatManager && player.combatManager.inCombat) {
+    // We're already in combat, but need to update the task reference
+    if (player.combatManager.currentTask !== task) {
+        console.log(`Updating combat manager with new task: ${task.description}`);
+        player.combatManager.currentTask = task;
+        // Initialize killsCompleted if not set
+        if (!task.killsCompleted) {
+            task.killsCompleted = 0;
+        }
+    }
+    // Combat is already running with updated task
+    return;
+}
 
         // Verify we're actually at the node
         if (node) {
