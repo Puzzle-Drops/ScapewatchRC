@@ -281,49 +281,86 @@ completePhase() {
     
     // Execute player attack
     executePlayerAttack() {
-        // Animate player attack
-        this.animateAttack(this.playerPanel, 'player');
+    // Consume blessing for ranged/magic attacks
+    if (this.combatStyle === 'ranged' || this.combatStyle === 'magic') {
+        const blessing = window.equipmentPanels && window.equipmentPanels[this.combatStyle] ? 
+            window.equipmentPanels[this.combatStyle].blessing : null;
         
-        // Use centralized accuracy calculation
-        const hitChance = this.calculatePlayerAccuracy();
-        const hit = Math.random() < hitChance;
-        
-        if (hit) {
-            // Calculate damage using centralized max hit calculation
-            const maxHit = this.calculatePlayerMaxHit();
-            const rawDamage = Math.max(1, Math.floor(Math.random() * (maxHit + 1)));
-            
-            // Clamp damage to monster's remaining HP
-            const actualDamage = Math.min(rawDamage, this.monsterHp);
-            
-            // Apply damage
-            this.monsterHp = Math.max(0, this.monsterHp - actualDamage);
-            console.log(`Player hits ${actualDamage} damage (${this.monsterHp}/${this.monsterMaxHp} HP)`);
-            
-            // Show hitsplat with actual damage dealt
-            this.showHitsplat(this.monsterPanel, actualDamage);
-            
-            // Flash monster panel
-            this.flashPanel(this.monsterPanel, 'damage');
-            
-            // Batch combat XP based on ACTUAL damage dealt (4 XP per damage)
-            if (this.currentTask) {
-                this.batchXp(this.currentTask.skill, actualDamage * 4);
+        if (blessing && blessing.itemId) {
+            // Check if we have the blessing item in bank
+            const bankCount = bank.getItemCount(blessing.itemId);
+            if (bankCount > 0) {
+                // Consume one blessing from bank
+                bank.withdraw(blessing.itemId, 1);
+                
+                // Update the blessing count in equipment
+                const newCount = bank.getItemCount(blessing.itemId);
+                if (newCount <= 0) {
+                    // No more blessings, remove from equipment
+                    window.equipmentPanels[this.combatStyle].blessing = null;
+                    console.log(`Ran out of ${blessing.name} blessings`);
+                    
+                    // Update equipment UI if open
+                    if (window.ui && window.ui.currentPanel === 'equipment') {
+                        window.ui.updateEquipment();
+                    }
+                }
+            } else {
+                // No blessings in bank, remove from equipment
+                window.equipmentPanels[this.combatStyle].blessing = null;
+                console.log(`No ${blessing.name} in bank for ${this.combatStyle} attack`);
+                
+                // Update equipment UI if open
+                if (window.ui && window.ui.currentPanel === 'equipment') {
+                    window.ui.updateEquipment();
+                }
             }
-            
-            // Batch Hitpoints XP based on ACTUAL damage (1.33 XP per damage)
-            this.batchXp('hitpoints', Math.floor(actualDamage * 1.33));
-        } else {
-            console.log('Player misses');
-            // Show miss hitsplat
-            this.showHitsplat(this.monsterPanel, 0);
-        }
-        
-        // Drain player prayer after attack
-        if (this.prayerPoints > 0) {
-            this.prayerPoints--;
         }
     }
+    
+    // Animate player attack
+    this.animateAttack(this.playerPanel, 'player');
+    
+    // Use centralized accuracy calculation
+    const hitChance = this.calculatePlayerAccuracy();
+    const hit = Math.random() < hitChance;
+    
+    if (hit) {
+        // Calculate damage using centralized max hit calculation
+        const maxHit = this.calculatePlayerMaxHit();
+        const rawDamage = Math.max(1, Math.floor(Math.random() * (maxHit + 1)));
+        
+        // Clamp damage to monster's remaining HP
+        const actualDamage = Math.min(rawDamage, this.monsterHp);
+        
+        // Apply damage
+        this.monsterHp = Math.max(0, this.monsterHp - actualDamage);
+        console.log(`Player hits ${actualDamage} damage (${this.monsterHp}/${this.monsterMaxHp} HP)`);
+        
+        // Show hitsplat with actual damage dealt
+        this.showHitsplat(this.monsterPanel, actualDamage);
+        
+        // Flash monster panel
+        this.flashPanel(this.monsterPanel, 'damage');
+        
+        // Batch combat XP based on ACTUAL damage dealt (4 XP per damage)
+        if (this.currentTask) {
+            this.batchXp(this.currentTask.skill, actualDamage * 4);
+        }
+        
+        // Batch Hitpoints XP based on ACTUAL damage (1.33 XP per damage)
+        this.batchXp('hitpoints', Math.floor(actualDamage * 1.33));
+    } else {
+        console.log('Player misses');
+        // Show miss hitsplat
+        this.showHitsplat(this.monsterPanel, 0);
+    }
+    
+    // Drain player prayer after attack
+    if (this.prayerPoints > 0) {
+        this.prayerPoints--;
+    }
+}
     
     // Execute monster attack
     executeMonsterAttack() {
@@ -993,51 +1030,72 @@ if (this.currentTask) {
     // These 4 methods are the ONLY place combat math should happen
     
     calculatePlayerMaxHit() {
-        let strengthLevel, gearBonus;
-        
-        if (this.combatStyle === 'melee') {
-            strengthLevel = skills.getLevel('strength');
-            gearBonus = window.gearScores ? window.gearScores.melee : 0;
-        } else if (this.combatStyle === 'ranged') {
-            strengthLevel = skills.getLevel('ranged');
-            gearBonus = window.gearScores ? window.gearScores.ranged : 0;
-        } else {
-            strengthLevel = skills.getLevel('magic');
-            gearBonus = window.gearScores ? window.gearScores.magic : 0;
-        }
-        
-        // Apply prayer bonus
-        if (this.prayerPoints > 0) {
-            strengthLevel = Math.floor(strengthLevel * 1.5);
-        }
-
-        return Math.max(1, Math.ceil((strengthLevel + gearBonus + 4) / 4));
+    let strengthLevel, gearBonus;
+    
+    if (this.combatStyle === 'melee') {
+        strengthLevel = skills.getLevel('strength');
+        gearBonus = window.gearScores ? window.gearScores.melee : 0;
+    } else if (this.combatStyle === 'ranged') {
+        strengthLevel = skills.getLevel('ranged');
+        gearBonus = window.gearScores ? window.gearScores.ranged : 0;
+    } else {
+        strengthLevel = skills.getLevel('magic');
+        gearBonus = window.gearScores ? window.gearScores.magic : 0;
     }
     
-    calculatePlayerAccuracy() {
-        if (!this.currentMonster) return 0;
-        
-        let attackLevel, gearBonus;
-        
-        if (this.combatStyle === 'melee') {
-            attackLevel = skills.getLevel('attack');
-            gearBonus = window.gearScores ? window.gearScores.melee : 0;
-        } else if (this.combatStyle === 'ranged') {
-            attackLevel = skills.getLevel('ranged');
-            gearBonus = window.gearScores ? window.gearScores.ranged : 0;
-        } else {
-            attackLevel = skills.getLevel('magic');
-            gearBonus = window.gearScores ? window.gearScores.magic : 0;
-        }
-        
-        // Apply prayer bonus
-        if (this.prayerPoints > 0) {
-            attackLevel = Math.floor(attackLevel * 1.5);
-        }
-        
-        const hitChance = (attackLevel + gearBonus + 12) / (4 * (this.currentMonster.defence + 8));
-        return Math.max(0.05, Math.min(0.95, hitChance));
+    // Apply prayer bonus
+    if (this.prayerPoints > 0) {
+        strengthLevel = Math.floor(strengthLevel * 1.5);
     }
+
+    let maxHit = Math.max(1, Math.ceil((strengthLevel + gearBonus + 4) / 4));
+    
+    // Apply penalty if using ranged/magic without blessing
+    if (this.combatStyle === 'ranged' || this.combatStyle === 'magic') {
+        const blessing = window.equipmentPanels && window.equipmentPanels[this.combatStyle] ? 
+            window.equipmentPanels[this.combatStyle].blessing : null;
+        if (!blessing) {
+            maxHit = Math.floor(maxHit / 2);
+        }
+    }
+    
+    return maxHit;
+}
+    
+    calculatePlayerAccuracy() {
+    if (!this.currentMonster) return 0;
+    
+    let attackLevel, gearBonus;
+    
+    if (this.combatStyle === 'melee') {
+        attackLevel = skills.getLevel('attack');
+        gearBonus = window.gearScores ? window.gearScores.melee : 0;
+    } else if (this.combatStyle === 'ranged') {
+        attackLevel = skills.getLevel('ranged');
+        gearBonus = window.gearScores ? window.gearScores.ranged : 0;
+    } else {
+        attackLevel = skills.getLevel('magic');
+        gearBonus = window.gearScores ? window.gearScores.magic : 0;
+    }
+    
+    // Apply prayer bonus
+    if (this.prayerPoints > 0) {
+        attackLevel = Math.floor(attackLevel * 1.5);
+    }
+    
+    let hitChance = (attackLevel + gearBonus + 12) / (4 * (this.currentMonster.defence + 8));
+    
+    // Apply penalty if using ranged/magic without blessing
+    if (this.combatStyle === 'ranged' || this.combatStyle === 'magic') {
+        const blessing = window.equipmentPanels && window.equipmentPanels[this.combatStyle] ? 
+            window.equipmentPanels[this.combatStyle].blessing : null;
+        if (!blessing) {
+            hitChance = hitChance / 2;
+        }
+    }
+    
+    return Math.max(0.05, Math.min(0.95, hitChance));
+}
     
     calculateMonsterAccuracy() {
         let defenceLevel = skills.getLevel('defence');
