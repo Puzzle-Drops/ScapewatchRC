@@ -291,26 +291,42 @@ completePhase() {
             const bankCount = bank.getItemCount(blessing.itemId);
             if (bankCount > 0) {
                 // Consume one blessing from bank
-                bank.withdraw(blessing.itemId, 1);
-                
-                // Update the blessing count in equipment
-                const newCount = bank.getItemCount(blessing.itemId);
-                if (newCount <= 0) {
-                    // No more blessings, remove from equipment
-                    window.equipmentPanels[this.combatStyle].blessing = null;
-                    console.log(`Ran out of ${blessing.name} blessings`);
-                    
-                    // Try to auto-equip new ammo from bank
-                    if (window.bank) {
-                        console.log('Scanning bank for new ammo to equip...');
-                        bank.scanAndEquipBestItems();
-                    }
-                    
-                    // Update equipment UI if open
-                    if (window.ui && window.ui.currentPanel === 'equipment') {
-                        window.ui.updateEquipment();
-                    }
+bank.withdraw(blessing.itemId, 1);
+
+// Update the blessing count in equipment
+const newCount = bank.getItemCount(blessing.itemId);
+if (newCount <= 0) {
+    // No more blessings, remove from equipment
+    window.equipmentPanels[this.combatStyle].blessing = null;
+    console.log(`Ran out of ${blessing.name} blessings`);
+    
+    // Try to auto-equip new ammo from bank
+    if (window.bank) {
+        console.log('Scanning bank for new ammo to equip...');
+        bank.scanAndEquipBestItems();
+    }
+    
+    // Update equipment UI if open
+    if (window.ui && window.ui.currentPanel === 'equipment') {
+        window.ui.updateEquipment();
+    }
+} else {
+    // Still have blessings, just update the quantity display
+    // Update equipment UI to show new quantity
+    if (window.ui && window.ui.currentPanel === 'equipment') {
+        // Find and update the blessing quantity badge
+        const currentTab = document.querySelector('.equipment-tab.active');
+        if (currentTab && currentTab.dataset.style === this.combatStyle) {
+            const blessingSlot = document.querySelector('.equipment-slot[data-slot="blessing"]');
+            if (blessingSlot) {
+                const quantityBadge = blessingSlot.querySelector('.equipment-item-count');
+                if (quantityBadge) {
+                    quantityBadge.textContent = window.ui.formatQuantity(newCount);
                 }
+            }
+        }
+    }
+}
             } else {
                 // No blessings in bank, remove from equipment
                 window.equipmentPanels[this.combatStyle].blessing = null;
