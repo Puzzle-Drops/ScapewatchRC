@@ -2286,29 +2286,35 @@ slotDiv.appendChild(imgElement);
     if (equippedItem) {
         // Show equipped slot with item
         
+        // Create container for the equipped slot (acts like a bank slot)
+        const slotContainer = document.createElement('div');
+        slotContainer.className = 'equipped-slot-container';
+        
         // Layer 1: Equipped slot background (replaces the normal slot icon)
         const bgImg = document.createElement('img');
         bgImg.src = 'assets/ui/equippedslot.png';
-        bgImg.className = 'equipment-slot-icon'; // Use same class as empty slots for consistent sizing
-        slotDiv.appendChild(bgImg);
+        bgImg.className = 'equipment-slot-bg-image';
+        slotContainer.appendChild(bgImg);
         
         // Layer 2: Equipped item image on top
         const itemImg = document.createElement('img');
         itemImg.src = `assets/items/${equippedItem.itemId}.png`;
         itemImg.className = 'equipment-item-overlay';
-        slotDiv.appendChild(itemImg);
+        slotContainer.appendChild(itemImg);
         
-        // Add quantity display for blessing slot (arrows/runes)
+        // Add quantity display for blessing slot (arrows/runes) - inside the container
         if (slotType === 'blessing') {
             // Get quantity from bank (since equipped items pull from bank)
             const quantity = window.bank ? bank.getItemCount(equippedItem.itemId) : 0;
             if (quantity > 0) {
                 const countDiv = this.createEquipmentItemCount(quantity);
-                slotDiv.appendChild(countDiv);
+                slotContainer.appendChild(countDiv);
             }
         }
         
-        // Add tooltip
+        slotDiv.appendChild(slotContainer);
+        
+        // Add tooltip (outside the container, directly on slotDiv)
         const tooltip = document.createElement('div');
         tooltip.className = 'equipment-tooltip';
         const styleLabel = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
@@ -2334,7 +2340,6 @@ slotDiv.appendChild(imgElement);
         const img = document.createElement('img');
         img.src = `assets/ui/${slotType}slot.png`;
         img.className = 'equipment-slot-icon';
-        // Removed: img.style.opacity = '0.3';
         slotDiv.appendChild(img);
     }
     
