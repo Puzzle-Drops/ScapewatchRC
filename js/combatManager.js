@@ -432,13 +432,31 @@ completePhase() {
         // Sort foods by heal amount (smallest first)
         foods.sort((a, b) => a.healAmount - b.healAmount);
         
-        // Find optimal food (smallest that heals without waste)
+        // First, try to find optimal food (smallest that heals without waste)
+        let optimalFood = null;
         for (const food of foods) {
             if (food.healAmount <= missingHp) {
-                this.shouldEatThisRound = true;
-                this.foodToEat = food;
+                optimalFood = food; // Keep updating to find the largest that still fits
             } else {
                 break; // Foods are sorted, no point checking larger heals
+            }
+        }
+        
+        // If we found optimal food, use it
+        if (optimalFood) {
+            this.shouldEatThisRound = true;
+            this.foodToEat = optimalFood;
+            return;
+        }
+        
+        // No optimal food found - check if we're in danger (below 50% HP)
+        const hpPercent = this.playerHp / this.playerMaxHp;
+        if (hpPercent < 0.5) {
+            // We're in danger and have no perfect food - eat the smallest available to minimize waste
+            if (foods.length > 0) {
+                this.shouldEatThisRound = true;
+                this.foodToEat = foods[0]; // Smallest food (already sorted)
+                console.log(`Emergency eating: ${foods[0].itemId} (wastes ${foods[0].healAmount - missingHp} HP)`);
             }
         }
     }
