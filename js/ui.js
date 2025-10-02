@@ -2496,37 +2496,35 @@ getBlessingOptions(combatStyle) {
     const items = loadingManager.getData('items');
     const bankItems = bank.getAllItems();
     
-    // Determine what item category we're looking for
-    const validCategory = combatStyle === 'ranged' ? 'ammo' : 
-                          combatStyle === 'magic' ? 'rune' : null;
-    
-    if (!validCategory) return options;
+    console.log('Getting blessing options for combat style:', combatStyle);
+    console.log('Bank items:', bankItems);
     
     // Find all matching items in bank
     for (const [itemId, quantity] of Object.entries(bankItems)) {
         const itemData = items[itemId];
         if (!itemData || quantity <= 0) continue;
         
-        // Check if item matches our category and has combat bonus
-        if (itemData.category === validCategory && itemData.combatBonus) {
-            // Check if it matches our combat style
-            if ((combatStyle === 'ranged' && itemData.combatBonus.ranged) ||
-                (combatStyle === 'magic' && itemData.combatBonus.magic)) {
-                
-                const bonus = itemData.combatBonus[combatStyle] || 0;
-                options.push({
-                    itemId: itemId,
-                    name: itemData.name,
-                    combatBonus: bonus,
-                    quantity: quantity
-                });
-            }
+        // Check if this is a blessing slot equipment item
+        if (itemData.category === 'equipment' && 
+            itemData.equipmentSlot === 'blessing' &&
+            itemData.combatStyle === combatStyle &&
+            itemData.combatBonus) {
+            
+            console.log('Found matching item:', itemId, itemData);
+            
+            options.push({
+                itemId: itemId,
+                name: itemData.name,
+                combatBonus: itemData.combatBonus,
+                quantity: quantity
+            });
         }
     }
     
     // Sort by combat bonus (lowest to highest)
     options.sort((a, b) => a.combatBonus - b.combatBonus);
     
+    console.log('Final blessing options:', options);
     return options;
 }
 
