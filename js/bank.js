@@ -150,6 +150,17 @@ class Bank {
             };
         }
         
+        // Preserve manual blessing selections for ranged and magic
+        const preservedBlessings = {};
+        if (window.equipmentPanels.ranged && window.equipmentPanels.ranged.blessing) {
+            preservedBlessings.ranged = window.equipmentPanels.ranged.blessing;
+            console.log('Preserving ranged blessing:', preservedBlessings.ranged.name);
+        }
+        if (window.equipmentPanels.magic && window.equipmentPanels.magic.blessing) {
+            preservedBlessings.magic = window.equipmentPanels.magic.blessing;
+            console.log('Preserving magic blessing:', preservedBlessings.magic.name);
+        }
+        
         // Clear current equipment
         for (const style of ['melee', 'ranged', 'magic']) {
             window.equipmentPanels[style] = {};
@@ -210,6 +221,29 @@ class Bank {
             window.gearScores[style] = totalBonus;
         }
         
+        // Restore preserved blessing selections if the items still exist
+        if (preservedBlessings.ranged) {
+            // Check if the item still exists in the bank with correct quantity
+            const stillHasItem = this.items[preservedBlessings.ranged.itemId] && this.items[preservedBlessings.ranged.itemId] > 0;
+            if (stillHasItem) {
+                window.equipmentPanels.ranged.blessing = preservedBlessings.ranged;
+                // Recalculate ranged gear score with restored blessing
+                window.gearScores.ranged += preservedBlessings.ranged.combatBonus || 0;
+                console.log('Restored ranged blessing:', preservedBlessings.ranged.name);
+            }
+        }
+        
+        if (preservedBlessings.magic) {
+            // Check if the item still exists in the bank with correct quantity
+            const stillHasItem = this.items[preservedBlessings.magic.itemId] && this.items[preservedBlessings.magic.itemId] > 0;
+            if (stillHasItem) {
+                window.equipmentPanels.magic.blessing = preservedBlessings.magic;
+                // Recalculate magic gear score with restored blessing
+                window.gearScores.magic += preservedBlessings.magic.combatBonus || 0;
+                console.log('Restored magic blessing:', preservedBlessings.magic.name);
+            }
+        }
+        
         console.log('Equipment panels updated:', window.equipmentPanels);
         console.log('Gear scores:', window.gearScores);
         
@@ -222,6 +256,23 @@ class Bank {
         this._scanningEquipment = false;
     }
 
+    // Add this new method after scanAndEquipBestItems() ends
+    updateGearScore(combatStyle) {
+        let totalScore = 0;
+        const equipment = window.equipmentPanels[combatStyle];
+        
+        // Sum up all combat bonuses from equipped items
+        for (const slot in equipment) {
+            const item = equipment[slot];
+            if (item && item.combatBonus) {
+                totalScore += item.combatBonus;
+            }
+        }
+        
+        // Update the gear score
+        window.gearScores[combatStyle] = totalScore;
+        console.log(`Updated ${combatStyle} gear score:`, totalScore);
+    }
     
 }
 
