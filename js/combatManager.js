@@ -492,25 +492,38 @@ class CombatManager {
             this.pendingLoot = null;
         }
         
-        // Update combat task progress
-        if (this.currentTask) {
-            this.currentTask.killsCompleted = (this.currentTask.killsCompleted || 0) + 1;
-            const progress = this.currentTask.killsCompleted / this.currentTask.targetCount;
-            
-            console.log(`Combat progress: ${this.currentTask.killsCompleted}/${this.currentTask.targetCount} kills`);
-            
-            if (window.taskManager) {
-                taskManager.setTaskProgress(this.currentTask, progress);
-            }
-            
-            // Check if task is complete
-            if (progress >= 1) {
-                console.log('Combat task completed! Restoring HP and Prayer');
-                // Restore full HP and prayer on task completion
-                this.playerHp = this.playerMaxHp;
-                this.prayerPoints = this.maxPrayer;
-            }
+        // CRITICAL: Sync with current task from task manager (in case it changed)
+if (window.taskManager && taskManager.currentTask && taskManager.currentTask.isCombatTask) {
+    // Check if this is still the right task or if it changed
+    if (this.currentTask !== taskManager.currentTask) {
+        console.log('Combat task changed, updating reference');
+        this.currentTask = taskManager.currentTask;
+        // Initialize killsCompleted if not set
+        if (!this.currentTask.killsCompleted) {
+            this.currentTask.killsCompleted = 0;
         }
+    }
+}
+
+// Update combat task progress
+if (this.currentTask) {
+    this.currentTask.killsCompleted = (this.currentTask.killsCompleted || 0) + 1;
+    const progress = this.currentTask.killsCompleted / this.currentTask.targetCount;
+    
+    console.log(`Combat progress: ${this.currentTask.killsCompleted}/${this.currentTask.targetCount} kills`);
+    
+    if (window.taskManager) {
+        taskManager.setTaskProgress(this.currentTask, progress);
+    }
+    
+    // Check if task is complete
+    if (progress >= 1) {
+        console.log('Combat task completed! Restoring HP and Prayer');
+        // Restore full HP and prayer on task completion
+        this.playerHp = this.playerMaxHp;
+        this.prayerPoints = this.maxPrayer;
+    }
+}
         
         // Track kills this trip
         this.killsThisTrip++;
