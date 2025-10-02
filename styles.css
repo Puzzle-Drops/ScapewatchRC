@@ -4534,17 +4534,10 @@ span.control-emoji {
     background: #2a2a2a;
 }
 
-.equipment-item-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
 .equipment-slot-icon {
     width: 80%;
     height: 80%;
     object-fit: contain;
-    opacity: 0.3;
 }
 
 .equipment-tooltip {
@@ -5166,6 +5159,50 @@ span.control-emoji {
 }
 
 /* Quantity display for equipped items (blessing slot) */
+.equipment-item-count {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 24px;
+    padding: 1px 3px;
+    border-radius: 2px;
+    z-index: 10;
+    pointer-events: none;
+    text-shadow: 
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+}
+
+/* Tooltip quantity line */
+.equipment-tooltip-quantity {
+    color: #95a5a6;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+/* ==================== EQUIPMENT ITEM OVERLAY ==================== */
+
+/* Ensure equipment slot has relative positioning for overlay */
+.equipment-slot {
+    position: relative;
+}
+
+/* Equipped item overlay (on top of equippedslot.png background) */
+.equipment-item-overlay {
+    position: absolute;
+    width: 65%;
+    height: 65%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Keep the existing equipment-item-count styles for blessing slot quantities */
 .equipment-item-count {
     position: absolute;
     top: 2px;
