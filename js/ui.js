@@ -2266,50 +2266,97 @@ slotDiv.appendChild(imgElement);
     }
     
     createEquipmentSlot(slotType, combatStyle) {
-        const slotDiv = document.createElement('div');
-        slotDiv.className = 'equipment-slot';
-        
-        if (!slotType) {
-            // Empty placeholder slot
-            slotDiv.classList.add('equipment-slot-empty');
-            return slotDiv;
-        }
-        
-        // Add slot type class for styling
-        slotDiv.classList.add(`equipment-slot-${slotType}`);
-        
-        // Get equipped item for this slot/style (if any)
-        const equippedItem = window.equipmentPanels && 
-                           window.equipmentPanels[combatStyle] && 
-                           window.equipmentPanels[combatStyle][slotType];
-        
-        if (equippedItem) {
-            // Show equipped item
-            const img = document.createElement('img');
-            img.src = `assets/items/${equippedItem.itemId}.png`;
-            img.className = 'equipment-item-image';
-            slotDiv.appendChild(img);
-            
-            // Add tooltip
-            const tooltip = document.createElement('div');
-            tooltip.className = 'equipment-tooltip';
-            const styleLabel = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
-            tooltip.innerHTML = `
-                <div class="equipment-tooltip-name">${equippedItem.name}</div>
-                <div class="equipment-tooltip-bonus">+${equippedItem.combatBonus} ${styleLabel} Bonus</div>
-            `;
-            slotDiv.appendChild(tooltip);
-        } else {
-            // Show empty slot icon
-            const img = document.createElement('img');
-            img.src = `assets/ui/${slotType}slot.png`;
-            img.className = 'equipment-slot-icon';
-            img.style.opacity = '0.3';
-            slotDiv.appendChild(img);
-        }
-        
+    const slotDiv = document.createElement('div');
+    slotDiv.className = 'equipment-slot';
+    
+    if (!slotType) {
+        // Empty placeholder slot
+        slotDiv.classList.add('equipment-slot-empty');
         return slotDiv;
     }
+    
+    // Add slot type class for styling
+    slotDiv.classList.add(`equipment-slot-${slotType}`);
+    
+    // Get equipped item for this slot/style (if any)
+    const equippedItem = window.equipmentPanels && 
+                       window.equipmentPanels[combatStyle] && 
+                       window.equipmentPanels[combatStyle][slotType];
+    
+    if (equippedItem) {
+        // Create container for layered display
+        const layerContainer = document.createElement('div');
+        layerContainer.className = 'equipment-layer-container';
+        
+        // Layer 1: Background equipped slot image
+        const bgImg = document.createElement('img');
+        bgImg.src = 'assets/ui/equippedslot.png';
+        bgImg.className = 'equipment-slot-bg';
+        layerContainer.appendChild(bgImg);
+        
+        // Layer 2: Equipped item image
+        const itemImg = document.createElement('img');
+        itemImg.src = `assets/items/${equippedItem.itemId}.png`;
+        itemImg.className = 'equipment-item-image';
+        layerContainer.appendChild(itemImg);
+        
+        slotDiv.appendChild(layerContainer);
+        
+        // Add quantity display for blessing slot (arrows/runes)
+        if (slotType === 'blessing') {
+            // Get quantity from bank (since equipped items pull from bank)
+            const quantity = window.bank ? bank.getItemCount(equippedItem.itemId) : 0;
+            if (quantity > 0) {
+                const countDiv = this.createEquipmentItemCount(quantity);
+                slotDiv.appendChild(countDiv);
+            }
+        }
+        
+        // Add tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'equipment-tooltip';
+        const styleLabel = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
+        
+        // Build tooltip content
+        let tooltipContent = `
+            <div class="equipment-tooltip-name">${equippedItem.name}</div>
+            <div class="equipment-tooltip-bonus">+${equippedItem.combatBonus} ${styleLabel} Bonus</div>
+        `;
+        
+        // Add quantity to tooltip for blessing slot
+        if (slotType === 'blessing') {
+            const quantity = window.bank ? bank.getItemCount(equippedItem.itemId) : 0;
+            if (quantity > 0) {
+                tooltipContent += `<div class="equipment-tooltip-quantity">Quantity: ${formatNumber(quantity)}</div>`;
+            }
+        }
+        
+        tooltip.innerHTML = tooltipContent;
+        slotDiv.appendChild(tooltip);
+    } else {
+        // Show empty slot icon
+        const img = document.createElement('img');
+        img.src = `assets/ui/${slotType}slot.png`;
+        img.className = 'equipment-slot-icon';
+        img.style.opacity = '0.3';
+        slotDiv.appendChild(img);
+    }
+    
+    return slotDiv;
+}
+
+    // Create item count display specifically for equipment slots
+createEquipmentItemCount(quantity) {
+    const countDiv = document.createElement('div');
+    countDiv.className = 'equipment-item-count';
+    
+    // Use the same formatting as bank items
+    const formatted = this.formatItemCount(quantity);
+    countDiv.textContent = formatted.text;
+    countDiv.style.color = formatted.color;
+    
+    return countDiv;
+}
 
 
     
