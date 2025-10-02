@@ -1301,15 +1301,22 @@ class FirebaseManager {
                 player.currentActivity = activityId;
                 
                 // Recreate combat UI after a short delay to ensure everything is loaded
+                // Increased delay to ensure bank equipment scan completes first
                 setTimeout(() => {
+                    // Double-check equipment is initialized before creating combat UI
+                    if (!window.gearScores || Object.keys(window.gearScores).length === 0) {
+                        console.warn('Gear scores not initialized, scanning equipment now');
+                        bank.scanAndEquipBestItems();
+                    }
+                    
                     cm.createCombatUI();
-                    console.log('Combat UI recreated');
+                    console.log('Combat UI recreated with gear scores:', window.gearScores);
                     
                     // NOW sync AI after combat is restored
                     if (window.ai) {
                         ai.syncAfterLoad();
                     }
-                }, 100);
+                }, 150);  // Slightly longer delay to ensure equipment scan completes
                 
                 console.log(`Combat restored: Fighting ${cm.currentMonster.name} (${cm.monsterHp}/${cm.monsterMaxHp} HP)`);
             } else {
@@ -1341,6 +1348,10 @@ class FirebaseManager {
         // Load bank
         if (saveData.bank) {
             bank.items = saveData.bank;
+            
+            // This ensures gear scores are calculated before combat UI is created
+            bank.scanAndEquipBestItems();
+            console.log('Equipment panels and gear scores initialized from bank');
         }
 
         // Load shop
