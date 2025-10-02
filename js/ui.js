@@ -2284,23 +2284,19 @@ slotDiv.appendChild(imgElement);
                        window.equipmentPanels[combatStyle][slotType];
     
     if (equippedItem) {
-        // Create container for layered display
-        const layerContainer = document.createElement('div');
-        layerContainer.className = 'equipment-layer-container';
+        // Show equipped slot with item
         
-        // Layer 1: Background equipped slot image
+        // Layer 1: Equipped slot background (replaces the normal slot icon)
         const bgImg = document.createElement('img');
         bgImg.src = 'assets/ui/equippedslot.png';
-        bgImg.className = 'equipment-slot-bg';
-        layerContainer.appendChild(bgImg);
+        bgImg.className = 'equipment-slot-icon'; // Use same class as empty slots for consistent sizing
+        slotDiv.appendChild(bgImg);
         
-        // Layer 2: Equipped item image
+        // Layer 2: Equipped item image on top
         const itemImg = document.createElement('img');
         itemImg.src = `assets/items/${equippedItem.itemId}.png`;
-        itemImg.className = 'equipment-item-image';
-        layerContainer.appendChild(itemImg);
-        
-        slotDiv.appendChild(layerContainer);
+        itemImg.className = 'equipment-item-overlay';
+        slotDiv.appendChild(itemImg);
         
         // Add quantity display for blessing slot (arrows/runes)
         if (slotType === 'blessing') {
@@ -2334,11 +2330,11 @@ slotDiv.appendChild(imgElement);
         tooltip.innerHTML = tooltipContent;
         slotDiv.appendChild(tooltip);
     } else {
-        // Show empty slot icon
+        // Show empty slot icon at full opacity
         const img = document.createElement('img');
         img.src = `assets/ui/${slotType}slot.png`;
         img.className = 'equipment-slot-icon';
-        img.style.opacity = '0.3';
+        // Removed: img.style.opacity = '0.3';
         slotDiv.appendChild(img);
     }
     
