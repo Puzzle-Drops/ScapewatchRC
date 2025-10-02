@@ -222,27 +222,27 @@ class Bank {
         }
         
         // Restore preserved blessing selections if the items still exist
-        if (preservedBlessings.ranged) {
-            // Check if the item still exists in the bank with correct quantity
-            const stillHasItem = this.items[preservedBlessings.ranged.itemId] && this.items[preservedBlessings.ranged.itemId] > 0;
-            if (stillHasItem) {
-                window.equipmentPanels.ranged.blessing = preservedBlessings.ranged;
-                // Recalculate ranged gear score with restored blessing
-                window.gearScores.ranged += preservedBlessings.ranged.combatBonus || 0;
-                console.log('Restored ranged blessing:', preservedBlessings.ranged.name);
-            }
-        }
-        
-        if (preservedBlessings.magic) {
-            // Check if the item still exists in the bank with correct quantity
-            const stillHasItem = this.items[preservedBlessings.magic.itemId] && this.items[preservedBlessings.magic.itemId] > 0;
-            if (stillHasItem) {
-                window.equipmentPanels.magic.blessing = preservedBlessings.magic;
-                // Recalculate magic gear score with restored blessing
-                window.gearScores.magic += preservedBlessings.magic.combatBonus || 0;
-                console.log('Restored magic blessing:', preservedBlessings.magic.name);
-            }
-        }
+if (preservedBlessings.ranged) {
+    // Check if the item still exists in the bank with correct quantity
+    const stillHasItem = this.items[preservedBlessings.ranged.itemId] && this.items[preservedBlessings.ranged.itemId] > 0;
+    if (stillHasItem) {
+        window.equipmentPanels.ranged.blessing = preservedBlessings.ranged;
+        // Don't add to gear score - blessing bonus is already included if it's equipment
+        // or will be handled separately by updateGearScore
+        console.log('Restored ranged blessing:', preservedBlessings.ranged.name);
+    }
+}
+
+if (preservedBlessings.magic) {
+    // Check if the item still exists in the bank with correct quantity
+    const stillHasItem = this.items[preservedBlessings.magic.itemId] && this.items[preservedBlessings.magic.itemId] > 0;
+    if (stillHasItem) {
+        window.equipmentPanels.magic.blessing = preservedBlessings.magic;
+        // Don't add to gear score - blessing bonus is already included if it's equipment
+        // or will be handled separately by updateGearScore
+        console.log('Restored magic blessing:', preservedBlessings.magic.name);
+    }
+}
         
         console.log('Equipment panels updated:', window.equipmentPanels);
         console.log('Gear scores:', window.gearScores);
