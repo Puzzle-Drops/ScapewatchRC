@@ -308,7 +308,7 @@ completePhase() {
         }
         
         // Calculate hit chance
-        const hitChance = (attackLevel + gearBonus + 8) / (2 * (this.currentMonster.defence + 8));
+        const hitChance = (attackLevel + gearBonus + 8) / (4 * (this.currentMonster.defence + 8));
         const hit = Math.random() < Math.max(0.05, Math.min(0.95, hitChance));
         
         if (hit) {
@@ -353,9 +353,9 @@ completePhase() {
         // Animate monster attack
         this.animateAttack(this.monsterPanel, 'monster');
         
-        // Get player's defence level and bonus
+        // Get player's defence level and bonus (gear bonus divided by 10 for defense)
         let defenceLevel = skills.getLevel('defence');
-        const defenceBonus = window.gearScores ? window.gearScores[this.combatStyle] : 0;
+        const defenceBonus = window.gearScores ? Math.floor(window.gearScores[this.combatStyle] / 10) : 0;
         
         // Apply prayer bonus to defence
         if (this.prayerPoints > 0) {
@@ -373,7 +373,7 @@ completePhase() {
         }
         
         // Calculate monster hit chance
-        const hitChance = (monsterAttack + 8) / (2 * (defenceLevel + defenceBonus + 8));
+        const hitChance = (monsterAttack + 8) / (4 * (defenceLevel + defenceBonus + 8));
         
         if (Math.random() < Math.max(0.05, Math.min(0.95, hitChance))) {
             // Monster hits
@@ -1078,13 +1078,13 @@ if (this.currentTask) {
             attackLevel = Math.floor(attackLevel * 1.5);
         }
         
-        const hitChance = (attackLevel + gearBonus + 8) / (2 * (this.currentMonster.defence + 8));
+        const hitChance = (attackLevel + gearBonus + 8) / (4 * (this.currentMonster.defence + 8));
         return Math.max(0.05, Math.min(0.95, hitChance));
     }
     
     calculateMonsterAccuracy() {
         let defenceLevel = skills.getLevel('defence');
-        const defenceBonus = window.gearScores ? window.gearScores[this.combatStyle] : 0;
+        const defenceBonus = window.gearScores ? Math.floor(window.gearScores[this.combatStyle] / 10) : 0;
         
         // Apply prayer bonus to player defence
         if (this.prayerPoints > 0) {
@@ -1097,7 +1097,7 @@ if (this.currentTask) {
             monsterAttack = Math.floor(monsterAttack * 1.5);
         }
         
-        const hitChance = (monsterAttack + 8) / (2 * (defenceLevel + defenceBonus + 8));
+        const hitChance = (monsterAttack + 8) / (4 * (defenceLevel + defenceBonus + 8));
         return Math.max(0.05, Math.min(0.95, hitChance));
     }
     
