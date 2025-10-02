@@ -2282,12 +2282,13 @@ createEquipmentSlot(slotType, combatStyle) {
     if (slotType === 'blessing' && (combatStyle === 'ranged' || combatStyle === 'magic')) {
         const blessingOptions = this.getBlessingOptions(combatStyle);
         
-        // Get currently equipped item
-        const equippedItem = window.equipmentPanels && 
-                           window.equipmentPanels[combatStyle] && 
-                           window.equipmentPanels[combatStyle][slotType];
-        
+        // If we have ANY options, show the selector (whether equipped or not)
         if (blessingOptions.length > 0) {
+            // Get currently equipped item
+            const equippedItem = window.equipmentPanels && 
+                               window.equipmentPanels[combatStyle] && 
+                               window.equipmentPanels[combatStyle][slotType];
+            
             // Create selector container
             const selectorContainer = document.createElement('div');
             selectorContainer.className = 'blessing-selector-container';
@@ -2295,14 +2296,19 @@ createEquipmentSlot(slotType, combatStyle) {
             const optionsWrapper = document.createElement('div');
             optionsWrapper.className = 'blessing-options-wrapper';
             
+            // Track if we found the equipped item in options
+            let foundEquipped = false;
+            
             // Add each option
             blessingOptions.forEach(option => {
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'blessing-option';
                 
                 // Check if this is the currently equipped item
-                if (equippedItem && equippedItem.itemId === option.itemId) {
+                const isEquipped = equippedItem && equippedItem.itemId === option.itemId;
+                if (isEquipped) {
                     optionDiv.classList.add('selected');
+                    foundEquipped = true;
                 }
                 
                 // Container for the item display
@@ -2311,11 +2317,7 @@ createEquipmentSlot(slotType, combatStyle) {
                 
                 // Background (equipped slot or empty slot)
                 const bgImg = document.createElement('img');
-                if (equippedItem && equippedItem.itemId === option.itemId) {
-                    bgImg.src = 'assets/ui/equippedslot.png';
-                } else {
-                    bgImg.src = 'assets/ui/blessingslot.png';
-                }
+                bgImg.src = isEquipped ? 'assets/ui/equippedslot.png' : 'assets/ui/blessingslot.png';
                 bgImg.className = 'blessing-slot-bg';
                 itemContainer.appendChild(bgImg);
                 
@@ -2373,8 +2375,30 @@ createEquipmentSlot(slotType, combatStyle) {
                 optionsWrapper.appendChild(optionDiv);
             });
             
-            // If no item is equipped but we have options, show empty slot at the end
-            if (!equippedItem && blessingOptions.length > 0) {
+            // If equipped item exists but wasn't in options (maybe sold/used), add empty slot as selected
+            if (equippedItem && !foundEquipped) {
+                // Clear the invalid equipment
+                delete window.equipmentPanels[combatStyle]['blessing'];
+                bank.updateGearScore(combatStyle);
+                
+                // Add empty option as selected
+                const emptyOption = document.createElement('div');
+                emptyOption.className = 'blessing-option selected';
+                
+                const itemContainer = document.createElement('div');
+                itemContainer.className = 'blessing-item-container';
+                
+                const bgImg = document.createElement('img');
+                bgImg.src = 'assets/ui/blessingslot.png';
+                bgImg.className = 'blessing-slot-bg';
+                itemContainer.appendChild(bgImg);
+                
+                emptyOption.appendChild(itemContainer);
+                optionsWrapper.appendChild(emptyOption);
+            }
+            
+            // If nothing equipped, add empty slot option at the end as selected
+            if (!equippedItem) {
                 const emptyOption = document.createElement('div');
                 emptyOption.className = 'blessing-option selected';
                 
@@ -2397,7 +2421,7 @@ createEquipmentSlot(slotType, combatStyle) {
         }
     }
     
-    // Normal equipment slot handling (unchanged)
+    // Normal equipment slot handling (for non-blessing slots or when no options)
     // Get equipped item for this slot/style (if any)
     const equippedItem = window.equipmentPanels && 
                        window.equipmentPanels[combatStyle] && 
