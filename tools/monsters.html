@@ -131,6 +131,7 @@
 
         .drop-table-headers .header-item {
             flex: 2;
+            padding-left: 32px; /* Account for icon width + gap */
         }
 
         .drop-table-headers .header-quantity {
@@ -159,10 +160,6 @@
 
         .drop-item input {
             width: auto;
-        }
-
-        .drop-item .item-select {
-            flex: 2;
         }
 
         .drop-item .quantity-input {
@@ -305,6 +302,9 @@
             padding: 8px;
             cursor: pointer;
             font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .item-suggestion:hover {
@@ -313,6 +313,22 @@
 
         .item-suggestion.selected {
             background: #2a4a6a;
+        }
+
+        .item-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .drop-item-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 2;
         }
 
         ::-webkit-scrollbar {
@@ -652,13 +668,25 @@
             dropItem.className = 'drop-item';
             dropItem.id = `drop-${dropId}`;
             
+            // Get item image if itemId exists
+            let itemImageHtml = '';
+            if (itemId && allItems[itemId]) {
+                const imagePath = itemId === 'coins' ? '../assets/items/coins_1.png' : `../assets/items/${itemId}.png`;
+                itemImageHtml = `<img src="${imagePath}" alt="${allItems[itemId].name}" class="item-icon" onerror="this.style.visibility='hidden'">`;
+            }
+            
             dropItem.innerHTML = `
-                <div class="item-search item-select">
-                    <input type="text" id="item-${dropId}" placeholder="Item ID (e.g., coins)" value="${itemId}"
-                           onkeyup="handleItemSearch(${dropId}, this.value)" 
-                           onblur="setTimeout(() => hideSuggestions(${dropId}), 200)"
-                           onchange="generatePreview()">
-                    <div class="item-suggestions" id="suggestions-${dropId}"></div>
+                <div class="drop-item-display">
+                    <div id="item-display-${dropId}" style="display: flex; align-items: center; min-width: 20px;">
+                        ${itemImageHtml}
+                    </div>
+                    <div class="item-search" style="flex: 1;">
+                        <input type="text" id="item-${dropId}" placeholder="Item ID (e.g., coins)" value="${itemId}"
+                               onkeyup="handleItemSearch(${dropId}, this.value)" 
+                               onblur="setTimeout(() => hideSuggestions(${dropId}), 200)"
+                               onchange="updateItemOnChange(${dropId})">
+                        <div class="item-suggestions" id="suggestions-${dropId}"></div>
+                    </div>
                 </div>
                 <input type="text" class="quantity-input" id="quantity-${dropId}" 
                        placeholder="Qty (e.g., 1 or 3-15)" value="${quantity}"
@@ -670,6 +698,17 @@
             `;
             
             dropTableItems.appendChild(dropItem);
+        }
+
+        // Update item on manual change
+        function updateItemOnChange(dropId) {
+            const itemId = document.getElementById(`item-${dropId}`).value.trim();
+            if (itemId && allItems[itemId]) {
+                updateItemDisplay(dropId, itemId, allItems[itemId].name);
+            } else {
+                updateItemDisplay(dropId, '', '');
+            }
+            generatePreview();
         }
 
         // Handle chance change
@@ -713,9 +752,18 @@
             matches.forEach(([id, item]) => {
                 const div = document.createElement('div');
                 div.className = 'item-suggestion';
-                div.textContent = `${item.name} (${id})`;
+                
+                // Get image path (special case for coins)
+                const imagePath = id === 'coins' ? '../assets/items/coins_1.png' : `../assets/items/${id}.png`;
+                
+                div.innerHTML = `
+                    <img src="${imagePath}" alt="${item.name}" class="item-icon" onerror="this.style.visibility='hidden'">
+                    <span>${item.name} (${id})</span>
+                `;
+                
                 div.onclick = () => {
                     document.getElementById(`item-${dropId}`).value = id;
+                    updateItemDisplay(dropId, id, item.name);
                     hideSuggestions(dropId);
                     generatePreview();
                 };
@@ -723,6 +771,19 @@
             });
             
             suggestionsDiv.classList.add('active');
+        }
+
+        // Update item display with image
+        function updateItemDisplay(dropId, itemId, itemName) {
+            const itemDisplay = document.getElementById(`item-display-${dropId}`);
+            if (itemDisplay && itemId && allItems[itemId]) {
+                const imagePath = itemId === 'coins' ? '../assets/items/coins_1.png' : `../assets/items/${itemId}.png`;
+                itemDisplay.innerHTML = `
+                    <img src="${imagePath}" alt="${itemName}" class="item-icon" onerror="this.style.visibility='hidden'">
+                `;
+            } else if (itemDisplay) {
+                itemDisplay.innerHTML = '';
+            }
         }
 
         // Hide suggestions
