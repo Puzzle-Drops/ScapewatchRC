@@ -225,6 +225,31 @@
             overflow-y: auto;
         }
 
+        .validation-output {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 15px;
+            font-size: 13px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .validation-error {
+            color: #ff6b6b;
+            margin-bottom: 5px;
+        }
+
+        .validation-warning {
+            color: #ffa726;
+            margin-bottom: 5px;
+        }
+
+        .validation-success {
+            color: #66bb6a;
+        }
+
         .actions {
             display: flex;
             gap: 10px;
@@ -483,6 +508,14 @@
                 <div class="section">
                     <h3>JSON Preview</h3>
                     <div class="json-output" id="jsonOutput">No configuration yet...</div>
+                </div>
+
+                <div class="section">
+                    <h3>Item Validation</h3>
+                    <div class="validation-output" id="validationOutput">
+                        <div style="color: #666;">Click "Validate All Items" to check for missing items and images</div>
+                    </div>
+                    <button class="btn" onclick="validateAllItems()">Validate All Items</button>
                 </div>
             </div>
         </div>
@@ -909,7 +942,25 @@
             const entries = Object.entries(activities);
             let jsonStr = '';
             entries.forEach(([id, activity], index) => {
-                jsonStr += '"' + id + '": ' + JSON.stringify(activity, null, 4);
+                // Format the activity with custom drop table formatting
+                const activityCopy = { ...activity };
+                let activityJson;
+                
+                if (activityCopy.dropTable) {
+                    // Format dropTable items on single lines
+                    const dropTableStr = activityCopy.dropTable.map(item => 
+                        '        ' + JSON.stringify(item)
+                    ).join(',\n');
+                    
+                    delete activityCopy.dropTable;
+                    activityJson = JSON.stringify(activityCopy, null, 4);
+                    // Insert the formatted dropTable before the closing brace
+                    activityJson = activityJson.slice(0, -1) + ',\n    "dropTable": [\n' + dropTableStr + '\n    ]\n}';
+                } else {
+                    activityJson = JSON.stringify(activity, null, 4);
+                }
+                
+                jsonStr += '"' + id + '": ' + activityJson;
                 if (index < entries.length - 1) {
                     jsonStr += ',';
                 }
@@ -931,9 +982,25 @@
             const entries = Object.entries(activities);
             let jsonStr = '';
             entries.forEach(([id, activity], index) => {
-                const activityJson = JSON.stringify(activity, null, 4);
-                const indentedJson = activityJson.split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
-                jsonStr += '    "' + id + '": ' + indentedJson;
+                // Format with single-line drop table items
+                const activityCopy = { ...activity };
+                let activityJson;
+                
+                if (activityCopy.dropTable) {
+                    const dropTableStr = activityCopy.dropTable.map(item => 
+                        '            ' + JSON.stringify(item)
+                    ).join(',\n');
+                    
+                    delete activityCopy.dropTable;
+                    activityJson = JSON.stringify(activityCopy, null, 4);
+                    activityJson = activityJson.slice(0, -1) + ',\n        "dropTable": [\n' + dropTableStr + '\n        ]\n    }';
+                    // Indent the whole thing
+                    activityJson = activityJson.split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
+                } else {
+                    activityJson = JSON.stringify(activity, null, 4).split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
+                }
+                
+                jsonStr += '    "' + id + '": ' + activityJson;
                 if (index < entries.length - 1) {
                     jsonStr += ',';
                 }
@@ -958,9 +1025,25 @@
             const entries = Object.entries(activities);
             let jsonStr = '';
             entries.forEach(([id, activity], index) => {
-                const activityJson = JSON.stringify(activity, null, 4);
-                const indentedJson = activityJson.split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
-                jsonStr += '    "' + id + '": ' + indentedJson;
+                // Format with single-line drop table items
+                const activityCopy = { ...activity };
+                let activityJson;
+                
+                if (activityCopy.dropTable) {
+                    const dropTableStr = activityCopy.dropTable.map(item => 
+                        '            ' + JSON.stringify(item)
+                    ).join(',\n');
+                    
+                    delete activityCopy.dropTable;
+                    activityJson = JSON.stringify(activityCopy, null, 4);
+                    activityJson = activityJson.slice(0, -1) + ',\n        "dropTable": [\n' + dropTableStr + '\n        ]\n    }';
+                    // Indent the whole thing
+                    activityJson = activityJson.split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
+                } else {
+                    activityJson = JSON.stringify(activity, null, 4).split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
+                }
+                
+                jsonStr += '    "' + id + '": ' + activityJson;
                 if (index < entries.length - 1) {
                     jsonStr += ',';
                 }
@@ -997,7 +1080,30 @@
             // Add new activities
             Object.assign(mergedActivities, activities);
             
-            const jsonStr = JSON.stringify(mergedActivities, null, 4);
+            // Format with single-line drop tables
+            let jsonStr = '{\n';
+            const entries = Object.entries(mergedActivities);
+            entries.forEach(([id, activity], index) => {
+                if (activity.dropTable) {
+                    const activityCopy = { ...activity };
+                    const dropTableStr = activityCopy.dropTable.map(item => 
+                        '        ' + JSON.stringify(item)
+                    ).join(',\n');
+                    
+                    delete activityCopy.dropTable;
+                    let activityJson = JSON.stringify(activityCopy, null, 4);
+                    activityJson = activityJson.slice(0, -1) + ',\n    "dropTable": [\n' + dropTableStr + '\n    ]\n}';
+                    jsonStr += '    "' + id + '": ' + activityJson;
+                } else {
+                    jsonStr += '    "' + id + '": ' + JSON.stringify(activity, null, 4);
+                }
+                
+                if (index < entries.length - 1) {
+                    jsonStr += ',';
+                }
+                jsonStr += '\n';
+            });
+            jsonStr += '}';
             
             navigator.clipboard.writeText(jsonStr).then(() => {
                 showNotification('Full activities file copied to clipboard!', 'success');
@@ -1005,6 +1111,53 @@
                 console.error('Failed to copy:', err);
                 alert('Failed to copy to clipboard');
             });
+        }
+
+        // Export full file
+        function exportFullFile() {
+            const activities = generateMonsterActivities();
+            if (!activities) {
+                alert('Please configure a monster first');
+                return;
+            }
+            
+            // Merge with existing activities
+            const mergedActivities = { ...allActivities };
+            
+            // Remove old versions of these activities if they exist
+            Object.keys(activities).forEach(id => {
+                delete mergedActivities[id];
+            });
+            
+            // Add new activities
+            Object.assign(mergedActivities, activities);
+            
+            // Format with single-line drop tables
+            let jsonStr = '{\n';
+            const entries = Object.entries(mergedActivities);
+            entries.forEach(([id, activity], index) => {
+                if (activity.dropTable) {
+                    const activityCopy = { ...activity };
+                    const dropTableStr = activityCopy.dropTable.map(item => 
+                        '        ' + JSON.stringify(item)
+                    ).join(',\n');
+                    
+                    delete activityCopy.dropTable;
+                    let activityJson = JSON.stringify(activityCopy, null, 4);
+                    activityJson = activityJson.slice(0, -1) + ',\n    "dropTable": [\n' + dropTableStr + '\n    ]\n}';
+                    jsonStr += '    "' + id + '": ' + activityJson;
+                } else {
+                    jsonStr += '    "' + id + '": ' + JSON.stringify(activity, null, 4);
+                }
+                
+                if (index < entries.length - 1) {
+                    jsonStr += ',';
+                }
+                jsonStr += '\n';
+            });
+            jsonStr += '}';
+            
+            downloadJSON(jsonStr, 'activities.json');
         }
 
         // Show notification
@@ -1052,6 +1205,8 @@
             }, 3000);
         }
 
+        // Validate all items in all monster activities
+
         // Export full file
         function exportFullFile() {
             const activities = generateMonsterActivities();
@@ -1088,8 +1243,85 @@
             URL.revokeObjectURL(url);
         }
 
-        // Clear form
-        function clearForm() {
+        // Validate all items in all monster activities
+        async function validateAllItems() {
+            const validationOutput = document.getElementById('validationOutput');
+            validationOutput.innerHTML = '<div style="color: #666;">Validating...</div>';
+            
+            const errors = [];
+            const warnings = [];
+            const checkedImages = new Map();
+            
+            // Check all activities for monsters with drop tables
+            const combatSkills = ['attack', 'strength', 'defence', 'ranged', 'magic'];
+            const monsterActivities = Object.entries(allActivities).filter(([id, activity]) => 
+                combatSkills.includes(activity.skill) && activity.monsterName
+            );
+            
+            // Group by monster
+            const monsterGroups = {};
+            monsterActivities.forEach(([id, activity]) => {
+                if (!monsterGroups[activity.monsterName]) {
+                    monsterGroups[activity.monsterName] = [];
+                }
+                monsterGroups[activity.monsterName].push(activity);
+            });
+            
+            // Check each monster's drop table
+            for (const [monsterName, activities] of Object.entries(monsterGroups)) {
+                // Use first activity's drop table (they should all be the same)
+                const dropTable = activities[0].dropTable;
+                if (!dropTable) continue;
+                
+                for (const drop of dropTable) {
+                    const itemId = drop.itemId;
+                    
+                    // Check if item exists in items.json
+                    if (!allItems[itemId]) {
+                        errors.push(`<div class="validation-error">❌ "${itemId}" from ${monsterName} loot table does not exist in items.json</div>`);
+                        continue;
+                    }
+                    
+                    // Check if image exists (only check once per item)
+                    if (!checkedImages.has(itemId)) {
+                        const imagePath = itemId === 'coins' ? '../assets/items/coins_1.png' : `../assets/items/${itemId}.png`;
+                        const img = new Image();
+                        
+                        await new Promise((resolve) => {
+                            img.onload = () => {
+                                checkedImages.set(itemId, true);
+                                resolve();
+                            };
+                            img.onerror = () => {
+                                checkedImages.set(itemId, false);
+                                warnings.push(`<div class="validation-warning">⚠️ "${itemId}" from ${monsterName} - image file missing (${imagePath})</div>`);
+                                resolve();
+                            };
+                            img.src = imagePath;
+                        });
+                    } else if (!checkedImages.get(itemId)) {
+                        // Already checked and failed
+                        const imagePath = itemId === 'coins' ? '../assets/items/coins_1.png' : `../assets/items/${itemId}.png`;
+                        warnings.push(`<div class="validation-warning">⚠️ "${itemId}" from ${monsterName} - image file missing (${imagePath})</div>`);
+                    }
+                }
+            }
+            
+            // Display results
+            let outputHtml = '';
+            if (errors.length === 0 && warnings.length === 0) {
+                outputHtml = '<div class="validation-success">✓ All items validated successfully!</div>';
+            } else {
+                if (errors.length > 0) {
+                    outputHtml += errors.join('');
+                }
+                if (warnings.length > 0) {
+                    outputHtml += warnings.join('');
+                }
+            }
+            
+            validationOutput.innerHTML = outputHtml;
+        }
             document.getElementById('monsterName').value = '';
             ['attack', 'strength', 'defence', 'ranged', 'magic'].forEach(skill => {
                 document.getElementById(`skill-${skill}`).checked = false;
