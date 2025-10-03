@@ -1993,99 +1993,309 @@
         "xpPerAction": 0
     },
 "goblin_attack": {
-    "id": "goblin_attack",
-    "name": "Fight Goblins (Attack)",
-    "skill": "attack",
-    "monsterName": "Goblin",
-    "requiredLevel": 1,
-    "requiredSlayerLevel": 1,
-    "hitpoints": 12,
-    "attack": 5,
-    "strength": 3,
-    "defence": 4,
-    "xpPerKill": {
-        "prayer": 4
+        "id": "goblin_attack",
+        "name": "Fight Goblins (Attack)",
+        "skill": "attack",
+        "monsterName": "Goblin",
+        "requiredLevel": 1,
+        "requiredSlayerLevel": 1,
+        "hitpoints": 12,
+        "attack": 5,
+        "strength": 3,
+        "defence": 4,
+        "ranged": 2,
+        "magic": 2,
+        "prayer": 2,
+        "slayer": 1,
+        "xpPerKill": {
+            "prayer": 4
+        },
+        "dropTable": [
+            {
+                "itemId": "coins",
+                "quantity": "3-15",
+                "chance": 1
+            },
+            {
+                "itemId": "goblin_mail",
+                "quantity": 1,
+                "chance": 0.05
+            },
+            {
+                "itemId": "fishing_bait",
+                "quantity": "3-15",
+                "chance": 0.1
+            },
+            {
+                "itemId": "bronze_arrow",
+                "quantity": 7,
+                "chance": 0.024
+            },
+            {
+                "itemId": "mind_rune",
+                "quantity": 2,
+                "chance": 0.024
+            },
+            {
+                "itemId": "earth_rune",
+                "quantity": 4,
+                "chance": 0.024
+            },
+            {
+                "itemId": "body_rune",
+                "quantity": 2,
+                "chance": 0.024
+            },
+            {
+                "itemId": "chaos_rune",
+                "quantity": 1,
+                "chance": 0.008
+            }
+        ]
     },
-    "dropTable": [
-        { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
-        { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
-    ]
-},
-"goblin_strength": {
-    "id": "goblin_strength",
-    "name": "Fight Goblins (Strength)",
-    "skill": "strength",
-    "monsterName": "Goblin",
-    "requiredLevel": 1,
-    "requiredSlayerLevel": 1,
-    "hitpoints": 12,
-    "attack": 5,
-    "strength": 3,
-    "defence": 4,
-    "xpPerKill": {
-        "prayer": 4
+    "goblin_strength": {
+        "id": "goblin_strength",
+        "name": "Fight Goblins (Strength)",
+        "skill": "strength",
+        "monsterName": "Goblin",
+        "requiredLevel": 1,
+        "requiredSlayerLevel": 1,
+        "hitpoints": 12,
+        "attack": 5,
+        "strength": 3,
+        "defence": 4,
+        "ranged": 2,
+        "magic": 2,
+        "prayer": 2,
+        "slayer": 1,
+        "xpPerKill": {
+            "prayer": 4
+        },
+        "dropTable": [
+            {
+                "itemId": "coins",
+                "quantity": "3-15",
+                "chance": 1
+            },
+            {
+                "itemId": "goblin_mail",
+                "quantity": 1,
+                "chance": 0.05
+            },
+            {
+                "itemId": "fishing_bait",
+                "quantity": "3-15",
+                "chance": 0.1
+            },
+            {
+                "itemId": "bronze_arrow",
+                "quantity": 7,
+                "chance": 0.024
+            },
+            {
+                "itemId": "mind_rune",
+                "quantity": 2,
+                "chance": 0.024
+            },
+            {
+                "itemId": "earth_rune",
+                "quantity": 4,
+                "chance": 0.024
+            },
+            {
+                "itemId": "body_rune",
+                "quantity": 2,
+                "chance": 0.024
+            },
+            {
+                "itemId": "chaos_rune",
+                "quantity": 1,
+                "chance": 0.008
+            }
+        ]
     },
-    "dropTable": [
-        { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
-        { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
-    ]
-},
-"goblin_defence": {
-    "id": "goblin_defence",
-    "name": "Fight Goblins (Defence)",
-    "skill": "defence",
-    "monsterName": "Goblin",
-    "requiredLevel": 1,
-    "requiredSlayerLevel": 1,
-    "hitpoints": 12,
-    "attack": 5,
-    "strength": 3,
-    "defence": 4,
-    "xpPerKill": {
-        "prayer": 4
+    "goblin_defence": {
+        "id": "goblin_defence",
+        "name": "Fight Goblins (Defence)",
+        "skill": "defence",
+        "monsterName": "Goblin",
+        "requiredLevel": 1,
+        "requiredSlayerLevel": 1,
+        "hitpoints": 12,
+        "attack": 5,
+        "strength": 3,
+        "defence": 4,
+        "ranged": 2,
+        "magic": 2,
+        "prayer": 2,
+        "slayer": 1,
+        "xpPerKill": {
+            "prayer": 4
+        },
+        "dropTable": [
+            {
+                "itemId": "coins",
+                "quantity": "3-15",
+                "chance": 1
+            },
+            {
+                "itemId": "goblin_mail",
+                "quantity": 1,
+                "chance": 0.05
+            },
+            {
+                "itemId": "fishing_bait",
+                "quantity": "3-15",
+                "chance": 0.1
+            },
+            {
+                "itemId": "bronze_arrow",
+                "quantity": 7,
+                "chance": 0.024
+            },
+            {
+                "itemId": "mind_rune",
+                "quantity": 2,
+                "chance": 0.024
+            },
+            {
+                "itemId": "earth_rune",
+                "quantity": 4,
+                "chance": 0.024
+            },
+            {
+                "itemId": "body_rune",
+                "quantity": 2,
+                "chance": 0.024
+            },
+            {
+                "itemId": "chaos_rune",
+                "quantity": 1,
+                "chance": 0.008
+            }
+        ]
     },
-    "dropTable": [
-        { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
-        { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
-    ]
-},
-"goblin_magic": {
-    "id": "goblin_magic",
-    "name": "Fight Goblins (Magic)",
-    "skill": "magic",
-    "monsterName": "Goblin",
-    "requiredLevel": 1,
-    "requiredSlayerLevel": 1,
-    "hitpoints": 12,
-    "attack": 5,
-    "strength": 3,
-    "defence": 4,
-    "xpPerKill": {
-        "prayer": 4
+    "goblin_ranged": {
+        "id": "goblin_ranged",
+        "name": "Fight Goblins (Ranged)",
+        "skill": "ranged",
+        "monsterName": "Goblin",
+        "requiredLevel": 1,
+        "requiredSlayerLevel": 1,
+        "hitpoints": 12,
+        "attack": 5,
+        "strength": 3,
+        "defence": 4,
+        "ranged": 2,
+        "magic": 2,
+        "prayer": 2,
+        "slayer": 1,
+        "xpPerKill": {
+            "prayer": 4
+        },
+        "dropTable": [
+            {
+                "itemId": "coins",
+                "quantity": "3-15",
+                "chance": 1
+            },
+            {
+                "itemId": "goblin_mail",
+                "quantity": 1,
+                "chance": 0.05
+            },
+            {
+                "itemId": "fishing_bait",
+                "quantity": "3-15",
+                "chance": 0.1
+            },
+            {
+                "itemId": "bronze_arrow",
+                "quantity": 7,
+                "chance": 0.024
+            },
+            {
+                "itemId": "mind_rune",
+                "quantity": 2,
+                "chance": 0.024
+            },
+            {
+                "itemId": "earth_rune",
+                "quantity": 4,
+                "chance": 0.024
+            },
+            {
+                "itemId": "body_rune",
+                "quantity": 2,
+                "chance": 0.024
+            },
+            {
+                "itemId": "chaos_rune",
+                "quantity": 1,
+                "chance": 0.008
+            }
+        ]
     },
-    "dropTable": [
-        { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
-        { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
-    ]
-},
-"goblin_ranged": {
-    "id": "goblin_ranged",
-    "name": "Fight Goblins (Ranged)",
-    "skill": "ranged",
-    "monsterName": "Goblin",
-    "requiredLevel": 1,
-    "requiredSlayerLevel": 1,
-    "hitpoints": 12,
-    "attack": 5,
-    "strength": 3,
-    "defence": 4,
-    "xpPerKill": {
-        "prayer": 4
-    },
-    "dropTable": [
-        { "itemId": "coins", "quantity": "3-15", "chance": 1.0 },
-        { "itemId": "goblin_mail", "quantity": 1, "chance": 0.05 }
-    ]
-}
+    "goblin_magic": {
+        "id": "goblin_magic",
+        "name": "Fight Goblins (Magic)",
+        "skill": "magic",
+        "monsterName": "Goblin",
+        "requiredLevel": 1,
+        "requiredSlayerLevel": 1,
+        "hitpoints": 12,
+        "attack": 5,
+        "strength": 3,
+        "defence": 4,
+        "ranged": 2,
+        "magic": 2,
+        "prayer": 2,
+        "slayer": 1,
+        "xpPerKill": {
+            "prayer": 4
+        },
+        "dropTable": [
+            {
+                "itemId": "coins",
+                "quantity": "3-15",
+                "chance": 1
+            },
+            {
+                "itemId": "goblin_mail",
+                "quantity": 1,
+                "chance": 0.05
+            },
+            {
+                "itemId": "fishing_bait",
+                "quantity": "3-15",
+                "chance": 0.1
+            },
+            {
+                "itemId": "bronze_arrow",
+                "quantity": 7,
+                "chance": 0.024
+            },
+            {
+                "itemId": "mind_rune",
+                "quantity": 2,
+                "chance": 0.024
+            },
+            {
+                "itemId": "earth_rune",
+                "quantity": 4,
+                "chance": 0.024
+            },
+            {
+                "itemId": "body_rune",
+                "quantity": 2,
+                "chance": 0.024
+            },
+            {
+                "itemId": "chaos_rune",
+                "quantity": 1,
+                "chance": 0.008
+            }
+        ]
+    }
     
 }
