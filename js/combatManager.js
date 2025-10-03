@@ -11,6 +11,7 @@ class CombatManager {
         this.prayerPoints = 0;
         this.maxPrayer = 0;
         this.combatStyle = 'melee';
+        this.monsterCombatStyle = 'melee';
         this.combatRoundTimer = 0;
         this.BASE_COMBAT_ROUND_DURATION = 2400; // 2.4 seconds total
         
@@ -141,11 +142,28 @@ class CombatManager {
             attack: activityData.attack || 1,
             strength: activityData.strength || 1,
             defence: activityData.defence || 1,
+            ranged: activityData.ranged || 1,
+            magic: activityData.magic || 1,
             maxHp: activityData.hitpoints || 10,
             prayer: activityData.prayer || 0,  // Add prayer stat (default 0)
             dropTable: activityData.dropTable || [],
             xpRewards: activityData.xpPerKill || {}
         };
+        
+        // Calculate monster's best combat style
+        const meleeScore = (this.currentMonster.attack + this.currentMonster.strength) / 2;
+        const rangedScore = this.currentMonster.ranged;
+        const magicScore = this.currentMonster.magic;
+        
+        if (meleeScore >= rangedScore && meleeScore >= magicScore) {
+            this.monsterCombatStyle = 'melee';
+        } else if (rangedScore >= magicScore) {
+            this.monsterCombatStyle = 'ranged';
+        } else {
+            this.monsterCombatStyle = 'magic';
+        }
+        
+        console.log(`Monster chose ${this.monsterCombatStyle} style (melee: ${meleeScore}, ranged: ${rangedScore}, magic: ${magicScore})`);
         
         this.monsterHp = this.currentMonster.maxHp;
         this.monsterMaxHp = this.currentMonster.maxHp;
@@ -956,7 +974,7 @@ if (this.currentTask) {
             if (statElement) {
                 let level = skills.getLevel(stat);
                 // Apply prayer bonus for combat stats
-                if (this.prayerPoints > 0 && ['attack', 'strength', 'defence'].includes(stat)) {
+                if (this.prayerPoints > 0 && ['attack', 'strength', 'defence', 'magic', 'ranged'].includes(stat)) {
                     level = Math.floor(level * 1.5);
                     statElement.classList.add('prayer-boosted');
                 } else {
@@ -1020,7 +1038,7 @@ if (this.currentTask) {
         this.monsterPanel.querySelector('[data-stat="prayer"]').textContent = this.currentMonster.prayer || 0;
         
         // Apply prayer boost visual to monster stats if prayer is active
-        const monsterStatElements = ['attack', 'strength', 'defence'];
+        const monsterStatElements = ['attack', 'strength', 'defence', 'magic', 'ranged'];
         monsterStatElements.forEach(stat => {
             const statElement = this.monsterPanel.querySelector(`[data-stat="${stat}"]`);
             if (statElement) {
@@ -1035,15 +1053,17 @@ if (this.currentTask) {
             }
         });
         
-        // Update non-combat stats
-        this.monsterPanel.querySelector('[data-stat="magic"]').textContent = '1';
-        this.monsterPanel.querySelector('[data-stat="ranged"]').textContent = '1';
-        this.monsterPanel.querySelector('[data-stat="slayer"]').textContent = '1';
+        // Update slayer stat (not affected by prayer)
+        this.monsterPanel.querySelector('[data-stat="slayer"]').textContent = this.currentMonster.slayer || '1';
         
-        // Monster doesn't have gear scores
+        // Monster doesn't have gear scores but highlight their chosen style
         this.monsterPanel.querySelector('.gear-melee .gear-value').textContent = '+0';
         this.monsterPanel.querySelector('.gear-ranged .gear-value').textContent = '+0';
         this.monsterPanel.querySelector('.gear-magic .gear-value').textContent = '+0';
+        
+        // Highlight monster's combat style
+        this.monsterPanel.querySelectorAll('.combat-gear-score').forEach(el => el.classList.remove('active-style'));
+        this.monsterPanel.querySelector(`.gear-${this.monsterCombatStyle}`).classList.add('active-style');
         
         // Calculate monster max hit using centralized function
         const monsterMaxHit = this.calculateMonsterMaxHit();
@@ -1134,26 +1154,44 @@ if (this.currentTask) {
             defenceLevel = Math.floor(defenceLevel * 1.5);
         }
         
-        // Get monster attack (with prayer bonus if active)
-        let monsterAttack = this.currentMonster.attack;
-        if (this.monsterPrayerPoints > 0) {
-            monsterAttack = Math.floor(monsterAttack * 1.5);
+        // Get monster attack stat based on their combat style
+        let monsterAttackStat;
+        if (this.monsterCombatStyle === 'melee') {
+            monsterAttackStat = this.currentMonster.attack;
+        } else if (this.monsterCombatStyle === 'ranged') {
+            monsterAttackStat = this.currentMonster.ranged;
+        } else {
+            monsterAttackStat = this.currentMonster.magic;
         }
         
-        const hitChance = (monsterAttack + 12) / (4 * (defenceLevel + defenceBonus + 8));
+        // Apply prayer bonus if active
+        if (this.monsterPrayerPoints > 0) {
+            monsterAttackStat = Math.floor(monsterAttackStat * 1.5);
+        }
+        
+        const hitChance = (monsterAttackStat + 12) / (4 * (defenceLevel + defenceBonus + 8));
         return Math.max(0.05, Math.min(0.95, hitChance));
     }
     
     calculateMonsterMaxHit() {
         if (!this.currentMonster) return 1;
         
-        // Get monster strength (with prayer bonus if active)
-        let monsterStrength = this.currentMonster.strength;
-        if (this.monsterPrayerPoints > 0) {
-            monsterStrength = Math.floor(monsterStrength * 1.5);
+        // Get monster strength stat based on their combat style
+        let monsterStrengthStat;
+        if (this.monsterCombatStyle === 'melee') {
+            monsterStrengthStat = this.currentMonster.strength;
+        } else if (this.monsterCombatStyle === 'ranged') {
+            monsterStrengthStat = this.currentMonster.ranged;
+        } else {
+            monsterStrengthStat = this.currentMonster.magic;
         }
         
-        return Math.max(1, Math.ceil((monsterStrength + 4) / 4));
+        // Apply prayer bonus if active
+        if (this.monsterPrayerPoints > 0) {
+            monsterStrengthStat = Math.floor(monsterStrengthStat * 1.5);
+        }
+        
+        return Math.max(1, Math.ceil((monsterStrengthStat + 4) / 4));
     }
     
     // Animation methods
