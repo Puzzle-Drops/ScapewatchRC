@@ -5290,9 +5290,6 @@ span.control-emoji {
     position: relative;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: visible;
     z-index: 20;
 }
@@ -5346,12 +5343,6 @@ span.control-emoji {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-/* Make selected blessing match equipment-slot-icon sizing when not hovered */
-.blessing-selector-container:not(:hover) .blessing-option.selected .blessing-item-container {
-    width: 80%;
-    height: 80%;
 }
 
 .blessing-slot-bg {
