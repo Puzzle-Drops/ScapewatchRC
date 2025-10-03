@@ -116,6 +116,37 @@
             margin-top: 10px;
         }
 
+        .drop-table-headers {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #222;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 13px;
+            color: #4a9eff;
+        }
+
+        .drop-table-headers .header-item {
+            flex: 2;
+        }
+
+        .drop-table-headers .header-quantity {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .drop-table-headers .header-chance {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .drop-table-headers .header-action {
+            width: 80px;
+        }
+
         .drop-item {
             display: flex;
             gap: 10px;
@@ -202,6 +233,7 @@
             gap: 10px;
             justify-content: center;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .existing-monsters {
@@ -419,7 +451,15 @@
                 <div class="section">
                     <h3>Drop Table</h3>
                     <div class="drop-table" id="dropTable">
-                        <!-- Drop items will be added here -->
+                        <div class="drop-table-headers">
+                            <div class="header-item">Item Name</div>
+                            <div class="header-quantity">Quantity</div>
+                            <div class="header-chance">Chance</div>
+                            <div class="header-action"></div>
+                        </div>
+                        <div id="dropTableItems">
+                            <!-- Drop items will be added here -->
+                        </div>
                     </div>
                     <button class="btn btn-add" onclick="addDropItem()">Add Drop Item</button>
                 </div>
@@ -433,7 +473,9 @@
 
         <div class="actions">
             <button class="btn btn-success" onclick="exportMonsterOnly()">Export Monster Only</button>
+            <button class="btn btn-success" onclick="copyMonsterToClipboard()">Copy Monster to Clipboard</button>
             <button class="btn btn-success" onclick="exportFullFile()">Export Full Activities File</button>
+            <button class="btn btn-success" onclick="copyFullToClipboard()">Copy Full to Clipboard</button>
             <button class="btn" onclick="generatePreview()">Update Preview</button>
             <button class="btn btn-danger" onclick="clearForm()">Clear Form</button>
         </div>
@@ -552,7 +594,7 @@
             document.getElementById('xp-slayer').value = (firstActivity.xpPerKill && firstActivity.xpPerKill.slayer) || 0;
             
             // Load drop table
-            document.getElementById('dropTable').innerHTML = '';
+            document.getElementById('dropTableItems').innerHTML = '';
             dropCounter = 0;
             if (firstActivity.dropTable) {
                 firstActivity.dropTable.forEach(drop => {
@@ -585,9 +627,25 @@
             });
         }
 
+        // Parse chance input (handles fractions like "1/10")
+        function parseChance(value) {
+            if (value.includes('/')) {
+                const parts = value.split('/');
+                if (parts.length === 2) {
+                    const numerator = parseFloat(parts[0]);
+                    const denominator = parseFloat(parts[1]);
+                    if (!isNaN(numerator) && !isNaN(denominator) && denominator !== 0) {
+                        return Math.round((numerator / denominator) * 10000) / 10000; // Round to 4 decimal places
+                    }
+                }
+            }
+            const parsed = parseFloat(value);
+            return isNaN(parsed) ? 1.0 : Math.round(parsed * 10000) / 10000;
+        }
+
         // Add drop item row
         function addDropItem(itemId = '', quantity = '1', chance = 1.0) {
-            const dropTable = document.getElementById('dropTable');
+            const dropTableItems = document.getElementById('dropTableItems');
             const dropId = dropCounter++;
             
             const dropItem = document.createElement('div');
@@ -605,13 +663,22 @@
                 <input type="text" class="quantity-input" id="quantity-${dropId}" 
                        placeholder="Qty (e.g., 1 or 3-15)" value="${quantity}"
                        onchange="generatePreview()">
-                <input type="number" class="chance-input" id="chance-${dropId}" 
-                       placeholder="Chance" min="0" max="1" step="0.01" value="${chance}"
-                       onchange="generatePreview()">
+                <input type="text" class="chance-input" id="chance-${dropId}" 
+                       placeholder="Chance (e.g., 0.1 or 1/10)" value="${chance}"
+                       onchange="handleChanceChange(${dropId})">
                 <button class="btn btn-danger" onclick="removeDropItem(${dropId})">Remove</button>
             `;
             
-            dropTable.appendChild(dropItem);
+            dropTableItems.appendChild(dropItem);
+        }
+
+        // Handle chance change
+        function handleChanceChange(dropId) {
+            const input = document.getElementById(`chance-${dropId}`);
+            const value = input.value;
+            const parsed = parseChance(value);
+            input.value = parsed;
+            generatePreview();
         }
 
         // Handle item search
@@ -623,12 +690,19 @@
                 return;
             }
             
-            const matches = Object.entries(allItems)
-                .filter(([id, item]) => 
-                    id.includes(query.toLowerCase()) || 
-                    item.name.toLowerCase().includes(query.toLowerCase())
-                )
-                .slice(0, 10);
+            let matches;
+            
+            // Show all items when "*" is typed
+            if (query === '*') {
+                matches = Object.entries(allItems);
+            } else {
+                matches = Object.entries(allItems)
+                    .filter(([id, item]) => 
+                        id.includes(query.toLowerCase()) || 
+                        item.name.toLowerCase().includes(query.toLowerCase())
+                    )
+                    .slice(0, 10);
+            }
             
             if (matches.length === 0) {
                 hideSuggestions(dropId);
@@ -711,7 +785,8 @@
                 const dropId = dropItem.id.replace('drop-', '');
                 const itemId = document.getElementById(`item-${dropId}`).value.trim();
                 const quantityStr = document.getElementById(`quantity-${dropId}`).value.trim();
-                const chance = parseFloat(document.getElementById(`chance-${dropId}`).value) || 1.0;
+                const chanceStr = document.getElementById(`chance-${dropId}`).value.trim();
+                const chance = parseChance(chanceStr);
                 
                 if (itemId) {
                     // Check if item exists
@@ -779,7 +854,7 @@
             output.textContent = jsonStr;
         }
 
-        // Export monster only
+        // Export monster only (without outer brackets for direct pasting)
         function exportMonsterOnly() {
             const activities = generateMonsterActivities();
             if (!activities) {
@@ -787,8 +862,111 @@
                 return;
             }
             
-            const jsonStr = JSON.stringify(activities, null, 4);
+            // Format without outer brackets
+            let jsonStr = '';
+            Object.entries(activities).forEach(([id, activity], index) => {
+                if (index > 0) jsonStr += ',\n';
+                jsonStr += '    "' + id + '": ' + JSON.stringify(activity, null, 4).split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
+            });
+            
             downloadJSON(jsonStr, 'monster_activities.json');
+        }
+
+        // Copy monster to clipboard (without outer brackets)
+        function copyMonsterToClipboard() {
+            const activities = generateMonsterActivities();
+            if (!activities) {
+                alert('Please configure a monster first');
+                return;
+            }
+            
+            // Format without outer brackets
+            let jsonStr = '';
+            Object.entries(activities).forEach(([id, activity], index) => {
+                if (index > 0) jsonStr += ',\n';
+                jsonStr += '    "' + id + '": ' + JSON.stringify(activity, null, 4).split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
+            });
+            
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                showNotification('Monster configuration copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+
+        // Copy full file to clipboard
+        function copyFullToClipboard() {
+            const activities = generateMonsterActivities();
+            if (!activities) {
+                alert('Please configure a monster first');
+                return;
+            }
+            
+            // Merge with existing activities
+            const mergedActivities = { ...allActivities };
+            
+            // Remove old versions of these activities if they exist
+            Object.keys(activities).forEach(id => {
+                delete mergedActivities[id];
+            });
+            
+            // Add new activities
+            Object.assign(mergedActivities, activities);
+            
+            const jsonStr = JSON.stringify(mergedActivities, null, 4);
+            
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                showNotification('Full activities file copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background: ${type === 'success' ? '#4caf50' : '#f44336'};
+                color: white;
+                border-radius: 4px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(400px); }
+                    to { transform: translateX(0); }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); }
+                    to { transform: translateX(400px); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                notification.style.animationFillMode = 'forwards';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                    document.head.removeChild(style);
+                }, 300);
+            }, 3000);
         }
 
         // Export full file
@@ -846,7 +1024,7 @@
             document.getElementById('xp-prayer').value = 0;
             document.getElementById('xp-slayer').value = 0;
             
-            document.getElementById('dropTable').innerHTML = '';
+            document.getElementById('dropTableItems').innerHTML = '';
             dropCounter = 0;
             addDropItem();
             
