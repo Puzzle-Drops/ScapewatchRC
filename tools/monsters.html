@@ -845,13 +845,17 @@
             }
             
             // Format JSON with proper indentation
+            const entries = Object.entries(activities);
             let jsonStr = '';
-            Object.entries(activities).forEach(([id, activity], index) => {
-                if (index > 0) jsonStr += ',\n';
-                jsonStr += JSON.stringify({ [id]: activity }, null, 4).slice(1, -1);
+            entries.forEach(([id, activity], index) => {
+                jsonStr += '"' + id + '": ' + JSON.stringify(activity, null, 4);
+                if (index < entries.length - 1) {
+                    jsonStr += ',';
+                }
+                jsonStr += '\n';
             });
             
-            output.textContent = jsonStr;
+            output.textContent = jsonStr.trim();
         }
 
         // Export monster only (without outer brackets for direct pasting)
@@ -863,11 +867,20 @@
             }
             
             // Format without outer brackets
+            const entries = Object.entries(activities);
             let jsonStr = '';
-            Object.entries(activities).forEach(([id, activity], index) => {
-                if (index > 0) jsonStr += ',\n';
-                jsonStr += '    "' + id + '": ' + JSON.stringify(activity, null, 4).split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
+            entries.forEach(([id, activity], index) => {
+                const activityJson = JSON.stringify(activity, null, 4);
+                const indentedJson = activityJson.split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
+                jsonStr += '    "' + id + '": ' + indentedJson;
+                if (index < entries.length - 1) {
+                    jsonStr += ',';
+                }
+                jsonStr += '\n';
             });
+            
+            // Remove trailing newline
+            jsonStr = jsonStr.trim();
             
             downloadJSON(jsonStr, 'monster_activities.json');
         }
@@ -881,11 +894,20 @@
             }
             
             // Format without outer brackets
+            const entries = Object.entries(activities);
             let jsonStr = '';
-            Object.entries(activities).forEach(([id, activity], index) => {
-                if (index > 0) jsonStr += ',\n';
-                jsonStr += '    "' + id + '": ' + JSON.stringify(activity, null, 4).split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
+            entries.forEach(([id, activity], index) => {
+                const activityJson = JSON.stringify(activity, null, 4);
+                const indentedJson = activityJson.split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
+                jsonStr += '    "' + id + '": ' + indentedJson;
+                if (index < entries.length - 1) {
+                    jsonStr += ',';
+                }
+                jsonStr += '\n';
             });
+            
+            // Remove trailing newline
+            jsonStr = jsonStr.trim();
             
             navigator.clipboard.writeText(jsonStr).then(() => {
                 showNotification('Monster configuration copied to clipboard!', 'success');
