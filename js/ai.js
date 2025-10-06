@@ -246,6 +246,7 @@ if (!this.isCurrentTaskValid() && this.currentTask !== null && !this.isResumingF
             isBusy: player.isBusy(),
             inventoryFull: inventory.isFull(),
             currentTask: this.currentTask?.description,
+            currentTaskSkill: this.currentTask?.skill,
             currentNode: player.currentNode,
             hasBankedForTask: this.hasBankedForCurrentTask,
             isBanking: player.isBanking
