@@ -731,77 +731,74 @@ if (this.currentTask) {
     }
 
     // Check if a task is valid/possible
-    isTaskPossible(task) {
-        // Check if node exists and is walkable
-        const node = window.nodes ? nodes.getNode(task.nodeId) : null;
-        if (!node) {
-            console.error(`Task impossible - node ${task.nodeId} not found`);
+isTaskPossible(task) {
+    // Check if node exists and is walkable
+    const node = window.nodes ? nodes.getNode(task.nodeId) : null;
+    if (!node) {
+        console.error(`Task impossible - node ${task.nodeId} not found`);
+        return false;
+    }
+
+    // Check if node is accessible
+    if (window.collision && window.collision.initialized) {
+        if (!collision.isWalkable(node.position.x, node.position.y)) {
+            console.error(`Task impossible - node ${task.nodeId} not walkable`);
             return false;
         }
+    }
 
-        // Check if node is accessible
-        if (window.collision && window.collision.initialized) {
-            if (!collision.isWalkable(node.position.x, node.position.y)) {
-                console.error(`Task impossible - node ${task.nodeId} not walkable`);
-                return false;
+    // Check if activity exists in game data first (moved up and used throughout)
+    const activityData = loadingManager.getData('activities')[task.activityId];
+    if (!activityData) {
+        console.error(`Task impossible - activity ${task.activityId} no longer exists in game`);
+        return false;
+    }
+
+    // For combat tasks, check if ANY combat activity for this monster exists at node
+    if (task.isCombatTask && task.monsterName) {
+        let hasMonsterActivity = false;
+        for (const nodeActivityId of node.activities) {
+            const nodeActivity = loadingManager.getData('activities')[nodeActivityId];
+            if (nodeActivity && nodeActivity.monsterName === task.monsterName) {
+                hasMonsterActivity = true;
+                break;
             }
         }
-
-        // Check if activity exists in game data first
-const activityData = loadingManager.getData('activities')[task.activityId];
-if (!activityData) {
-    console.error(`Task impossible - activity ${task.activityId} no longer exists in game`);
-    return false;
-}
-
-// For combat tasks, check if ANY combat activity for this monster exists at node
-if (task.isCombatTask && task.monsterName) {
-    let hasMonsterActivity = false;
-    for (const nodeActivityId of node.activities) {
-        const nodeActivity = loadingManager.getData('activities')[nodeActivityId];
-        if (nodeActivity && nodeActivity.monsterName === task.monsterName) {
-            hasMonsterActivity = true;
-            break;
+        
+        if (!hasMonsterActivity) {
+            console.error(`Task impossible - no ${task.monsterName} activities at node ${task.nodeId}`);
+            return false;
+        }
+    } else {
+        // Non-combat task - check exact activity
+        if (!node.activities || !node.activities.includes(task.activityId)) {
+            console.error(`Task impossible - activity ${task.activityId} not at node ${task.nodeId}`);
+            return false;
         }
     }
+
+    // For cooking tasks, check if we still have enough raw food
+    if (task.isCookingTask) {
+        const currentRawFood = this.getCurrentItemCount(task.itemId);
+        const remaining = task.targetCount - (task.rawFoodConsumed || 0);
+        
+        if (currentRawFood < remaining) {
+            console.error(`Cooking task impossible - need ${remaining} ${task.itemId}, have ${currentRawFood}`);
+            return false;
+        }
+    }
+
+    // Check level requirement (activityData already declared above now)
+    const requiredLevel = activityData.requiredLevel || 1;
+    const currentLevel = window.skills ? skills.getLevel(task.skill) : 1;
     
-    if (!hasMonsterActivity) {
-        console.error(`Task impossible - no ${task.monsterName} activities at node ${task.nodeId}`);
+    if (currentLevel < requiredLevel) {
+        console.error(`Task impossible - need level ${requiredLevel}, have ${currentLevel}`);
         return false;
     }
-} else {
-    // Non-combat task - check exact activity
-    if (!node.activities || !node.activities.includes(task.activityId)) {
-        console.error(`Task impossible - activity ${task.activityId} not at node ${task.nodeId}`);
-        return false;
-    }
+
+    return true;
 }
-
-        // For cooking tasks, check if we still have enough raw food
-        if (task.isCookingTask) {
-            const currentRawFood = this.getCurrentItemCount(task.itemId);
-            const remaining = task.targetCount - (task.rawFoodConsumed || 0);
-            
-            if (currentRawFood < remaining) {
-                console.error(`Cooking task impossible - need ${remaining} ${task.itemId}, have ${currentRawFood}`);
-                return false;
-            }
-        }
-
-        // Check level requirement
-        const activityData = loadingManager.getData('activities')[task.activityId];
-        if (activityData) {
-            const requiredLevel = activityData.requiredLevel || 1;
-            const currentLevel = window.skills ? skills.getLevel(task.skill) : 1;
-            
-            if (currentLevel < requiredLevel) {
-                console.error(`Task impossible - need level ${requiredLevel}, have ${currentLevel}`);
-                return false;
-            }
-        }
-
-        return true;
-    }
 }
 
 // Make TaskManager available globally
