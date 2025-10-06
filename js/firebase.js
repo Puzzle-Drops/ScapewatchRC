@@ -787,6 +787,7 @@ class FirebaseManager {
                 monsterMaxHp: cm.monsterMaxHp,
                 monsterPrayerPoints: cm.monsterPrayerPoints,
                 monsterMaxPrayer: cm.monsterMaxPrayer,
+                monsterCombatStyle: cm.monsterCombatStyle,
                 playerHp: cm.playerHp,
                 playerMaxHp: cm.playerMaxHp,
                 prayerPoints: cm.prayerPoints,
