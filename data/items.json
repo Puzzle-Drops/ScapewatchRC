@@ -1346,5 +1346,14 @@
     "equipmentSlot": "body",
     "combatStyle": "melee",
     "combatBonus": 1
+},
+"bronze_scimitar": {
+    "id": "bronze_scimitar",
+    "name": "Bronze Scimitar",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 2
 }
 }
