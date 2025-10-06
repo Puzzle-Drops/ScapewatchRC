@@ -2011,106 +2011,26 @@
             "prayer": 4
         },
         "dropTable": [
-            {
-                "itemId": "coins",
-                "quantity": "3-15",
-                "chance": 1
-            },
-            {
-                "itemId": "goblin_mail",
-                "quantity": 1,
-                "chance": 0.0833
-            },
-            {
-                "itemId": "fishing_bait",
-                "quantity": "3-15",
-                "chance": 0.1
-            },
-            {
-                "itemId": "bronze_arrow",
-                "quantity": 7,
-                "chance": 0.024
-            },
-            {
-                "itemId": "mind_rune",
-                "quantity": 2,
-                "chance": 0.0238
-            },
-            {
-                "itemId": "earth_rune",
-                "quantity": 4,
-                "chance": 0.0238
-            },
-            {
-                "itemId": "body_rune",
-                "quantity": 2,
-                "chance": 0.0238
-            },
-            {
-                "itemId": "chaos_rune",
-                "quantity": 1,
-                "chance": 0.0078
-            },
-            {
-                "itemId": "nature_rune",
-                "quantity": 1,
-                "chance": 0.0078
-            },
-            {
-                "itemId": "grimy_guam_leaf",
-                "quantity": 1,
-                "chance": 0.0039
-            },
-            {
-                "itemId": "grimy_marrentill",
-                "quantity": 1,
-                "chance": 0.0029
-            },
-            {
-                "itemId": "grimy_tarromin",
-                "quantity": 1,
-                "chance": 0.0022
-            },
-            {
-                "itemId": "grimy_ranarr_weed",
-                "quantity": 1,
-                "chance": 0.0013
-            },
-            {
-                "itemId": "grimy_irit_leaf",
-                "quantity": 1,
-                "chance": 0.001
-            },
-            {
-                "itemId": "grimy_avantoe",
-                "quantity": 1,
-                "chance": 0.0006
-            },
-            {
-                "itemId": "grimy_kwuarm",
-                "quantity": 1,
-                "chance": 0.0006
-            },
-            {
-                "itemId": "grimy_cadantine",
-                "quantity": 1,
-                "chance": 0.0005
-            },
-            {
-                "itemId": "grimy_lantadyme",
-                "quantity": 1,
-                "chance": 0.0004
-            },
-            {
-                "itemId": "grimy_dwarf_weed",
-                "quantity": 1,
-                "chance": 0.0004
-            },
-            {
-                "itemId": "coins",
-                "quantity": "3-15",
-                "chance": 0.5
-            }
+            { "itemId": "coins", "quantity": "3-15", "chance": 1 },
+            { "itemId": "goblin_mail", "quantity": 1, "chance": 0.0833 },
+            { "itemId": "fishing_bait", "quantity": "3-15", "chance": 0.1 },
+            { "itemId": "bronze_arrow", "quantity": 7, "chance": 0.024 },
+            { "itemId": "mind_rune", "quantity": 2, "chance": 0.0238 },
+            { "itemId": "earth_rune", "quantity": 4, "chance": 0.0238 },
+            { "itemId": "body_rune", "quantity": 2, "chance": 0.0238 },
+            { "itemId": "chaos_rune", "quantity": 1, "chance": 0.0078 },
+            { "itemId": "nature_rune", "quantity": 1, "chance": 0.0078 },
+            { "itemId": "grimy_guam_leaf", "quantity": 1, "chance": 0.0039 },
+            { "itemId": "grimy_marrentill", "quantity": 1, "chance": 0.0029 },
+            { "itemId": "grimy_tarromin", "quantity": 1, "chance": 0.0022 },
+            { "itemId": "grimy_ranarr_weed", "quantity": 1, "chance": 0.0013 },
+            { "itemId": "grimy_irit_leaf", "quantity": 1, "chance": 0.001 },
+            { "itemId": "grimy_avantoe", "quantity": 1, "chance": 0.0006 },
+            { "itemId": "grimy_kwuarm", "quantity": 1, "chance": 0.0006 },
+            { "itemId": "grimy_cadantine", "quantity": 1, "chance": 0.0005 },
+            { "itemId": "grimy_lantadyme", "quantity": 1, "chance": 0.0004 },
+            { "itemId": "grimy_dwarf_weed", "quantity": 1, "chance": 0.0004 },
+            { "itemId": "coins", "quantity": "3-15", "chance": 0.5 }
         ]
     }
     
