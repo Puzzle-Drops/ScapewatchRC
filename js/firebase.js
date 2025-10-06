@@ -1262,17 +1262,35 @@ class FirebaseManager {
             const activityData = loadingManager.getData('activities')[activityId];
             
             if (activityData && activityData.monsterName) {
-                // Set up the monster
-                cm.currentMonster = {
-                    name: activityData.monsterName,
-                    attack: activityData.attack || 1,
-                    strength: activityData.strength || 1,
-                    defence: activityData.defence || 1,
-                    maxHp: activityData.hitpoints || 10,
-                    prayer: activityData.prayer || 0,
-                    dropTable: activityData.dropTable || [],
-                    xpRewards: activityData.xpPerKill || {}
-                };
+                // Set up the monster with ALL stats
+cm.currentMonster = {
+    name: activityData.monsterName,
+    attack: activityData.attack || 1,
+    strength: activityData.strength || 1,
+    defence: activityData.defence || 1,
+    ranged: activityData.ranged || 1,
+    magic: activityData.magic || 1,
+    maxHp: activityData.hitpoints || 10,
+    prayer: activityData.prayer || 0,
+    slayer: activityData.slayer || 1,
+    dropTable: activityData.dropTable || [],
+    xpRewards: activityData.xpPerKill || {}
+};
+
+// Determine monster's combat style (was missing during restore)
+const meleeScore = (cm.currentMonster.attack + cm.currentMonster.strength) / 2;
+const rangedScore = cm.currentMonster.ranged;
+const magicScore = cm.currentMonster.magic;
+
+if (meleeScore >= rangedScore && meleeScore >= magicScore) {
+    cm.monsterCombatStyle = 'melee';
+} else if (rangedScore >= magicScore) {
+    cm.monsterCombatStyle = 'ranged';
+} else {
+    cm.monsterCombatStyle = 'magic';
+}
+
+console.log(`Restored monster combat style: ${cm.monsterCombatStyle}`);
                 
                 // Restore combat state
                 cm.inCombat = true;
