@@ -588,11 +588,22 @@ if (window.clueManager) {
     }
 
     startActivity(activityId) {
-        const activityData = loadingManager.getData('activities')[activityId];
-        if (!activityData) {
-            console.error(`Activity ${activityId} not found`);
-            return;
+    const activityData = loadingManager.getData('activities')[activityId];
+    if (!activityData) {
+        console.error(`Activity ${activityId} not found`);
+        
+        // If this was from a task, skip it
+        if (window.ai && window.ai.currentTask && window.ai.currentTask.activityId === activityId) {
+            console.log('Activity no longer exists, skipping current task');
+            if (window.taskManager) {
+                taskManager.skipCurrentTask();
+            }
+            window.ai.currentTask = null;
+            window.ai.hasBankedForCurrentTask = false;
+            window.ai.decisionCooldown = 0;
         }
+        return;
+    }
 
         // Check if this is a combat activity
         if (activityData.monsterName) {
