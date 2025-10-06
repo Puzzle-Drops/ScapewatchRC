@@ -370,32 +370,6 @@
                 </div>
 
                 <div class="section">
-                    <h3>Skills That Can Be Trained</h3>
-                    <div class="checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="skill-attack" value="attack">
-                            <span>Attack</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="skill-strength" value="strength">
-                            <span>Strength</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="skill-defence" value="defence">
-                            <span>Defence</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="skill-ranged" value="ranged">
-                            <span>Ranged</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="skill-magic" value="magic">
-                            <span>Magic</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="section">
                     <h3>Requirements</h3>
                     <div class="stats-grid">
                         <div class="form-group">
@@ -530,7 +504,7 @@
                 allActivities = await response.json();
                 
                 // Find existing monsters (combat activities)
-                const combatSkills = ['attack', 'strength', 'defence', 'ranged', 'magic'];
+                const combatSkills = ['attack', 'strength', 'defence', 'ranged', 'magic', 'combat'];
                 Object.entries(allActivities).forEach(([id, activity]) => {
                     if (combatSkills.includes(activity.skill) && activity.monsterName) {
                         existingMonsters.add(activity.monsterName);
@@ -571,7 +545,7 @@
             
             // Find all activities for this monster
             const monsterActivities = Object.entries(allActivities).filter(([id, activity]) => 
-                activity.monsterName === monsterName && ['attack', 'strength', 'defence', 'ranged', 'magic'].includes(activity.skill)
+                activity.monsterName === monsterName && ['attack', 'strength', 'defence', 'ranged', 'magic', 'combat'].includes(activity.skill)
             );
             
             if (monsterActivities.length === 0) return;
@@ -584,12 +558,6 @@
             
             // Set monster name
             document.getElementById('monsterName').value = monsterName;
-            
-            // Set skills that can be trained
-            ['attack', 'strength', 'defence', 'ranged', 'magic'].forEach(skill => {
-                const checkbox = document.getElementById(`skill-${skill}`);
-                checkbox.checked = monsterActivities.some(([id, act]) => act.skill === skill);
-            });
             
             // Set requirements
             document.getElementById('requiredLevel').value = firstActivity.requiredLevel || 1;
@@ -808,15 +776,6 @@
             const monsterName = document.getElementById('monsterName').value.trim();
             if (!monsterName) return null;
             
-            const selectedSkills = [];
-            ['attack', 'strength', 'defence', 'ranged', 'magic'].forEach(skill => {
-                if (document.getElementById(`skill-${skill}`).checked) {
-                    selectedSkills.push(skill);
-                }
-            });
-            
-            if (selectedSkills.length === 0) return null;
-            
             // Get stats
             const requiredLevel = parseInt(document.getElementById('requiredLevel').value) || 1;
             const requiredSlayerLevel = parseInt(document.getElementById('requiredSlayerLevel').value) || 1;
@@ -865,32 +824,30 @@
                 }
             });
             
-            // Generate activities for each selected skill
+            // Generate single combat activity
             const activities = {};
-            selectedSkills.forEach(skill => {
-                const id = `${monsterName.toLowerCase().replace(/\s+/g, '_')}_${skill}`;
-                const name = `Fight ${monsterName}s (${skill.charAt(0).toUpperCase() + skill.slice(1)})`;
-                
-                const activity = {
-                    id,
-                    name,
-                    skill,
-                    monsterName,
-                    requiredLevel,
-                    requiredSlayerLevel,
-                    ...stats
-                };
-                
-                if (Object.keys(xpPerKill).length > 0) {
-                    activity.xpPerKill = xpPerKill;
-                }
-                
-                if (dropTable.length > 0) {
-                    activity.dropTable = dropTable;
-                }
-                
-                activities[id] = activity;
-            });
+            const id = monsterName.toLowerCase().replace(/\s+/g, '_');
+            const name = `Fight ${monsterName}s`;
+            
+            const activity = {
+                id,
+                name,
+                skill: 'combat',
+                monsterName,
+                requiredLevel,
+                requiredSlayerLevel,
+                ...stats
+            };
+            
+            if (Object.keys(xpPerKill).length > 0) {
+                activity.xpPerKill = xpPerKill;
+            }
+            
+            if (dropTable.length > 0) {
+                activity.dropTable = dropTable;
+            }
+            
+            activities[id] = activity;
             
             return activities;
         }
@@ -901,7 +858,7 @@
             const output = document.getElementById('jsonOutput');
             
             if (!activities) {
-                output.textContent = 'Please enter a monster name and select at least one skill';
+                output.textContent = 'Please enter a monster name';
                 return;
             }
             
@@ -1091,9 +1048,6 @@
         // Clear form
         function clearForm() {
             document.getElementById('monsterName').value = '';
-            ['attack', 'strength', 'defence', 'ranged', 'magic'].forEach(skill => {
-                document.getElementById(`skill-${skill}`).checked = false;
-            });
             document.getElementById('requiredLevel').value = 1;
             document.getElementById('requiredSlayerLevel').value = 1;
             document.getElementById('stat-hitpoints').value = 10;
