@@ -229,12 +229,15 @@ class CombatManager {
         // Get current phase duration
         const phaseDuration = this.getPhaseDuration(this.combatPhase);
         
-        // Check if phase is complete
-        if (this.phaseTimer >= phaseDuration) {
-            this.completePhase();
-            this.phaseTimer = 0;
-            this.nextPhase();
-        }
+        // Check if phase is complete (with NaN safety check)
+if (isNaN(this.phaseTimer) || isNaN(phaseDuration)) {
+    console.error('NaN detected in combat timing, resetting phase timer');
+    this.phaseTimer = 0;
+} else if (this.phaseTimer >= phaseDuration) {
+    this.completePhase();
+    this.phaseTimer = 0;
+    this.nextPhase();
+}
         
         // Update UI
         this.updateCombatUI();
@@ -1146,53 +1149,65 @@ if (this.currentTask) {
 }
     
     calculateMonsterAccuracy() {
-        let defenceLevel = skills.getLevel('defence');
-        const defenceBonus = window.gearScores ? Math.floor(window.gearScores[this.combatStyle] / 10) : 0;
-        
-        // Apply prayer bonus to player defence
-        if (this.prayerPoints > 0) {
-            defenceLevel = Math.floor(defenceLevel * 1.5);
-        }
-        
-        // Get monster attack stat based on their combat style
-        let monsterAttackStat;
-        if (this.monsterCombatStyle === 'melee') {
-            monsterAttackStat = this.currentMonster.attack;
-        } else if (this.monsterCombatStyle === 'ranged') {
-            monsterAttackStat = this.currentMonster.ranged;
-        } else {
-            monsterAttackStat = this.currentMonster.magic;
-        }
-        
-        // Apply prayer bonus if active
-        if (this.monsterPrayerPoints > 0) {
-            monsterAttackStat = Math.floor(monsterAttackStat * 1.5);
-        }
-        
-        const hitChance = (monsterAttackStat + 12) / (4 * (defenceLevel + defenceBonus + 8));
-        return Math.max(0.05, Math.min(0.95, hitChance));
+    let defenceLevel = skills.getLevel('defence');
+    const defenceBonus = window.gearScores ? Math.floor(window.gearScores[this.combatStyle] / 10) : 0;
+    
+    // Apply prayer bonus to player defence
+    if (this.prayerPoints > 0) {
+        defenceLevel = Math.floor(defenceLevel * 1.5);
     }
     
-    calculateMonsterMaxHit() {
-        if (!this.currentMonster) return 1;
-        
-        // Get monster strength stat based on their combat style
-        let monsterStrengthStat;
-        if (this.monsterCombatStyle === 'melee') {
-            monsterStrengthStat = this.currentMonster.strength;
-        } else if (this.monsterCombatStyle === 'ranged') {
-            monsterStrengthStat = this.currentMonster.ranged;
-        } else {
-            monsterStrengthStat = this.currentMonster.magic;
-        }
-        
-        // Apply prayer bonus if active
-        if (this.monsterPrayerPoints > 0) {
-            monsterStrengthStat = Math.floor(monsterStrengthStat * 1.5);
-        }
-        
-        return Math.max(1, Math.ceil((monsterStrengthStat + 4) / 4));
+    // Get monster attack stat based on their combat style
+    let monsterAttackStat;
+    if (this.monsterCombatStyle === 'melee') {
+        monsterAttackStat = this.currentMonster.attack || 1;   // Added fallback
+    } else if (this.monsterCombatStyle === 'ranged') {
+        monsterAttackStat = this.currentMonster.ranged || 1;  // Added fallback
+    } else {
+        monsterAttackStat = this.currentMonster.magic || 1;   // Added fallback
     }
+    
+    // Defensive check for NaN
+    if (isNaN(monsterAttackStat) || monsterAttackStat === undefined) {
+        console.warn('Monster attack stat is NaN/undefined, defaulting to 1');
+        monsterAttackStat = 1;
+    }
+    
+    // Apply prayer bonus if active
+    if (this.monsterPrayerPoints > 0) {
+        monsterAttackStat = Math.floor(monsterAttackStat * 1.5);
+    }
+    
+    const hitChance = (monsterAttackStat + 12) / (4 * (defenceLevel + defenceBonus + 8));
+    return Math.max(0.05, Math.min(0.95, hitChance));
+}
+    
+    calculateMonsterMaxHit() {
+    if (!this.currentMonster) return 1;
+    
+    // Get monster strength stat based on their combat style
+    let monsterStrengthStat;
+    if (this.monsterCombatStyle === 'melee') {
+        monsterStrengthStat = this.currentMonster.strength || 1;  // Added fallback
+    } else if (this.monsterCombatStyle === 'ranged') {
+        monsterStrengthStat = this.currentMonster.ranged || 1;   // Added fallback
+    } else {
+        monsterStrengthStat = this.currentMonster.magic || 1;    // Added fallback
+    }
+    
+    // Defensive check for NaN
+    if (isNaN(monsterStrengthStat) || monsterStrengthStat === undefined) {
+        console.warn('Monster strength stat is NaN/undefined, defaulting to 1');
+        monsterStrengthStat = 1;
+    }
+    
+    // Apply prayer bonus if active
+    if (this.monsterPrayerPoints > 0) {
+        monsterStrengthStat = Math.floor(monsterStrengthStat * 1.5);
+    }
+    
+    return Math.max(1, Math.ceil((monsterStrengthStat + 4) / 4));
+}
     
     // Animation methods
     animateAttack(panel, type) {
