@@ -756,25 +756,28 @@ if (player.isBanking) {
     this.ctx.stroke();
 } else if (player.currentActivity) {
     // Check if this is combat activity
-    if (player.combatManager && player.combatManager.inCombat) {
-        // Use combat-specific progress (only shows during player attack)
-        const combatProgress = player.combatManager.getCombatActivityProgress();
-        if (combatProgress > 0) {
-            // Get combat style color
-            let activityColor = '#f39c12'; // Default orange
-            const activityData = loadingManager.getData('activities')[player.currentActivity];
-            if (activityData && activityData.skill) {
-                activityColor = this.getSkillColor(activityData.skill);
-            }
-            
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, ringRadius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * combatProgress));
-            this.ctx.strokeStyle = activityColor;
-            this.ctx.lineWidth = ringLineWidth;
-            this.ctx.stroke();
+if (player.combatManager && player.combatManager.inCombat) {
+    // Use combat-specific progress (only shows during player attack)
+    const combatProgress = player.combatManager.getCombatActivityProgress();
+    if (combatProgress > 0) {
+        // Get combat style color from the current task's skill
+        let activityColor = '#f39c12'; // Default orange
+        if (player.combatManager.currentTask && player.combatManager.currentTask.skill) {
+            // Use the actual combat skill color (attack, strength, defence, magic, ranged)
+            activityColor = this.getSkillColor(player.combatManager.currentTask.skill);
+        } else {
+            // Fallback: try to get from combat style
+            activityColor = this.getSkillColor(player.combatManager.combatStyle);
         }
-        // No circle during monster_attack and eat_food phases
-    } else {
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, ringRadius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * combatProgress));
+        this.ctx.strokeStyle = activityColor;
+        this.ctx.lineWidth = ringLineWidth;
+        this.ctx.stroke();
+    }
+    // No circle during monster_attack and eat_food phases
+} else {
         // Non-combat activity - use normal progress
         let activityColor = '#f39c12'; // Default orange
         
