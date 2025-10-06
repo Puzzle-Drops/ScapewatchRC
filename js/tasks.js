@@ -747,11 +747,35 @@ if (this.currentTask) {
             }
         }
 
-        // Check if activity exists at node
-        if (!node.activities || !node.activities.includes(task.activityId)) {
-            console.error(`Task impossible - activity ${task.activityId} not at node ${task.nodeId}`);
-            return false;
+        // Check if activity exists in game data first
+const activityData = loadingManager.getData('activities')[task.activityId];
+if (!activityData) {
+    console.error(`Task impossible - activity ${task.activityId} no longer exists in game`);
+    return false;
+}
+
+// For combat tasks, check if ANY combat activity for this monster exists at node
+if (task.isCombatTask && task.monsterName) {
+    let hasMonsterActivity = false;
+    for (const nodeActivityId of node.activities) {
+        const nodeActivity = loadingManager.getData('activities')[nodeActivityId];
+        if (nodeActivity && nodeActivity.monsterName === task.monsterName) {
+            hasMonsterActivity = true;
+            break;
         }
+    }
+    
+    if (!hasMonsterActivity) {
+        console.error(`Task impossible - no ${task.monsterName} activities at node ${task.nodeId}`);
+        return false;
+    }
+} else {
+    // Non-combat task - check exact activity
+    if (!node.activities || !node.activities.includes(task.activityId)) {
+        console.error(`Task impossible - activity ${task.activityId} not at node ${task.nodeId}`);
+        return false;
+    }
+}
 
         // For cooking tasks, check if we still have enough raw food
         if (task.isCookingTask) {
