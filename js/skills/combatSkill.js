@@ -80,11 +80,11 @@ return {
         const uniqueMonsters = new Map();
         
         for (const [activityId, activity] of Object.entries(activities)) {
-            // Only look at activities for this specific skill
-            if (activity.skill !== this.id) continue;
-            
-            // Must be a monster activity (has monsterName)
-            if (!activity.monsterName) continue;
+    // Accept both specific skill and generic "combat" activities
+    if (activity.skill !== this.id && activity.skill !== 'combat') continue;
+    
+    // Must be a monster activity (has monsterName)
+    if (!activity.monsterName) continue;
             
             // Check level requirements
             const requiredLevel = activity.requiredLevel || 1;
@@ -137,24 +137,34 @@ return {
         return monsters[Math.floor(Math.random() * monsters.length)];
     }
     
-    findViableNodesForMonster(activityId) {
-        const viableNodes = [];
-        const allNodes = nodes.getAllNodes();
+    findViableNodesForMonster(monsterActivityId) {
+    const viableNodes = [];
+    const allNodes = nodes.getAllNodes();
+    const activities = loadingManager.getData('activities');
+    
+    // Get the monster name from the activity
+    const activity = activities[monsterActivityId];
+    if (!activity || !activity.monsterName) return viableNodes;
+    const monsterName = activity.monsterName;
+    
+    for (const [nodeId, node] of Object.entries(allNodes)) {
+        if (!node.activities) continue;
         
-        for (const [nodeId, node] of Object.entries(allNodes)) {
-            if (!node.activities) continue;
-            
-            // Check if node has this activity
-            if (node.activities.includes(activityId)) {
+        // Check if node has ANY activity for this monster
+        for (const nodeActivityId of node.activities) {
+            const nodeActivity = activities[nodeActivityId];
+            if (nodeActivity && nodeActivity.monsterName === monsterName) {
                 viableNodes.push({
                     nodeId: nodeId,
-                    activityId: activityId
+                    activityId: nodeActivityId  // Use the actual activity at the node
                 });
+                break;  // Only add once per node
             }
         }
-        
-        return viableNodes;
     }
+    
+    return viableNodes;
+}
     
     determineKillCount(monsterName) {
         let minCount = 10;
