@@ -612,7 +612,16 @@ zoomCamera(newZoom) {
     
     for (const activityId of node.activities) {
         const activity = activities[activityId];
-        if (activity && activity.skill) {
+        if (!activity) continue;  // Skip non-existent activities
+        
+        if (activity.skill === 'combat') {
+            // Generic combat activity - add all combat skills
+            skillSet.add('attack');
+            skillSet.add('strength');
+            skillSet.add('defence');
+            skillSet.add('ranged');
+            skillSet.add('magic');
+        } else if (activity.skill) {
             skillSet.add(activity.skill);
         }
     }
