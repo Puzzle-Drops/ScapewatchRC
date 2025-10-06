@@ -42,11 +42,22 @@ class SkillRegistry {
     }
     
     getSkillForActivity(activityId) {
-        const activityData = loadingManager.getData('activities')[activityId];
-        if (!activityData) return null;
-        
-        return this.getSkill(activityData.skill);
+    const activities = loadingManager.getData('activities');
+    const activity = activities[activityId];
+    if (!activity) return null;
+    
+    // For combat activities, we need to determine which skill to use
+    if (activity.skill === 'combat') {
+        // If we have a current combat task, use its skill
+        if (window.ai && window.ai.currentTask && window.ai.currentTask.isCombatTask) {
+            return this.getSkill(window.ai.currentTask.skill);
+        }
+        // Default to null - let combat manager handle it
+        return null;
     }
+    
+    return this.getSkill(activity.skill);
+}
     
     getAllSkills() {
         return Object.values(this.skills);
