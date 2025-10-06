@@ -852,6 +852,49 @@
             return activities;
         }
 
+        // Format JSON with compact drop table
+        function formatActivityJSON(activity, indent = '') {
+            const lines = [];
+            lines.push('{');
+            
+            const keys = Object.keys(activity);
+            keys.forEach((key, keyIndex) => {
+                const value = activity[key];
+                let line = indent + '    "' + key + '": ';
+                
+                if (key === 'dropTable' && Array.isArray(value)) {
+                    // Format drop table with compact entries
+                    line += '[';
+                    lines.push(line);
+                    value.forEach((drop, dropIndex) => {
+                        const dropLine = indent + '        { "itemId": "' + drop.itemId + '", "quantity": ' + 
+                                         (typeof drop.quantity === 'string' ? '"' + drop.quantity + '"' : drop.quantity) + 
+                                         ', "chance": ' + drop.chance + ' }';
+                        if (dropIndex < value.length - 1) {
+                            lines.push(dropLine + ',');
+                        } else {
+                            lines.push(dropLine);
+                        }
+                    });
+                    line = indent + '    ]';
+                } else if (typeof value === 'object' && value !== null) {
+                    line += JSON.stringify(value, null, 4).split('\n').map((l, i) => i === 0 ? l : indent + '    ' + l).join('\n');
+                } else if (typeof value === 'string') {
+                    line += '"' + value + '"';
+                } else {
+                    line += value;
+                }
+                
+                if (keyIndex < keys.length - 1) {
+                    line += ',';
+                }
+                lines.push(line);
+            });
+            
+            lines.push(indent + '}');
+            return lines.join('\n');
+        }
+
         // Generate preview
         function generatePreview() {
             const activities = generateMonsterActivities();
@@ -862,11 +905,11 @@
                 return;
             }
             
-            // Format JSON with proper indentation
+            // Format JSON with proper indentation and compact drop tables
             const entries = Object.entries(activities);
             let jsonStr = '';
             entries.forEach(([id, activity], index) => {
-                jsonStr += '"' + id + '": ' + JSON.stringify(activity, null, 4);
+                jsonStr += '"' + id + '": ' + formatActivityJSON(activity);
                 if (index < entries.length - 1) {
                     jsonStr += ',';
                 }
@@ -888,9 +931,8 @@
             const entries = Object.entries(activities);
             let jsonStr = '';
             entries.forEach(([id, activity], index) => {
-                const activityJson = JSON.stringify(activity, null, 4);
-                const indentedJson = activityJson.split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
-                jsonStr += '    "' + id + '": ' + indentedJson;
+                const activityJson = formatActivityJSON(activity, '    ');
+                jsonStr += '    "' + id + '": ' + activityJson;
                 if (index < entries.length - 1) {
                     jsonStr += ',';
                 }
@@ -915,9 +957,8 @@
             const entries = Object.entries(activities);
             let jsonStr = '';
             entries.forEach(([id, activity], index) => {
-                const activityJson = JSON.stringify(activity, null, 4);
-                const indentedJson = activityJson.split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n');
-                jsonStr += '    "' + id + '": ' + indentedJson;
+                const activityJson = formatActivityJSON(activity, '    ');
+                jsonStr += '    "' + id + '": ' + activityJson;
                 if (index < entries.length - 1) {
                     jsonStr += ',';
                 }
@@ -954,7 +995,18 @@
             // Add new activities
             Object.assign(mergedActivities, activities);
             
-            const jsonStr = JSON.stringify(mergedActivities, null, 4);
+            // Format with compact drop tables
+            let jsonStr = '{\n';
+            const entries = Object.entries(mergedActivities);
+            entries.forEach(([id, activity], index) => {
+                const activityJson = formatActivityJSON(activity, '    ');
+                jsonStr += '    "' + id + '": ' + activityJson;
+                if (index < entries.length - 1) {
+                    jsonStr += ',';
+                }
+                jsonStr += '\n';
+            });
+            jsonStr += '}';
             
             navigator.clipboard.writeText(jsonStr).then(() => {
                 showNotification('Full activities file copied to clipboard!', 'success');
@@ -1028,7 +1080,19 @@
             // Add new activities
             Object.assign(mergedActivities, activities);
             
-            const jsonStr = JSON.stringify(mergedActivities, null, 4);
+            // Format with compact drop tables
+            let jsonStr = '{\n';
+            const entries = Object.entries(mergedActivities);
+            entries.forEach(([id, activity], index) => {
+                const activityJson = formatActivityJSON(activity, '    ');
+                jsonStr += '    "' + id + '": ' + activityJson;
+                if (index < entries.length - 1) {
+                    jsonStr += ',';
+                }
+                jsonStr += '\n';
+            });
+            jsonStr += '}';
+            
             downloadJSON(jsonStr, 'activities.json');
         }
 
