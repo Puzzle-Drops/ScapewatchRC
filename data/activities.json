@@ -2013,6 +2013,7 @@
         "dropTable": [
             { "itemId": "coins", "quantity": "3-15", "chance": 1 },
             { "itemId": "goblin_mail", "quantity": 1, "chance": 0.0833 },
+            { "itemId": "bronze_scimitar", "quantity": 1, "chance": 0.0078 },
             { "itemId": "fishing_bait", "quantity": "3-15", "chance": 0.1 },
             { "itemId": "bronze_arrow", "quantity": 7, "chance": 0.024 },
             { "itemId": "mind_rune", "quantity": 2, "chance": 0.0238 },
