@@ -345,16 +345,28 @@ if (!this.isCurrentTaskValid()) {
             return;
         }
 
-        // Check if task is valid
-        if (!taskManager.isTaskPossible(task)) {
-            console.log('Task is impossible, skipping it');
-            if (window.taskManager) {
-                taskManager.skipCurrentTask();
-            }
-            this.currentTask = null;
-            this.hasBankedForCurrentTask = false;
-            return;
-        }
+// FIRST: Check if the activity even exists anymore
+const activityData = loadingManager.getData('activities')[task.activityId];
+if (!activityData) {
+    console.log(`Activity ${task.activityId} no longer exists, skipping task`);
+    if (window.taskManager) {
+        taskManager.skipCurrentTask();
+    }
+    this.currentTask = null;
+    this.hasBankedForCurrentTask = false;
+    return;
+}
+
+// Check if task is valid
+if (!taskManager.isTaskPossible(task)) {
+    console.log('Task is impossible, skipping it');
+    if (window.taskManager) {
+        taskManager.skipCurrentTask();
+    }
+    this.currentTask = null;
+    this.hasBankedForCurrentTask = false;
+    return;
+}
         
         // Check if skill can continue with this task
         const skill = skillRegistry.getSkill(task.skill);
