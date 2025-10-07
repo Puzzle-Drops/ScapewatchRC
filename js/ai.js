@@ -26,12 +26,25 @@ syncAfterLoad() {
         // Check if we're resuming a combat task
 if (this.currentTask.isCombatTask && window.player && player.combatManager && player.combatManager.inCombat) {
     console.log(`Resuming combat task: ${this.currentTask.killsCompleted}/${this.currentTask.targetCount} kills`);
-    // Sync the combat manager's task reference
+    
+    // CRITICAL: Reset combat state variables to clean values
+    // This fixes issues with loading into combat
+    player.combatManager.inCombat = false;
+    player.combatManager.monsterDying = false;
+    player.combatManager.currentTarget = null;
+    player.combatManager.combatRoundTimer = 0;
+    player.combatManager.phaseTimer = 0;
+    player.combatManager.deathAnimationTimer = 0;
+    player.combatManager.pendingMonsterRespawn = false;
+    
+    // Now sync the task reference
     player.combatManager.currentTask = this.currentTask;
     // Initialize killsCompleted if somehow missing
     if (this.currentTask.killsCompleted === undefined) {
         this.currentTask.killsCompleted = 0;
     }
+    
+    console.log('Combat state variables reset for clean resume');
 }
         
         // Verify we're on the right path
