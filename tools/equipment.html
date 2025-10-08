@@ -529,6 +529,11 @@
                 // Extract equipment items
                 Object.entries(data).forEach(([id, item]) => {
                     if (item.category === 'equipment') {
+                        // Ensure combatStyle exists, default to melee if missing
+                        if (!item.combatStyle) {
+                            console.warn(`Equipment item ${id} missing combatStyle, defaulting to melee`);
+                            item.combatStyle = 'melee';
+                        }
                         equipmentItems[id] = { ...item };
                     }
                 });
@@ -650,19 +655,24 @@
             
             // Sort by combat style, blessing position, combat bonus, then equipment slot
             filteredItems.sort(([aId, a], [bId, b]) => {
-                const styleOrder = { melee: 0, ranged: 1, magic: 2 };
+                // Combat style order: melee first, then ranged, then magic
+                const styleOrder = { 'melee': 0, 'ranged': 1, 'magic': 2 };
                 const slotOrder = {
-                    head: 0, body: 1, legs: 2, feet: 3, hands: 4,
-                    neck: 5, combatring: 6, uniquering: 7, accessory: 8,
-                    cape: 9, shield: 10, weapon: 11, blessing: 12
+                    'head': 0, 'body': 1, 'legs': 2, 'feet': 3, 'hands': 4,
+                    'neck': 5, 'combatring': 6, 'uniquering': 7, 'accessory': 8,
+                    'cape': 9, 'shield': 10, 'weapon': 11, 'blessing': 12
                 };
                 
+                // Get combat styles with fallback
+                const aStyle = a.combatStyle || 'melee';
+                const bStyle = b.combatStyle || 'melee';
+                
                 // First sort by combat style
-                const styleCompare = (styleOrder[a.combatStyle] || 3) - (styleOrder[b.combatStyle] || 3);
+                const styleCompare = (styleOrder[aStyle] ?? 3) - (styleOrder[bStyle] ?? 3);
                 if (styleCompare !== 0) return styleCompare;
                 
                 // For ranged and magic, blessing items go last
-                if (a.combatStyle === 'ranged' || a.combatStyle === 'magic') {
+                if (aStyle === 'ranged' || aStyle === 'magic') {
                     const aBless = a.equipmentSlot === 'blessing';
                     const bBless = b.equipmentSlot === 'blessing';
                     if (aBless && !bBless) return 1;
@@ -674,7 +684,9 @@
                 if (bonusCompare !== 0) return bonusCompare;
                 
                 // Finally sort by equipment slot order
-                return (slotOrder[a.equipmentSlot] || 99) - (slotOrder[b.equipmentSlot] || 99);
+                const aSlot = a.equipmentSlot || 'weapon';
+                const bSlot = b.equipmentSlot || 'weapon';
+                return (slotOrder[aSlot] ?? 99) - (slotOrder[bSlot] ?? 99);
             });
             
             // Create new items section if any exist
@@ -955,19 +967,24 @@
             // Sort equipment items
             const sortedEquipment = Object.entries(allEquipment)
                 .sort(([aId, a], [bId, b]) => {
-                    const styleOrder = { melee: 0, ranged: 1, magic: 2 };
+                    // Combat style order: melee first, then ranged, then magic
+                    const styleOrder = { 'melee': 0, 'ranged': 1, 'magic': 2 };
                     const slotOrder = {
-                        head: 0, body: 1, legs: 2, feet: 3, hands: 4,
-                        neck: 5, combatring: 6, uniquering: 7, accessory: 8,
-                        cape: 9, shield: 10, weapon: 11, blessing: 12
+                        'head': 0, 'body': 1, 'legs': 2, 'feet': 3, 'hands': 4,
+                        'neck': 5, 'combatring': 6, 'uniquering': 7, 'accessory': 8,
+                        'cape': 9, 'shield': 10, 'weapon': 11, 'blessing': 12
                     };
                     
+                    // Get combat styles with fallback
+                    const aStyle = a.combatStyle || 'melee';
+                    const bStyle = b.combatStyle || 'melee';
+                    
                     // First sort by combat style
-                    const styleCompare = (styleOrder[a.combatStyle] || 3) - (styleOrder[b.combatStyle] || 3);
+                    const styleCompare = (styleOrder[aStyle] ?? 3) - (styleOrder[bStyle] ?? 3);
                     if (styleCompare !== 0) return styleCompare;
                     
                     // For ranged and magic, blessing items go last
-                    if (a.combatStyle === 'ranged' || a.combatStyle === 'magic') {
+                    if (aStyle === 'ranged' || aStyle === 'magic') {
                         const aBless = a.equipmentSlot === 'blessing';
                         const bBless = b.equipmentSlot === 'blessing';
                         if (aBless && !bBless) return 1;
@@ -979,7 +996,9 @@
                     if (bonusCompare !== 0) return bonusCompare;
                     
                     // Finally sort by equipment slot order
-                    return (slotOrder[a.equipmentSlot] || 99) - (slotOrder[b.equipmentSlot] || 99);
+                    const aSlot = a.equipmentSlot || 'weapon';
+                    const bSlot = b.equipmentSlot || 'weapon';
+                    return (slotOrder[aSlot] ?? 99) - (slotOrder[bSlot] ?? 99);
                 });
             
             // Add non-equipment items first
