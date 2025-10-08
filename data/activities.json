@@ -2497,7 +2497,7 @@
         "name": "Fight Goblins",
         "skill": "combat",
         "monsterName": "Goblin",
-        "requiredLevel": 1,
+        "requiredLevel": 5,
         "requiredSlayerLevel": 1,
         "hitpoints": 12,
         "attack": 5,
@@ -2555,10 +2555,12 @@
         "dropTable": [
             { "itemId": "feather", "quantity": 5, "chance": 1 },
             { "itemId": "raw_meat", "quantity": 1, "chance": 1 },
-            { "itemId": "feather", "quantity": 15, "chance": 0.5 }
+            { "itemId": "feather", "quantity": 15, "chance": 0.5 },
+            { "itemId": "training_sword", "quantity": 1, "chance": 0.04 },
+            { "itemId": "training_shield", "quantity": 1, "chance": 0.04 },
+            { "itemId": "training_bow", "quantity": 1, "chance": 0.04 },
+            { "itemId": "training_staff", "quantity": 1, "chance": 0.04 }
         ]
     }
-
-
 
 }
