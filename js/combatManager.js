@@ -1112,6 +1112,39 @@ if (this.currentTask) {
     
     return maxHit;
 }
+
+    calculateMaxHitForStyle(combatStyle, includePrayer = false) {
+        let strengthLevel, gearBonus;
+        
+        if (combatStyle === 'melee') {
+            strengthLevel = skills.getLevel('strength');
+            gearBonus = window.gearScores ? window.gearScores.melee : 0;
+        } else if (combatStyle === 'ranged') {
+            strengthLevel = skills.getLevel('ranged');
+            gearBonus = window.gearScores ? window.gearScores.ranged : 0;
+        } else {
+            strengthLevel = skills.getLevel('magic');
+            gearBonus = window.gearScores ? window.gearScores.magic : 0;
+        }
+        
+        // Apply prayer bonus if requested
+        if (includePrayer) {
+            strengthLevel = Math.floor(strengthLevel * 1.5);
+        }
+        
+        let maxHit = Math.max(1, Math.ceil((strengthLevel + gearBonus + 4) / 4));
+        
+        // Apply penalty if using ranged/magic without blessing
+        if (combatStyle === 'ranged' || combatStyle === 'magic') {
+            const blessing = window.equipmentPanels && window.equipmentPanels[combatStyle] ? 
+                window.equipmentPanels[combatStyle].blessing : null;
+            if (!blessing) {
+                maxHit = Math.floor(maxHit / 2);
+            }
+        }
+        
+        return maxHit;
+    }
     
     calculatePlayerAccuracy() {
     if (!this.currentMonster) return 0;
