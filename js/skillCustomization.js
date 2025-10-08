@@ -1557,14 +1557,21 @@ const weightDown = this.createControlButton('-', () => {
     }
     
     nodeHasUsableActivities(nodeId, currentLevel) {
-        const nodeData = nodes.getNode(nodeId);
-        if (!nodeData || !nodeData.activities) return false;
+    const nodeData = nodes.getNode(nodeId);
+    if (!nodeData || !nodeData.activities) return false;
+    
+    const activitiesData = loadingManager.getData('activities');
+    
+    for (const activityId of nodeData.activities) {
+        const activity = activitiesData[activityId];
+        if (!activity) continue;
         
-        const activitiesData = loadingManager.getData('activities');
-        
-        for (const activityId of nodeData.activities) {
-            const activity = activitiesData[activityId];
-            if (!activity || activity.skill !== this.currentSkillId) continue;
+        // For combat skills, accept both specific skill and generic 'combat'
+        if (this.isCombatSkill(this.currentSkillId)) {
+            if (activity.skill !== this.currentSkillId && activity.skill !== 'combat') continue;
+        } else {
+            if (activity.skill !== this.currentSkillId) continue;
+        }
             
             // Check if player has level for this activity
             const requiredLevel = activity.requiredLevel || 1;
@@ -1727,8 +1734,15 @@ const weightDown = this.createControlButton('-', () => {
         const possibleTaskIds = new Map(); // itemId -> canDo (boolean)
         
         for (const activityId of nodeData.activities) {
-            const activity = activitiesData[activityId];
-            if (!activity || activity.skill !== this.currentSkillId) continue;
+    const activity = activitiesData[activityId];
+    if (!activity) continue;
+    
+    // For combat skills, accept both specific skill and generic 'combat'
+    if (this.isCombatSkill(this.currentSkillId)) {
+        if (activity.skill !== this.currentSkillId && activity.skill !== 'combat') continue;
+    } else {
+        if (activity.skill !== this.currentSkillId) continue;
+    }
             
             // Check if player has level for this activity
             const activityRequiredLevel = activity.requiredLevel || 1;
@@ -2026,8 +2040,15 @@ const weightDown = this.createControlButton('-', () => {
             if (!node.activities) continue;
             
             for (const activityId of node.activities) {
-                const activity = activitiesData[activityId];
-                if (!activity || activity.skill !== this.currentSkillId) continue;
+    const activity = activitiesData[activityId];
+    if (!activity) continue;
+    
+    // For combat skills, accept both specific skill and generic 'combat'
+    if (this.isCombatSkill(this.currentSkillId)) {
+        if (activity.skill !== this.currentSkillId && activity.skill !== 'combat') continue;
+    } else {
+        if (activity.skill !== this.currentSkillId) continue;
+    }
                 
                 // Don't check level here - we want to see all nodes that offer this task
                 
@@ -2255,24 +2276,29 @@ const weightDown = this.createControlButton('-', () => {
     }
     
     getPossibleNodes() {
-        const possibleNodes = new Set();
-        
-        // Special case for fletching - all bank nodes
-        if (this.currentSkillId === 'fletching') {
-            const allNodes = nodes.getAllNodes();
-            for (const [nodeId, node] of Object.entries(allNodes)) {
-                if (node.type === 'bank') {
-                    possibleNodes.add(nodeId);
-                }
+    const possibleNodes = new Set();
+    
+    // Special case for fletching - all bank nodes
+    if (this.currentSkillId === 'fletching') {
+        const allNodes = nodes.getAllNodes();
+        for (const [nodeId, node] of Object.entries(allNodes)) {
+            if (node.type === 'bank') {
+                possibleNodes.add(nodeId);
             }
-            return Array.from(possibleNodes);
         }
-        
-        // Regular skill handling
-        const activities = loadingManager.getData('activities');
-        
-        for (const [activityId, activity] of Object.entries(activities)) {
+        return Array.from(possibleNodes);
+    }
+    
+    // Regular skill handling
+    const activities = loadingManager.getData('activities');
+    
+    for (const [activityId, activity] of Object.entries(activities)) {
+        // For combat skills, accept both specific skill and generic 'combat'
+        if (this.isCombatSkill(this.currentSkillId)) {
+            if (activity.skill !== this.currentSkillId && activity.skill !== 'combat') continue;
+        } else {
             if (activity.skill !== this.currentSkillId) continue;
+        }
             
             const allNodes = nodes.getAllNodes();
             for (const [nodeId, node] of Object.entries(allNodes)) {
