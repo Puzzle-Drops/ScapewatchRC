@@ -272,6 +272,30 @@ if (preservedBlessings.magic) {
         // Update the gear score
         window.gearScores[combatStyle] = totalScore;
         console.log(`Updated ${combatStyle} gear score:`, totalScore);
+        
+        // If equipment panel is open and showing this style, update the display
+        if (window.ui && window.ui.currentPanel === 'equipment') {
+            const activeTab = document.querySelector('.equipment-tab.active');
+            if (activeTab && activeTab.dataset.style === combatStyle) {
+                // Update max hit display
+                const maxHitElement = document.getElementById('max-hit-value');
+                const maxHitPrayerElement = document.getElementById('max-hit-prayer-value');
+                if (maxHitElement && maxHitPrayerElement) {
+                    let maxHitNoPrayer = 0;
+                    let maxHitWithPrayer = 0;
+                    if (window.combatManager) {
+                        maxHitNoPrayer = combatManager.calculateMaxHitForStyle(combatStyle, false);
+                        maxHitWithPrayer = combatManager.calculateMaxHitForStyle(combatStyle, true);
+                    } else {
+                        const tempCombatManager = new CombatManager();
+                        maxHitNoPrayer = tempCombatManager.calculateMaxHitForStyle(combatStyle, false);
+                        maxHitWithPrayer = tempCombatManager.calculateMaxHitForStyle(combatStyle, true);
+                    }
+                    maxHitElement.textContent = maxHitNoPrayer;
+                    maxHitPrayerElement.textContent = maxHitWithPrayer;
+                }
+            }
+        }
     }
     
 }
