@@ -1338,6 +1338,24 @@
     "combatStyle": "ranged",
     "combatBonus": 17
 },
+"training_sword": {
+    "id": "training_sword",
+    "name": "Training Sword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 2
+},
+"training_shield": {
+    "id": "training_shield",
+    "name": "Training Shield",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "melee",
+    "combatBonus": 1
+},
 "goblin_mail": {
     "id": "goblin_mail",
     "name": "Goblin Mail",
@@ -1354,6 +1372,25 @@
     "category": "equipment",
     "equipmentSlot": "weapon",
     "combatStyle": "melee",
+    "combatBonus": 3
+},
+"training_bow": {
+    "id": "training_bow",
+    "name": "Training Bow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 2
+},
+"training_staff": {
+    "id": "training_staff",
+    "name": "Training Staff",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "magic",
     "combatBonus": 2
 }
+
 }
