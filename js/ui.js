@@ -2198,6 +2198,26 @@ slotDiv.appendChild(imgElement);
         gearScoreLabel.textContent = `${styleLabel} Gear Score:`;
     }
     
+    // Update max hit display
+    const maxHitElement = document.getElementById('max-hit-value');
+    const maxHitLabel = document.querySelector('.max-hit-label');
+    if (maxHitElement) {
+        // Calculate max hit for this style using combat manager
+        let maxHit = 0;
+        if (window.combatManager) {
+            maxHit = combatManager.calculateMaxHitForStyle(style);
+        } else {
+            // If combat manager doesn't exist yet, create a temporary one just for calculation
+            const tempCombatManager = new CombatManager();
+            maxHit = tempCombatManager.calculateMaxHitForStyle(style);
+        }
+        maxHitElement.textContent = maxHit;
+    }
+    if (maxHitLabel) {
+        const styleLabel = style.charAt(0).toUpperCase() + style.slice(1);
+        maxHitLabel.textContent = `${styleLabel} Max Hit:`;
+    }
+    
     // Clear grid
     grid.innerHTML = '';
         
