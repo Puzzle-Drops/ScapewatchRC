@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Configuration Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Left Panel - Edit Form */
+        .left-panel {
+            width: 25%;
+            background: #2a2a2a;
+            border-right: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Middle Panel - Existing Equipment */
+        .middle-panel {
+            width: 40%;
+            background: #252525;
+            border-right: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Right Panel - JSON Preview */
+        .right-panel {
+            width: 35%;
+            background: #2a2a2a;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 20px;
+            background: #333;
+            border-bottom: 1px solid #444;
+        }
+
+        .panel-header h2 {
+            margin-bottom: 15px;
+            color: #f0f0f0;
+        }
+
+        .form-section {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #bbb;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 8px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .equipment-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .equipment-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .equipment-item:hover {
+            background: #3a3a3a;
+            border-color: #555;
+        }
+
+        .equipment-item.selected {
+            background: #2a4a6a;
+            border-color: #4a9eff;
+        }
+
+        .equipment-item.new-item {
+            background: #2a4a2a;
+            border-color: #4caf50;
+        }
+
+        .item-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            image-rendering: pixelated;
+            border: 1px solid #444;
+            border-radius: 3px;
+            background: #1a1a1a;
+        }
+
+        .item-icon.missing {
+            opacity: 0.5;
+            background: #2a2a2a;
+            position: relative;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .item-details {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .item-stats {
+            display: flex;
+            gap: 10px;
+            margin-top: 2px;
+            font-size: 11px;
+        }
+
+        .stat-badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: #444;
+        }
+
+        .stat-badge.melee { background: #5d4037; }
+        .stat-badge.ranged { background: #2e7d32; }
+        .stat-badge.magic { background: #283593; }
+
+        .monster-drops {
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px solid #444;
+        }
+
+        .monster-drop {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: 8px;
+            padding: 2px 6px;
+            background: #1a1a1a;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .monster-icon {
+            width: 16px;
+            height: 16px;
+            image-rendering: pixelated;
+        }
+
+        .json-output {
+            flex: 1;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre;
+            overflow: auto;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #4a9eff;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #3a8eef;
+        }
+
+        .btn-success {
+            background: #4caf50;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .btn-danger {
+            background: #d32f2f;
+        }
+
+        .btn-danger:hover {
+            background: #f44336;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+        }
+
+        .btn-warning:hover {
+            background: #f57c00;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        .actions {
+            padding: 20px;
+            background: #333;
+            border-top: 1px solid #444;
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .stats-bar {
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border-bottom: 1px solid #444;
+            font-size: 13px;
+            color: #999;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .warning {
+            background: #553300;
+            border: 1px solid #aa6600;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        .error {
+            background: #550000;
+            border: 1px solid #aa0000;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        .success {
+            background: #003300;
+            border: 1px solid #00aa00;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        .new-items-section {
+            background: #1f1f1f;
+            border: 2px solid #4caf50;
+            border-radius: 4px;
+            margin: 10px 0;
+            padding: 10px;
+        }
+
+        .new-items-header {
+            font-size: 13px;
+            color: #4caf50;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .filter-tab {
+            padding: 6px 12px;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .filter-tab:hover {
+            background: #3a3a3a;
+        }
+
+        .filter-tab.active {
+            background: #4a9eff;
+            border-color: #4a9eff;
+        }
+
+        .missing-image-warning {
+            position: absolute;
+            background: #333;
+            border: 1px solid #555;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            display: none;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel - Edit Form -->
+        <div class="left-panel">
+            <div class="panel-header">
+                <h2>Equipment Editor</h2>
+            </div>
+            <div class="form-section">
+                <div id="editingIndicator"></div>
+                
+                <div class="form-group">
+                    <label>Item Name:</label>
+                    <input type="text" id="itemName" placeholder="e.g., Training Bow">
+                </div>
+
+                <div class="form-group">
+                    <label>Equipment Slot:</label>
+                    <select id="equipmentSlot">
+                        <option value="weapon">Weapon</option>
+                        <option value="shield">Shield</option>
+                        <option value="head">Head</option>
+                        <option value="body">Body</option>
+                        <option value="legs">Legs</option>
+                        <option value="feet">Feet</option>
+                        <option value="hands">Hands</option>
+                        <option value="cape">Cape</option>
+                        <option value="neck">Neck</option>
+                        <option value="blessing">Blessing</option>
+                        <option value="combatring">Combat Ring</option>
+                        <option value="uniquering">Unique Ring</option>
+                        <option value="accessory">Accessory</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Combat Style:</label>
+                    <select id="combatStyle">
+                        <option value="melee">Melee</option>
+                        <option value="ranged">Ranged</option>
+                        <option value="magic">Magic</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Combat Bonus:</label>
+                    <input type="number" id="combatBonus" min="1" value="1">
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="stackable">
+                        <label for="stackable" style="margin-bottom: 0;">Stackable</label>
+                    </div>
+                </div>
+
+                <div id="validationMessages"></div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="addOrUpdateItem()">Add/Update Item</button>
+                    <button class="btn" onclick="clearForm()">Clear</button>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-danger" onclick="deleteSelectedItem()">Delete Selected</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Panel - Existing Equipment -->
+        <div class="middle-panel">
+            <div class="panel-header">
+                <h2>Equipment Items</h2>
+                <input type="text" class="search-box" id="searchBox" placeholder="Search equipment...">
+                <div class="filter-tabs">
+                    <div class="filter-tab active" data-filter="all">All</div>
+                    <div class="filter-tab" data-filter="melee">Melee</div>
+                    <div class="filter-tab" data-filter="ranged">Ranged</div>
+                    <div class="filter-tab" data-filter="magic">Magic</div>
+                    <div class="filter-tab" data-filter="new">New Items</div>
+                </div>
+            </div>
+            <div class="stats-bar">
+                <span id="itemStats">Loading equipment...</span>
+                <span id="filterInfo">Showing: All</span>
+            </div>
+            <div class="equipment-list" id="equipmentList">
+                <div style="padding: 20px; text-align: center; color: #666;">Loading equipment items...</div>
+            </div>
+        </div>
+
+        <!-- Right Panel - JSON Preview -->
+        <div class="right-panel">
+            <div class="panel-header">
+                <h2>JSON Preview</h2>
+            </div>
+            <div class="json-output" id="jsonOutput">No changes yet...</div>
+            <div class="actions">
+                <button class="btn btn-warning" onclick="copyToClipboard()">Copy to Clipboard</button>
+                <button class="btn btn-success" onclick="downloadJSON()">Download items.json</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="missing-image-warning" id="imageTooltip"></div>
+
+    <script>
+        let allItems = {};
+        let allActivities = {};
+        let equipmentItems = {};
+        let newItems = {};
+        let selectedItemId = null;
+        let currentFilter = 'all';
+        let monsterDrops = {};
+
+        // Initialize
+        async function init() {
+            await loadItems();
+            await loadActivities();
+            setupEventListeners();
+            renderEquipmentList();
+            updateStats();
+        }
+
+        // Load items from JSON
+        async function loadItems() {
+            try {
+                const response = await fetch('../data/items.json');
+                const data = await response.json();
+                allItems = data;
+                
+                // Extract equipment items
+                Object.entries(data).forEach(([id, item]) => {
+                    if (item.category === 'equipment') {
+                        equipmentItems[id] = { ...item };
+                    }
+                });
+                
+                console.log(`Loaded ${Object.keys(allItems).length} total items, ${Object.keys(equipmentItems).length} equipment items`);
+            } catch (error) {
+                console.error('Error loading items:', error);
+                document.getElementById('equipmentList').innerHTML = 
+                    '<div style="padding: 20px; text-align: center; color: #f44;">Error loading items.json</div>';
+            }
+        }
+
+        // Load activities to get monster drops
+        async function loadActivities() {
+            try {
+                const response = await fetch('../data/activities.json');
+                const data = await response.json();
+                allActivities = data;
+                
+                // Build monster drops mapping
+                Object.entries(data).forEach(([id, activity]) => {
+                    if (activity.skill === 'combat' && activity.dropTable) {
+                        activity.dropTable.forEach(drop => {
+                            if (!monsterDrops[drop.itemId]) {
+                                monsterDrops[drop.itemId] = [];
+                            }
+                            monsterDrops[drop.itemId].push({
+                                monster: activity.monsterName,
+                                activity: id
+                            });
+                        });
+                    }
+                });
+                
+                console.log('Loaded monster drops data');
+            } catch (error) {
+                console.error('Error loading activities:', error);
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search box
+            document.getElementById('searchBox').addEventListener('input', renderEquipmentList);
+            
+            // Filter tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentFilter = e.target.dataset.filter;
+                    document.getElementById('filterInfo').textContent = `Showing: ${e.target.textContent}`;
+                    renderEquipmentList();
+                });
+            });
+
+            // Auto-generate item ID from name
+            document.getElementById('itemName').addEventListener('input', (e) => {
+                const itemId = e.target.value.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+                // Don't override if editing existing item
+                if (!selectedItemId || !equipmentItems[selectedItemId]) {
+                    e.target.dataset.itemId = itemId;
+                }
+            });
+
+            // Auto-handle stackable for blessing items
+            const handleBlessingStackable = () => {
+                const slot = document.getElementById('equipmentSlot').value;
+                const style = document.getElementById('combatStyle').value;
+                const stackableCheckbox = document.getElementById('stackable');
+                
+                if (slot === 'blessing') {
+                    if (style === 'ranged' || style === 'magic') {
+                        stackableCheckbox.checked = true;
+                        stackableCheckbox.disabled = true;
+                    } else {
+                        stackableCheckbox.checked = false;
+                        stackableCheckbox.disabled = false;
+                    }
+                } else {
+                    stackableCheckbox.disabled = false;
+                }
+            };
+
+            document.getElementById('equipmentSlot').addEventListener('change', handleBlessingStackable);
+            document.getElementById('combatStyle').addEventListener('change', handleBlessingStackable);
+        }
+
+        // Render equipment list
+        function renderEquipmentList() {
+            const container = document.getElementById('equipmentList');
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            container.innerHTML = '';
+            
+            // Combine existing and new items
+            const allEquipment = { ...equipmentItems, ...newItems };
+            
+            // Filter items
+            let filteredItems = Object.entries(allEquipment).filter(([id, item]) => {
+                // Search filter
+                if (searchTerm && !item.name.toLowerCase().includes(searchTerm) && 
+                    !id.includes(searchTerm) && 
+                    !item.equipmentSlot?.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+                
+                // Combat style filter
+                if (currentFilter !== 'all' && currentFilter !== 'new') {
+                    if (item.combatStyle !== currentFilter) return false;
+                }
+                
+                // New items filter
+                if (currentFilter === 'new' && !newItems[id]) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Sort by combat style then combat bonus
+            filteredItems.sort(([aId, a], [bId, b]) => {
+                const styleOrder = { melee: 0, ranged: 1, magic: 2 };
+                const styleCompare = (styleOrder[a.combatStyle] || 3) - (styleOrder[b.combatStyle] || 3);
+                if (styleCompare !== 0) return styleCompare;
+                return (a.combatBonus || 0) - (b.combatBonus || 0);
+            });
+            
+            // Create new items section if any exist
+            const newItemsList = filteredItems.filter(([id]) => newItems[id]);
+            const existingItemsList = filteredItems.filter(([id]) => !newItems[id]);
+            
+            // Render new items section
+            if (newItemsList.length > 0 && currentFilter !== 'new') {
+                const newSection = document.createElement('div');
+                newSection.className = 'new-items-section';
+                newSection.innerHTML = '<div class="new-items-header">New Items</div>';
+                newItemsList.forEach(([id, item]) => {
+                    newSection.appendChild(createEquipmentElement(id, item, true));
+                });
+                container.appendChild(newSection);
+            } else if (currentFilter === 'new') {
+                newItemsList.forEach(([id, item]) => {
+                    container.appendChild(createEquipmentElement(id, item, true));
+                });
+            }
+            
+            // Render existing items
+            existingItemsList.forEach(([id, item]) => {
+                container.appendChild(createEquipmentElement(id, item, false));
+            });
+            
+            if (filteredItems.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">No equipment items found</div>';
+            }
+        }
+
+        // Create equipment element
+        function createEquipmentElement(id, item, isNew) {
+            const div = document.createElement('div');
+            div.className = 'equipment-item';
+            if (isNew) div.classList.add('new-item');
+            if (selectedItemId === id) div.classList.add('selected');
+            
+            // Check if image exists
+            const imagePath = `../assets/items/${id}.png`;
+            const img = document.createElement('img');
+            img.className = 'item-icon';
+            img.src = imagePath;
+            
+            let imageError = false;
+            img.onerror = function() {
+                this.classList.add('missing');
+                imageError = true;
+                console.warn(`Missing image: ${imagePath}`);
+            };
+            
+            // Monster drops info
+            const drops = monsterDrops[id] || [];
+            let dropsHtml = '';
+            if (drops.length > 0) {
+                dropsHtml = '<div class="monster-drops">';
+                drops.forEach(drop => {
+                    const monsterImagePath = `../assets/combat/${drop.activity}.png`;
+                    dropsHtml += `
+                        <span class="monster-drop">
+                            <img src="${monsterImagePath}" class="monster-icon" onerror="this.style.display='none'">
+                            ${drop.monster}
+                        </span>
+                    `;
+                });
+                dropsHtml += '</div>';
+            }
+            
+            div.innerHTML = `
+                <div class="item-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-details">${item.equipmentSlot} • ${id}</div>
+                    <div class="item-stats">
+                        <span class="stat-badge ${item.combatStyle}">${item.combatStyle}</span>
+                        <span class="stat-badge">+${item.combatBonus} bonus</span>
+                        ${item.stackable ? '<span class="stat-badge">Stackable</span>' : ''}
+                    </div>
+                    ${dropsHtml}
+                </div>
+            `;
+            
+            div.insertBefore(img, div.firstChild);
+            
+            // Add hover for missing image warning
+            div.addEventListener('mouseenter', (e) => {
+                if (imageError) {
+                    showImageTooltip(e, `Missing: ${id}.png`);
+                }
+            });
+            
+            div.addEventListener('mouseleave', () => {
+                hideImageTooltip();
+            });
+            
+            div.addEventListener('click', () => selectItem(id));
+            
+            return div;
+        }
+
+        // Show image tooltip
+        function showImageTooltip(event, message) {
+            const tooltip = document.getElementById('imageTooltip');
+            tooltip.textContent = message;
+            tooltip.style.display = 'block';
+            tooltip.style.left = event.pageX + 10 + 'px';
+            tooltip.style.top = event.pageY + 10 + 'px';
+        }
+
+        // Hide image tooltip
+        function hideImageTooltip() {
+            document.getElementById('imageTooltip').style.display = 'none';
+        }
+
+        // Select item for editing
+        function selectItem(id) {
+            selectedItemId = id;
+            
+            // Update visual selection
+            document.querySelectorAll('.equipment-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Load item data into form
+            const item = { ...equipmentItems[id], ...newItems[id] };
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('itemName').dataset.itemId = id;
+            document.getElementById('equipmentSlot').value = item.equipmentSlot;
+            document.getElementById('combatStyle').value = item.combatStyle;
+            document.getElementById('combatBonus').value = item.combatBonus;
+            document.getElementById('stackable').checked = item.stackable || false;
+            
+            // Update editing indicator
+            document.getElementById('editingIndicator').innerHTML = 
+                `<div class="warning">Editing: ${item.name} (${id})</div>`;
+        }
+
+        // Add or update item
+        function addOrUpdateItem() {
+            const name = document.getElementById('itemName').value.trim();
+            const itemId = document.getElementById('itemName').dataset.itemId || 
+                          name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+            const slot = document.getElementById('equipmentSlot').value;
+            const style = document.getElementById('combatStyle').value;
+            const bonus = parseInt(document.getElementById('combatBonus').value);
+            const stackable = document.getElementById('stackable').checked;
+            
+            // Validation
+            const errors = [];
+            if (!name) errors.push('Item name is required');
+            if (!itemId) errors.push('Invalid item ID generated');
+            if (bonus < 1) errors.push('Combat bonus must be at least 1');
+            
+            // Check for duplicate ID (only if creating new)
+            if (!selectedItemId && (equipmentItems[itemId] || newItems[itemId])) {
+                errors.push(`Item ID "${itemId}" already exists`);
+            }
+            
+            if (errors.length > 0) {
+                document.getElementById('validationMessages').innerHTML = 
+                    `<div class="error">${errors.join('<br>')}</div>`;
+                return;
+            }
+            
+            // Create item object
+            const item = {
+                id: itemId,
+                name: name,
+                stackable: stackable,
+                category: 'equipment',
+                equipmentSlot: slot,
+                combatStyle: style,
+                combatBonus: bonus
+            };
+            
+            // Add maxStack for stackable items
+            if (stackable) {
+                item.maxStack = 9999999999;
+            }
+            
+            // Add/update item
+            if (selectedItemId && selectedItemId !== itemId) {
+                // ID changed, remove old one
+                delete newItems[selectedItemId];
+                delete equipmentItems[selectedItemId];
+            }
+            
+            if (equipmentItems[itemId]) {
+                // Updating existing item
+                equipmentItems[itemId] = item;
+            } else {
+                // New item
+                newItems[itemId] = item;
+            }
+            
+            // Clear form
+            clearForm();
+            
+            // Update display
+            renderEquipmentList();
+            updateStats();
+            generateJSONPreview();
+            
+            // Show success
+            document.getElementById('validationMessages').innerHTML = 
+                `<div class="success">Item "${name}" ${selectedItemId ? 'updated' : 'added'} successfully!</div>`;
+            
+            setTimeout(() => {
+                document.getElementById('validationMessages').innerHTML = '';
+            }, 3000);
+        }
+
+        // Delete selected item
+        function deleteSelectedItem() {
+            if (!selectedItemId) {
+                alert('Please select an item to delete');
+                return;
+            }
+            
+            const item = { ...equipmentItems[selectedItemId], ...newItems[selectedItemId] };
+            if (confirm(`Delete "${item.name}" (${selectedItemId})?`)) {
+                delete equipmentItems[selectedItemId];
+                delete newItems[selectedItemId];
+                
+                clearForm();
+                renderEquipmentList();
+                updateStats();
+                generateJSONPreview();
+            }
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemName').dataset.itemId = '';
+            document.getElementById('equipmentSlot').value = 'weapon';
+            document.getElementById('combatStyle').value = 'melee';
+            document.getElementById('combatBonus').value = '1';
+            document.getElementById('stackable').checked = false;
+            document.getElementById('stackable').disabled = false;
+            document.getElementById('validationMessages').innerHTML = '';
+            document.getElementById('editingIndicator').innerHTML = '';
+            selectedItemId = null;
+            
+            // Update visual selection
+            document.querySelectorAll('.equipment-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+        }
+
+        // Update stats
+        function updateStats() {
+            const totalEquipment = Object.keys({ ...equipmentItems, ...newItems }).length;
+            const newCount = Object.keys(newItems).length;
+            const modifiedCount = Object.keys(equipmentItems).filter(id => 
+                allItems[id] && JSON.stringify(allItems[id]) !== JSON.stringify(equipmentItems[id])
+            ).length;
+            
+            document.getElementById('itemStats').textContent = 
+                `Total: ${totalEquipment} | New: ${newCount} | Modified: ${modifiedCount}`;
+        }
+
+        // Generate JSON preview
+        function generateJSONPreview() {
+            // Merge all items
+            const finalItems = { ...allItems };
+            
+            // Remove old equipment items
+            Object.keys(finalItems).forEach(id => {
+                if (finalItems[id].category === 'equipment') {
+                    delete finalItems[id];
+                }
+            });
+            
+            // Get all equipment items (existing + new)
+            const allEquipment = { ...equipmentItems, ...newItems };
+            
+            // Sort equipment items
+            const sortedEquipment = Object.entries(allEquipment)
+                .sort(([aId, a], [bId, b]) => {
+                    const styleOrder = { melee: 0, ranged: 1, magic: 2 };
+                    const styleCompare = (styleOrder[a.combatStyle] || 3) - (styleOrder[b.combatStyle] || 3);
+                    if (styleCompare !== 0) return styleCompare;
+                    return (a.combatBonus || 0) - (b.combatBonus || 0);
+                });
+            
+            // Add non-equipment items first
+            const result = {};
+            Object.entries(allItems).forEach(([id, item]) => {
+                if (item.category !== 'equipment') {
+                    result[id] = item;
+                }
+            });
+            
+            // Add sorted equipment items
+            sortedEquipment.forEach(([id, item]) => {
+                result[id] = item;
+            });
+            
+            // Display in preview
+            document.getElementById('jsonOutput').textContent = JSON.stringify(result, null, 2);
+        }
+
+        // Copy to clipboard
+        function copyToClipboard() {
+            const jsonText = document.getElementById('jsonOutput').textContent;
+            if (jsonText === 'No changes yet...') {
+                alert('No changes to copy');
+                return;
+            }
+            
+            navigator.clipboard.writeText(jsonText).then(() => {
+                showNotification('Copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+
+        // Download JSON
+        function downloadJSON() {
+            const jsonText = document.getElementById('jsonOutput').textContent;
+            if (jsonText === 'No changes yet...') {
+                generateJSONPreview();
+            }
+            
+            const blob = new Blob([document.getElementById('jsonOutput').textContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'items.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background: ${type === 'success' ? '#4caf50' : '#f44336'};
+                color: white;
+                border-radius: 4px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(400px); }
+                    to { transform: translateX(0); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                    document.head.removeChild(style);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
