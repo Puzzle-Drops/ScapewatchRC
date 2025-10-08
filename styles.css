@@ -4500,6 +4500,14 @@ span.control-emoji {
     font-family: 'Courier New', monospace;
 }
 
+.max-hit-prayer {
+    font-size: 48px;
+    font-weight: bold;
+    color: #f39c12;
+    font-family: 'Courier New', monospace;
+    margin-left: 10px;
+}
+
 .equipment-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
