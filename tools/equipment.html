@@ -414,19 +414,19 @@
                 <div class="form-group">
                     <label>Equipment Slot:</label>
                     <select id="equipmentSlot">
-                        <option value="weapon">Weapon</option>
-                        <option value="shield">Shield</option>
                         <option value="head">Head</option>
                         <option value="body">Body</option>
                         <option value="legs">Legs</option>
                         <option value="feet">Feet</option>
                         <option value="hands">Hands</option>
-                        <option value="cape">Cape</option>
                         <option value="neck">Neck</option>
-                        <option value="blessing">Blessing</option>
                         <option value="combatring">Combat Ring</option>
                         <option value="uniquering">Unique Ring</option>
                         <option value="accessory">Accessory</option>
+                        <option value="cape">Cape</option>
+                        <option value="shield">Shield</option>
+                        <option value="weapon">Weapon</option>
+                        <option value="blessing">Blessing</option>
                     </select>
                 </div>
 
@@ -648,12 +648,33 @@
                 return true;
             });
             
-            // Sort by combat style then combat bonus
+            // Sort by combat style, blessing position, combat bonus, then equipment slot
             filteredItems.sort(([aId, a], [bId, b]) => {
                 const styleOrder = { melee: 0, ranged: 1, magic: 2 };
+                const slotOrder = {
+                    head: 0, body: 1, legs: 2, feet: 3, hands: 4,
+                    neck: 5, combatring: 6, uniquering: 7, accessory: 8,
+                    cape: 9, shield: 10, weapon: 11, blessing: 12
+                };
+                
+                // First sort by combat style
                 const styleCompare = (styleOrder[a.combatStyle] || 3) - (styleOrder[b.combatStyle] || 3);
                 if (styleCompare !== 0) return styleCompare;
-                return (a.combatBonus || 0) - (b.combatBonus || 0);
+                
+                // For ranged and magic, blessing items go last
+                if (a.combatStyle === 'ranged' || a.combatStyle === 'magic') {
+                    const aBless = a.equipmentSlot === 'blessing';
+                    const bBless = b.equipmentSlot === 'blessing';
+                    if (aBless && !bBless) return 1;
+                    if (!aBless && bBless) return -1;
+                }
+                
+                // Then sort by combat bonus
+                const bonusCompare = (a.combatBonus || 0) - (b.combatBonus || 0);
+                if (bonusCompare !== 0) return bonusCompare;
+                
+                // Finally sort by equipment slot order
+                return (slotOrder[a.equipmentSlot] || 99) - (slotOrder[b.equipmentSlot] || 99);
             });
             
             // Create new items section if any exist
@@ -889,7 +910,7 @@
         function clearForm() {
             document.getElementById('itemName').value = '';
             document.getElementById('itemName').dataset.itemId = '';
-            document.getElementById('equipmentSlot').value = 'weapon';
+            document.getElementById('equipmentSlot').value = 'head';
             document.getElementById('combatStyle').value = 'melee';
             document.getElementById('combatBonus').value = '1';
             document.getElementById('stackable').checked = false;
@@ -935,9 +956,30 @@
             const sortedEquipment = Object.entries(allEquipment)
                 .sort(([aId, a], [bId, b]) => {
                     const styleOrder = { melee: 0, ranged: 1, magic: 2 };
+                    const slotOrder = {
+                        head: 0, body: 1, legs: 2, feet: 3, hands: 4,
+                        neck: 5, combatring: 6, uniquering: 7, accessory: 8,
+                        cape: 9, shield: 10, weapon: 11, blessing: 12
+                    };
+                    
+                    // First sort by combat style
                     const styleCompare = (styleOrder[a.combatStyle] || 3) - (styleOrder[b.combatStyle] || 3);
                     if (styleCompare !== 0) return styleCompare;
-                    return (a.combatBonus || 0) - (b.combatBonus || 0);
+                    
+                    // For ranged and magic, blessing items go last
+                    if (a.combatStyle === 'ranged' || a.combatStyle === 'magic') {
+                        const aBless = a.equipmentSlot === 'blessing';
+                        const bBless = b.equipmentSlot === 'blessing';
+                        if (aBless && !bBless) return 1;
+                        if (!aBless && bBless) return -1;
+                    }
+                    
+                    // Then sort by combat bonus
+                    const bonusCompare = (a.combatBonus || 0) - (b.combatBonus || 0);
+                    if (bonusCompare !== 0) return bonusCompare;
+                    
+                    // Finally sort by equipment slot order
+                    return (slotOrder[a.equipmentSlot] || 99) - (slotOrder[b.equipmentSlot] || 99);
                 });
             
             // Add non-equipment items first
