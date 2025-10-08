@@ -212,6 +212,14 @@
             background: #4caf50;
         }
 
+        .btn-primary {
+            background: #ff9800;
+        }
+
+        .btn-primary:hover {
+            background: #f57c00;
+        }
+
         .json-output {
             background: #1a1a1a;
             border: 1px solid #444;
@@ -247,6 +255,7 @@
             cursor: pointer;
             transition: background 0.2s;
             border-radius: 3px;
+            position: relative;
         }
 
         .monster-list-item:hover {
@@ -256,6 +265,22 @@
         .monster-list-item.selected {
             background: #2a4a6a;
             color: #4a9eff;
+        }
+
+        .monster-list-item.modified::after {
+            content: '●';
+            position: absolute;
+            right: 10px;
+            color: #ff9800;
+            font-size: 10px;
+        }
+
+        .monster-list-item.new::after {
+            content: '●';
+            position: absolute;
+            right: 10px;
+            color: #4caf50;
+            font-size: 10px;
         }
 
         .warning {
@@ -331,6 +356,35 @@
             flex: 2;
         }
 
+        .session-info {
+            background: #1a3a1a;
+            border: 1px solid #2a5a2a;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -358,6 +412,18 @@
             <!-- Left Panel -->
             <div class="left-panel">
                 <div class="section">
+                    <h3>Session Management</h3>
+                    <div class="session-info" id="sessionInfo">
+                        <div>Modified Monsters: <span id="modifiedCount">0</span></div>
+                        <div>New Monsters: <span id="newCount">0</span></div>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <button class="btn btn-primary" onclick="saveCurrentMonster()">Save Current Monster</button>
+                        <button class="btn btn-danger" onclick="clearCurrentMonster()">Clear Current</button>
+                    </div>
+                </div>
+
+                <div class="section">
                     <h3>Monster Selection</h3>
                     <div class="form-group">
                         <label>Monster Name:</label>
@@ -366,6 +432,16 @@
                     <div class="form-group">
                         <label>Existing Monsters (click to edit):</label>
                         <div class="existing-monsters" id="existingMonsters"></div>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background: #ff9800;"></div>
+                                <span>Modified</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background: #4caf50;"></div>
+                                <span>New</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -455,27 +531,29 @@
                 </div>
 
                 <div class="section">
-                    <h3>JSON Preview</h3>
+                    <h3>JSON Preview (Current Monster)</h3>
                     <div class="json-output" id="jsonOutput">No configuration yet...</div>
                 </div>
             </div>
         </div>
 
         <div class="actions">
-            <button class="btn btn-success" onclick="exportMonsterOnly()">Export Monster Only</button>
-            <button class="btn btn-success" onclick="copyMonsterToClipboard()">Copy Monster to Clipboard</button>
+            <button class="btn btn-success" onclick="exportAllChanges()">Export All Changes</button>
+            <button class="btn btn-success" onclick="copyAllChangesToClipboard()">Copy All Changes to Clipboard</button>
             <button class="btn btn-success" onclick="exportFullFile()">Export Full Activities File</button>
             <button class="btn btn-success" onclick="copyFullToClipboard()">Copy Full to Clipboard</button>
-            <button class="btn" onclick="generatePreview()">Update Preview</button>
-            <button class="btn btn-danger" onclick="clearForm()">Clear Form</button>
+            <button class="btn btn-danger" onclick="clearSession()">Clear Session</button>
         </div>
     </div>
 
     <script>
         let allItems = {};
         let allActivities = {};
+        let originalActivities = {}; // Keep track of original state
         let existingMonsters = [];
         let dropCounter = 0;
+        let workingSet = {}; // Store all modifications during this session
+        let currentMonsterName = null;
 
         // Initialize
         async function init() {
@@ -483,6 +561,7 @@
             await loadActivities();
             setupEventListeners();
             addDropItem(); // Add first drop item
+            updateSessionInfo();
         }
 
         // Load items from JSON
@@ -502,6 +581,7 @@
             try {
                 const response = await fetch('../data/activities.json');
                 allActivities = await response.json();
+                originalActivities = JSON.parse(JSON.stringify(allActivities)); // Deep copy
                 
                 // Find existing monsters (combat activities) with their requirements
                 const combatSkills = ['attack', 'strength', 'defence', 'ranged', 'magic', 'combat'];
@@ -526,49 +606,129 @@
             }
         }
 
+        // Update session info
+        function updateSessionInfo() {
+            const modifiedMonsters = new Set();
+            const newMonsters = new Set();
+            
+            Object.keys(workingSet).forEach(id => {
+                const monsterName = workingSet[id].monsterName;
+                if (originalActivities[id]) {
+                    modifiedMonsters.add(monsterName);
+                } else {
+                    newMonsters.add(monsterName);
+                }
+            });
+            
+            document.getElementById('modifiedCount').textContent = modifiedMonsters.size;
+            document.getElementById('newCount').textContent = newMonsters.size;
+        }
+
         // Render existing monsters list
         function renderExistingMonsters() {
             const container = document.getElementById('existingMonsters');
             container.innerHTML = '';
             
-            if (existingMonsters.length === 0) {
-                container.innerHTML = '<div style="color: #666;">No existing monsters found</div>';
-                return;
-            }
+            // Combine existing monsters with working set monsters
+            const allMonstersMap = {};
             
-            // Sort monsters by combat level, then slayer level
-            existingMonsters.sort((a, b) => {
+            // Add existing monsters
+            existingMonsters.forEach(monster => {
+                allMonstersMap[monster.name] = {
+                    ...monster,
+                    isModified: false,
+                    isNew: false
+                };
+            });
+            
+            // Add/update with working set monsters
+            Object.values(workingSet).forEach(activity => {
+                const monsterName = activity.monsterName;
+                const isNew = !existingMonsters.find(m => m.name === monsterName);
+                
+                allMonstersMap[monsterName] = {
+                    name: monsterName,
+                    requiredLevel: activity.requiredLevel || 1,
+                    requiredSlayerLevel: activity.requiredSlayerLevel || 1,
+                    isModified: !isNew,
+                    isNew: isNew
+                };
+            });
+            
+            // Sort and render
+            const allMonstersList = Object.values(allMonstersMap);
+            allMonstersList.sort((a, b) => {
                 if (a.requiredLevel !== b.requiredLevel) {
                     return a.requiredLevel - b.requiredLevel;
                 }
                 return a.requiredSlayerLevel - b.requiredSlayerLevel;
             });
             
-            existingMonsters.forEach(monster => {
+            if (allMonstersList.length === 0) {
+                container.innerHTML = '<div style="color: #666;">No monsters found</div>';
+                return;
+            }
+            
+            allMonstersList.forEach(monster => {
                 const div = document.createElement('div');
                 div.className = 'monster-list-item';
+                if (monster.isModified) div.className += ' modified';
+                if (monster.isNew) div.className += ' new';
+                if (monster.name === currentMonsterName) div.className += ' selected';
+                
                 div.textContent = `${monster.name} - Req ${monster.requiredLevel} combat and ${monster.requiredSlayerLevel} slayer`;
                 div.onclick = () => loadMonster(monster.name);
                 container.appendChild(div);
             });
         }
 
+        // Save current monster to working set
+        function saveCurrentMonster() {
+            const monsterName = document.getElementById('monsterName').value.trim();
+            if (!monsterName) {
+                alert('Please enter a monster name first');
+                return;
+            }
+            
+            const activities = generateMonsterActivities();
+            if (!activities) {
+                return;
+            }
+            
+            // Add to working set
+            Object.assign(workingSet, activities);
+            
+            // Update current monster name
+            currentMonsterName = monsterName;
+            
+            // Refresh UI
+            renderExistingMonsters();
+            updateSessionInfo();
+            
+            showNotification(`Monster "${monsterName}" saved to session`, 'success');
+        }
+
         // Load existing monster data
         function loadMonster(monsterName) {
-            // Clear previous selection
-            document.querySelectorAll('.monster-list-item').forEach(item => {
-                item.classList.remove('selected');
-            });
+            currentMonsterName = monsterName;
             
-            // Find all activities for this monster
-            const monsterActivities = Object.entries(allActivities).filter(([id, activity]) => 
-                activity.monsterName === monsterName && ['attack', 'strength', 'defence', 'ranged', 'magic', 'combat'].includes(activity.skill)
+            // Check if monster is in working set first
+            const workingMonster = Object.values(workingSet).find(activity => 
+                activity.monsterName === monsterName
             );
             
-            if (monsterActivities.length === 0) return;
+            let monsterActivities;
+            if (workingMonster) {
+                // Use working set version
+                monsterActivities = [[workingMonster.id, workingMonster]];
+            } else {
+                // Find in original activities
+                monsterActivities = Object.entries(allActivities).filter(([id, activity]) => 
+                    activity.monsterName === monsterName && ['attack', 'strength', 'defence', 'ranged', 'magic', 'combat'].includes(activity.skill)
+                );
+            }
             
-            // Mark as selected
-            event.target.classList.add('selected');
+            if (monsterActivities.length === 0) return;
             
             // Use first activity as template (all should have same stats)
             const [firstId, firstActivity] = monsterActivities[0];
@@ -608,6 +768,46 @@
             }
             
             generatePreview();
+            renderExistingMonsters();
+        }
+
+        // Clear current monster form
+        function clearCurrentMonster() {
+            document.getElementById('monsterName').value = '';
+            document.getElementById('requiredLevel').value = 1;
+            document.getElementById('requiredSlayerLevel').value = 1;
+            document.getElementById('stat-hitpoints').value = 10;
+            document.getElementById('stat-attack').value = 1;
+            document.getElementById('stat-strength').value = 1;
+            document.getElementById('stat-defence').value = 1;
+            document.getElementById('stat-ranged').value = 0;
+            document.getElementById('stat-magic').value = 0;
+            document.getElementById('stat-prayer').value = 0;
+            document.getElementById('stat-slayer').value = 1;
+            document.getElementById('xp-prayer').value = 0;
+            document.getElementById('xp-slayer').value = 0;
+            
+            document.getElementById('dropTableItems').innerHTML = '';
+            dropCounter = 0;
+            addDropItem();
+            
+            document.getElementById('jsonOutput').textContent = 'No configuration yet...';
+            
+            currentMonsterName = null;
+            renderExistingMonsters();
+        }
+
+        // Clear entire session
+        function clearSession() {
+            if (!confirm('This will clear all unsaved changes in this session. Continue?')) {
+                return;
+            }
+            
+            workingSet = {};
+            clearCurrentMonster();
+            updateSessionInfo();
+            renderExistingMonsters();
+            showNotification('Session cleared', 'success');
         }
 
         // Setup event listeners
@@ -964,17 +1164,18 @@
             output.textContent = jsonStr.trim();
         }
 
-        // Export monster only (without outer brackets for direct pasting)
-        function exportMonsterOnly() {
-            const activities = generateMonsterActivities();
-            if (!activities) {
-                alert('Please configure a monster first');
+        // Export all changes (only modified/new monsters)
+        function exportAllChanges() {
+            if (Object.keys(workingSet).length === 0) {
+                alert('No changes to export. Save some monsters first.');
                 return;
             }
             
-            // Format without outer brackets
-            const entries = Object.entries(activities);
-            let jsonStr = '';
+            const sortedActivities = sortActivities(workingSet);
+            
+            // Format with compact drop tables
+            let jsonStr = '{\n';
+            const entries = Object.entries(sortedActivities);
             entries.forEach(([id, activity], index) => {
                 const activityJson = formatActivityJSON(activity, '    ');
                 jsonStr += '    "' + id + '": ' + activityJson;
@@ -983,23 +1184,22 @@
                 }
                 jsonStr += '\n';
             });
+            jsonStr += '}';
             
-            // Remove trailing newline
-            jsonStr = jsonStr.trim();
-            
-            downloadJSON(jsonStr, 'monster_activities.json');
+            downloadJSON(jsonStr, 'monster_changes.json');
         }
 
-        // Copy monster to clipboard (without outer brackets)
-        function copyMonsterToClipboard() {
-            const activities = generateMonsterActivities();
-            if (!activities) {
-                alert('Please configure a monster first');
+        // Copy all changes to clipboard
+        function copyAllChangesToClipboard() {
+            if (Object.keys(workingSet).length === 0) {
+                alert('No changes to copy. Save some monsters first.');
                 return;
             }
             
-            // Format without outer brackets
-            const entries = Object.entries(activities);
+            const sortedActivities = sortActivities(workingSet);
+            
+            // Format without outer brackets for easy pasting
+            const entries = Object.entries(sortedActivities);
             let jsonStr = '';
             entries.forEach(([id, activity], index) => {
                 const activityJson = formatActivityJSON(activity, '    ');
@@ -1014,31 +1214,47 @@
             jsonStr = jsonStr.trim();
             
             navigator.clipboard.writeText(jsonStr).then(() => {
-                showNotification('Monster configuration copied to clipboard!', 'success');
+                showNotification('All changes copied to clipboard!', 'success');
             }).catch(err => {
                 console.error('Failed to copy:', err);
                 alert('Failed to copy to clipboard');
             });
         }
 
-        // Copy full file to clipboard
-        function copyFullToClipboard() {
-            const activities = generateMonsterActivities();
-            if (!activities) {
-                alert('Please configure a monster first');
-                return;
-            }
-            
+        // Export full file with all changes merged
+        function exportFullFile() {
             // Merge with existing activities
             const mergedActivities = { ...allActivities };
             
-            // Remove old versions of these activities if they exist
-            Object.keys(activities).forEach(id => {
-                delete mergedActivities[id];
-            });
+            // Apply working set changes
+            Object.assign(mergedActivities, workingSet);
             
-            // Add new activities
-            Object.assign(mergedActivities, activities);
+            // Sort activities
+            const sortedActivities = sortActivities(mergedActivities);
+            
+            // Format with compact drop tables
+            let jsonStr = '{\n';
+            const entries = Object.entries(sortedActivities);
+            entries.forEach(([id, activity], index) => {
+                const activityJson = formatActivityJSON(activity, '    ');
+                jsonStr += '    "' + id + '": ' + activityJson;
+                if (index < entries.length - 1) {
+                    jsonStr += ',';
+                }
+                jsonStr += '\n';
+            });
+            jsonStr += '}';
+            
+            downloadJSON(jsonStr, 'activities.json');
+        }
+
+        // Copy full file to clipboard
+        function copyFullToClipboard() {
+            // Merge with existing activities
+            const mergedActivities = { ...allActivities };
+            
+            // Apply working set changes
+            Object.assign(mergedActivities, workingSet);
             
             // Sort activities
             const sortedActivities = sortActivities(mergedActivities);
@@ -1109,44 +1325,6 @@
             }, 3000);
         }
 
-        // Export full file
-        function exportFullFile() {
-            const activities = generateMonsterActivities();
-            if (!activities) {
-                alert('Please configure a monster first');
-                return;
-            }
-            
-            // Merge with existing activities
-            const mergedActivities = { ...allActivities };
-            
-            // Remove old versions of these activities if they exist
-            Object.keys(activities).forEach(id => {
-                delete mergedActivities[id];
-            });
-            
-            // Add new activities
-            Object.assign(mergedActivities, activities);
-            
-            // Sort activities
-            const sortedActivities = sortActivities(mergedActivities);
-            
-            // Format with compact drop tables
-            let jsonStr = '{\n';
-            const entries = Object.entries(sortedActivities);
-            entries.forEach(([id, activity], index) => {
-                const activityJson = formatActivityJSON(activity, '    ');
-                jsonStr += '    "' + id + '": ' + activityJson;
-                if (index < entries.length - 1) {
-                    jsonStr += ',';
-                }
-                jsonStr += '\n';
-            });
-            jsonStr += '}';
-            
-            downloadJSON(jsonStr, 'activities.json');
-        }
-
         // Download JSON file
         function downloadJSON(jsonStr, filename) {
             const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -1158,34 +1336,6 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-        }
-
-        // Clear form
-        function clearForm() {
-            document.getElementById('monsterName').value = '';
-            document.getElementById('requiredLevel').value = 1;
-            document.getElementById('requiredSlayerLevel').value = 1;
-            document.getElementById('stat-hitpoints').value = 10;
-            document.getElementById('stat-attack').value = 1;
-            document.getElementById('stat-strength').value = 1;
-            document.getElementById('stat-defence').value = 1;
-            document.getElementById('stat-ranged').value = 0;
-            document.getElementById('stat-magic').value = 0;
-            document.getElementById('stat-prayer').value = 0;
-            document.getElementById('stat-slayer').value = 1;
-            document.getElementById('xp-prayer').value = 0;
-            document.getElementById('xp-slayer').value = 0;
-            
-            document.getElementById('dropTableItems').innerHTML = '';
-            dropCounter = 0;
-            addDropItem();
-            
-            document.getElementById('jsonOutput').textContent = 'No configuration yet...';
-            
-            // Clear selection
-            document.querySelectorAll('.monster-list-item').forEach(item => {
-                item.classList.remove('selected');
-            });
         }
 
         // Initialize on load
