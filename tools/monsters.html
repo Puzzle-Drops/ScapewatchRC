@@ -474,7 +474,7 @@
     <script>
         let allItems = {};
         let allActivities = {};
-        let existingMonsters = new Set();
+        let existingMonsters = [];
         let dropCounter = 0;
 
         // Initialize
@@ -503,14 +503,23 @@
                 const response = await fetch('../data/activities.json');
                 allActivities = await response.json();
                 
-                // Find existing monsters (combat activities)
+                // Find existing monsters (combat activities) with their requirements
                 const combatSkills = ['attack', 'strength', 'defence', 'ranged', 'magic', 'combat'];
+                const monstersMap = {};
+                
                 Object.entries(allActivities).forEach(([id, activity]) => {
                     if (combatSkills.includes(activity.skill) && activity.monsterName) {
-                        existingMonsters.add(activity.monsterName);
+                        if (!monstersMap[activity.monsterName]) {
+                            monstersMap[activity.monsterName] = {
+                                name: activity.monsterName,
+                                requiredLevel: activity.requiredLevel || 1,
+                                requiredSlayerLevel: activity.requiredSlayerLevel || 1
+                            };
+                        }
                     }
                 });
                 
+                existingMonsters = Object.values(monstersMap);
                 renderExistingMonsters();
             } catch (error) {
                 console.error('Error loading activities:', error);
@@ -522,16 +531,24 @@
             const container = document.getElementById('existingMonsters');
             container.innerHTML = '';
             
-            if (existingMonsters.size === 0) {
+            if (existingMonsters.length === 0) {
                 container.innerHTML = '<div style="color: #666;">No existing monsters found</div>';
                 return;
             }
             
-            Array.from(existingMonsters).sort().forEach(monster => {
+            // Sort monsters by combat level, then slayer level
+            existingMonsters.sort((a, b) => {
+                if (a.requiredLevel !== b.requiredLevel) {
+                    return a.requiredLevel - b.requiredLevel;
+                }
+                return a.requiredSlayerLevel - b.requiredSlayerLevel;
+            });
+            
+            existingMonsters.forEach(monster => {
                 const div = document.createElement('div');
                 div.className = 'monster-list-item';
-                div.textContent = monster;
-                div.onclick = () => loadMonster(monster);
+                div.textContent = `${monster.name} - Req ${monster.requiredLevel} combat and ${monster.requiredSlayerLevel} slayer`;
+                div.onclick = () => loadMonster(monster.name);
                 container.appendChild(div);
             });
         }
@@ -895,6 +912,34 @@
             return lines.join('\n');
         }
 
+        // Sort activities by combat level, then slayer level
+        function sortActivities(activities) {
+            const entries = Object.entries(activities);
+            entries.sort(([aId, a], [bId, b]) => {
+                // Sort combat activities by required levels
+                if (a.skill === 'combat' || b.skill === 'combat' || a.monsterName || b.monsterName) {
+                    const aLevel = a.requiredLevel || 0;
+                    const bLevel = b.requiredLevel || 0;
+                    if (aLevel !== bLevel) {
+                        return aLevel - bLevel;
+                    }
+                    const aSlayer = a.requiredSlayerLevel || 0;
+                    const bSlayer = b.requiredSlayerLevel || 0;
+                    if (aSlayer !== bSlayer) {
+                        return aSlayer - bSlayer;
+                    }
+                }
+                // Keep original order for non-combat activities
+                return 0;
+            });
+            
+            const sorted = {};
+            entries.forEach(([id, activity]) => {
+                sorted[id] = activity;
+            });
+            return sorted;
+        }
+
         // Generate preview
         function generatePreview() {
             const activities = generateMonsterActivities();
@@ -995,9 +1040,12 @@
             // Add new activities
             Object.assign(mergedActivities, activities);
             
+            // Sort activities
+            const sortedActivities = sortActivities(mergedActivities);
+            
             // Format with compact drop tables
             let jsonStr = '{\n';
-            const entries = Object.entries(mergedActivities);
+            const entries = Object.entries(sortedActivities);
             entries.forEach(([id, activity], index) => {
                 const activityJson = formatActivityJSON(activity, '    ');
                 jsonStr += '    "' + id + '": ' + activityJson;
@@ -1080,9 +1128,12 @@
             // Add new activities
             Object.assign(mergedActivities, activities);
             
+            // Sort activities
+            const sortedActivities = sortActivities(mergedActivities);
+            
             // Format with compact drop tables
             let jsonStr = '{\n';
-            const entries = Object.entries(mergedActivities);
+            const entries = Object.entries(sortedActivities);
             entries.forEach(([id, activity], index) => {
                 const activityJson = formatActivityJSON(activity, '    ');
                 jsonStr += '    "' + id + '": ' + activityJson;
