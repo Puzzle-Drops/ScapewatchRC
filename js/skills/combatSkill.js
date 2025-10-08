@@ -275,15 +275,13 @@ return {
     // ==================== UI DISPLAY METHODS ====================
     
     getAllPossibleTasksForUI() {
-        const tasks = [];
-        const activities = loadingManager.getData('activities');
-        
-        // Track unique monsters (since each has 3 activity variants for attack/str/def)
-        const uniqueMonsters = new Map();
-        
-        for (const [activityId, activity] of Object.entries(activities)) {
-            // Only look at activities for this specific skill
-            if (activity.skill !== this.id) continue;
+    const tasks = [];
+    const activities = loadingManager.getData('activities');
+    const uniqueMonsters = new Map();
+    
+    for (const [activityId, activity) of Object.entries(activities)) {
+        // Accept both specific skill and generic 'combat'
+        if (activity.skill !== this.id && activity.skill !== 'combat') continue;
             
             // Must be a monster activity (has monsterName)
             if (!activity.monsterName) continue;
