@@ -2200,18 +2200,23 @@ slotDiv.appendChild(imgElement);
     
     // Update max hit display
     const maxHitElement = document.getElementById('max-hit-value');
+    const maxHitPrayerElement = document.getElementById('max-hit-prayer-value');
     const maxHitLabel = document.querySelector('.max-hit-label');
-    if (maxHitElement) {
+    if (maxHitElement && maxHitPrayerElement) {
         // Calculate max hit for this style using combat manager
-        let maxHit = 0;
+        let maxHitNoPrayer = 0;
+        let maxHitWithPrayer = 0;
         if (window.combatManager) {
-            maxHit = combatManager.calculateMaxHitForStyle(style);
+            maxHitNoPrayer = combatManager.calculateMaxHitForStyle(style, false);
+            maxHitWithPrayer = combatManager.calculateMaxHitForStyle(style, true);
         } else {
             // If combat manager doesn't exist yet, create a temporary one just for calculation
             const tempCombatManager = new CombatManager();
-            maxHit = tempCombatManager.calculateMaxHitForStyle(style);
+            maxHitNoPrayer = tempCombatManager.calculateMaxHitForStyle(style, false);
+            maxHitWithPrayer = tempCombatManager.calculateMaxHitForStyle(style, true);
         }
-        maxHitElement.textContent = maxHit;
+        maxHitElement.textContent = maxHitNoPrayer;
+        maxHitPrayerElement.textContent = maxHitWithPrayer;
     }
     if (maxHitLabel) {
         const styleLabel = style.charAt(0).toUpperCase() + style.slice(1);
