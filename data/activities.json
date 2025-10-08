@@ -1,948 +1,1202 @@
 {
-"craft_air_runes": {
-    "id": "craft_air_runes",
-    "name": "Craft Air Runes",
-    "skill": "runecraft",
-    "requiredLevel": 1,
-    "baseDuration": 600,
-    "xpPerEssence": 5,
-    "runeType": "air_rune",
-    "runeMultipliers": {
-        "11": 2, "22": 3, "33": 4, "44": 5, "55": 6, "66": 7, "77": 8, "88": 9, "99": 10
-    }
-},
-"craft_mind_runes": {
-    "id": "craft_mind_runes",
-    "name": "Craft Mind Runes",
-    "skill": "runecraft",
-    "requiredLevel": 2,
-    "baseDuration": 600,
-    "xpPerEssence": 5.5,
-    "runeType": "mind_rune",
-    "runeMultipliers": {
-        "14": 2, "28": 3, "42": 4, "56": 5, "70": 6, "84": 7, "98": 8
-    }
-},
-"craft_water_runes": {
-    "id": "craft_water_runes",
-    "name": "Craft Water Runes",
-    "skill": "runecraft",
-    "requiredLevel": 5,
-    "baseDuration": 600,
-    "xpPerEssence": 6,
-    "runeType": "water_rune",
-    "runeMultipliers": {
-        "19": 2, "38": 3, "57": 4, "76": 5, "95": 6
-    }
-},
-"craft_earth_runes": {
-    "id": "craft_earth_runes",
-    "name": "Craft Earth Runes",
-    "skill": "runecraft",
-    "requiredLevel": 9,
-    "baseDuration": 600,
-    "xpPerEssence": 6.5,
-    "runeType": "earth_rune",
-    "runeMultipliers": {
-        "26": 2, "52": 3, "78": 4
-    }
-},
-"craft_fire_runes": {
-    "id": "craft_fire_runes",
-    "name": "Craft Fire Runes",
-    "skill": "runecraft",
-    "requiredLevel": 14,
-    "baseDuration": 600,
-    "xpPerEssence": 7,
-    "runeType": "fire_rune",
-    "runeMultipliers": {
-        "35": 2, "70": 3
-    }
-},
-"craft_body_runes": {
-    "id": "craft_body_runes",
-    "name": "Craft Body Runes",
-    "skill": "runecraft",
-    "requiredLevel": 20,
-    "baseDuration": 600,
-    "xpPerEssence": 7.5,
-    "runeType": "body_rune",
-    "runeMultipliers": {
-        "46": 2, "92": 3
-    }
-},
-"craft_cosmic_runes": {
-    "id": "craft_cosmic_runes",
-    "name": "Craft Cosmic Runes",
-    "skill": "runecraft",
-    "requiredLevel": 27,
-    "baseDuration": 600,
-    "xpPerEssence": 8,
-    "runeType": "cosmic_rune",
-    "runeMultipliers": {
-        "59": 2
-    }
-},
-"craft_chaos_runes": {
-    "id": "craft_chaos_runes",
-    "name": "Craft Chaos Runes",
-    "skill": "runecraft",
-    "requiredLevel": 35,
-    "baseDuration": 600,
-    "xpPerEssence": 8.5,
-    "runeType": "chaos_rune",
-    "runeMultipliers": {
-        "74": 2
-    }
-},
-"craft_astral_runes": {
-    "id": "craft_astral_runes",
-    "name": "Craft Astral Runes",
-    "skill": "runecraft",
-    "requiredLevel": 40,
-    "baseDuration": 600,
-    "xpPerEssence": 8.7,
-    "runeType": "astral_rune",
-    "runeMultipliers": {
-        "82": 2
-    }
-},
-"craft_nature_runes": {
-    "id": "craft_nature_runes",
-    "name": "Craft Nature Runes",
-    "skill": "runecraft",
-    "requiredLevel": 44,
-    "baseDuration": 600,
-    "xpPerEssence": 9,
-    "runeType": "nature_rune",
-    "runeMultipliers": {
-        "91": 2
-    }
-},
-"craft_law_runes": {
-    "id": "craft_law_runes",
-    "name": "Craft Law Runes",
-    "skill": "runecraft",
-    "requiredLevel": 54,
-    "baseDuration": 600,
-    "xpPerEssence": 9.5,
-    "runeType": "law_rune",
-    "runeMultipliers": {
-        "95": 2
-    }
-},
-"craft_death_runes": {
-    "id": "craft_death_runes",
-    "name": "Craft Death Runes",
-    "skill": "runecraft",
-    "requiredLevel": 65,
-    "baseDuration": 600,
-    "xpPerEssence": 10,
-    "runeType": "death_rune",
-    "runeMultipliers": {
-        "99": 2
-    }
-},
-"craft_blood_runes": {
-    "id": "craft_blood_runes",
-    "name": "Craft Blood Runes",
-    "skill": "runecraft",
-    "requiredLevel": 77,
-    "baseDuration": 600,
-    "xpPerEssence": 10.5,
-    "runeType": "blood_rune",
-    "runeMultipliers": {}
-},
-"craft_soul_runes": {
-    "id": "craft_soul_runes",
-    "name": "Craft Soul Runes",
-    "skill": "runecraft",
-    "requiredLevel": 90,
-    "baseDuration": 600,
-    "xpPerEssence": 29.7,
-    "runeType": "soul_rune",
-    "runeMultipliers": {}
-},
-"craft_wrath_runes": {
-    "id": "craft_wrath_runes",
-    "name": "Craft Wrath Runes",
-    "skill": "runecraft",
-    "requiredLevel": 95,
-    "baseDuration": 600,
-    "xpPerEssence": 8,
-    "runeType": "wrath_rune",
-    "runeMultipliers": {}
-},
-"hunt_birds": {
-    "id": "hunt_birds",
-    "name": "Hunt Birds",
-    "targetName": "Birds",
-    "skill": "hunter",
-    "requiredLevel": 1,
-    "baseDuration": 30000,
-    "xpPerAction": 34,
-    "durationScaling": {
-        "minLevel": 1,
-        "maxLevel": 49,
-        "minDuration": 10000,
-        "maxDuration": 30000
-    },
-    "successChanceScaling": {
-        "minChance": 0.3945,
-        "maxChance": 1.0,
-        "minLevel": 1,
-        "maxLevel": 49
-    },
-    "seedTableChance": 0.1
-},
-"hunt_butterflies": {
-    "id": "hunt_butterflies",
-    "name": "Hunt Butterflies",
-    "targetName": "Butterflies",
-    "skill": "hunter",
-    "requiredLevel": 25,
-    "baseDuration": 20000,
-    "xpPerAction": 44,
-    "durationScaling": {
-        "minLevel": 25,
-        "maxLevel": 70,
-        "minDuration": 4800,
-        "maxDuration": 20000
-    },
-    "successChanceScaling": {
-        "minChance": 0.4,
-        "maxChance": 1.0,
-        "minLevel": 25,
-        "maxLevel": 70
-    }
-},
-"hunt_kebbits": {
-    "id": "hunt_kebbits",
-    "name": "Hunt Kebbits",
-    "targetName": "Kebbits",
-    "skill": "hunter",
-    "requiredLevel": 45,
-    "baseDuration": 30000,
-    "xpPerAction": 200,
-    "durationScaling": {
-        "minLevel": 45,
-        "maxLevel": 95,
-        "minDuration": 8000,
-        "maxDuration": 30000
-    },
-    "successChanceScaling": {
-        "minChance": 0.4,
-        "maxChance": 1.0,
-        "minLevel": 45,
-        "maxLevel": 95
-    }
-},
-"hunt_chinchompas": {
-    "id": "hunt_chinchompas",
-    "name": "Hunt Chinchompas",
-    "targetName": "Chinchompas",
-    "skill": "hunter",
-    "requiredLevel": 63,
-    "baseDuration": 30000,
-    "xpPerAction": 265,
-    "durationScaling": {
-        "minLevel": 63,
-        "maxLevel": 99,
-        "minDuration": 4800,
-        "maxDuration": 30000
-    },
-    "successChanceScaling": {
-        "minChance": 0.4,
-        "maxChance": 0.9,
-        "minLevel": 63,
-        "maxLevel": 99
-    }
-},
-"hunt_moths": {
-    "id": "hunt_moths",
-    "name": "Hunt Moths",
-    "targetName": "Moths",
-    "skill": "hunter",
-    "requiredLevel": 75,
-    "baseDuration": 20000,
-    "xpPerAction": 84,
-    "durationScaling": {
-        "minLevel": 75,
-        "maxLevel": 99,
-        "minDuration": 4800,
-        "maxDuration": 20000
-    },
-    "successChanceScaling": {
-        "minChance": 0.4,
-        "maxChance": 0.85,
-        "minLevel": 75,
-        "maxLevel": 99
-    }
-},
-"hunt_salamanders": {
-    "id": "hunt_salamanders",
-    "name": "Hunt Salamanders",
-    "targetName": "Salamanders",
-    "skill": "hunter",
-    "requiredLevel": 79,
-    "baseDuration": 30000,
-    "xpPerAction": 344,
-    "durationScaling": {
-        "minLevel": 79,
-        "maxLevel": 99,
-        "minDuration": 15000,
-        "maxDuration": 30000
-    },
-    "successChanceScaling": {
-        "minChance": 0.4,
-        "maxChance": 0.8,
-        "minLevel": 79,
-        "maxLevel": 99
-    }
-},
-"hunt_herbiboars": {
-    "id": "hunt_herbiboars",
-    "name": "Hunt Herbiboars",
-    "targetName": "Herbiboars",
-    "skill": "hunter",
-    "requiredLevel": 82,
-    "baseDuration": 80000,
-    "xpPerAction": 2000,
-    "durationScaling": {
-        "minLevel": 82,
-        "maxLevel": 99,
-        "minDuration": 50000,
-        "maxDuration": 80000
-    }
-},
-"hunt_birdhouse": {
-    "id": "hunt_birdhouse",
-    "name": "Check Birdhouse",
-    "targetName": "Birdhouse",
-    "skill": "hunter",
-    "requiredLevel": 90,
-    "baseDuration": 30000,
-    "xpPerAction": 1200,
-    "durationScaling": {
-        "minLevel": 90,
-        "maxLevel": 99,
-        "minDuration": 24000,
-        "maxDuration": 30000
-    }
-},
-"pickpocket_man": {
-    "id": "pickpocket_man",
-    "name": "Pickpocket Man/Woman",
-    "targetName": "Man/Woman",
-    "skill": "thieving",
-    "requiredLevel": 1,
-    "baseDuration": 600,
-    "xpPerAction": 8,
-    "successChanceScaling": {
-        "minChance": 0.7070,
-        "maxChance": 1.0,
-        "minLevel": 1,
-        "maxLevel": 85
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 3}
-    ]
-},
-"pickpocket_farmer": {
-    "id": "pickpocket_farmer",
-    "name": "Pickpocket Farmer",
-    "targetName": "Farmer",
-    "skill": "thieving",
-    "requiredLevel": 10,
-    "baseDuration": 600,
-    "xpPerAction": 14.5,
-    "successChanceScaling": {
-        "minChance": 0.6211,
-        "maxChance": 1.0,
-        "minLevel": 10,
-        "maxLevel": 90
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 9}
-    ],
-    "drops": [
-        {"itemId": "potato_seed", "quantity": 1, "chance": 0.0390625}
-    ]
-},
-"pickpocket_ham": {
-    "id": "pickpocket_ham",
-    "name": "Pickpocket H.A.M. Member",
-    "targetName": "H.A.M. Member",
-    "skill": "thieving",
-    "requiredLevel": 15,
-    "baseDuration": 600,
-    "xpPerAction": 22.2,
-    "successChanceScaling": {
-        "minChance": 0.5898,
-        "maxChance": 1.0,
-        "minLevel": 15,
-        "maxLevel": 93
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": "1-4"}
-    ],
-    "drops": [
-        {"itemId": "bronze_arrow", "quantity": "1-13", "chance": 0.02941},
-        {"itemId": "steel_arrow", "quantity": "1-13", "chance": 0.01961},
-        {"itemId": "feather", "quantity": "1-7", "chance": 0.02941},
-        {"itemId": "fishing_bait", "quantity": "1-7", "chance": 0.02941},
-        {"itemId": "rune_essence", "quantity": "1-7", "chance": 0.02941}
-    ]
-},
-"pickpocket_warrior": {
-    "id": "pickpocket_warrior",
-    "name": "Pickpocket Warrior",
-    "targetName": "Warrior",
-    "skill": "thieving",
-    "requiredLevel": 25,
-    "baseDuration": 600,
-    "xpPerAction": 26,
-    "successChanceScaling": {
-        "minChance": 0.5273,
-        "maxChance": 1.0,
-        "minLevel": 25,
-        "maxLevel": 93
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 18}
-    ]
-},
-"pickpocket_rogue": {
-    "id": "pickpocket_rogue",
-    "name": "Pickpocket Rogue",
-    "targetName": "Rogue",
-    "skill": "thieving",
-    "requiredLevel": 32,
-    "baseDuration": 600,
-    "xpPerAction": 36.5,
-    "successChanceScaling": {
-        "minChance": 0.4878,
-        "maxChance": 1.0,
-        "minLevel": 32,
-        "maxLevel": 92
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 10}
-    ],
-    "drops": [
-        {"itemId": "coins", "quantity": 3, "chance": 0.297},
-        {"itemId": "coins", "quantity": 5, "chance": 0.0703},
-        {"itemId": "coins", "quantity": 15, "chance": 0.03125},
-        {"itemId": "coins", "quantity": 25, "chance": 0.0078125},
-        {"itemId": "bronze_arrow", "quantity": 7, "chance": 0.02344},
-        {"itemId": "earth_rune", "quantity": 4, "chance": 0.015625},
-        {"itemId": "fire_rune", "quantity": 6, "chance": 0.015625},
-        {"itemId": "mind_rune", "quantity": 9, "chance": 0.015625},
-        {"itemId": "chaos_rune", "quantity": 2, "chance": 0.0078125}
-    ],
-    "herbTableChance": 0.1797
-},
-"pickpocket_master_farmer": {
-    "id": "pickpocket_master_farmer",
-    "name": "Pickpocket Master Farmer",
-    "targetName": "Master Farmer",
-    "skill": "thieving",
-    "requiredLevel": 38,
-    "baseDuration": 600,
-    "xpPerAction": 43,
-    "successChanceScaling": {
-        "minChance": 0.5781,
-        "maxChance": 1.0,
-        "minLevel": 38,
-        "maxLevel": 91
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 3}
-    ],
-    "specialDropTable": "master_farmer_seeds"
-},
-"pickpocket_guard": {
-    "id": "pickpocket_guard",
-    "name": "Pickpocket Guard",
-    "targetName": "Guard",
-    "skill": "thieving",
-    "requiredLevel": 40,
-    "baseDuration": 600,
-    "xpPerAction": 46.8,
-    "successChanceScaling": {
-        "minChance": 0.4961,
-        "maxChance": 1.0,
-        "minLevel": 40,
-        "maxLevel": 95
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 30}
-    ]
-},
-"blackjack_bearded": {
-    "id": "blackjack_bearded",
-    "name": "Blackjack Bearded Bandit",
-    "targetName": "Bearded Bandit",
-    "skill": "thieving",
-    "requiredLevel": 45,
-    "baseDuration": 600,
-    "xpPerAction": 65,
-    "successChanceScaling": {
-        "minChance": 1.0,
-        "maxChance": 1.0,
-        "minLevel": 45,
-        "maxLevel": 99
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 40}
-    ]
-},
-"pickpocket_bandit_camp": {
-    "id": "pickpocket_bandit_camp",
-    "name": "Pickpocket Bandit",
-    "targetName": "Bandit",
-    "skill": "thieving",
-    "requiredLevel": 53,
-    "baseDuration": 600,
-    "xpPerAction": 79.4,
-    "successChanceScaling": {
-        "minChance": 0.5938,
-        "maxChance": 1.0,
-        "minLevel": 53,
-        "maxLevel": 95
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 18}
-    ],
-    "drops": [
-        {"itemId": "chaos_rune", "quantity": 2, "chance": 0.164},
-        {"itemId": "death_rune", "quantity": 2, "chance": 0.02344},
-        {"itemId": "nature_rune", "quantity": 2, "chance": 0.015625},
-        {"itemId": "cosmic_rune", "quantity": 2, "chance": 0.015625},
-        {"itemId": "law_rune", "quantity": 2, "chance": 0.015625},
-        {"itemId": "coins", "quantity": 12, "chance": 0.1797},
-        {"itemId": "coins", "quantity": 20, "chance": 0.09375},
-        {"itemId": "coins", "quantity": 45, "chance": 0.046875},
-        {"itemId": "coins", "quantity": 30, "chance": 0.0078125}
-    ],
-    "herbTableChance": 0.1
-},
-"blackjack_bandit": {
-    "id": "blackjack_bandit",
-    "name": "Blackjack Bandit",
-    "targetName": "Bandit",
-    "skill": "thieving",
-    "requiredLevel": 55,
-    "baseDuration": 600,
-    "xpPerAction": 84.3,
-    "successChanceScaling": {
-        "minChance": 1.0,
-        "maxChance": 1.0,
-        "minLevel": 55,
-        "maxLevel": 99
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 50}
-    ]
-},
-"pickpocket_knight": {
-    "id": "pickpocket_knight",
-    "name": "Pickpocket Knight of Ardougne",
-    "targetName": "Knight",
-    "skill": "thieving",
-    "requiredLevel": 55,
-    "baseDuration": 600,
-    "xpPerAction": 84.3,
-    "successChanceScaling": {
-        "minChance": 0.6094,
-        "maxChance": 1.0,
-        "minLevel": 55,
-        "maxLevel": 95
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 50}
-    ]
-},
-"pickpocket_watchman": {
-    "id": "pickpocket_watchman",
-    "name": "Pickpocket Watchman",
-    "targetName": "Watchman",
-    "skill": "thieving",
-    "requiredLevel": 65,
-    "baseDuration": 600,
-    "xpPerAction": 137.5,
-    "successChanceScaling": {
-        "minChance": 0.4336,
-        "maxChance": 0.6914,
-        "minLevel": 65,
-        "maxLevel": 99
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 60}
-    ]
-},
-"pickpocket_menaphite": {
-    "id": "pickpocket_menaphite",
-    "name": "Pickpocket Menaphite Thug",
-    "targetName": "Menaphite Thug",
-    "skill": "thieving",
-    "requiredLevel": 65,
-    "baseDuration": 600,
-    "xpPerAction": 137.5,
-    "successChanceScaling": {
-        "minChance": 0.7227,
-        "maxChance": 0.9414,
-        "minLevel": 65,
-        "maxLevel": 99
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 60}
-    ]
-},
-"pickpocket_paladin": {
-    "id": "pickpocket_paladin",
-    "name": "Pickpocket Paladin",
-    "targetName": "Paladin",
-    "skill": "thieving",
-    "requiredLevel": 70,
-    "baseDuration": 600,
-    "xpPerAction": 131.8,
-    "successChanceScaling": {
-        "minChance": 0.5195,
-        "maxChance": 0.7344,
-        "minLevel": 70,
-        "maxLevel": 99
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 80},
-        {"itemId": "chaos_rune", "quantity": 2}
-    ]
-},
-"pickpocket_gnome": {
-    "id": "pickpocket_gnome",
-    "name": "Pickpocket Gnome",
-    "targetName": "Gnome",
-    "skill": "thieving",
-    "requiredLevel": 75,
-    "baseDuration": 600,
-    "xpPerAction": 133.5,
-    "successChanceScaling": {
-        "minChance": 0.5625,
-        "maxChance": 0.7539,
-        "minLevel": 75,
-        "maxLevel": 99
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 70}
-    ],
-    "drops": [
-        {"itemId": "arrow_shaft", "quantity": "2-4", "chance": 0.4375},
-        {"itemId": "gold_ore", "quantity": 1, "chance": 0.0625},
-        {"itemId": "earth_rune", "quantity": 1, "chance": 0.0390625}
-    ]
-},
-"pickpocket_hero": {
-    "id": "pickpocket_hero",
-    "name": "Pickpocket Hero",
-    "targetName": "Hero",
-    "skill": "thieving",
-    "requiredLevel": 80,
-    "baseDuration": 600,
-    "xpPerAction": 163.3,
-    "successChanceScaling": {
-        "minChance": 0.5391,
-        "maxChance": 0.6914,
-        "minLevel": 80,
-        "maxLevel": 99
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 240}
-    ],
-    "drops": [
-        {"itemId": "death_rune", "quantity": 2, "chance": 0.0625},
-        {"itemId": "blood_rune", "quantity": 1, "chance": 0.0390625},
-        {"itemId": "uncut_diamond", "quantity": 1, "chance": 0.0078125},
-        {"itemId": "gold_ore", "quantity": 1, "chance": 0.0078125}
-    ]
-},
-"pickpocket_vyre": {
-    "id": "pickpocket_vyre",
-    "name": "Pickpocket Vyre",
-    "targetName": "Vyre",
-    "skill": "thieving",
-    "requiredLevel": 82,
-    "baseDuration": 600,
-    "xpPerAction": 306.9,
-    "successChanceScaling": {
-        "minChance": 0.4219,
-        "maxChance": 0.5508,
-        "minLevel": 82,
-        "maxLevel": 99
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 300}
-    ],
-    "drops": [
-        {"itemId": "death_rune", "quantity": 2, "chance": 0.0606},
-        {"itemId": "uncut_ruby", "quantity": 1, "chance": 0.0379},
-        {"itemId": "blood_rune", "quantity": 4, "chance": 0.01515},
-        {"itemId": "uncut_diamond", "quantity": 1, "chance": 0.00758}
-    ]
-},
-"pickpocket_elf": {
-    "id": "pickpocket_elf",
-    "name": "Pickpocket Elf",
-    "targetName": "Elf",
-    "skill": "thieving",
-    "requiredLevel": 85,
-    "baseDuration": 600,
-    "xpPerAction": 353.3,
-    "successChanceScaling": {
-        "minChance": 0.3438,
-        "maxChance": 0.4336,
-        "minLevel": 85,
-        "maxLevel": 99
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 325}
-    ],
-    "drops": [
-        {"itemId": "death_rune", "quantity": 2, "chance": 0.0625},
-        {"itemId": "nature_rune", "quantity": 3, "chance": 0.0390625},
-        {"itemId": "uncut_diamond", "quantity": 1, "chance": 0.0078125},
-        {"itemId": "gold_ore", "quantity": 1, "chance": 0.0078125}
-    ]
-},
-"pickpocket_tzhaar": {
-    "id": "pickpocket_tzhaar",
-    "name": "Pickpocket TzHaar-Hur",
-    "targetName": "TzHaar-Hur",
-    "skill": "thieving",
-    "requiredLevel": 90,
-    "baseDuration": 600,
-    "xpPerAction": 103.4,
-    "successChanceScaling": {
-        "minChance": 0.6406,
-        "maxChance": 0.8633,
-        "minLevel": 90,
-        "maxLevel": 99
-    },
-    "guaranteedDrops": [
-        {"itemId": "coins", "quantity": 350}
-    ],
-    "drops": [
-        {"itemId": "uncut_sapphire", "quantity": 1, "chance": 0.02564},
-        {"itemId": "uncut_emerald", "quantity": 1, "chance": 0.02051},
-        {"itemId": "uncut_ruby", "quantity": 1, "chance": 0.01538},
-        {"itemId": "uncut_diamond", "quantity": 1, "chance": 0.00513}
-    ]
-},
-"firemaking": {
-    "id": "firemaking",
-    "name": "Firemaking",
-    "skill": "firemaking",
-    "requiredLevel": 1,
-    "baseDuration": 2400,
-    "firemakingTable": [
-        {
-            "logId": "logs",
-            "requiredLevel": 1,
-            "xpPerAction": 40
-        },
-        {
-            "logId": "oak_logs",
-            "requiredLevel": 15,
-            "xpPerAction": 60
-        },
-        {
-            "logId": "willow_logs",
-            "requiredLevel": 30,
-            "xpPerAction": 90
-        },
-        {
-            "logId": "maple_logs",
-            "requiredLevel": 45,
-            "xpPerAction": 135
-        },
-        {
-            "logId": "yew_logs",
-            "requiredLevel": 60,
-            "xpPerAction": 202.5
-        },
-        {
-            "logId": "magic_logs",
-            "requiredLevel": 75,
-            "xpPerAction": 303.8
-        },
-        {
-            "logId": "redwood_logs",
-            "requiredLevel": 90,
-            "xpPerAction": 350
+    "craft_air_runes": {
+        "id": "craft_air_runes",
+        "name": "Craft Air Runes",
+        "skill": "runecraft",
+        "requiredLevel": 1,
+        "baseDuration": 600,
+        "xpPerEssence": 5,
+        "runeType": "air_rune",
+        "runeMultipliers": {
+            "11": 2,
+            "22": 3,
+            "33": 4,
+            "44": 5,
+            "55": 6,
+            "66": 7,
+            "77": 8,
+            "88": 9,
+            "99": 10
         }
-    ]
-},
-"draynor_rooftop": {
-    "id": "draynor_rooftop",
-    "name": "Draynor Village Rooftop Course",
-    "skill": "agility",
-    "requiredLevel": 1,
-    "xpPerLap": 120,
-    "baseDuration": 43200,
-    "markOfGraceChance": 0.125
-},
-"al_kharid_rooftop": {
-    "id": "al_kharid_rooftop",
-    "name": "Al Kharid Rooftop Course",
-    "skill": "agility",
-    "requiredLevel": 20,
-    "xpPerLap": 216,
-    "baseDuration": 64200,
-    "markOfGraceChance": 0.125
-},
-"varrock_rooftop": {
-    "id": "varrock_rooftop",
-    "name": "Varrock Rooftop Course",
-    "skill": "agility",
-    "requiredLevel": 30,
-    "xpPerLap": 270,
-    "baseDuration": 70000,
-    "markOfGraceChance": 0.125
-},
-"canifis_rooftop": {
-    "id": "canifis_rooftop",
-    "name": "Canifis Rooftop Course",
-    "skill": "agility",
-    "requiredLevel": 40,
-    "xpPerLap": 240,
-    "baseDuration": 43800,
-    "markOfGraceChance": 0.25
-},
-"falador_rooftop": {
-    "id": "falador_rooftop",
-    "name": "Falador Rooftop Course",
-    "skill": "agility",
-    "requiredLevel": 50,
-    "xpPerLap": 586,
-    "baseDuration": 60000,
-    "markOfGraceChance": 0.125
-},
-"seers_rooftop": {
-    "id": "seers_rooftop",
-    "name": "Seers' Village Rooftop Course",
-    "skill": "agility",
-    "requiredLevel": 60,
-    "xpPerLap": 570,
-    "baseDuration": 43800,
-    "markOfGraceChance": 0.125
-},
-"pollnivneach_rooftop": {
-    "id": "pollnivneach_rooftop",
-    "name": "Pollnivneach Rooftop Course",
-    "skill": "agility",
-    "requiredLevel": 70,
-    "xpPerLap": 890,
-    "baseDuration": 47400,
-    "markOfGraceChance": 0.125
-},
-"rellekka_rooftop": {
-    "id": "rellekka_rooftop",
-    "name": "Rellekka Rooftop Course",
-    "skill": "agility",
-    "requiredLevel": 80,
-    "xpPerLap": 780,
-    "baseDuration": 51000,
-    "markOfGraceChance": 0.125
-},
-"ardougne_rooftop": {
-    "id": "ardougne_rooftop",
-    "name": "Ardougne Rooftop Course",
-    "skill": "agility",
-    "requiredLevel": 90,
-    "xpPerLap": 889,
-    "baseDuration": 45600,
-    "markOfGraceChance": 0.125
-},
-"calm_waters_trial": {
-    "id": "calm_waters_trial",
-    "name": "Calm Waters Barracuda Trial",
-    "skill": "sailing",
-    "requiredLevel": 1,
-    "xpPerLap": 120,
-    "baseDuration": 43200,
-    "markOfGraceChance": 0.125
-},
-"reef_runner_trial": {
-    "id": "reef_runner_trial",
-    "name": "Reef Runner Barracuda Trial",
-    "skill": "sailing",
-    "requiredLevel": 20,
-    "xpPerLap": 216,
-    "baseDuration": 64200,
-    "markOfGraceChance": 0.125
-},
-"storm_chaser_trial": {
-    "id": "storm_chaser_trial",
-    "name": "Storm Chaser Barracuda Trial",
-    "skill": "sailing",
-    "requiredLevel": 30,
-    "xpPerLap": 270,
-    "baseDuration": 70000,
-    "markOfGraceChance": 0.125
-},
-"tempest_trial": {
-    "id": "tempest_trial",
-    "name": "Tempest Barracuda Trial",
-    "skill": "sailing",
-    "requiredLevel": 40,
-    "xpPerLap": 240,
-    "baseDuration": 43800,
-    "markOfGraceChance": 0.25
-},
-"maelstrom_trial": {
-    "id": "maelstrom_trial",
-    "name": "Maelstrom Barracuda Trial",
-    "skill": "sailing",
-    "requiredLevel": 50,
-    "xpPerLap": 586,
-    "baseDuration": 60000,
-    "markOfGraceChance": 0.125
-},
-"typhoon_trial": {
-    "id": "typhoon_trial",
-    "name": "Typhoon Barracuda Trial",
-    "skill": "sailing",
-    "requiredLevel": 60,
-    "xpPerLap": 570,
-    "baseDuration": 43800,
-    "markOfGraceChance": 0.125
-},
-"hurricane_trial": {
-    "id": "hurricane_trial",
-    "name": "Hurricane Barracuda Trial",
-    "skill": "sailing",
-    "requiredLevel": 70,
-    "xpPerLap": 890,
-    "baseDuration": 47400,
-    "markOfGraceChance": 0.125
-},
-"kraken_wake_trial": {
-    "id": "kraken_wake_trial",
-    "name": "Kraken's Wake Barracuda Trial",
-    "skill": "sailing",
-    "requiredLevel": 80,
-    "xpPerLap": 780,
-    "baseDuration": 51000,
-    "markOfGraceChance": 0.125
-},
-"neptune_wrath_trial": {
-    "id": "neptune_wrath_trial",
-    "name": "Neptune's Wrath Barracuda Trial",
-    "skill": "sailing",
-    "requiredLevel": 90,
-    "xpPerLap": 889,
-    "baseDuration": 45600,
-    "markOfGraceChance": 0.125
-},
+    },
+    "craft_mind_runes": {
+        "id": "craft_mind_runes",
+        "name": "Craft Mind Runes",
+        "skill": "runecraft",
+        "requiredLevel": 2,
+        "baseDuration": 600,
+        "xpPerEssence": 5.5,
+        "runeType": "mind_rune",
+        "runeMultipliers": {
+            "14": 2,
+            "28": 3,
+            "42": 4,
+            "56": 5,
+            "70": 6,
+            "84": 7,
+            "98": 8
+        }
+    },
+    "craft_water_runes": {
+        "id": "craft_water_runes",
+        "name": "Craft Water Runes",
+        "skill": "runecraft",
+        "requiredLevel": 5,
+        "baseDuration": 600,
+        "xpPerEssence": 6,
+        "runeType": "water_rune",
+        "runeMultipliers": {
+            "19": 2,
+            "38": 3,
+            "57": 4,
+            "76": 5,
+            "95": 6
+        }
+    },
+    "craft_earth_runes": {
+        "id": "craft_earth_runes",
+        "name": "Craft Earth Runes",
+        "skill": "runecraft",
+        "requiredLevel": 9,
+        "baseDuration": 600,
+        "xpPerEssence": 6.5,
+        "runeType": "earth_rune",
+        "runeMultipliers": {
+            "26": 2,
+            "52": 3,
+            "78": 4
+        }
+    },
+    "craft_fire_runes": {
+        "id": "craft_fire_runes",
+        "name": "Craft Fire Runes",
+        "skill": "runecraft",
+        "requiredLevel": 14,
+        "baseDuration": 600,
+        "xpPerEssence": 7,
+        "runeType": "fire_rune",
+        "runeMultipliers": {
+            "35": 2,
+            "70": 3
+        }
+    },
+    "craft_body_runes": {
+        "id": "craft_body_runes",
+        "name": "Craft Body Runes",
+        "skill": "runecraft",
+        "requiredLevel": 20,
+        "baseDuration": 600,
+        "xpPerEssence": 7.5,
+        "runeType": "body_rune",
+        "runeMultipliers": {
+            "46": 2,
+            "92": 3
+        }
+    },
+    "craft_cosmic_runes": {
+        "id": "craft_cosmic_runes",
+        "name": "Craft Cosmic Runes",
+        "skill": "runecraft",
+        "requiredLevel": 27,
+        "baseDuration": 600,
+        "xpPerEssence": 8,
+        "runeType": "cosmic_rune",
+        "runeMultipliers": {
+            "59": 2
+        }
+    },
+    "craft_chaos_runes": {
+        "id": "craft_chaos_runes",
+        "name": "Craft Chaos Runes",
+        "skill": "runecraft",
+        "requiredLevel": 35,
+        "baseDuration": 600,
+        "xpPerEssence": 8.5,
+        "runeType": "chaos_rune",
+        "runeMultipliers": {
+            "74": 2
+        }
+    },
+    "craft_astral_runes": {
+        "id": "craft_astral_runes",
+        "name": "Craft Astral Runes",
+        "skill": "runecraft",
+        "requiredLevel": 40,
+        "baseDuration": 600,
+        "xpPerEssence": 8.7,
+        "runeType": "astral_rune",
+        "runeMultipliers": {
+            "82": 2
+        }
+    },
+    "craft_nature_runes": {
+        "id": "craft_nature_runes",
+        "name": "Craft Nature Runes",
+        "skill": "runecraft",
+        "requiredLevel": 44,
+        "baseDuration": 600,
+        "xpPerEssence": 9,
+        "runeType": "nature_rune",
+        "runeMultipliers": {
+            "91": 2
+        }
+    },
+    "craft_law_runes": {
+        "id": "craft_law_runes",
+        "name": "Craft Law Runes",
+        "skill": "runecraft",
+        "requiredLevel": 54,
+        "baseDuration": 600,
+        "xpPerEssence": 9.5,
+        "runeType": "law_rune",
+        "runeMultipliers": {
+            "95": 2
+        }
+    },
+    "craft_death_runes": {
+        "id": "craft_death_runes",
+        "name": "Craft Death Runes",
+        "skill": "runecraft",
+        "requiredLevel": 65,
+        "baseDuration": 600,
+        "xpPerEssence": 10,
+        "runeType": "death_rune",
+        "runeMultipliers": {
+            "99": 2
+        }
+    },
+    "craft_blood_runes": {
+        "id": "craft_blood_runes",
+        "name": "Craft Blood Runes",
+        "skill": "runecraft",
+        "requiredLevel": 77,
+        "baseDuration": 600,
+        "xpPerEssence": 10.5,
+        "runeType": "blood_rune",
+        "runeMultipliers": {}
+    },
+    "craft_soul_runes": {
+        "id": "craft_soul_runes",
+        "name": "Craft Soul Runes",
+        "skill": "runecraft",
+        "requiredLevel": 90,
+        "baseDuration": 600,
+        "xpPerEssence": 29.7,
+        "runeType": "soul_rune",
+        "runeMultipliers": {}
+    },
+    "craft_wrath_runes": {
+        "id": "craft_wrath_runes",
+        "name": "Craft Wrath Runes",
+        "skill": "runecraft",
+        "requiredLevel": 95,
+        "baseDuration": 600,
+        "xpPerEssence": 8,
+        "runeType": "wrath_rune",
+        "runeMultipliers": {}
+    },
+    "hunt_birds": {
+        "id": "hunt_birds",
+        "name": "Hunt Birds",
+        "targetName": "Birds",
+        "skill": "hunter",
+        "requiredLevel": 1,
+        "baseDuration": 30000,
+        "xpPerAction": 34,
+        "durationScaling": {
+            "minLevel": 1,
+            "maxLevel": 49,
+            "minDuration": 10000,
+            "maxDuration": 30000
+        },
+        "successChanceScaling": {
+            "minChance": 0.3945,
+            "maxChance": 1,
+            "minLevel": 1,
+            "maxLevel": 49
+        },
+        "seedTableChance": 0.1
+    },
+    "hunt_butterflies": {
+        "id": "hunt_butterflies",
+        "name": "Hunt Butterflies",
+        "targetName": "Butterflies",
+        "skill": "hunter",
+        "requiredLevel": 25,
+        "baseDuration": 20000,
+        "xpPerAction": 44,
+        "durationScaling": {
+            "minLevel": 25,
+            "maxLevel": 70,
+            "minDuration": 4800,
+            "maxDuration": 20000
+        },
+        "successChanceScaling": {
+            "minChance": 0.4,
+            "maxChance": 1,
+            "minLevel": 25,
+            "maxLevel": 70
+        }
+    },
+    "hunt_kebbits": {
+        "id": "hunt_kebbits",
+        "name": "Hunt Kebbits",
+        "targetName": "Kebbits",
+        "skill": "hunter",
+        "requiredLevel": 45,
+        "baseDuration": 30000,
+        "xpPerAction": 200,
+        "durationScaling": {
+            "minLevel": 45,
+            "maxLevel": 95,
+            "minDuration": 8000,
+            "maxDuration": 30000
+        },
+        "successChanceScaling": {
+            "minChance": 0.4,
+            "maxChance": 1,
+            "minLevel": 45,
+            "maxLevel": 95
+        }
+    },
+    "hunt_chinchompas": {
+        "id": "hunt_chinchompas",
+        "name": "Hunt Chinchompas",
+        "targetName": "Chinchompas",
+        "skill": "hunter",
+        "requiredLevel": 63,
+        "baseDuration": 30000,
+        "xpPerAction": 265,
+        "durationScaling": {
+            "minLevel": 63,
+            "maxLevel": 99,
+            "minDuration": 4800,
+            "maxDuration": 30000
+        },
+        "successChanceScaling": {
+            "minChance": 0.4,
+            "maxChance": 0.9,
+            "minLevel": 63,
+            "maxLevel": 99
+        }
+    },
+    "hunt_moths": {
+        "id": "hunt_moths",
+        "name": "Hunt Moths",
+        "targetName": "Moths",
+        "skill": "hunter",
+        "requiredLevel": 75,
+        "baseDuration": 20000,
+        "xpPerAction": 84,
+        "durationScaling": {
+            "minLevel": 75,
+            "maxLevel": 99,
+            "minDuration": 4800,
+            "maxDuration": 20000
+        },
+        "successChanceScaling": {
+            "minChance": 0.4,
+            "maxChance": 0.85,
+            "minLevel": 75,
+            "maxLevel": 99
+        }
+    },
+    "hunt_salamanders": {
+        "id": "hunt_salamanders",
+        "name": "Hunt Salamanders",
+        "targetName": "Salamanders",
+        "skill": "hunter",
+        "requiredLevel": 79,
+        "baseDuration": 30000,
+        "xpPerAction": 344,
+        "durationScaling": {
+            "minLevel": 79,
+            "maxLevel": 99,
+            "minDuration": 15000,
+            "maxDuration": 30000
+        },
+        "successChanceScaling": {
+            "minChance": 0.4,
+            "maxChance": 0.8,
+            "minLevel": 79,
+            "maxLevel": 99
+        }
+    },
+    "hunt_herbiboars": {
+        "id": "hunt_herbiboars",
+        "name": "Hunt Herbiboars",
+        "targetName": "Herbiboars",
+        "skill": "hunter",
+        "requiredLevel": 82,
+        "baseDuration": 80000,
+        "xpPerAction": 2000,
+        "durationScaling": {
+            "minLevel": 82,
+            "maxLevel": 99,
+            "minDuration": 50000,
+            "maxDuration": 80000
+        }
+    },
+    "hunt_birdhouse": {
+        "id": "hunt_birdhouse",
+        "name": "Check Birdhouse",
+        "targetName": "Birdhouse",
+        "skill": "hunter",
+        "requiredLevel": 90,
+        "baseDuration": 30000,
+        "xpPerAction": 1200,
+        "durationScaling": {
+            "minLevel": 90,
+            "maxLevel": 99,
+            "minDuration": 24000,
+            "maxDuration": 30000
+        }
+    },
+    "pickpocket_man": {
+        "id": "pickpocket_man",
+        "name": "Pickpocket Man/Woman",
+        "targetName": "Man/Woman",
+        "skill": "thieving",
+        "requiredLevel": 1,
+        "baseDuration": 600,
+        "xpPerAction": 8,
+        "successChanceScaling": {
+            "minChance": 0.707,
+            "maxChance": 1,
+            "minLevel": 1,
+            "maxLevel": 85
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 3
+            }
+        ]
+    },
+    "pickpocket_farmer": {
+        "id": "pickpocket_farmer",
+        "name": "Pickpocket Farmer",
+        "targetName": "Farmer",
+        "skill": "thieving",
+        "requiredLevel": 10,
+        "baseDuration": 600,
+        "xpPerAction": 14.5,
+        "successChanceScaling": {
+            "minChance": 0.6211,
+            "maxChance": 1,
+            "minLevel": 10,
+            "maxLevel": 90
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 9
+            }
+        ],
+        "drops": [
+            {
+                "itemId": "potato_seed",
+                "quantity": 1,
+                "chance": 0.0390625
+            }
+        ]
+    },
+    "pickpocket_ham": {
+        "id": "pickpocket_ham",
+        "name": "Pickpocket H.A.M. Member",
+        "targetName": "H.A.M. Member",
+        "skill": "thieving",
+        "requiredLevel": 15,
+        "baseDuration": 600,
+        "xpPerAction": 22.2,
+        "successChanceScaling": {
+            "minChance": 0.5898,
+            "maxChance": 1,
+            "minLevel": 15,
+            "maxLevel": 93
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": "1-4"
+            }
+        ],
+        "drops": [
+            {
+                "itemId": "bronze_arrow",
+                "quantity": "1-13",
+                "chance": 0.02941
+            },
+            {
+                "itemId": "steel_arrow",
+                "quantity": "1-13",
+                "chance": 0.01961
+            },
+            {
+                "itemId": "feather",
+                "quantity": "1-7",
+                "chance": 0.02941
+            },
+            {
+                "itemId": "fishing_bait",
+                "quantity": "1-7",
+                "chance": 0.02941
+            },
+            {
+                "itemId": "rune_essence",
+                "quantity": "1-7",
+                "chance": 0.02941
+            }
+        ]
+    },
+    "pickpocket_warrior": {
+        "id": "pickpocket_warrior",
+        "name": "Pickpocket Warrior",
+        "targetName": "Warrior",
+        "skill": "thieving",
+        "requiredLevel": 25,
+        "baseDuration": 600,
+        "xpPerAction": 26,
+        "successChanceScaling": {
+            "minChance": 0.5273,
+            "maxChance": 1,
+            "minLevel": 25,
+            "maxLevel": 93
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 18
+            }
+        ]
+    },
+    "pickpocket_rogue": {
+        "id": "pickpocket_rogue",
+        "name": "Pickpocket Rogue",
+        "targetName": "Rogue",
+        "skill": "thieving",
+        "requiredLevel": 32,
+        "baseDuration": 600,
+        "xpPerAction": 36.5,
+        "successChanceScaling": {
+            "minChance": 0.4878,
+            "maxChance": 1,
+            "minLevel": 32,
+            "maxLevel": 92
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 10
+            }
+        ],
+        "drops": [
+            {
+                "itemId": "coins",
+                "quantity": 3,
+                "chance": 0.297
+            },
+            {
+                "itemId": "coins",
+                "quantity": 5,
+                "chance": 0.0703
+            },
+            {
+                "itemId": "coins",
+                "quantity": 15,
+                "chance": 0.03125
+            },
+            {
+                "itemId": "coins",
+                "quantity": 25,
+                "chance": 0.0078125
+            },
+            {
+                "itemId": "bronze_arrow",
+                "quantity": 7,
+                "chance": 0.02344
+            },
+            {
+                "itemId": "earth_rune",
+                "quantity": 4,
+                "chance": 0.015625
+            },
+            {
+                "itemId": "fire_rune",
+                "quantity": 6,
+                "chance": 0.015625
+            },
+            {
+                "itemId": "mind_rune",
+                "quantity": 9,
+                "chance": 0.015625
+            },
+            {
+                "itemId": "chaos_rune",
+                "quantity": 2,
+                "chance": 0.0078125
+            }
+        ],
+        "herbTableChance": 0.1797
+    },
+    "pickpocket_master_farmer": {
+        "id": "pickpocket_master_farmer",
+        "name": "Pickpocket Master Farmer",
+        "targetName": "Master Farmer",
+        "skill": "thieving",
+        "requiredLevel": 38,
+        "baseDuration": 600,
+        "xpPerAction": 43,
+        "successChanceScaling": {
+            "minChance": 0.5781,
+            "maxChance": 1,
+            "minLevel": 38,
+            "maxLevel": 91
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 3
+            }
+        ],
+        "specialDropTable": "master_farmer_seeds"
+    },
+    "pickpocket_guard": {
+        "id": "pickpocket_guard",
+        "name": "Pickpocket Guard",
+        "targetName": "Guard",
+        "skill": "thieving",
+        "requiredLevel": 40,
+        "baseDuration": 600,
+        "xpPerAction": 46.8,
+        "successChanceScaling": {
+            "minChance": 0.4961,
+            "maxChance": 1,
+            "minLevel": 40,
+            "maxLevel": 95
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 30
+            }
+        ]
+    },
+    "blackjack_bearded": {
+        "id": "blackjack_bearded",
+        "name": "Blackjack Bearded Bandit",
+        "targetName": "Bearded Bandit",
+        "skill": "thieving",
+        "requiredLevel": 45,
+        "baseDuration": 600,
+        "xpPerAction": 65,
+        "successChanceScaling": {
+            "minChance": 1,
+            "maxChance": 1,
+            "minLevel": 45,
+            "maxLevel": 99
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 40
+            }
+        ]
+    },
+    "pickpocket_bandit_camp": {
+        "id": "pickpocket_bandit_camp",
+        "name": "Pickpocket Bandit",
+        "targetName": "Bandit",
+        "skill": "thieving",
+        "requiredLevel": 53,
+        "baseDuration": 600,
+        "xpPerAction": 79.4,
+        "successChanceScaling": {
+            "minChance": 0.5938,
+            "maxChance": 1,
+            "minLevel": 53,
+            "maxLevel": 95
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 18
+            }
+        ],
+        "drops": [
+            {
+                "itemId": "chaos_rune",
+                "quantity": 2,
+                "chance": 0.164
+            },
+            {
+                "itemId": "death_rune",
+                "quantity": 2,
+                "chance": 0.02344
+            },
+            {
+                "itemId": "nature_rune",
+                "quantity": 2,
+                "chance": 0.015625
+            },
+            {
+                "itemId": "cosmic_rune",
+                "quantity": 2,
+                "chance": 0.015625
+            },
+            {
+                "itemId": "law_rune",
+                "quantity": 2,
+                "chance": 0.015625
+            },
+            {
+                "itemId": "coins",
+                "quantity": 12,
+                "chance": 0.1797
+            },
+            {
+                "itemId": "coins",
+                "quantity": 20,
+                "chance": 0.09375
+            },
+            {
+                "itemId": "coins",
+                "quantity": 45,
+                "chance": 0.046875
+            },
+            {
+                "itemId": "coins",
+                "quantity": 30,
+                "chance": 0.0078125
+            }
+        ],
+        "herbTableChance": 0.1
+    },
+    "blackjack_bandit": {
+        "id": "blackjack_bandit",
+        "name": "Blackjack Bandit",
+        "targetName": "Bandit",
+        "skill": "thieving",
+        "requiredLevel": 55,
+        "baseDuration": 600,
+        "xpPerAction": 84.3,
+        "successChanceScaling": {
+            "minChance": 1,
+            "maxChance": 1,
+            "minLevel": 55,
+            "maxLevel": 99
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 50
+            }
+        ]
+    },
+    "pickpocket_knight": {
+        "id": "pickpocket_knight",
+        "name": "Pickpocket Knight of Ardougne",
+        "targetName": "Knight",
+        "skill": "thieving",
+        "requiredLevel": 55,
+        "baseDuration": 600,
+        "xpPerAction": 84.3,
+        "successChanceScaling": {
+            "minChance": 0.6094,
+            "maxChance": 1,
+            "minLevel": 55,
+            "maxLevel": 95
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 50
+            }
+        ]
+    },
+    "pickpocket_watchman": {
+        "id": "pickpocket_watchman",
+        "name": "Pickpocket Watchman",
+        "targetName": "Watchman",
+        "skill": "thieving",
+        "requiredLevel": 65,
+        "baseDuration": 600,
+        "xpPerAction": 137.5,
+        "successChanceScaling": {
+            "minChance": 0.4336,
+            "maxChance": 0.6914,
+            "minLevel": 65,
+            "maxLevel": 99
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 60
+            }
+        ]
+    },
+    "pickpocket_menaphite": {
+        "id": "pickpocket_menaphite",
+        "name": "Pickpocket Menaphite Thug",
+        "targetName": "Menaphite Thug",
+        "skill": "thieving",
+        "requiredLevel": 65,
+        "baseDuration": 600,
+        "xpPerAction": 137.5,
+        "successChanceScaling": {
+            "minChance": 0.7227,
+            "maxChance": 0.9414,
+            "minLevel": 65,
+            "maxLevel": 99
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 60
+            }
+        ]
+    },
+    "pickpocket_paladin": {
+        "id": "pickpocket_paladin",
+        "name": "Pickpocket Paladin",
+        "targetName": "Paladin",
+        "skill": "thieving",
+        "requiredLevel": 70,
+        "baseDuration": 600,
+        "xpPerAction": 131.8,
+        "successChanceScaling": {
+            "minChance": 0.5195,
+            "maxChance": 0.7344,
+            "minLevel": 70,
+            "maxLevel": 99
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 80
+            },
+            {
+                "itemId": "chaos_rune",
+                "quantity": 2
+            }
+        ]
+    },
+    "pickpocket_gnome": {
+        "id": "pickpocket_gnome",
+        "name": "Pickpocket Gnome",
+        "targetName": "Gnome",
+        "skill": "thieving",
+        "requiredLevel": 75,
+        "baseDuration": 600,
+        "xpPerAction": 133.5,
+        "successChanceScaling": {
+            "minChance": 0.5625,
+            "maxChance": 0.7539,
+            "minLevel": 75,
+            "maxLevel": 99
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 70
+            }
+        ],
+        "drops": [
+            {
+                "itemId": "arrow_shaft",
+                "quantity": "2-4",
+                "chance": 0.4375
+            },
+            {
+                "itemId": "gold_ore",
+                "quantity": 1,
+                "chance": 0.0625
+            },
+            {
+                "itemId": "earth_rune",
+                "quantity": 1,
+                "chance": 0.0390625
+            }
+        ]
+    },
+    "pickpocket_hero": {
+        "id": "pickpocket_hero",
+        "name": "Pickpocket Hero",
+        "targetName": "Hero",
+        "skill": "thieving",
+        "requiredLevel": 80,
+        "baseDuration": 600,
+        "xpPerAction": 163.3,
+        "successChanceScaling": {
+            "minChance": 0.5391,
+            "maxChance": 0.6914,
+            "minLevel": 80,
+            "maxLevel": 99
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 240
+            }
+        ],
+        "drops": [
+            {
+                "itemId": "death_rune",
+                "quantity": 2,
+                "chance": 0.0625
+            },
+            {
+                "itemId": "blood_rune",
+                "quantity": 1,
+                "chance": 0.0390625
+            },
+            {
+                "itemId": "uncut_diamond",
+                "quantity": 1,
+                "chance": 0.0078125
+            },
+            {
+                "itemId": "gold_ore",
+                "quantity": 1,
+                "chance": 0.0078125
+            }
+        ]
+    },
+    "pickpocket_vyre": {
+        "id": "pickpocket_vyre",
+        "name": "Pickpocket Vyre",
+        "targetName": "Vyre",
+        "skill": "thieving",
+        "requiredLevel": 82,
+        "baseDuration": 600,
+        "xpPerAction": 306.9,
+        "successChanceScaling": {
+            "minChance": 0.4219,
+            "maxChance": 0.5508,
+            "minLevel": 82,
+            "maxLevel": 99
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 300
+            }
+        ],
+        "drops": [
+            {
+                "itemId": "death_rune",
+                "quantity": 2,
+                "chance": 0.0606
+            },
+            {
+                "itemId": "uncut_ruby",
+                "quantity": 1,
+                "chance": 0.0379
+            },
+            {
+                "itemId": "blood_rune",
+                "quantity": 4,
+                "chance": 0.01515
+            },
+            {
+                "itemId": "uncut_diamond",
+                "quantity": 1,
+                "chance": 0.00758
+            }
+        ]
+    },
+    "pickpocket_elf": {
+        "id": "pickpocket_elf",
+        "name": "Pickpocket Elf",
+        "targetName": "Elf",
+        "skill": "thieving",
+        "requiredLevel": 85,
+        "baseDuration": 600,
+        "xpPerAction": 353.3,
+        "successChanceScaling": {
+            "minChance": 0.3438,
+            "maxChance": 0.4336,
+            "minLevel": 85,
+            "maxLevel": 99
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 325
+            }
+        ],
+        "drops": [
+            {
+                "itemId": "death_rune",
+                "quantity": 2,
+                "chance": 0.0625
+            },
+            {
+                "itemId": "nature_rune",
+                "quantity": 3,
+                "chance": 0.0390625
+            },
+            {
+                "itemId": "uncut_diamond",
+                "quantity": 1,
+                "chance": 0.0078125
+            },
+            {
+                "itemId": "gold_ore",
+                "quantity": 1,
+                "chance": 0.0078125
+            }
+        ]
+    },
+    "pickpocket_tzhaar": {
+        "id": "pickpocket_tzhaar",
+        "name": "Pickpocket TzHaar-Hur",
+        "targetName": "TzHaar-Hur",
+        "skill": "thieving",
+        "requiredLevel": 90,
+        "baseDuration": 600,
+        "xpPerAction": 103.4,
+        "successChanceScaling": {
+            "minChance": 0.6406,
+            "maxChance": 0.8633,
+            "minLevel": 90,
+            "maxLevel": 99
+        },
+        "guaranteedDrops": [
+            {
+                "itemId": "coins",
+                "quantity": 350
+            }
+        ],
+        "drops": [
+            {
+                "itemId": "uncut_sapphire",
+                "quantity": 1,
+                "chance": 0.02564
+            },
+            {
+                "itemId": "uncut_emerald",
+                "quantity": 1,
+                "chance": 0.02051
+            },
+            {
+                "itemId": "uncut_ruby",
+                "quantity": 1,
+                "chance": 0.01538
+            },
+            {
+                "itemId": "uncut_diamond",
+                "quantity": 1,
+                "chance": 0.00513
+            }
+        ]
+    },
+    "firemaking": {
+        "id": "firemaking",
+        "name": "Firemaking",
+        "skill": "firemaking",
+        "requiredLevel": 1,
+        "baseDuration": 2400,
+        "firemakingTable": [
+            {
+                "logId": "logs",
+                "requiredLevel": 1,
+                "xpPerAction": 40
+            },
+            {
+                "logId": "oak_logs",
+                "requiredLevel": 15,
+                "xpPerAction": 60
+            },
+            {
+                "logId": "willow_logs",
+                "requiredLevel": 30,
+                "xpPerAction": 90
+            },
+            {
+                "logId": "maple_logs",
+                "requiredLevel": 45,
+                "xpPerAction": 135
+            },
+            {
+                "logId": "yew_logs",
+                "requiredLevel": 60,
+                "xpPerAction": 202.5
+            },
+            {
+                "logId": "magic_logs",
+                "requiredLevel": 75,
+                "xpPerAction": 303.8
+            },
+            {
+                "logId": "redwood_logs",
+                "requiredLevel": 90,
+                "xpPerAction": 350
+            }
+        ]
+    },
+    "draynor_rooftop": {
+        "id": "draynor_rooftop",
+        "name": "Draynor Village Rooftop Course",
+        "skill": "agility",
+        "requiredLevel": 1,
+        "xpPerLap": 120,
+        "baseDuration": 43200,
+        "markOfGraceChance": 0.125
+    },
+    "al_kharid_rooftop": {
+        "id": "al_kharid_rooftop",
+        "name": "Al Kharid Rooftop Course",
+        "skill": "agility",
+        "requiredLevel": 20,
+        "xpPerLap": 216,
+        "baseDuration": 64200,
+        "markOfGraceChance": 0.125
+    },
+    "varrock_rooftop": {
+        "id": "varrock_rooftop",
+        "name": "Varrock Rooftop Course",
+        "skill": "agility",
+        "requiredLevel": 30,
+        "xpPerLap": 270,
+        "baseDuration": 70000,
+        "markOfGraceChance": 0.125
+    },
+    "canifis_rooftop": {
+        "id": "canifis_rooftop",
+        "name": "Canifis Rooftop Course",
+        "skill": "agility",
+        "requiredLevel": 40,
+        "xpPerLap": 240,
+        "baseDuration": 43800,
+        "markOfGraceChance": 0.25
+    },
+    "falador_rooftop": {
+        "id": "falador_rooftop",
+        "name": "Falador Rooftop Course",
+        "skill": "agility",
+        "requiredLevel": 50,
+        "xpPerLap": 586,
+        "baseDuration": 60000,
+        "markOfGraceChance": 0.125
+    },
+    "seers_rooftop": {
+        "id": "seers_rooftop",
+        "name": "Seers' Village Rooftop Course",
+        "skill": "agility",
+        "requiredLevel": 60,
+        "xpPerLap": 570,
+        "baseDuration": 43800,
+        "markOfGraceChance": 0.125
+    },
+    "pollnivneach_rooftop": {
+        "id": "pollnivneach_rooftop",
+        "name": "Pollnivneach Rooftop Course",
+        "skill": "agility",
+        "requiredLevel": 70,
+        "xpPerLap": 890,
+        "baseDuration": 47400,
+        "markOfGraceChance": 0.125
+    },
+    "rellekka_rooftop": {
+        "id": "rellekka_rooftop",
+        "name": "Rellekka Rooftop Course",
+        "skill": "agility",
+        "requiredLevel": 80,
+        "xpPerLap": 780,
+        "baseDuration": 51000,
+        "markOfGraceChance": 0.125
+    },
+    "ardougne_rooftop": {
+        "id": "ardougne_rooftop",
+        "name": "Ardougne Rooftop Course",
+        "skill": "agility",
+        "requiredLevel": 90,
+        "xpPerLap": 889,
+        "baseDuration": 45600,
+        "markOfGraceChance": 0.125
+    },
+    "calm_waters_trial": {
+        "id": "calm_waters_trial",
+        "name": "Calm Waters Barracuda Trial",
+        "skill": "sailing",
+        "requiredLevel": 1,
+        "xpPerLap": 120,
+        "baseDuration": 43200,
+        "markOfGraceChance": 0.125
+    },
+    "reef_runner_trial": {
+        "id": "reef_runner_trial",
+        "name": "Reef Runner Barracuda Trial",
+        "skill": "sailing",
+        "requiredLevel": 20,
+        "xpPerLap": 216,
+        "baseDuration": 64200,
+        "markOfGraceChance": 0.125
+    },
+    "storm_chaser_trial": {
+        "id": "storm_chaser_trial",
+        "name": "Storm Chaser Barracuda Trial",
+        "skill": "sailing",
+        "requiredLevel": 30,
+        "xpPerLap": 270,
+        "baseDuration": 70000,
+        "markOfGraceChance": 0.125
+    },
+    "tempest_trial": {
+        "id": "tempest_trial",
+        "name": "Tempest Barracuda Trial",
+        "skill": "sailing",
+        "requiredLevel": 40,
+        "xpPerLap": 240,
+        "baseDuration": 43800,
+        "markOfGraceChance": 0.25
+    },
+    "maelstrom_trial": {
+        "id": "maelstrom_trial",
+        "name": "Maelstrom Barracuda Trial",
+        "skill": "sailing",
+        "requiredLevel": 50,
+        "xpPerLap": 586,
+        "baseDuration": 60000,
+        "markOfGraceChance": 0.125
+    },
+    "typhoon_trial": {
+        "id": "typhoon_trial",
+        "name": "Typhoon Barracuda Trial",
+        "skill": "sailing",
+        "requiredLevel": 60,
+        "xpPerLap": 570,
+        "baseDuration": 43800,
+        "markOfGraceChance": 0.125
+    },
+    "hurricane_trial": {
+        "id": "hurricane_trial",
+        "name": "Hurricane Barracuda Trial",
+        "skill": "sailing",
+        "requiredLevel": 70,
+        "xpPerLap": 890,
+        "baseDuration": 47400,
+        "markOfGraceChance": 0.125
+    },
+    "kraken_wake_trial": {
+        "id": "kraken_wake_trial",
+        "name": "Kraken's Wake Barracuda Trial",
+        "skill": "sailing",
+        "requiredLevel": 80,
+        "xpPerLap": 780,
+        "baseDuration": 51000,
+        "markOfGraceChance": 0.125
+    },
+    "neptune_wrath_trial": {
+        "id": "neptune_wrath_trial",
+        "name": "Neptune's Wrath Barracuda Trial",
+        "skill": "sailing",
+        "requiredLevel": 90,
+        "xpPerLap": 889,
+        "baseDuration": 45600,
+        "markOfGraceChance": 0.125
+    },
     "small_fishing_net": {
         "id": "small_fishing_net",
         "name": "Small Net Fishing",
@@ -1054,7 +1308,12 @@
         "skill": "fishing",
         "requiredLevel": 5,
         "baseDuration": 3000,
-        "consumeOnSuccess": [{"itemId": "fishing_bait", "quantity": 1}],
+        "consumeOnSuccess": [
+            {
+                "itemId": "fishing_bait",
+                "quantity": 1
+            }
+        ],
         "rewards": [
             {
                 "itemId": "raw_sardine",
@@ -1088,8 +1347,16 @@
         "skill": "fishing",
         "requiredLevel": 25,
         "baseDuration": 3000,
-        "durationBoost": {"chance": 0.2, "duration": 3600},
-        "consumeOnSuccess": [{"itemId": "fishing_bait", "quantity": 1}],
+        "durationBoost": {
+            "chance": 0.2,
+            "duration": 3600
+        },
+        "consumeOnSuccess": [
+            {
+                "itemId": "fishing_bait",
+                "quantity": 1
+            }
+        ],
         "rewards": [
             {
                 "itemId": "raw_pike",
@@ -1110,7 +1377,12 @@
         "skill": "fishing",
         "requiredLevel": 20,
         "baseDuration": 3000,
-        "consumeOnSuccess": [{"itemId": "feather", "quantity": 1}],
+        "consumeOnSuccess": [
+            {
+                "itemId": "feather",
+                "quantity": 1
+            }
+        ],
         "rewards": [
             {
                 "itemId": "raw_trout",
@@ -1222,7 +1494,7 @@
                 "xpPerAction": 30,
                 "chanceScaling": {
                     "minChance": 0.5039,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 1,
                     "maxLevel": 32
                 }
@@ -1235,7 +1507,7 @@
                 "xpPerAction": 30,
                 "chanceScaling": {
                     "minChance": 0.5039,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 1,
                     "maxLevel": 32
                 }
@@ -1248,7 +1520,7 @@
                 "xpPerAction": 30,
                 "chanceScaling": {
                     "minChance": 0.5039,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 1,
                     "maxLevel": 32
                 }
@@ -1261,7 +1533,7 @@
                 "xpPerAction": 40,
                 "chanceScaling": {
                     "minChance": 0.4648,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 1,
                     "maxLevel": 34
                 }
@@ -1274,7 +1546,7 @@
                 "xpPerAction": 50,
                 "chanceScaling": {
                     "minChance": 0.4844,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 1,
                     "maxLevel": 37
                 }
@@ -1287,7 +1559,7 @@
                 "xpPerAction": 60,
                 "chanceScaling": {
                     "minChance": 0.5156,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 1,
                     "maxLevel": 41
                 }
@@ -1300,7 +1572,7 @@
                 "xpPerAction": 70,
                 "chanceScaling": {
                     "minChance": 0.5391,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 15,
                     "maxLevel": 46
                 }
@@ -1312,8 +1584,8 @@
                 "requiredLevel": 18,
                 "xpPerAction": 75,
                 "chanceScaling": {
-                    "minChance": 0.5820,
-                    "maxChance": 1.0,
+                    "minChance": 0.582,
+                    "maxChance": 1,
                     "minLevel": 18,
                     "maxLevel": 47
                 }
@@ -1326,7 +1598,7 @@
                 "xpPerAction": 80,
                 "chanceScaling": {
                     "minChance": 0.5625,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 20,
                     "maxLevel": 50
                 }
@@ -1339,7 +1611,7 @@
                 "xpPerAction": 90,
                 "chanceScaling": {
                     "minChance": 0.5781,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 25,
                     "maxLevel": 55
                 }
@@ -1352,7 +1624,7 @@
                 "xpPerAction": 100,
                 "chanceScaling": {
                     "minChance": 0.5938,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 30,
                     "maxLevel": 59
                 }
@@ -1365,7 +1637,7 @@
                 "xpPerAction": 120,
                 "chanceScaling": {
                     "minChance": 0.6094,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 40,
                     "maxLevel": 70
                 }
@@ -1378,7 +1650,7 @@
                 "xpPerAction": 130,
                 "chanceScaling": {
                     "minChance": 0.6016,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 43,
                     "maxLevel": 75
                 }
@@ -1391,7 +1663,7 @@
                 "xpPerAction": 140,
                 "chanceScaling": {
                     "minChance": 0.5547,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 45,
                     "maxLevel": 80
                 }
@@ -1404,7 +1676,7 @@
                 "xpPerAction": 210,
                 "chanceScaling": {
                     "minChance": 0.6406,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 80,
                     "maxLevel": 98
                 }
@@ -1424,7 +1696,7 @@
                 "quantity": 1,
                 "chanceScaling": {
                     "minChance": 0.254,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 1,
                     "maxLevel": 30
                 }
@@ -1444,7 +1716,7 @@
                 "quantity": 1,
                 "chanceScaling": {
                     "minChance": 0.168,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 15,
                     "maxLevel": 60
                 }
@@ -1592,52 +1864,86 @@
         ]
     },
     "mine_copper_tin": {
-    "id": "mine_copper_tin",
-    "name": "Mine Copper & Tin",
-    "skill": "mining",
-    "requiredLevel": 1,
-    "xpPerAction": 17.5,
-    "baseDuration": 2500,
-    "durationScaling": {
-        "type": "mining",
-        "breakpoints": [
-            {"level": 1, "duration": 4200},
-            {"level": 5, "duration": 3600},
-            {"level": 10, "duration": 3000},
-            {"level": 31, "duration": 2400},
-            {"level": 61, "duration": 2400, "boostChance": 0.166667, "boostDuration": 1600},
-            {"level": 71, "duration": 2400, "boostChance": 0.25, "boostDuration": 1600}
+        "id": "mine_copper_tin",
+        "name": "Mine Copper & Tin",
+        "skill": "mining",
+        "requiredLevel": 1,
+        "xpPerAction": 17.5,
+        "baseDuration": 2500,
+        "durationScaling": {
+            "type": "mining",
+            "breakpoints": [
+                {
+                    "level": 1,
+                    "duration": 4200
+                },
+                {
+                    "level": 5,
+                    "duration": 3600
+                },
+                {
+                    "level": 10,
+                    "duration": 3000
+                },
+                {
+                    "level": 31,
+                    "duration": 2400
+                },
+                {
+                    "level": 61,
+                    "duration": 2400,
+                    "boostChance": 0.166667,
+                    "boostDuration": 1600
+                },
+                {
+                    "level": 71,
+                    "duration": 2400,
+                    "boostChance": 0.25,
+                    "boostDuration": 1600
+                }
+            ]
+        },
+        "gemTable": [
+            {
+                "itemId": "uncut_sapphire",
+                "chance": 0.00390625
+            },
+            {
+                "itemId": "uncut_emerald",
+                "chance": 0.001960784314
+            },
+            {
+                "itemId": "uncut_ruby",
+                "chance": 0.000982318271
+            },
+            {
+                "itemId": "uncut_diamond",
+                "chance": 0.000245816456
+            }
+        ],
+        "alternatingRewards": [
+            {
+                "itemId": "copper_ore",
+                "quantity": 1,
+                "chanceScaling": {
+                    "minChance": 0.254,
+                    "maxChance": 1,
+                    "minLevel": 1,
+                    "maxLevel": 30
+                }
+            },
+            {
+                "itemId": "tin_ore",
+                "quantity": 1,
+                "chanceScaling": {
+                    "minChance": 0.254,
+                    "maxChance": 1,
+                    "minLevel": 1,
+                    "maxLevel": 30
+                }
+            }
         ]
     },
-    "gemTable": [
-        {"itemId": "uncut_sapphire", "chance": 0.00390625},
-        {"itemId": "uncut_emerald", "chance": 0.001960784314},
-        {"itemId": "uncut_ruby", "chance": 0.000982318271},
-        {"itemId": "uncut_diamond", "chance": 0.000245816456}
-    ],
-    "alternatingRewards": [
-        {
-            "itemId": "copper_ore",
-            "quantity": 1,
-            "chanceScaling": {
-                "minChance": 0.254,
-                "maxChance": 1.0,
-                "minLevel": 1,
-                "maxLevel": 30
-            }
-        },
-        {
-            "itemId": "tin_ore",
-            "quantity": 1,
-            "chanceScaling": {
-                "minChance": 0.254,
-                "maxChance": 1.0,
-                "minLevel": 1,
-                "maxLevel": 30
-            }
-        }
-    ]
-},
     "mine_iron": {
         "id": "mine_iron",
         "name": "Mine Iron",
@@ -1648,27 +1954,61 @@
         "durationScaling": {
             "type": "mining",
             "breakpoints": [
-                {"level": 15, "duration": 4200},
-                {"level": 20, "duration": 3600},
-                {"level": 25, "duration": 3000},
-                {"level": 31, "duration": 2400},
-                {"level": 61, "duration": 2400, "boostChance": 0.166667, "boostDuration": 1600},
-                {"level": 71, "duration": 2400, "boostChance": 0.25, "boostDuration": 1600}
+                {
+                    "level": 15,
+                    "duration": 4200
+                },
+                {
+                    "level": 20,
+                    "duration": 3600
+                },
+                {
+                    "level": 25,
+                    "duration": 3000
+                },
+                {
+                    "level": 31,
+                    "duration": 2400
+                },
+                {
+                    "level": 61,
+                    "duration": 2400,
+                    "boostChance": 0.166667,
+                    "boostDuration": 1600
+                },
+                {
+                    "level": 71,
+                    "duration": 2400,
+                    "boostChance": 0.25,
+                    "boostDuration": 1600
+                }
             ]
         },
-    "gemTable": [
-        {"itemId": "uncut_sapphire", "chance": 0.00390625},
-        {"itemId": "uncut_emerald", "chance": 0.001960784314},
-        {"itemId": "uncut_ruby", "chance": 0.000982318271},
-        {"itemId": "uncut_diamond", "chance": 0.000245816456}
-    ],
+        "gemTable": [
+            {
+                "itemId": "uncut_sapphire",
+                "chance": 0.00390625
+            },
+            {
+                "itemId": "uncut_emerald",
+                "chance": 0.001960784314
+            },
+            {
+                "itemId": "uncut_ruby",
+                "chance": 0.000982318271
+            },
+            {
+                "itemId": "uncut_diamond",
+                "chance": 0.000245816456
+            }
+        ],
         "rewards": [
             {
                 "itemId": "iron_ore",
                 "quantity": 1,
                 "chanceScaling": {
                     "minChance": 0.168,
-                    "maxChance": 1.0,
+                    "maxChance": 1,
                     "minLevel": 15,
                     "maxLevel": 60
                 }
@@ -1685,20 +2025,54 @@
         "durationScaling": {
             "type": "mining",
             "breakpoints": [
-                {"level": 20, "duration": 4200},
-                {"level": 25, "duration": 3600},
-                {"level": 30, "duration": 3000},
-                {"level": 31, "duration": 2400},
-                {"level": 61, "duration": 2400, "boostChance": 0.166667, "boostDuration": 1600},
-                {"level": 71, "duration": 2400, "boostChance": 0.25, "boostDuration": 1600}
+                {
+                    "level": 20,
+                    "duration": 4200
+                },
+                {
+                    "level": 25,
+                    "duration": 3600
+                },
+                {
+                    "level": 30,
+                    "duration": 3000
+                },
+                {
+                    "level": 31,
+                    "duration": 2400
+                },
+                {
+                    "level": 61,
+                    "duration": 2400,
+                    "boostChance": 0.166667,
+                    "boostDuration": 1600
+                },
+                {
+                    "level": 71,
+                    "duration": 2400,
+                    "boostChance": 0.25,
+                    "boostDuration": 1600
+                }
             ]
         },
-    "gemTable": [
-        {"itemId": "uncut_sapphire", "chance": 0.00390625},
-        {"itemId": "uncut_emerald", "chance": 0.001960784314},
-        {"itemId": "uncut_ruby", "chance": 0.000982318271},
-        {"itemId": "uncut_diamond", "chance": 0.000245816456}
-    ],
+        "gemTable": [
+            {
+                "itemId": "uncut_sapphire",
+                "chance": 0.00390625
+            },
+            {
+                "itemId": "uncut_emerald",
+                "chance": 0.001960784314
+            },
+            {
+                "itemId": "uncut_ruby",
+                "chance": 0.000982318271
+            },
+            {
+                "itemId": "uncut_diamond",
+                "chance": 0.000245816456
+            }
+        ],
         "rewards": [
             {
                 "itemId": "silver_ore",
@@ -1722,18 +2096,46 @@
         "durationScaling": {
             "type": "mining",
             "breakpoints": [
-                {"level": 30, "duration": 3000},
-                {"level": 31, "duration": 2400},
-                {"level": 61, "duration": 2400, "boostChance": 0.166667, "boostDuration": 1600},
-                {"level": 71, "duration": 2400, "boostChance": 0.25, "boostDuration": 1600}
+                {
+                    "level": 30,
+                    "duration": 3000
+                },
+                {
+                    "level": 31,
+                    "duration": 2400
+                },
+                {
+                    "level": 61,
+                    "duration": 2400,
+                    "boostChance": 0.166667,
+                    "boostDuration": 1600
+                },
+                {
+                    "level": 71,
+                    "duration": 2400,
+                    "boostChance": 0.25,
+                    "boostDuration": 1600
+                }
             ]
         },
-    "gemTable": [
-        {"itemId": "uncut_sapphire", "chance": 0.00390625},
-        {"itemId": "uncut_emerald", "chance": 0.001960784314},
-        {"itemId": "uncut_ruby", "chance": 0.000982318271},
-        {"itemId": "uncut_diamond", "chance": 0.000245816456}
-    ],
+        "gemTable": [
+            {
+                "itemId": "uncut_sapphire",
+                "chance": 0.00390625
+            },
+            {
+                "itemId": "uncut_emerald",
+                "chance": 0.001960784314
+            },
+            {
+                "itemId": "uncut_ruby",
+                "chance": 0.000982318271
+            },
+            {
+                "itemId": "uncut_diamond",
+                "chance": 0.000245816456
+            }
+        ],
         "rewards": [
             {
                 "itemId": "coal",
@@ -1757,18 +2159,46 @@
         "durationScaling": {
             "type": "mining",
             "breakpoints": [
-                {"level": 40, "duration": 3000},
-                {"level": 45, "duration": 2400},
-                {"level": 61, "duration": 2400, "boostChance": 0.166667, "boostDuration": 1600},
-                {"level": 71, "duration": 2400, "boostChance": 0.25, "boostDuration": 1600}
+                {
+                    "level": 40,
+                    "duration": 3000
+                },
+                {
+                    "level": 45,
+                    "duration": 2400
+                },
+                {
+                    "level": 61,
+                    "duration": 2400,
+                    "boostChance": 0.166667,
+                    "boostDuration": 1600
+                },
+                {
+                    "level": 71,
+                    "duration": 2400,
+                    "boostChance": 0.25,
+                    "boostDuration": 1600
+                }
             ]
         },
-    "gemTable": [
-        {"itemId": "uncut_sapphire", "chance": 0.00390625},
-        {"itemId": "uncut_emerald", "chance": 0.001960784314},
-        {"itemId": "uncut_ruby", "chance": 0.000982318271},
-        {"itemId": "uncut_diamond", "chance": 0.000245816456}
-    ],
+        "gemTable": [
+            {
+                "itemId": "uncut_sapphire",
+                "chance": 0.00390625
+            },
+            {
+                "itemId": "uncut_emerald",
+                "chance": 0.001960784314
+            },
+            {
+                "itemId": "uncut_ruby",
+                "chance": 0.000982318271
+            },
+            {
+                "itemId": "uncut_diamond",
+                "chance": 0.000245816456
+            }
+        ],
         "rewards": [
             {
                 "itemId": "gold_ore",
@@ -1792,18 +2222,46 @@
         "durationScaling": {
             "type": "mining",
             "breakpoints": [
-                {"level": 55, "duration": 3000},
-                {"level": 60, "duration": 2400},
-                {"level": 61, "duration": 2400, "boostChance": 0.166667, "boostDuration": 1600},
-                {"level": 71, "duration": 2400, "boostChance": 0.25, "boostDuration": 1600}
+                {
+                    "level": 55,
+                    "duration": 3000
+                },
+                {
+                    "level": 60,
+                    "duration": 2400
+                },
+                {
+                    "level": 61,
+                    "duration": 2400,
+                    "boostChance": 0.166667,
+                    "boostDuration": 1600
+                },
+                {
+                    "level": 71,
+                    "duration": 2400,
+                    "boostChance": 0.25,
+                    "boostDuration": 1600
+                }
             ]
         },
-    "gemTable": [
-        {"itemId": "uncut_sapphire", "chance": 0.00390625},
-        {"itemId": "uncut_emerald", "chance": 0.001960784314},
-        {"itemId": "uncut_ruby", "chance": 0.000982318271},
-        {"itemId": "uncut_diamond", "chance": 0.000245816456}
-    ],
+        "gemTable": [
+            {
+                "itemId": "uncut_sapphire",
+                "chance": 0.00390625
+            },
+            {
+                "itemId": "uncut_emerald",
+                "chance": 0.001960784314
+            },
+            {
+                "itemId": "uncut_ruby",
+                "chance": 0.000982318271
+            },
+            {
+                "itemId": "uncut_diamond",
+                "chance": 0.000245816456
+            }
+        ],
         "rewards": [
             {
                 "itemId": "mithril_ore",
@@ -1827,16 +2285,36 @@
         "durationScaling": {
             "type": "mining",
             "breakpoints": [
-                {"level": 70, "duration": 2400},
-                {"level": 71, "duration": 2400, "boostChance": 0.25, "boostDuration": 1600}
+                {
+                    "level": 70,
+                    "duration": 2400
+                },
+                {
+                    "level": 71,
+                    "duration": 2400,
+                    "boostChance": 0.25,
+                    "boostDuration": 1600
+                }
             ]
         },
-    "gemTable": [
-        {"itemId": "uncut_sapphire", "chance": 0.00390625},
-        {"itemId": "uncut_emerald", "chance": 0.001960784314},
-        {"itemId": "uncut_ruby", "chance": 0.000982318271},
-        {"itemId": "uncut_diamond", "chance": 0.000245816456}
-    ],
+        "gemTable": [
+            {
+                "itemId": "uncut_sapphire",
+                "chance": 0.00390625
+            },
+            {
+                "itemId": "uncut_emerald",
+                "chance": 0.001960784314
+            },
+            {
+                "itemId": "uncut_ruby",
+                "chance": 0.000982318271
+            },
+            {
+                "itemId": "uncut_diamond",
+                "chance": 0.000245816456
+            }
+        ],
         "rewards": [
             {
                 "itemId": "adamantite_ore",
@@ -1860,15 +2338,32 @@
         "durationScaling": {
             "type": "mining",
             "breakpoints": [
-                {"level": 85, "duration": 2400, "boostChance": 0.25, "boostDuration": 1600}
+                {
+                    "level": 85,
+                    "duration": 2400,
+                    "boostChance": 0.25,
+                    "boostDuration": 1600
+                }
             ]
         },
-    "gemTable": [
-        {"itemId": "uncut_sapphire", "chance": 0.00390625},
-        {"itemId": "uncut_emerald", "chance": 0.001960784314},
-        {"itemId": "uncut_ruby", "chance": 0.000982318271},
-        {"itemId": "uncut_diamond", "chance": 0.000245816456}
-    ],
+        "gemTable": [
+            {
+                "itemId": "uncut_sapphire",
+                "chance": 0.00390625
+            },
+            {
+                "itemId": "uncut_emerald",
+                "chance": 0.001960784314
+            },
+            {
+                "itemId": "uncut_ruby",
+                "chance": 0.000982318271
+            },
+            {
+                "itemId": "uncut_diamond",
+                "chance": 0.000245816456
+            }
+        ],
         "rewards": [
             {
                 "itemId": "runite_ore",
@@ -1892,7 +2387,12 @@
         "durationScaling": {
             "type": "mining",
             "breakpoints": [
-                {"level": 92, "duration": 2400, "boostChance": 0.25, "boostDuration": 1600}
+                {
+                    "level": 92,
+                    "duration": 2400,
+                    "boostChance": 0.25,
+                    "boostDuration": 1600
+                }
             ]
         },
         "rewards": [
@@ -1909,74 +2409,74 @@
         ]
     },
     "smelting": {
-  "id": "smelting",
-  "name": "Smelting",
-  "skill": "smithing",
-  "requiredLevel": 1,
-  "baseDuration": 2400,
-  "xpPerAction": 0
-},
-"smithing": {
-  "id": "smithing",
-  "name": "Smithing",
-  "skill": "smithing",
-  "requiredLevel": 1,
-  "baseDuration": 2400,
-  "xpPerAction": 0
-},
-"fletching": {
-    "id": "fletching",
-    "name": "Fletching",
-    "skill": "fletching",
-    "requiredLevel": 1,
-    "baseDuration": 1200,
-    "xpPerAction": 0
-},
-"blowing_glass": {
-    "id": "blowing_glass",
-    "name": "Blowing Glass",
-    "skill": "crafting",
-    "requiredLevel": 1,
-    "baseDuration": 600
-},
-"cutting_gems": {
-    "id": "cutting_gems", 
-    "name": "Cutting Gems",
-    "skill": "crafting",
-    "requiredLevel": 20,
-    "baseDuration": 1200
-},
-"plank_making": {
-    "id": "plank_making",
-    "name": "Making Planks",
-    "skill": "crafting",
-    "requiredLevel": 10,
-    "baseDuration": 600
-},
-"jewellery_making": {
-    "id": "jewellery_making",
-    "name": "Make Jewellery",
-    "skill": "crafting",
-    "requiredLevel": 25,
-    "baseDuration": 1200
-},
-"cleaning_herbs": {
-    "id": "cleaning_herbs",
-    "name": "Clean Herbs",
-    "skill": "herblore",
-    "requiredLevel": 1,
-    "baseDuration": 200,
-    "xpPerAction": 0
-},
-"making_potions": {
-    "id": "making_potions",
-    "name": "Make Potions",
-    "skill": "herblore",
-    "requiredLevel": 1,
-    "baseDuration": 1200,
-    "xpPerAction": 0
-},
-"build_tables": {
+        "id": "smelting",
+        "name": "Smelting",
+        "skill": "smithing",
+        "requiredLevel": 1,
+        "baseDuration": 2400,
+        "xpPerAction": 0
+    },
+    "smithing": {
+        "id": "smithing",
+        "name": "Smithing",
+        "skill": "smithing",
+        "requiredLevel": 1,
+        "baseDuration": 2400,
+        "xpPerAction": 0
+    },
+    "fletching": {
+        "id": "fletching",
+        "name": "Fletching",
+        "skill": "fletching",
+        "requiredLevel": 1,
+        "baseDuration": 1200,
+        "xpPerAction": 0
+    },
+    "blowing_glass": {
+        "id": "blowing_glass",
+        "name": "Blowing Glass",
+        "skill": "crafting",
+        "requiredLevel": 1,
+        "baseDuration": 600
+    },
+    "cutting_gems": {
+        "id": "cutting_gems",
+        "name": "Cutting Gems",
+        "skill": "crafting",
+        "requiredLevel": 20,
+        "baseDuration": 1200
+    },
+    "plank_making": {
+        "id": "plank_making",
+        "name": "Making Planks",
+        "skill": "crafting",
+        "requiredLevel": 10,
+        "baseDuration": 600
+    },
+    "jewellery_making": {
+        "id": "jewellery_making",
+        "name": "Make Jewellery",
+        "skill": "crafting",
+        "requiredLevel": 25,
+        "baseDuration": 1200
+    },
+    "cleaning_herbs": {
+        "id": "cleaning_herbs",
+        "name": "Clean Herbs",
+        "skill": "herblore",
+        "requiredLevel": 1,
+        "baseDuration": 200,
+        "xpPerAction": 0
+    },
+    "making_potions": {
+        "id": "making_potions",
+        "name": "Make Potions",
+        "skill": "herblore",
+        "requiredLevel": 1,
+        "baseDuration": 1200,
+        "xpPerAction": 0
+    },
+    "build_tables": {
         "id": "build_tables",
         "name": "Build Tables",
         "skill": "construction",
@@ -1992,7 +2492,7 @@
         "baseDuration": 600,
         "xpPerAction": 0
     },
-"goblin": {
+    "goblin": {
         "id": "goblin",
         "name": "Fight Goblins",
         "skill": "combat",
@@ -2003,9 +2503,9 @@
         "attack": 5,
         "strength": 3,
         "defence": 4,
-        "ranged": 2,
-        "magic": 2,
-        "prayer": 2,
+        "ranged": 1,
+        "magic": 1,
+        "prayer": 0,
         "slayer": 1,
         "xpPerKill": {
             "prayer": 4
@@ -2033,6 +2533,32 @@
             { "itemId": "grimy_dwarf_weed", "quantity": 1, "chance": 0.0004 },
             { "itemId": "coins", "quantity": "3-15", "chance": 0.5 }
         ]
+    },
+"chicken": {
+        "id": "chicken",
+        "name": "Fight Chickens",
+        "skill": "combat",
+        "monsterName": "Chicken",
+        "requiredLevel": 1,
+        "requiredSlayerLevel": 1,
+        "hitpoints": 3,
+        "attack": 1,
+        "strength": 1,
+        "defence": 1,
+        "ranged": 1,
+        "magic": 1,
+        "prayer": 0,
+        "slayer": 1,
+        "xpPerKill": {
+            "prayer": 4
+        },
+        "dropTable": [
+            { "itemId": "feather", "quantity": 5, "chance": 1 },
+            { "itemId": "raw_meat", "quantity": 1, "chance": 1 },
+            { "itemId": "feather", "quantity": 15, "chance": 0.5 }
+        ]
     }
-    
+
+
+
 }
