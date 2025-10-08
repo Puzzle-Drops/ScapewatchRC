@@ -4493,14 +4493,14 @@ span.control-emoji {
     font-family: 'Courier New', monospace;
 }
 
-.max-hit-value {
+.equipment-max-hit-value {
     font-size: 48px;
     font-weight: bold;
     color: #e74c3c;
     font-family: 'Courier New', monospace;
 }
 
-.max-hit-prayer {
+.equipment-max-hit-prayer {
     font-size: 48px;
     font-weight: bold;
     color: #f39c12;
