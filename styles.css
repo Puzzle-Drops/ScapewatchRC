@@ -4471,7 +4471,16 @@ span.control-emoji {
     margin-bottom: 0px;
 }
 
-.gear-score-label {
+.gear-score-line,
+.max-hit-line {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.gear-score-label,
+.max-hit-label {
     font-size: 24px;
     color: #999;
     margin-right: 10px;
@@ -4481,6 +4490,13 @@ span.control-emoji {
     font-size: 48px;
     font-weight: bold;
     color: #f39c12;
+    font-family: 'Courier New', monospace;
+}
+
+.max-hit-value {
+    font-size: 48px;
+    font-weight: bold;
+    color: #e74c3c;
     font-family: 'Courier New', monospace;
 }
 
