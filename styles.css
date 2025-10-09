@@ -4427,7 +4427,6 @@ span.control-emoji {
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 10px;
 }
 
 .equipment-tabs {
@@ -4465,7 +4464,6 @@ span.control-emoji {
 
 .equipment-gear-score {
     text-align: center;
-    padding: 15px;
     background: #1a1a1a;
     border-radius: 5px;
     margin-bottom: 0px;
@@ -4481,27 +4479,27 @@ span.control-emoji {
 
 .gear-score-label,
 .max-hit-label {
-    font-size: 24px;
+    font-size: 30px;
     color: #999;
     margin-right: 10px;
 }
 
 .gear-score-value {
-    font-size: 48px;
+    font-size: 36px;
     font-weight: bold;
     color: #f39c12;
     font-family: 'Courier New', monospace;
 }
 
 .equipment-max-hit-value {
-    font-size: 48px;
+    font-size: 36px;
     font-weight: bold;
     color: #e74c3c;
     font-family: 'Courier New', monospace;
 }
 
 .equipment-max-hit-prayer {
-    font-size: 48px;
+    font-size: 36px;
     font-weight: bold;
     color: #f39c12;
     font-family: 'Courier New', monospace;
