@@ -1233,6 +1233,132 @@
     "combatStyle": "ranged",
     "combatBonus": 20
   },
+  "wizard_hat": {
+    "id": "wizard_hat",
+    "name": "Wizard Hat",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "magic",
+    "combatBonus": 1
+  },
+  "wizard_robe_top": {
+    "id": "wizard_robe_top",
+    "name": "Wizard Robe Top",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "magic",
+    "combatBonus": 1
+  },
+  "wizard_robe_bottom": {
+    "id": "wizard_robe_bottom",
+    "name": "Wizard Robe Bottom",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "magic",
+    "combatBonus": 1
+  },
+  "wizard_boots": {
+    "id": "wizard_boots",
+    "name": "Wizard Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "magic",
+    "combatBonus": 1
+  },
+  "wizard_gloves": {
+    "id": "wizard_gloves",
+    "name": "Wizard Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "magic",
+    "combatBonus": 1
+  },
+  "wizard_cape": {
+    "id": "wizard_cape",
+    "name": "Wizard Cape",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "cape",
+    "combatStyle": "magic",
+    "combatBonus": 1
+  },
+  "mystic_hat": {
+    "id": "mystic_hat",
+    "name": "Mystic Hat",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "magic",
+    "combatBonus": 2
+  },
+  "mystic_robe_top": {
+    "id": "mystic_robe_top",
+    "name": "Mystic Robe Top",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "magic",
+    "combatBonus": 2
+  },
+  "mystic_robe_bottom": {
+    "id": "mystic_robe_bottom",
+    "name": "Mystic Robe Bottom",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "magic",
+    "combatBonus": 2
+  },
+  "mystic_boots": {
+    "id": "mystic_boots",
+    "name": "Mystic Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "magic",
+    "combatBonus": 2
+  },
+  "mystic_gloves": {
+    "id": "mystic_gloves",
+    "name": "Mystic Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "magic",
+    "combatBonus": 2
+  },
+  "lunar_amulet": {
+    "id": "lunar_amulet",
+    "name": "Lunar Amulet",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "neck",
+    "combatStyle": "magic",
+    "combatBonus": 2
+  },
+  "lunar_ring": {
+    "id": "lunar_ring",
+    "name": "Lunar Ring",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "uniquering",
+    "combatStyle": "magic",
+    "combatBonus": 2
+  },
+  "magic_tome": {
+    "id": "magic_tome",
+    "name": "Magic Tome",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "magic",
+    "combatBonus": 2
+  },
   "training_staff": {
     "id": "training_staff",
     "name": "Training Staff",
@@ -1241,6 +1367,294 @@
     "equipmentSlot": "weapon",
     "combatStyle": "magic",
     "combatBonus": 2
+  },
+  "enchanted_hat": {
+    "id": "enchanted_hat",
+    "name": "Enchanted Hat",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "magic",
+    "combatBonus": 3
+  },
+  "enchanted_robe_top": {
+    "id": "enchanted_robe_top",
+    "name": "Enchanted Robe Top",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "magic",
+    "combatBonus": 3
+  },
+  "enchanted_robe_bottom": {
+    "id": "enchanted_robe_bottom",
+    "name": "Enchanted Robe Bottom",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "magic",
+    "combatBonus": 3
+  },
+  "infinity_hat": {
+    "id": "infinity_hat",
+    "name": "Infinity Hat",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "magic",
+    "combatBonus": 4
+  },
+  "infinity_robe_top": {
+    "id": "infinity_robe_top",
+    "name": "Infinity Robe Top",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "magic",
+    "combatBonus": 4
+  },
+  "infinity_robe_bottom": {
+    "id": "infinity_robe_bottom",
+    "name": "Infinity Robe Bottom",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "magic",
+    "combatBonus": 4
+  },
+  "infinity_gloves": {
+    "id": "infinity_gloves",
+    "name": "Infinity Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "magic",
+    "combatBonus": 4
+  },
+  "magic_amulet": {
+    "id": "magic_amulet",
+    "name": "Magic Amulet",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "neck",
+    "combatStyle": "magic",
+    "combatBonus": 4
+  },
+  "shadow_ring": {
+    "id": "shadow_ring",
+    "name": "Shadow Ring",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "uniquering",
+    "combatStyle": "magic",
+    "combatBonus": 4
+  },
+  "eternal_cape": {
+    "id": "eternal_cape",
+    "name": "Eternal Cape",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "cape",
+    "combatStyle": "magic",
+    "combatBonus": 4
+  },
+  "magic_ward": {
+    "id": "magic_ward",
+    "name": "Magic Ward",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "magic",
+    "combatBonus": 4
+  },
+  "virtus_hat": {
+    "id": "virtus_hat",
+    "name": "Virtus Hat",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "magic",
+    "combatBonus": 5
+  },
+  "virtus_robe_top": {
+    "id": "virtus_robe_top",
+    "name": "Virtus Robe Top",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "magic",
+    "combatBonus": 5
+  },
+  "virtus_robe_bottom": {
+    "id": "virtus_robe_bottom",
+    "name": "Virtus Robe Bottom",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "magic",
+    "combatBonus": 5
+  },
+  "infinity_boots": {
+    "id": "infinity_boots",
+    "name": "Infinity Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "magic",
+    "combatBonus": 5
+  },
+  "eternal_gauntlets": {
+    "id": "eternal_gauntlets",
+    "name": "Eternal Gauntlets",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "magic",
+    "combatBonus": 6
+  },
+  "seer_ring": {
+    "id": "seer_ring",
+    "name": "Seer Ring",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "combatring",
+    "combatStyle": "magic",
+    "combatBonus": 6
+  },
+  "book_of_the_dead": {
+    "id": "book_of_the_dead",
+    "name": "Book of the dead",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "accessory",
+    "combatStyle": "magic",
+    "combatBonus": 6
+  },
+  "wizard_staff": {
+    "id": "wizard_staff",
+    "name": "Wizard Staff",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "magic",
+    "combatBonus": 6
+  },
+  "eternal_boots": {
+    "id": "eternal_boots",
+    "name": "Eternal Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "magic",
+    "combatBonus": 8
+  },
+  "occult_amulet": {
+    "id": "occult_amulet",
+    "name": "Occult Amulet",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "neck",
+    "combatStyle": "magic",
+    "combatBonus": 8
+  },
+  "magus_ring": {
+    "id": "magus_ring",
+    "name": "Magus Ring",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "combatring",
+    "combatStyle": "magic",
+    "combatBonus": 8
+  },
+  "ancestral_hat": {
+    "id": "ancestral_hat",
+    "name": "Ancestral Hat",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "magic",
+    "combatBonus": 10
+  },
+  "ancestral_robe_top": {
+    "id": "ancestral_robe_top",
+    "name": "Ancestral Robe Top",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "magic",
+    "combatBonus": 10
+  },
+  "ancestral_robe_bottom": {
+    "id": "ancestral_robe_bottom",
+    "name": "Ancestral Robe Bottom",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "magic",
+    "combatBonus": 10
+  },
+  "ancestral_talisman": {
+    "id": "ancestral_talisman",
+    "name": "Ancestral Talisman",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "accessory",
+    "combatStyle": "magic",
+    "combatBonus": 10
+  },
+  "mystic_staff": {
+    "id": "mystic_staff",
+    "name": "Mystic Staff",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "magic",
+    "combatBonus": 10
+  },
+  "spirit_ward": {
+    "id": "spirit_ward",
+    "name": "Spirit Ward",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "magic",
+    "combatBonus": 12
+  },
+  "enchanted_staff": {
+    "id": "enchanted_staff",
+    "name": "Enchanted Staff",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "magic",
+    "combatBonus": 16
+  },
+  "infinity_staff": {
+    "id": "infinity_staff",
+    "name": "Infinity Staff",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "magic",
+    "combatBonus": 20
+  },
+  "virtus_staff": {
+    "id": "virtus_staff",
+    "name": "Virtus Staff",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "magic",
+    "combatBonus": 30
+  },
+  "ancestral_staff": {
+    "id": "ancestral_staff",
+    "name": "Ancestral Staff",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "magic",
+    "combatBonus": 40
   },
   "air_rune": {
     "id": "air_rune",
