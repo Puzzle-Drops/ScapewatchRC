@@ -1805,5 +1805,147 @@
     "equipmentSlot": "blessing",
     "combatStyle": "magic",
     "combatBonus": 24
+  },
+
+
+
+
+    "bronze_med_helm_detail": {
+    "id": "bronze_med_helm_detail",
+    "name": "Bronze Med Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "bronze_full_helm_detail": {
+    "id": "bronze_full_helm_detail",
+    "name": "Bronze Full Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "bronze_kiteshield_detail": {
+    "id": "bronze_kiteshield_detail",
+    "name": "Bronze Kiteshield",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "bronze_gloves_detail": {
+    "id": "bronze_gloves_detail",
+    "name": "Bronze Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+  
+    "bronze_platebody_detail": {
+    "id": "bronze_platebody_detail",
+    "name": "Bronze Platebody",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "bronze_platelegs_detail": {
+    "id": "bronze_platelegs_detail",
+    "name": "Bronze Platelegs",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+
+    "bronze_boots_detail": {
+    "id": "bronze_boots_detail",
+    "name": "Bronze Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+
+  
+
+
+
+    "iron_med_helm_detail": {
+    "id": "iron_med_helm_detail",
+    "name": "Iron Med Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "iron_full_helm_detail": {
+    "id": "iron_full_helm_detail",
+    "name": "Iron Full Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "iron_sq_shield_detail": {
+    "id": "iron_sq_shield_detail",
+    "name": "Iron Square Shield",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+    "iron_gloves_detail": {
+    "id": "iron_gloves_detail",
+    "name": "Iron Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+  
+    "iron_platebody_detail": {
+    "id": "iron_platebody_detail",
+    "name": "Iron Platebody",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "iron_platelegs_detail": {
+    "id": "iron_platelegs_detail",
+    "name": "Iron Platelegs",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+
+    "iron_boots_detail": {
+    "id": "iron_boots_detail",
+    "name": "Iron Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "melee",
+    "combatBonus": 4
   }
+  
+  
+
 }
