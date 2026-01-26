@@ -2535,7 +2535,7 @@
         ]
     },
 
-    "SeaGull": {
+    "seagull": {
         "id": "seagull",
         "name": "Fight Seagull",
         "skill": "combat",
