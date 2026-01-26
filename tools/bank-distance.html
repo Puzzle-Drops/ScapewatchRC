@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scapewatch Waypoint Generator v4.3</title>
+    <title>Scapewatch Waypoint Generator v4.4</title>
     <style>
         * {
             margin: 0;
@@ -35,6 +35,7 @@
             margin-bottom: 20px;
             justify-content: center;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         button {
@@ -55,6 +56,104 @@
         button:disabled {
             background-color: #555;
             cursor: not-allowed;
+        }
+
+        .import-section {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #3498db;
+        }
+
+        .import-section h2 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .import-textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #1a1a1a;
+            color: #fff;
+            border: 2px solid #444;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        .import-textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .import-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .import-controls button {
+            background-color: #3498db;
+        }
+
+        .import-controls button:hover {
+            background-color: #2980b9;
+        }
+
+        .import-status {
+            color: #aaa;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .import-result {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #1a1a1a;
+            border: 2px solid #2ecc71;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .import-result h3 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .import-result-textarea {
+            width: 100%;
+            height: 200px;
+            background-color: #000;
+            color: #2ecc71;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            resize: vertical;
+        }
+
+        .import-result-controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .import-result-controls button {
+            background-color: #2ecc71;
+            font-size: 12px;
+            padding: 8px 15px;
+        }
+
+        .import-result-controls button:hover {
+            background-color: #27ae60;
         }
 
         .node-selector {
@@ -322,7 +421,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🛤️ Scapewatch Waypoint Generator v4.3 🛤️</h1>
+        <h1>🛤️ Scapewatch Waypoint Generator v4.4 🛤️</h1>
         
         <div class="controls">
             <button id="loadBtn">Load Nodes</button>
@@ -333,6 +432,33 @@
                 <input type="checkbox" id="includeBankPaths" checked>
                 Include Bank→Bank Paths
             </label>
+        </div>
+
+        <!-- NEW: Import Section -->
+        <div class="import-section" id="importSection">
+            <h2>📥 Import Custom Node(s) - Quick Path Calculator</h2>
+            <textarea id="importTextarea" class="import-textarea" placeholder='Paste node JSON here. Supports single or multiple nodes. Example:
+
+"my_new_node": {
+    "id": "my_new_node",
+    "name": "My New Location",
+    "type": "skill",
+    "position": {"x": 4006, "y": 1873},
+    "activities": ["fishing"]
+}'></textarea>
+            <div class="import-controls">
+                <button id="importCalculateBtn" disabled>Calculate Paths for Import</button>
+                <button id="importClearBtn">Clear</button>
+                <span class="import-status" id="importStatus">Load nodes first to enable import</span>
+            </div>
+            <div class="import-result" id="importResult">
+                <h3>✅ Calculated Result</h3>
+                <textarea id="importResultTextarea" class="import-result-textarea" readonly></textarea>
+                <div class="import-result-controls">
+                    <button id="copyImportResultBtn">Copy to Clipboard</button>
+                    <button id="downloadImportResultBtn">Download JSON</button>
+                </div>
+            </div>
         </div>
 
         <div class="node-selector" id="nodeSelector">
@@ -757,6 +883,7 @@
         let selectedNodes = new Set();
         let startTime = null;
         let nodeAdjustments = {};
+        let allBanksCache = []; // Cache all banks for import feature
         let globalStats = {
             pathsGenerated: 0,
             nodesProcessed: 0,
@@ -1102,6 +1229,253 @@
             }
         }
 
+        // ==================== IMPORT FEATURE ====================
+        function parseImportJSON(input) {
+            let trimmed = input.trim();
+            
+            // Remove trailing comma if present
+            trimmed = trimmed.replace(/,\s*$/, '');
+            
+            // Check if it's already wrapped in braces
+            if (!trimmed.startsWith('{')) {
+                trimmed = '{' + trimmed + '}';
+            }
+            
+            // Try to parse
+            try {
+                const parsed = JSON.parse(trimmed);
+                return { success: true, data: parsed };
+            } catch (e) {
+                return { success: false, error: e.message };
+            }
+        }
+
+        async function calculatePathsForImportedNodes(importedNodes) {
+            const results = {};
+            const nodeEntries = Object.entries(importedNodes);
+            
+            logConsole('', 'normal');
+            logConsole('=== IMPORT: CALCULATING PATHS FOR CUSTOM NODES ===', 'highlight');
+            logConsole(`Processing ${nodeEntries.length} imported node(s)...`, 'info');
+            
+            for (const [nodeId, node] of nodeEntries) {
+                logConsole(``, 'normal');
+                logConsole(`Processing imported node: ${nodeId}`, 'info');
+                
+                // Copy the node data
+                const resultNode = { ...node };
+                
+                // Check if it's a bank
+                if (node.type === 'bank') {
+                    resultNode.nearestBank = nodeId;
+                    resultNode.nearestBankDistance = 0;
+                    // Banks don't need pathToBank
+                    delete resultNode.pathToBank;
+                    logConsole(`  → Node is a bank, skipping path calculation`, 'dim');
+                    results[nodeId] = resultNode;
+                    continue;
+                }
+                
+                // Find walkable position for this node
+                const x = Math.floor(node.position.x);
+                const y = Math.floor(node.position.y);
+                const walkablePos = findNearestWalkablePosition(collision, x, y, 5);
+                
+                if (walkablePos.failed) {
+                    logConsole(`  ✗ Node position (${x}, ${y}) is INACCESSIBLE!`, 'error');
+                    resultNode.nearestBank = null;
+                    resultNode.nearestBankDistance = null;
+                    resultNode.pathToBank = null;
+                    results[nodeId] = resultNode;
+                    continue;
+                }
+                
+                if (walkablePos.adjusted) {
+                    logConsole(`  → Adjusted position from (${x}, ${y}) to (${walkablePos.x}, ${walkablePos.y})`, 'warning');
+                }
+                
+                // Find nearest bank
+                let nearestBank = null;
+                let shortestDistance = Infinity;
+                let bestPath = null;
+                
+                // Sort banks by Euclidean distance first
+                const banksWithDistance = allBanksCache.map(({ id: bankId, node: bankNode, pos: bankPos }) => {
+                    const dx = bankPos.x - walkablePos.x;
+                    const dy = bankPos.y - walkablePos.y;
+                    const euclideanDistance = Math.sqrt(dx * dx + dy * dy);
+                    return { id: bankId, node: bankNode, pos: bankPos, euclideanDistance };
+                });
+                
+                banksWithDistance.sort((a, b) => a.euclideanDistance - b.euclideanDistance);
+                
+                logConsole(`  → Testing against ${banksWithDistance.length} banks...`, 'dim');
+                
+                for (const { id: bankId, pos: bankPos, euclideanDistance } of banksWithDistance) {
+                    // Early termination optimization
+                    if (shortestDistance < euclideanDistance) {
+                        logConsole(`  → OPTIMIZATION: Skipping remaining banks (current best: ${Math.round(shortestDistance)}px < next Euclidean: ${Math.round(euclideanDistance)}px)`, 'warning');
+                        break;
+                    }
+                    
+                    const path = pathfinding.findPath(
+                        walkablePos.x, walkablePos.y,
+                        bankPos.x, bankPos.y
+                    );
+                    
+                    if (path) {
+                        const distance = pathfinding.getPathDistance(path);
+                        if (distance < shortestDistance) {
+                            shortestDistance = distance;
+                            nearestBank = bankId;
+                            bestPath = path;
+                            logConsole(`    ✓ ${bankId}: ${Math.round(distance)}px (NEW BEST)`, 'success');
+                        }
+                    }
+                }
+                
+                if (nearestBank && bestPath) {
+                    resultNode.nearestBank = nearestBank;
+                    resultNode.nearestBankDistance = Math.round(shortestDistance);
+                    resultNode.pathToBank = bestPath;
+                    logConsole(`  ✓ RESULT: ${nodeId} → ${nearestBank} (${Math.round(shortestDistance)}px, ${bestPath.length} waypoints)`, 'success');
+                } else {
+                    resultNode.nearestBank = null;
+                    resultNode.nearestBankDistance = null;
+                    resultNode.pathToBank = null;
+                    logConsole(`  ✗ RESULT: No reachable bank found!`, 'error');
+                }
+                
+                results[nodeId] = resultNode;
+                await asyncDelay(1);
+            }
+            
+            logConsole('', 'normal');
+            logConsole('=== IMPORT COMPLETE ===', 'highlight');
+            
+            return results;
+        }
+
+        function formatImportResult(data) {
+            // Format with proper indentation
+            const entries = Object.entries(data);
+            let result = '';
+            
+            entries.forEach(([nodeId, nodeData], index) => {
+                result += `  "${nodeId}": `;
+                result += JSON.stringify(nodeData, null, 4).split('\n').map((line, i) => i === 0 ? line : '  ' + line).join('\n');
+                if (index < entries.length - 1) {
+                    result += ',';
+                }
+                result += '\n';
+            });
+            
+            return result.trim();
+        }
+
+        async function handleImportCalculate() {
+            const importBtn = document.getElementById('importCalculateBtn');
+            const importStatus = document.getElementById('importStatus');
+            const importResult = document.getElementById('importResult');
+            const importResultTextarea = document.getElementById('importResultTextarea');
+            const inputText = document.getElementById('importTextarea').value;
+            
+            if (!inputText.trim()) {
+                importStatus.textContent = 'Please paste some JSON first!';
+                importStatus.style.color = '#e74c3c';
+                return;
+            }
+            
+            importBtn.disabled = true;
+            importStatus.textContent = 'Parsing JSON...';
+            importStatus.style.color = '#3498db';
+            
+            // Parse the input
+            const parseResult = parseImportJSON(inputText);
+            
+            if (!parseResult.success) {
+                importStatus.textContent = `Parse error: ${parseResult.error}`;
+                importStatus.style.color = '#e74c3c';
+                importBtn.disabled = false;
+                return;
+            }
+            
+            const importedNodes = parseResult.data;
+            const nodeCount = Object.keys(importedNodes).length;
+            
+            if (nodeCount === 0) {
+                importStatus.textContent = 'No nodes found in JSON!';
+                importStatus.style.color = '#e74c3c';
+                importBtn.disabled = false;
+                return;
+            }
+            
+            importStatus.textContent = `Calculating paths for ${nodeCount} node(s)...`;
+            
+            await asyncDelay(50);
+            
+            try {
+                const results = await calculatePathsForImportedNodes(importedNodes);
+                
+                // Format and display results
+                const formattedResult = formatImportResult(results);
+                importResultTextarea.value = formattedResult;
+                importResult.style.display = 'block';
+                
+                importStatus.textContent = `✅ Done! ${nodeCount} node(s) processed.`;
+                importStatus.style.color = '#2ecc71';
+                
+            } catch (error) {
+                importStatus.textContent = `Error: ${error.message}`;
+                importStatus.style.color = '#e74c3c';
+                logConsole(`Import error: ${error.message}`, 'error');
+            }
+            
+            importBtn.disabled = false;
+        }
+
+        function handleImportClear() {
+            document.getElementById('importTextarea').value = '';
+            document.getElementById('importResult').style.display = 'none';
+            document.getElementById('importResultTextarea').value = '';
+            document.getElementById('importStatus').textContent = 'Ready for import';
+            document.getElementById('importStatus').style.color = '#aaa';
+        }
+
+        async function copyImportResult() {
+            const text = document.getElementById('importResultTextarea').value;
+            try {
+                await navigator.clipboard.writeText(text);
+                logConsole('Import result copied to clipboard!', 'success');
+                alert('Copied to clipboard!');
+            } catch (error) {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                logConsole('Import result copied to clipboard (fallback)!', 'success');
+            }
+        }
+
+        function downloadImportResult() {
+            const text = document.getElementById('importResultTextarea').value;
+            const blob = new Blob([text], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'imported_nodes_with_paths.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            logConsole('Import result downloaded!', 'success');
+        }
+
+        // ==================== END IMPORT FEATURE ====================
+
         async function generateWaypoints() {
             try {
                 startTime = Date.now();
@@ -1206,6 +1580,13 @@
                         }
                     }
                 });
+
+                // Cache banks for import feature
+                allBanksCache = allBanks.map(({ id, node }) => ({
+                    id,
+                    node,
+                    pos: nodeAdjustments[id]
+                }));
 
                 logConsole(`Phase 1 Complete: Found ${accessibleBanks.length} selected banks, ${allBanks.length} total banks`, 'success');
                 await asyncDelay(100);
@@ -1637,7 +2018,7 @@
             loadBtn.disabled = true;
             
             try {
-                logConsole('Starting Waypoint Generator v4.3...', 'highlight');
+                logConsole('Starting Waypoint Generator v4.4...', 'highlight');
                 
                 collision = new CollisionSystem();
                 await collision.initialize('https://puzzle-drops.github.io/ScapewatchRC/assets/collision-map.png');
@@ -1651,10 +2032,35 @@
                 logConsole('Loading nodes data...', 'info');
                 await loadNodesData();
                 
+                // Cache all banks for import feature
+                allBanksCache = [];
+                Object.entries(nodesData).forEach(([nodeId, node]) => {
+                    if (node.type === 'bank') {
+                        const x = Math.floor(node.position.x);
+                        const y = Math.floor(node.position.y);
+                        const walkablePos = findNearestWalkablePosition(collision, x, y, 3);
+                        
+                        if (!walkablePos.failed) {
+                            allBanksCache.push({
+                                id: nodeId,
+                                node: node,
+                                pos: walkablePos
+                            });
+                        }
+                    }
+                });
+                logConsole(`Cached ${allBanksCache.length} banks for import feature`, 'success');
+                
                 logConsole('Creating node selection interface...', 'info');
                 createNodeSelector();
                 
+                // Enable import feature
+                document.getElementById('importCalculateBtn').disabled = false;
+                document.getElementById('importStatus').textContent = `Ready! ${allBanksCache.length} banks available for path calculation`;
+                document.getElementById('importStatus').style.color = '#2ecc71';
+                
                 logConsole('Ready! Select nodes and click "Generate Waypoints for Selected"', 'success');
+                logConsole('Import feature enabled - paste custom node JSON to calculate paths', 'info');
                 
             } catch (error) {
                 logConsole(`FATAL ERROR: ${error.message}`, 'error');
@@ -1713,14 +2119,20 @@
         document.getElementById('exportBtn').addEventListener('click', exportToClipboard);
         document.getElementById('downloadBtn').addEventListener('click', downloadJSON);
         
+        // Import feature event listeners
+        document.getElementById('importCalculateBtn').addEventListener('click', handleImportCalculate);
+        document.getElementById('importClearBtn').addEventListener('click', handleImportClear);
+        document.getElementById('copyImportResultBtn').addEventListener('click', copyImportResult);
+        document.getElementById('downloadImportResultBtn').addEventListener('click', downloadImportResult);
+        
         // Initial log
-        logConsole('Waypoint Generator v4.3 ready', 'highlight');
+        logConsole('Waypoint Generator v4.4 ready', 'highlight');
         logConsole('This tool will:', 'info');
         logConsole('• Load activities data to categorize nodes by skill', 'info');
         logConsole('• Let you select nodes organized by type and skill', 'info');
         logConsole('• Generate paths from selected nodes to nearest banks', 'info');
         logConsole('• Optionally generate paths between selected banks (toggle checkbox)', 'info');
-        logConsole('• NEW v4.3: Use symmetric path optimization for bank→bank paths', 'warning');
+        logConsole('• NEW v4.4: Import custom nodes and calculate paths instantly!', 'warning');
         logConsole('• Export nodes sorted by: Banks → Multi-skill → Skills (A-Z) → Quests', 'info');
         logConsole('Click "Load Nodes" to begin', 'success');
     </script>
