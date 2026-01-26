@@ -2534,6 +2534,30 @@
             { "itemId": "coins", "quantity": "3-15", "chance": 0.5 }
         ]
     },
+
+    "SeaGull": {
+        "id": "seagull",
+        "name": "Fight Seagull",
+        "skill": "combat",
+        "monsterName": "Seagull",
+        "requiredLevel": 1,
+        "requiredSlayerLevel": 1,
+        "hitpoints": 6,
+        "attack": 1,
+        "strength": 1,
+        "defence": 1,
+        "ranged": 1,
+        "magic": 1,
+        "prayer": 0,
+        "slayer": 1,
+        "xpPerKill": {
+            "prayer": 4
+        },
+        "dropTable": [
+            { "itemId": "coins", "quantity": "1-2", "chance": 0.5 }
+        ]
+    },
+
 "chicken": {
         "id": "chicken",
         "name": "Fight Chickens",
