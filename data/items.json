@@ -1971,6 +1971,42 @@
     "equipmentSlot": "feet",
     "combatStyle": "melee",
     "combatBonus": 4
+  },
+      "iron_scimitar": {
+    "id": "iron_scimitar",
+    "name": "Iron Scimitar",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "iron_dagger": {
+    "id": "iron_dagger",
+    "name": "Iron Dagger",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 2
+  },
+    "iron_longsword": {
+    "id": "iron_longsword",
+    "name": "Iron Longsword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "iron_sword": {
+    "id": "iron_sword",
+    "name": "Iron Sword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 2
   }
   
   
