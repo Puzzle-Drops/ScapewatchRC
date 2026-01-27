@@ -1903,6 +1903,15 @@
     "combatStyle": "melee",
     "combatBonus": 1
   },
+    "bronze_crossbow": {
+    "id": "bronze_crossbow",
+    "name": "Bronze Crossbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 2
+  },
   
 
 
@@ -2007,6 +2016,15 @@
     "equipmentSlot": "weapon",
     "combatStyle": "melee",
     "combatBonus": 2
+  },
+    "iron_crossbow": {
+    "id": "iron_crossbow",
+    "name": "Iron Crossbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 3
   }
   
   
