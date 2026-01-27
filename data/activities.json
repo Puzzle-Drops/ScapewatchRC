@@ -2585,6 +2585,28 @@
             { "itemId": "training_bow", "quantity": 1, "chance": 0.04 },
             { "itemId": "training_staff", "quantity": 1, "chance": 0.04 }
         ]
+    },
+    "cow": {
+        "id": "cow",
+        "name": "Fight Cow",
+        "skill": "combat",
+        "monsterName": "Cow",
+        "requiredLevel": 5,
+        "requiredSlayerLevel": 1,
+        "hitpoints": 10,
+        "attack": 1,
+        "strength": 1,
+        "defence": 1,
+        "ranged": 1,
+        "magic": 1,
+        "prayer": 0,
+        "slayer": 1,
+        "xpPerKill": {
+            "prayer": 4
+        },
+        "dropTable": [
+            { "itemId": "cowhide", "quantity": 1, "chance": 1 },
+            { "itemId": "raw_meat", "quantity": 1, "chance": 1 }
+        ]
     }
-
 }

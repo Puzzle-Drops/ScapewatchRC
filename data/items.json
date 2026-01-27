@@ -90,6 +90,12 @@
     "maxStack": 9999999999,
     "category": "resource"
   },
+    "cowhide": {
+    "id": "cowhide",
+    "name": "Cow hide",
+    "stackable": false,
+    "category": "resource"
+  },
   "fishing_bait": {
     "id": "fishing_bait",
     "name": "Fishing Bait",
