@@ -2608,5 +2608,30 @@
             { "itemId": "cowhide", "quantity": 1, "chance": 1 },
             { "itemId": "raw_meat", "quantity": 1, "chance": 1 }
         ]
+    },
+        "dark_wizard": {
+        "id": "dark_wizard",
+        "name": "Fight Dark Wizard",
+        "skill": "combat",
+        "monsterName": "Dark Wizard",
+        "requiredLevel": 15,
+        "requiredSlayerLevel": 1,
+        "hitpoints": 12,
+        "attack": 2,
+        "strength": 2,
+        "defence": 2,
+        "ranged": 2,
+        "magic": 5,
+        "prayer": 0,
+        "slayer": 1,
+        "xpPerKill": {
+            "prayer": 4
+        },
+        "dropTable": [
+            { "itemId": "air_rune", "quantity": 6, "chance": 0.1 },
+            { "itemId": "water_rune", "quantity": 5, "chance": 0.1 },
+            { "itemId": "mind_rune", "quantity": 5, "chance": 0.1 },
+            { "itemId": "fire_rune", "quantity": 3, "chance": 0.1 }
+        ]
     }
 }
