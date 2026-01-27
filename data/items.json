@@ -2025,6 +2025,69 @@
     "equipmentSlot": "weapon",
     "combatStyle": "ranged",
     "combatBonus": 3
+  },
+    "oak_shortbow": {
+    "id": "oak_shortbow",
+    "name": "Oak Shortbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 3
+  },
+    "willow_shortbow": {
+    "id": "willow_shortbow",
+    "name": "Willow Shortbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 5
+  },
+    "maple_shortbow": {
+    "id": "maple_shortbow",
+    "name": "Maple Shortbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 7
+  },
+    "yew_shortbow": {
+    "id": "yew_shortbow",
+    "name": "Yew Shortbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 10
+  },
+    "Magic_shortbow": {
+    "id": "magic_shortbow",
+    "name": "Magic Shortbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 12
+  },
+    "crystal_bow": {
+    "id": "crystal_bow",
+    "name": "Crystal Bow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 14
+  },
+    "twisted_bow": {
+    "id": "twisted_bow",
+    "name": "Twisted Bow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 18
   }
   
   
