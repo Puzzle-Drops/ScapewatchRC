@@ -1135,15 +1135,7 @@
     "combatStyle": "melee",
     "combatBonus": 2
   },
-  "bronze_scimitar": {
-    "id": "bronze_scimitar",
-    "name": "Bronze Scimitar",
-    "stackable": false,
-    "category": "equipment",
-    "equipmentSlot": "weapon",
-    "combatStyle": "melee",
-    "combatBonus": 3
-  },
+
   "training_bow": {
     "id": "training_bow",
     "name": "Training Bow",
@@ -1875,7 +1867,42 @@
     "combatStyle": "melee",
     "combatBonus": 3
   },
-
+    "bronze_scimitar": {
+    "id": "bronze_scimitar",
+    "name": "Bronze Scimitar",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 2
+  },
+    "bronze_dagger": {
+    "id": "bronze_dagger",
+    "name": "Bronze Dagger",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 1
+  },
+    "bronze_longsword": {
+    "id": "bronze_longsword",
+    "name": "Bronze Longsword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 2
+  },
+    "bronze_sword": {
+    "id": "bronze_sword",
+    "name": "Bronze Sword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 1
+  },
   
 
 
