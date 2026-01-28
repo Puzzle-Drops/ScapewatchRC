@@ -2138,6 +2138,112 @@
 
 
   
+     "adamant_med_helm": {
+    "id": "adamant_med_helm",
+    "name": "Adamant Med Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+    "adamant_full_helm": {
+    "id": "adamant_full_helm",
+    "name": "Adamant Full Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+    "adamant_kiteshield": {
+    "id": "adamant_kiteshield",
+    "name": "Adamant Kiteshield",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "melee",
+    "combatBonus": 10
+  },
+    "adamant_gloves": {
+    "id": "adamant_gloves",
+    "name": "Adamant Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+  
+    "adamant_platebody": {
+    "id": "adamant_platebody",
+    "name": "Adamant Platebody",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "melee",
+    "combatBonus": 7
+  },
+    "adamant_platelegs": {
+    "id": "adamant_platelegs",
+    "name": "Adamant Platelegs",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+
+    "adamant_boots": {
+    "id": "adamant_boots",
+    "name": "Adamant Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+      "adamant_scimitar": {
+    "id": "adamant_scimitar",
+    "name": "Adamant Scimitar",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "adamant_dagger": {
+    "id": "adamant_dagger",
+    "name": "Adamant Dagger",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "adamant_longsword": {
+    "id": "adamant_longsword",
+    "name": "Adamant Longsword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "adamant_sword": {
+    "id": "adamant_sword",
+    "name": "Adamant Sword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+
+
+
+
+
     "oak_shortbow": {
     "id": "oak_shortbow",
     "name": "Oak Shortbow",
