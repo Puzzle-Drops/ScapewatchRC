@@ -2032,6 +2032,112 @@
     "combatStyle": "ranged",
     "combatBonus": 3
   },
+
+
+      "mithril_med_helm": {
+    "id": "mithril_med_helm",
+    "name": "Mithril Med Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "mithril_full_helm": {
+    "id": "mithril_full_helm",
+    "name": "Mithril Full Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "mithril_sq_shield": {
+    "id": "mithril_sq_shield",
+    "name": "Mithril Square Shield",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "melee",
+    "combatBonus": 8
+  },
+    "mithril_gloves": {
+    "id": "mithril_gloves",
+    "name": "Mithril Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+  
+    "mithril_platebody": {
+    "id": "mithril_platebody",
+    "name": "Mithril Platebody",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "mithril_platelegs": {
+    "id": "mithril_platelegs",
+    "name": "Mithril Platelegs",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+
+    "mithril_boots": {
+    "id": "mithril_boots",
+    "name": "Mithril Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+      "mithril_scimitar": {
+    "id": "mithril_scimitar",
+    "name": "Mithril Scimitar",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "mithril_dagger": {
+    "id": "mithril_dagger",
+    "name": "Mithril Dagger",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "mithril_longsword": {
+    "id": "mithril_longsword",
+    "name": "Mithril Longsword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "mithril_sword": {
+    "id": "mithril_sword",
+    "name": "Mithril Sword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+
+
+  
     "oak_shortbow": {
     "id": "oak_shortbow",
     "name": "Oak Shortbow",
