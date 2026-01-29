@@ -2411,8 +2411,17 @@
     "equipmentSlot": "weapon",
     "combatStyle": "ranged",
     "combatBonus": 18
-  }
+  },
   
+  "vorkath_key": {
+    "id": "vorkath_key",
+    "name": "Vorkath Lair Key",
+    "description": "Use to enter Vorkath Prime's lair. Consumed on success or death.",
+    "stackable": false,
+    "category": "key",
+    "bossId": "vorkath_prime",
+    "use": "CALL_BOSS_MANAGER"
+}
   
 
 }

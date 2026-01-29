@@ -206,6 +206,37 @@
                         <div id="casket-rewards-grid" class="casket-rewards-grid"></div>
                     </div>
                 </div>
+<!-- Boss Modal -->
+<div id="boss-modal" class="modal" style="display:none;">
+  <div class="modal-content boss-modal-content">
+    <button class="modal-close-x" id="boss-close-x">×</button>
+    <div class="boss-layout" style="display:flex; gap:12px;">
+      <div class="boss-left" style="min-width:200px;">
+        <img id="boss-portrait" src="" alt="boss" class="boss-portrait" style="width:200px; height:140px; object-fit:cover; border-radius:6px;">
+        <canvas id="boss-canvas" width="320" height="120" style="display:none;"></canvas>
+      </div>
+      <div class="boss-right" style="flex:1;">
+        <div class="boss-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <h2 id="boss-name" style="margin:0"></h2>
+          <div id="boss-level" style="color:#ccc"></div>
+        </div>
+        <div class="boss-hp-line" style="margin-top:8px;">
+          <div class="boss-hp-bar-outer" style="background:#222; border-radius:6px; overflow:hidden;">
+            <div id="boss-hp-bar" class="boss-hp-bar" style="height:18px; background:linear-gradient(90deg,#d32,#f55); width:100%;"></div>
+          </div>
+          <div id="boss-phase-label" class="boss-phase-label" style="margin-top:6px; color:#ddd;"></div>
+        </div>
+        <div id="boss-log" class="boss-log" style="margin-top:8px; max-height:120px; overflow:auto; color:#ddd;"></div>
+
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <button id="boss-attack-btn" class="auth-btn">Attack</button>
+          <button id="boss-leave-btn" class="auth-btn" disabled>Leave</button>
+        </div>
+      </div>
+    </div>
+    <div id="boss-grid-overlay" class="boss-grid-overlay" style="display:none; position:relative; margin-top:8px;"></div>
+  </div>
+</div>
 
 <!-- Hiscores Modal -->
 <div id="hiscores-modal" class="hiscores-modal" style="display: none;">
@@ -283,5 +314,10 @@
 <script type="module" src="js/firebase.js"></script>
 <script type="module" src="js/hiScores.js"></script>
 <script type="module" src="js/main.js"></script>
+<!-- Bosses-->
+<script type="module" src="js/data/bosses.js"></script>
+<script type="module" src="js/gridMinigame.js"></script>
+<script type="module" src="js/bossUI.js"></script>
+<script type="module" src="js/bossManager.js"></script>
 </body>
 </html>
