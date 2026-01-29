@@ -342,6 +342,18 @@ forceclue: {
                 fn: () => this.cmdStopActivity()
             },
             
+            // === BOSS COMMANDS ===
+            startboss: {
+                description: 'Start a boss fight',
+                usage: 'startboss <bossId> (e.g., startboss vorkath_prime)',
+                fn: (args) => this.cmdStartBoss(args)
+            },
+            boss: {
+                description: 'Start a boss fight (shortcut)',
+                usage: 'boss <bossId> (e.g., boss vorkath_prime)',
+                fn: (args) => this.cmdStartBoss(args)
+            },
+
             // === DEBUG TOOLS ===
             nodes: {
                 description: 'List all nodes or search',
@@ -3024,14 +3036,14 @@ cmdCompleteAllClues() {
 
     cmdListStates() {
         const states = [];
-        
+
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key.startsWith('devconsole_state_')) {
                 states.push(key.replace('devconsole_state_', ''));
             }
         }
-        
+
         if (states.length === 0) {
             this.log('No saved states found', 'info');
         } else {
@@ -3039,6 +3051,42 @@ cmdCompleteAllClues() {
             for (const state of states) {
                 this.log(`  - ${state}`, 'info');
             }
+        }
+    }
+
+    // ==================== BOSS COMMANDS ====================
+
+    cmdStartBoss(args) {
+        if (args.length !== 1) {
+            this.log('Usage: startboss <bossId> or boss <bossId>', 'error');
+            this.log('Available bosses: vorkath_prime', 'info');
+            return;
+        }
+
+        const bossId = args[0].toLowerCase();
+
+        // Check if boss manager is available
+        if (!window.bossManager || typeof window.bossManager.startBossFight !== 'function') {
+            this.log('Boss manager not initialized', 'error');
+            return;
+        }
+
+        // Check if player has the required key
+        if (!this.requireSystem('Inventory', 'inventory')) return;
+
+        const hasKey = inventory.getItemCount('vorkath_key') > 0;
+        if (!hasKey) {
+            this.log('You need a Vorkath key to start the boss fight', 'error');
+            this.log('Use "give vorkath_key 1" to get a key first', 'info');
+            return;
+        }
+
+        try {
+            // Start the boss fight
+            window.bossManager.startBossFight(bossId, window.player);
+            this.log(`Starting boss fight with ${bossId}`, 'success');
+        } catch (error) {
+            this.log(`Failed to start boss fight: ${error.message}`, 'error');
         }
     }
 }
