@@ -90,6 +90,12 @@
     "maxStack": 9999999999,
     "category": "resource"
   },
+    "cowhide": {
+    "id": "cowhide",
+    "name": "Cow hide",
+    "stackable": false,
+    "category": "resource"
+  },
   "fishing_bait": {
     "id": "fishing_bait",
     "name": "Fishing Bait",
@@ -1135,15 +1141,7 @@
     "combatStyle": "melee",
     "combatBonus": 2
   },
-  "bronze_scimitar": {
-    "id": "bronze_scimitar",
-    "name": "Bronze Scimitar",
-    "stackable": false,
-    "category": "equipment",
-    "equipmentSlot": "weapon",
-    "combatStyle": "melee",
-    "combatBonus": 3
-  },
+
   "training_bow": {
     "id": "training_bow",
     "name": "Training Bow",
@@ -1805,5 +1803,625 @@
     "equipmentSlot": "blessing",
     "combatStyle": "magic",
     "combatBonus": 24
-  }
+  },
+
+
+
+
+    "bronze_med_helm": {
+    "id": "bronze_med_helm",
+    "name": "Bronze Med Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "bronze_full_helm": {
+    "id": "bronze_full_helm",
+    "name": "Bronze Full Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "bronze_kiteshield": {
+    "id": "bronze_kiteshield",
+    "name": "Bronze Kiteshield",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "bronze_gloves": {
+    "id": "bronze_gloves",
+    "name": "Bronze Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+  
+    "bronze_platebody": {
+    "id": "bronze_platebody",
+    "name": "Bronze Platebody",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "bronze_platelegs": {
+    "id": "bronze_platelegs",
+    "name": "Bronze Platelegs",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+
+    "bronze_boots": {
+    "id": "bronze_boots",
+    "name": "Bronze Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "bronze_scimitar": {
+    "id": "bronze_scimitar",
+    "name": "Bronze Scimitar",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 2
+  },
+    "bronze_dagger": {
+    "id": "bronze_dagger",
+    "name": "Bronze Dagger",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 1
+  },
+    "bronze_longsword": {
+    "id": "bronze_longsword",
+    "name": "Bronze Longsword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 2
+  },
+    "bronze_sword": {
+    "id": "bronze_sword",
+    "name": "Bronze Sword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 1
+  },
+    "bronze_crossbow": {
+    "id": "bronze_crossbow",
+    "name": "Bronze Crossbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 2
+  },
+  
+
+
+
+    "iron_med_helm": {
+    "id": "iron_med_helm",
+    "name": "Iron Med Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "iron_full_helm": {
+    "id": "iron_full_helm",
+    "name": "Iron Full Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "iron_sq_shield": {
+    "id": "iron_sq_shield",
+    "name": "Iron Square Shield",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+    "iron_gloves": {
+    "id": "iron_gloves",
+    "name": "Iron Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+  
+    "iron_platebody": {
+    "id": "iron_platebody",
+    "name": "Iron Platebody",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "iron_platelegs": {
+    "id": "iron_platelegs",
+    "name": "Iron Platelegs",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+
+    "iron_boots": {
+    "id": "iron_boots",
+    "name": "Iron Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+      "iron_scimitar": {
+    "id": "iron_scimitar",
+    "name": "Iron Scimitar",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "iron_dagger": {
+    "id": "iron_dagger",
+    "name": "Iron Dagger",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 2
+  },
+    "iron_longsword": {
+    "id": "iron_longsword",
+    "name": "Iron Longsword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "iron_sword": {
+    "id": "iron_sword",
+    "name": "Iron Sword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 2
+  },
+    "iron_crossbow": {
+    "id": "iron_crossbow",
+    "name": "Iron Crossbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 3
+  },
+
+
+      "mithril_med_helm": {
+    "id": "mithril_med_helm",
+    "name": "Mithril Med Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "mithril_full_helm": {
+    "id": "mithril_full_helm",
+    "name": "Mithril Full Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "mithril_sq_shield": {
+    "id": "mithril_sq_shield",
+    "name": "Mithril Square Shield",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "melee",
+    "combatBonus": 8
+  },
+    "mithril_gloves": {
+    "id": "mithril_gloves",
+    "name": "Mithril Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+  
+    "mithril_platebody": {
+    "id": "mithril_platebody",
+    "name": "Mithril Platebody",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "mithril_platelegs": {
+    "id": "mithril_platelegs",
+    "name": "Mithril Platelegs",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+
+    "mithril_boots": {
+    "id": "mithril_boots",
+    "name": "Mithril Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+      "mithril_scimitar": {
+    "id": "mithril_scimitar",
+    "name": "Mithril Scimitar",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "mithril_dagger": {
+    "id": "mithril_dagger",
+    "name": "Mithril Dagger",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+    "mithril_longsword": {
+    "id": "mithril_longsword",
+    "name": "Mithril Longsword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "mithril_sword": {
+    "id": "mithril_sword",
+    "name": "Mithril Sword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 3
+  },
+
+
+  
+     "adamant_med_helm": {
+    "id": "adamant_med_helm",
+    "name": "Adamant Med Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+    "adamant_full_helm": {
+    "id": "adamant_full_helm",
+    "name": "Adamant Full Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+    "adamant_kiteshield": {
+    "id": "adamant_kiteshield",
+    "name": "Adamant Kiteshield",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "melee",
+    "combatBonus": 10
+  },
+    "adamant_gloves": {
+    "id": "adamant_gloves",
+    "name": "Adamant Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+  
+    "adamant_platebody": {
+    "id": "adamant_platebody",
+    "name": "Adamant Platebody",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "melee",
+    "combatBonus": 7
+  },
+    "adamant_platelegs": {
+    "id": "adamant_platelegs",
+    "name": "Adamant Platelegs",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+
+    "adamant_boots": {
+    "id": "adamant_boots",
+    "name": "Adamant Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+      "adamant_scimitar": {
+    "id": "adamant_scimitar",
+    "name": "Adamant Scimitar",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "adamant_dagger": {
+    "id": "adamant_dagger",
+    "name": "Adamant Dagger",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+    "adamant_longsword": {
+    "id": "adamant_longsword",
+    "name": "Adamant Longsword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+    "adamant_sword": {
+    "id": "adamant_sword",
+    "name": "Adamant Sword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 4
+  },
+
+
+
+
+     "rune_med_helm": {
+    "id": "rune_med_helm",
+    "name": "Rune Med Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 8
+  },
+    "rune_full_helm": {
+    "id": "rune_full_helm",
+    "name": "Rune Full Helm",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "head",
+    "combatStyle": "melee",
+    "combatBonus": 8
+  },
+    "rune_kiteshield": {
+    "id": "rune_kiteshield",
+    "name": "Rune Kiteshield",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "shield",
+    "combatStyle": "melee",
+    "combatBonus": 12
+  },
+    "rune_gloves": {
+    "id": "rune_gloves",
+    "name": "Rune Gloves",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "hands",
+    "combatStyle": "melee",
+    "combatBonus": 8
+  },
+  
+    "rune_platebody": {
+    "id": "rune_platebody",
+    "name": "Rune Platebody",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "body",
+    "combatStyle": "melee",
+    "combatBonus": 8
+  },
+    "rune_platelegs": {
+    "id": "rune_platelegs",
+    "name": "Rune Platelegs",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "legs",
+    "combatStyle": "melee",
+    "combatBonus": 8
+  },
+
+    "rune_boots": {
+    "id": "rune_boots",
+    "name": "Rune Boots",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "feet",
+    "combatStyle": "melee",
+    "combatBonus": 8
+  },
+      "rune_scimitar": {
+    "id": "rune_scimitar",
+    "name": "Rune Scimitar",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 8
+  },
+    "rune_dagger": {
+    "id": "rune_dagger",
+    "name": "Rune Dagger",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 6
+  },
+    "rune_longsword": {
+    "id": "rune_longsword",
+    "name": "Rune Longsword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 7
+  },
+    "rune_sword": {
+    "id": "rune_sword",
+    "name": "Rune Sword",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "melee",
+    "combatBonus": 5
+  },
+
+
+
+
+
+    "oak_shortbow": {
+    "id": "oak_shortbow",
+    "name": "Oak Shortbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 3
+  },
+    "willow_shortbow": {
+    "id": "willow_shortbow",
+    "name": "Willow Shortbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 5
+  },
+    "maple_shortbow": {
+    "id": "maple_shortbow",
+    "name": "Maple Shortbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 7
+  },
+    "yew_shortbow": {
+    "id": "yew_shortbow",
+    "name": "Yew Shortbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 10
+  },
+    "Magic_shortbow": {
+    "id": "magic_shortbow",
+    "name": "Magic Shortbow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 12
+  },
+    "crystal_bow": {
+    "id": "crystal_bow",
+    "name": "Crystal Bow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 14
+  },
+    "twisted_bow": {
+    "id": "twisted_bow",
+    "name": "Twisted Bow",
+    "stackable": false,
+    "category": "equipment",
+    "equipmentSlot": "weapon",
+    "combatStyle": "ranged",
+    "combatBonus": 18
+  },
+  
+  "vorkath_key": {
+    "id": "vorkath_key",
+    "name": "Vorkath Lair Key",
+    "description": "Use to enter Vorkath Prime's lair. Consumed on success or death.",
+    "stackable": false,
+    "category": "key",
+    "bossId": "vorkath_prime",
+    "use": "CALL_BOSS_MANAGER"
+}
+  
+
 }
