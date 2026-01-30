@@ -8,6 +8,11 @@ let specialTimerId = null;
 
 function safeLog(...args) { console.log('[bossManager]', ...args); }
 
+// Make functions globally available
+window.bossManager = {
+  startBossFight
+};
+
 export async function startBossFight(bossId, playerInstance) {
   if (active) {
     safeLog('A boss is already active');
