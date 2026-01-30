@@ -3056,7 +3056,7 @@ cmdCompleteAllClues() {
 
     // ==================== BOSS COMMANDS ====================
 
-    cmdStartBoss(args) {
+    async cmdStartBoss(args) {
         if (args.length !== 1) {
             this.log('Usage: startboss <bossId> or boss <bossId>', 'error');
             this.log('Available bosses: vorkath_prime', 'info');
@@ -3064,12 +3064,6 @@ cmdCompleteAllClues() {
         }
 
         const bossId = args[0].toLowerCase();
-
-        // Check if boss manager is available
-        if (!window.bossManager || typeof window.bossManager.startBossFight !== 'function') {
-            this.log('Boss manager not initialized', 'error');
-            return;
-        }
 
         // Check if player has the required key
         if (!this.requireSystem('Inventory', 'inventory')) return;
@@ -3082,8 +3076,9 @@ cmdCompleteAllClues() {
         }
 
         try {
-            // Start the boss fight
-            window.bossManager.startBossFight(bossId, window.player);
+            // Dynamically import boss manager
+            const { startBossFight } = await import('./boss/bossManager.js');
+            await startBossFight(bossId, window.player);
             this.log(`Starting boss fight with ${bossId}`, 'success');
         } catch (error) {
             this.log(`Failed to start boss fight: ${error.message}`, 'error');
