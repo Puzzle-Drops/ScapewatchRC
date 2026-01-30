@@ -13,69 +13,59 @@ window.bossManager = {
   startBossFight
 };
 
-export async function startBossFight(bossId, playerInstance) {
-  if (active) {
-    safeLog('A boss is already active');
-    return;
-  }
-  const def = BOSS_DEFS[bossId];
-  if (!def) {
-    safeLog('Unknown boss', bossId);
-    return;
-  }
-
-  // playerInstance fallback to global player
-  const player = playerInstance || window.player;
-  if (!player) {
-    safeLog('No player object available');
-    return;
-  }
-
-  // Pathfind player to lair coordinates if pathfinding exists
+export function startBossFight(bossId, playerInstance) {
   try {
-    if (window.pathfinding && typeof window.pathfinding.findPath === 'function' && player && player.position) {
-      const path = window.pathfinding.findPath(player.position.x, player.position.y, def.lair.x, def.lair.y);
-      if (path && path.length) {
-        player.path = path;
-        player.pathIndex = 0;
-        player.segmentProgress = 0;
-        player.targetPosition = { x: def.lair.x, y: def.lair.y };
-        // wait until player arrives (simple poll)
-        waitForPlayerAt(player, def.lair.x, def.lair.y, 4000);
-      } else {
-        // fallback: teleport player if supported
-        if ('position' in player) {
-          player.position.x = def.lair.x; player.position.y = def.lair.y;
-        }
-      }
+    if (active) {
+      safeLog('A boss is already active');
+      return;
     }
-  } catch (e) {
-    safeLog('Pathing to lair failed', e);
+    const def = BOSS_DEFS[bossId];
+    if (!def) {
+      safeLog('Unknown boss', bossId);
+      return;
+    }
+
+    // playerInstance fallback to global player
+    const player = playerInstance || window.player;
+    if (!player) {
+      safeLog('No player object available');
+      return;
+    }
+
+    // Teleport player to lair coordinates
+    if ('position' in player) {
+      player.position.x = def.lair.x;
+      player.position.y = def.lair.y;
+    }
+
+    // Initialize boss state
+    active = {
+      def,
+      hp: def.maxHp,
+      maxHp: def.maxHp,
+      phase: 0,
+      startedAt: Date.now(),
+      lastLog: '',
+      player
+    };
+
+    // Show UI
+    bossUI.showBossModal(def);
+    bossUI.updateBossHud(active);
+    bossUI.setAttackHandler(() => playerAttack());
+
+    // Start basic attack loop
+    startAttackLoop();
+
+    // start special timer
+    startSpecialTimer();
+
+    writeLog(`Engaged ${def.name}!`);
+
+    safeLog('Boss fight started successfully');
+  } catch (error) {
+    safeLog('Error starting boss fight:', error);
   }
-
-  // Initialize boss state
-  active = {
-    def,
-    hp: def.maxHp,
-    maxHp: def.maxHp,
-    phase: 0,
-    startedAt: Date.now(),
-    lastLog: '',
-    player
-  };
-
-  // Show UI
-  bossUI.showBossModal(def);
-  bossUI.updateBossHud(active);
-  bossUI.setAttackHandler(() => playerAttack());
-
-  // Start basic attack loop
-  startAttackLoop();
-
-  // start special timer
-  startSpecialTimer();
-
-  writeLog(`Engaged ${def.name}!`);
 }
 
 function startAttackLoop() {
@@ -96,39 +86,30 @@ function startSpecialTimer() {
   stopSpecialTimer();
   if (!active) return;
   const cooldown = active.def.mechanics.specialCooldown || 9000;
-  specialTimerId = setTimeout(async function specialTick() {
+  specialTimerId = setTimeout(function specialTick() {
     if (!active) return;
     // Telegraph visual + delay
     writeLog(`${active.def.name} prepares a special!`);
     // brief telegraph time
     const tele = active.def.mechanics.telegraphTime || 1100;
-    await sleep(tele);
-    // show grid minigame
-    const phaseCfg = getCurrentPhaseConfig();
-    if (!phaseCfg || !phaseCfg.gridConfig) {
-      // no grid for this phase; apply a default special (big damage)
-      applyDamageToPlayer(Math.floor(active.maxHp * 0.05));
-      writeLog(`${active.def.name} used a surprise attack!`);
-    } else {
-      const res = await bossUI.showGrid(phaseCfg.gridConfig);
-      if (res.success) {
-        // success: stun boss and damage
-        const extra = Math.max(1, Math.floor(active.maxHp * 0.08));
-        damageBoss(extra);
-        active.stunned = true;
-        writeLog('You disrupted the special! Vorkath is stunned.');
-        // stun duration small
-        setTimeout(() => { active.stunned = false; }, 1500);
+    setTimeout(() => {
+      if (!active) return;
+      // show grid minigame
+      const phaseCfg = getCurrentPhaseConfig();
+      if (!phaseCfg || !phaseCfg.gridConfig) {
+        // no grid for this phase; apply a default special (big damage)
+        applyDamageToPlayer(Math.floor(active.maxHp * 0.05));
+        writeLog(`${active.def.name} used a surprise attack!`);
       } else {
-        // failure: clickedGreen or timeout
-        const largeDmg = Math.max(10, Math.floor(active.maxHp * 0.12));
+        // Apply special damage based on boss configuration
+        const specialDamagePercent = active.def.specialDamagePercent || 12;
+        const largeDmg = Math.max(10, Math.floor(active.maxHp * (specialDamagePercent / 100)));
         applyDamageToPlayer(largeDmg);
         writeLog('Special hit! You failed the puzzle.');
-        // optionally spawn arena hazard - not implemented; UI can be extended
       }
-    }
-    // schedule next special if boss still alive
-    if (active) specialTimerId = setTimeout(specialTick, cooldown);
+      // schedule next special if boss still alive
+      if (active) specialTimerId = setTimeout(specialTick, cooldown);
+    }, tele);
   }, active.def.mechanics.specialCooldown || 9000);
 }
 
@@ -209,11 +190,12 @@ function playerDied() {
 function checkBossDeath() {
   if (!active) return;
   if (active.hp <= 0) {
-    // reward coins
+    // reward coins based on boss configuration
+    const victoryCoins = active.def.victoryCoins || 100;
     try {
-      if (window.inventory) inventory.addItem('coins', 100);
+      if (window.inventory) inventory.addItem('coins', victoryCoins);
     } catch (e) {}
-    writeLog(`${active.def.name} defeated! You received 100 coins.`);
+    writeLog(`${active.def.name} defeated! You received ${victoryCoins} coins.`);
     // consume key on success
     try { if (window.inventory) inventory.removeItem('vorkath_key', 1); } catch(e){}
     endFight(true);
@@ -271,19 +253,30 @@ function waitForPlayerAt(player, x, y, timeout = 4000) {
   return new Promise((resolve) => {
     const start = Date.now();
     const int = setInterval(() => {
-      const px = player.position?.x ?? (player.x ?? null);
-      const py = player.position?.y ?? (player.y ?? null);
-      if (px === null || py === null) {
-        // no position info—stop waiting
-        clearInterval(int); resolve();
-      } else {
-        if (Math.hypot(px - x, py - y) < 2) {
-          clearInterval(int); resolve();
-        } else if (Date.now() - start > timeout) {
-          clearInterval(int); resolve();
+      try {
+        const px = player.position?.x ?? (player.x ?? null);
+        const py = player.position?.y ?? (player.y ?? null);
+        if (px === null || py === null) {
+          // no position info—stop waiting
+          clearInterval(int);
+          resolve();
+          return;
         }
+        if (Math.hypot(px - x, py - y) < 2) {
+          clearInterval(int);
+          resolve();
+          return;
+        }
+        if (Date.now() - start > timeout) {
+          clearInterval(int);
+          resolve();
+          return;
+        }
+      } catch (e) {
+        // If there's any error accessing player properties, resolve immediately
+        clearInterval(int);
+        resolve();
       }
     }, 150);
   });
-
 }
