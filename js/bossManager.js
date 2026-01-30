@@ -1,4 +1,4 @@
-import { BOSS_DEFS } from './data/bosses.js';
+import { BOSS_DEFS } from './bosses.js';
 import * as bossUI from './bossUI.js';
 
 // Boss manager - data-driven and reusable
