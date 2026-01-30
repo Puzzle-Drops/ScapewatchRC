@@ -5,7 +5,7 @@ export const BOSS_DEFS = {
     portrait: 'assets/bosses/vorkath.png', // replace with your Vorkath picture path
     maxHp: 3000,
     level: 200,
-    lair: { x: 1200, y: 850 },      // world coords (used for pathing)
+    lair: { x: 2495, y: 188 },      // world coords (used for pathing)
     arenaRadius: 180,
     mechanics: {
       telegraphTime: 1100,                  // ms before grid appears
