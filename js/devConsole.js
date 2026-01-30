@@ -3077,7 +3077,7 @@ cmdCompleteAllClues() {
 
         try {
             // Dynamically import boss manager
-            const { startBossFight } = await import('./boss/bossManager.js');
+            const { startBossFight } = await import('./bossManager.js');
             await startBossFight(bossId, window.player);
             this.log(`Starting boss fight with ${bossId}`, 'success');
         } catch (error) {
