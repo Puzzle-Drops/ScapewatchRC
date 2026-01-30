@@ -40,8 +40,6 @@ export async function startBossFight(bossId, playerInstance) {
         player.pathIndex = 0;
         player.segmentProgress = 0;
         player.targetPosition = { x: def.lair.x, y: def.lair.y };
-        // wait until player arrives (simple poll)
-        waitForPlayerAt(player, def.lair.x, def.lair.y, 4000);
       } else {
         // fallback: teleport player if supported
         if ('position' in player) {
