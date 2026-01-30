@@ -41,7 +41,7 @@ export async function startBossFight(bossId, playerInstance) {
         player.segmentProgress = 0;
         player.targetPosition = { x: def.lair.x, y: def.lair.y };
         // wait until player arrives (simple poll)
-        await waitForPlayerAt(player, def.lair.x, def.lair.y, 4000);
+        waitForPlayerAt(player, def.lair.x, def.lair.y, 4000);
       } else {
         // fallback: teleport player if supported
         if ('position' in player) {
@@ -285,4 +285,5 @@ function waitForPlayerAt(player, x, y, timeout = 4000) {
       }
     }, 150);
   });
+
 }
